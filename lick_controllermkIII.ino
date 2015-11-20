@@ -53,6 +53,9 @@ String version = "\tlick_controller 151117";
     A TTL trigger for recording will be delivered 
     'baseLineTime' (1 s in default setting) before the stimulus.
   
+  
+  
+    //lines preceded by `#` are for debug purposes
  */
 
 
@@ -141,14 +144,113 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
     // until next trial
     
     // TODO add a dual stim contingency
+    
+    // value = [5, 10, 20, 40, 60]
+    // take a random value for stim1
+    // create a table of stim1, stim2 pairs
+    
+    /* //this represents one block.
+    stim_table = [
+                    [5 , 5 ],
+                    [5 , 10],
+                    [5 , 20],
+                    [5 , 40],
+                    [5 , 60],
+                    
+                    [10, 5 ],
+                    [10, 10],
+                    [10, 20],
+                    [10, 40],
+                    [10, 60],
+                    
+                    [20, 5 ],
+                    [20, 10],
+                    [20, 20],
+                    [20, 40],
+                    [20, 60],
+                    
+                    [40, 5 ],
+                    [40, 10],
+                    [40, 20],
+                    [40, 40],
+                    [40, 60],
+                    
+                    [60, 5 ],
+                    [60, 10],
+                    [60, 20],
+                    [60, 40],
+                    [60, 60]
+        ]
+    */
+    
     // stim1 = analagueWrite(pin, value)
+    // stim2 = analogWrite(pin, value)
+    
     
     // local variables and initialisation of the trial
     String outString = "";
     int t; // local time
     int timeout = 0;
     int lickCount = 0;
+    int l_table[] = {20,2};
+    // table of frequencies presently arbritrary numbers
+    int stim_table[20][2] = {
+                            {5 , 5 },
+                            {5 , 10},
+                            {5 , 20},
+                            {5 , 40},
+                            {5 , 60},
 
+                            {10, 5 },
+                            {10, 10},
+                            {10, 20},
+                            {10, 40},
+                            {10, 60},
+
+                            {20, 5 },
+                            {20, 10},
+                            {20, 20},
+                            {20, 40},
+                            {20, 60},
+
+                            {40, 5 },
+                            {40, 10},
+                            {40, 20},
+                            {40, 40},
+                            {40, 60},
+
+                            {60, 5 },
+                            {60, 10},
+                            {60, 20},
+                            {60, 40},
+                            {60, 60}
+        };
+
+/*//   To shuffle an array a of n elements (indices 0..n-1):
+  for i from n − 1 downto 1 do
+       j ← random integer such that 0 ≤ j ≤ i
+       exchange a[j] and a[i]
+
+//If the random number generator can return a random integer p ≤ j < q for specified parameters p, q then the following version could be used:
+
+//To shuffle an array a of n elements (indices 0..n-1):
+  for i from 0 to n − 2 do
+       j ← random integer such that i ≤ j < n
+       exchange a[j] and a[i]
+
+
+void shuffle_table(int *array, int n){
+    
+    for(int i = (n-1); i > 0; i--){
+        int j = random(0,i);
+        swap(array[j], array[i])
+    }
+    
+}
+       
+*/        
+        
+        
     //timing parameters    
     int t_noLickPer;   // ms
     int t_stimSTART;   // ms
@@ -342,7 +444,10 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
         t = t_now();
         lickOn = senseLick();
         
-        if(stimTrial){digitalWrite(stimulus, HIGH);}
+        if(stimTrial){
+            flutter(stimulus, t_on, t_off);
+            }
+        
     } digitalWrite(stimulus, LOW);
     
      Serial.print("\tStim Endt:\t"); Serial.println(t);
@@ -493,5 +598,13 @@ int serialComs(){
         }             
     }
     return mode;
+}
+
+void flutter(int stim_pin, unsigned long on, unsigned long off){
+  digitalWrite(stim_pin, HIGH);
+  delayMicroseconds(on);
+  digitalWrite(stim_pin, LOW);
+  digitalWrite(13, LOW);
+  delayMicroseconds(off);
 }
 

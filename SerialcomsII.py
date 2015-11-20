@@ -40,8 +40,22 @@ parser.add_argument('-i', '--id', help="""animal ID""")
 parser.add_argument('-dp', '--dprime', action='store_true', help="""animal ID""")
 parser.add_argument('-v', '--verbose', action='store_true', help="""prints debug info from arduino""")
 parser.add_argument('-b', '--block', type=int, default = 20, help="Number of iterations to count d_prime")
+p.add_argument('-f', '--frequencies' nargs="+", type=int, help="a list of integer frequencies to be sent to flutter controller")
                                             
 args = parser.parse_args()
+
+
+def random_block(frequency_block = ['0Hz', '5Hz', '10Hz', '25Hz', '50Hz', '100Hz']):
+	
+        return np.random.shuffle(block)
+		
+
+
+
+
+
+
+
 
 
 def get_data(table):
@@ -65,12 +79,6 @@ def calc_dprime(pHit, pFAl):
     
     except: 
         return "nan"
-
-def utime():
-    dt = datetime.datetime.now()
-    epoch = datetime.datetime.utcfromtimestamp(0)
-    delta = dt - epoch
-    return 'T' + str(delta.total_seconds()) + '\n'
 
 def serial_ports():
     """Lists serial ports
@@ -224,6 +232,8 @@ if __name__ == '__main__':
     do_dprime = args.dprime
     verbose = args.verbose
     block = args.block
+    frequencies = args.frequencies
+    if frequencies: block = len(frequencies) * 5 #set the block proportional to the number of frequencies to be tested
     
     os.system("cls")
     
@@ -238,4 +248,10 @@ if __name__ == '__main__':
     
     else:
         main(port, id, do_dprime, verbose, block)
+        
+"""
+
+df.head = [modeString, trial_no, waterCount, trial_delay, istimeout, stimTrial, response, lickCount]
+
+"""
 
