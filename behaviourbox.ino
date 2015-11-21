@@ -67,15 +67,10 @@ String version = "#behaviourbox151119";
 const int recTrig = 2;    // digital pin 2 triggers ITC-18
 const int stimulus = 4;    // digital pin 4 control whisker stimulation
 const int tonePin = 6;
-const int vacValve = 7;     // digital pin 9 controls vacuum
-
-const int waterPort[] = {8,9};    // digital pin 8 control water valve 
-const int lickRep[] = {12,13};      // led connected to digital pin 13
-const int lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
-
-
-char lickport; //?? a value that is L R or 0 to represent lick port to be used
-
+const int waterPort = 8;    // digital pin 8 control water valve 
+const int vacValve = 9;     // digital pin 9 controls vacuum
+const int lickRep = 13;      // led connected to digital pin 13
+const int lickSens = A0; // the piezo is connected to analog pin 0
 
 int lickThres = 450;
 
@@ -147,6 +142,50 @@ void loop () {
 int runTrial (int trial_no, int modeSwitch, int trial_delay) {
     // returns number of milliseconds
     // until next trial
+    
+    // TODO add a dual stim contingency
+    
+    // value = [5, 10, 20, 40, 60]
+    // take a random value for stim1
+    // create a table of stim1, stim2 pairs
+    
+    /* //this represents one block.
+    stim_table = [
+                    [5 , 5 ],
+                    [5 , 10],
+                    [5 , 20],
+                    [5 , 40],
+                    [5 , 60],
+                    
+                    [10, 5 ],
+                    [10, 10],
+                    [10, 20],
+                    [10, 40],
+                    [10, 60],
+                    
+                    [20, 5 ],
+                    [20, 10],
+                    [20, 20],
+                    [20, 40],
+                    [20, 60],
+                    
+                    [40, 5 ],
+                    [40, 10],
+                    [40, 20],
+                    [40, 40],
+                    [40, 60],
+                    
+                    [60, 5 ],
+                    [60, 10],
+                    [60, 20],
+                    [60, 40],
+                    [60, 60]
+        ]
+    */
+    
+    // stim1 = analagueWrite(pin, value)
+    // stim2 = analogWrite(pin, value)
+    
     
     // local variables and initialisation of the trial
     String outString = "";
@@ -438,12 +477,11 @@ int t_now(){
     return millis() - t_init;
 }
 
-bool senseLick(lickSens, lickRep){
+bool senseLick(){
 	// check to see if the lick sensor has moved
     // set lickDetected
 	boolean lickDetected = false;
-	int sensVal[] = {analogRead(lickSens[0]),
-                     analogRead(lickSens[1])};
+	int sensVal = analogRead(lickSens);
 	
 	if (sensVal <= lickThres){
 		digitalWrite(lickRep, HIGH);
@@ -475,55 +513,27 @@ int serialComs(){
              
             char flag = readString[0];
             
-            switch(flag){
-                case 't':
-                {
-                    char* value = strtok(readString, ":");
-                    ++value; //move pointer by one
-                    lickThres = value.toInt();
-                    
-                    Serial.print("#lickThres set:\t");
+            if(flag == '-'){
+                // read the flag and update the appropriate variable
+                flag = readString[1];
+                if (flag == 't'){
+					readString = readString.substring(2);
+					lickThres = readString.toInt();
+					Serial.print("#lickThres set:\t");
                         Serial.print(lickThres);
                         Serial.print(" (");
                         Serial.print((float(lickThres)/1024)*5);
                         Serial.println(" V)");
-                } break;
-                case 'm'
-                {
-                    char* value = strtok(readString, ":");
-                    ++value; //move pointer by one
-                    mode = value.toInt();
-                    return mode;
-                } break;
-                
-                case 'p'
-                {
-                    char* value = strtok(readString, ":");
-                    ++value; //move pointer by one
-                    char lickPort = value;
-                    
-                    if value == 'L'{ //switch to reward left if left lick
-                        ;
-                    }
-                    if value == 'R'{ //switch to reward right if right lick
-                        ;
-                    }
-                     if value == '1'{ 
-                     // switch to reward from the port licked at
-                     // if either port is detected.
-                        ;
-                    }
-                    else { // no reward on this trial
-                        ;
-                    }
-                    
-                }
-                
-                default:
-                    Serial.println("#could not parse input");
-                break;
-                
+				}
+			} else if(flag == 'm'){
+                mode = readString.substring(1).toInt();
+                Serial.print("#mode:\t");
+                Serial.println(readString.substring(1).toInt());
+                return mode;
+            } else {
+                Serial.println("#could not parse input");
             }
+            
             readString = "";
         }             
     }

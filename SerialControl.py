@@ -2,7 +2,6 @@ from __future__ import division
 
 import datetime
 import time
-from time import sleep
 import os
 import sys
 import glob
@@ -37,12 +36,12 @@ parser.add_argument('-m', '--mode', default = config.mode,
 parser.add_argument('-dp', '--dprime', action='store_false', 
     help="calculate the d_prime, true by default")
 parser.add_argument('-v', '--verbose', action='store_true', 
-    help="""prints debug info from arduino""")
+    help="prints debug info from arduino")
 parser.add_argument('-b', '--block', type=int, default = 20, 
     help="Number of iterations to count d_prime")
-parser.add_argument('-f', '--frequencies', nargs="+", 
+parser.add_argument('-f', '--freq', nargs="+", 
     type=int, default = config.frequency_block,
-    help="a list of integer frequencies to be sent to flutter controller")
+    help="a list of integer freq to be sent to flutter controller")
 parser.add_argument("--datadir", 
     help="path to save log file; defaults to `.\\YYMMDD\\`")
                                             
@@ -83,18 +82,21 @@ if __name__ =="__main__":
     do_dprime = args.dprime
     verbose = args.verbose
     block = args.block
-    frequencies = args.frequencies
+    freq = args.freq
 
-    if frequencies: 
-        tmp_frequencies = []
+    if freq: 
+        tmp_freq = []
         
-        for f in combinations(frequencies, 2): 
-            tmp_frequencies.append(f)
+        for f in combinations(freq, 2): 
+            tmp_freq.append(f)
         
-        frequencies = tmp_frequencies
-        del tmp_frequencies
+        freq = tmp_freq
+        del tmp_freq
 
-        block = len(frequencies) * 5 #set the block proportional to the number of frequencies to be tested
+        #set the block proportional to the number of freq to be tested
+        block = len(freq) * 5 
+        
+        freq = np.array(freq)
         
 
     datadir = args.datadir
@@ -131,18 +133,41 @@ if __name__ =="__main__":
             
     ##repeat  per block
 
-        shuffle(frequencies)
+        shuffle(freq)
 
 
-        print colorama.Fore.MAGENTA + "frequencies:\t",
-        for i in xrange(len(frequencies)): print frequencies[i], "Hz\t",
+        print colorama.Fore.MAGENTA + "freq:\t",
+        for i in xrange(len(freq)): print freq[i], "Hz\t",
         print colorama.Style.RESET_ALL
 
-            #frequency input to stimbox  = "f dddd dddd"
+            #frequency input to stimbox  = "%d:%d&%d%d"
         
         t = 0
 
-        stimboxCOMS.write("f %d %d" %frequencies[t])
+        stimboxCOMS.write("%d:%d&%d:%d" %(
+            0, (10e6/freq[t][0]) - 5e3,
+            1, (10e6/freq[t][1]) - 5e3
+            )
+        )
+        
+        
+        #based on frequencies send the reward contingency to
+        # the behaviour box
+        # 0 results in no reward on this trial
+        if freq[t][0] and freq[t][1]:
+            if freq[t][0] > freq[t][1]:
+                "right"
+                behaviourCOMS.write("port:R")
+            else:
+                behaviourCOMS.write("port:L")
+        else if freq[t][0] or freq[t][1]:
+            #use either port
+            behaviourCOMS.write("port:1")
+        
+        else:
+            # no reward
+            behaviourCOMS.write("port:0")
+                
         log.write(get_info(simboxCOMS))
         
         behaviourCOMS.write("m%d" %mode)
@@ -172,6 +197,20 @@ if __name__ =="__main__":
    been presented.
 9. The program calculates d_prime|any_stimuls; d`|rising; d`|falling
 
+
+
+
+modeString = "operant1";
+t_noLickPer = 0;   // ms
+t_stimSTART = 4000;   // ms
+t_stimEND = 4500;     // ms
+t_rewardSTART = 5000; // ms
+t_rewardEND = 7000;   // ms
+t_trialEND = 10000;   // ms
+minITI = 3000;        // ms
+maxITI = 6000;        // ms
+maxTimeOut = 0;    // ms
+minTimeOut = 0;    // ms
 
 
 
@@ -351,8 +390,8 @@ if __name__ == '__main__':
     do_dprime = args.dprime
     verbose = args.verbose
     block = args.block
-    frequencies = args.frequencies
-    if frequencies: block = len(frequencies) * 5 #set the block proportional to the number of frequencies to be tested
+    freq = args.freq
+    if freq: block = len(freq) * 5 #set the block proportional to the number of freq to be tested
     
     os.system("cls")
     
