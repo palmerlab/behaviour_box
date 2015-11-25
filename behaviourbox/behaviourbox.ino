@@ -669,12 +669,14 @@ int TrialStimulus(int stimulusPin,
     return 1
 }
 
-
 int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
                 char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
+                int waterVol = 10, // 10 ms gives ~ 5-8 uL
                 bool verbose = true) {
 
     int t = t_now(t_init);
+    bool RewardTest;
+    bool RewardPort[] = {false, false};
     
     while (t < t_rewardEND) {
         
@@ -685,38 +687,50 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
         
         // response reports if there was a lick in the reward period
         
-        if ((modeSwitch == 0) and stimTrial and (rewardCond != 'N')) {
-            // a freebie for conditioning trials
-            digitalWrite(waterPort[0], HIGH);
-            delay(10);
-            digitalWrite(waterPort[0], LOW);
-            rewardCond = false;
+        switch (rewardCond){
+            
+            case 'L':
+                RewardTest = (lickOn[0]) or (mode == 'c')
+                RewardPort = 0;
+            break;
+                
+            case 'R':
+                RewardTest = (lickOn[1]) or (mode == 'c')
+                RewardPort = 1;
+            break;
+            
+            case 'B':
+                RewardTest = (lickOn[0] or lickOn[1]) or (mode == 'c')
+                if (lickOn[0]){RewardPort = 0;}
+                if (lickOn[1]){RewardPort = 1;}
+            break;
+            
+            case 'N':
+                if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+                return 0;
+            break;
+            
+            default:
+                Serial.print("ERROR: rewardCond not specified");
+                Serial.println(" requires 'L'eft, 'R'ight, 'B'oth, 'N'either");
+            break;
         }
         
-        if (lickOn){
-            if (stimTrial){
-                // the condition is that the animal has licked,
-                // but that no response has been reported yet
-                if (!response){
-                    response=lickOn;    
-                    digitalWrite(waterPort[0], HIGH);
-                    //delay(300); // a shit thing, but it seems essential
-                    
-                } else if (firstLick == true){
-                    // if this is the first lick in the response
-                    // period; loop for 20 ms to deliver some water
-                    
-                    delay(10);
-                    // shut off the waterport, and set firstLick false so only one
-                    // reward per trial
-                    digitalWrite(waterPort[0], LOW);
-                    firstLick = false;    
-                }
-            }
-            delay(10); // space out the lick reports a bit
-        }
-        digitalWrite(waterPort[0], LOW); //safety catch
+        if (RewardTest){
+            digitalWrite(waterPort[RewardPort], HIGH);
+            
+            delay(waterVol);
+            
+            digitalWrite(waterPort[RewardPort], LOW);
+            
+            if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+            return 1
+        } 
+        
+        digitalWrite(waterPort[0], LOW);
+        digitalWrite(waterPort[1], LOW);        //safety catch
     }
-   
+    
+    if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
     return 1;
 }
