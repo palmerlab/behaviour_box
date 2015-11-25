@@ -14,16 +14,16 @@ certain time window.
 Setup connections:
 ------------------
   
----------   -----------------  ------------  
-DIGITAL     output             variable
----------   -----------------  ------------
-pin 2       recording trigger  `recTrig`  
-pin 4       stimulus TTL       `whiskStim`
-pin 6       speaker for cues   `tonePin`
-pin 8       syringe pump TTL   `waterValve`
-pin 9       vacuum tube valve  `vacValve`
-pin 13      lick report        `licking`
----------   -----------------  ------------
+--------- ----------------- ------------  
+DIGITAL   output            variable
+--------- ----------------- ------------
+pin 2     recording trigger `recTrig`  
+pin 4     stimulus TTL      `whiskStim`
+pin 6     speaker for cues  `tonePin`
+pin 8     syringe pump TTL  `waterValve`
+pin 9     vacuum tube valve `vacValve`
+pin 13    lick report       `licking`
+--------- ----------------- ------------
 
 ANALOG IN   input
 ---------   -----------------  ------------
