@@ -68,7 +68,7 @@ A TTL trigger for recording will be delivered
 
 // IO port settings:
 const int recTrig = 2;    // digital pin 2 triggers ITC-18
-const int stimulus = 4;    // digital pin 4 control whisker stimulation
+const int stimulusPin = 4;    // digital pin 4 control whisker stimulation
 const int tonePin = 6;
 const int vacValve = 7;     // digital pin 9 controls vacuum
 const int statusLED = 2;
@@ -200,7 +200,7 @@ void loop () {
             if (input[0,sep] == "maxTimeOut") { maxTimeOut = getValue(input); }
             if (input[0,sep] == "minTimeOut") { minTimeOut = getValue(input); }
             if (input[0,sep] == "stimTrial") { stimTrial = getValue(input); }
-            if (input[0,sep] == "rewardAvailable") { rewardAvailable = getValue(input); }
+            if (input[0,sep] == "rewardCond") { rewardCond = getValue(input); }
         }
     }    
     
@@ -224,7 +224,7 @@ int runTrial (int modeSwitch,
     int maxTimeOut,    // ms
     int minTimeOut,    // ms
     bool stimTrial,
-    bool rewardAvailable,
+    char rewardCond,
 ) {
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -257,89 +257,37 @@ int runTrial (int modeSwitch,
        3. trigger the recording by putting recTrig -> HIGH
     */
     
-    preTrial();
+    preTrial(verbose);
     t = t_now(t_init);
     
-    TrialStart(t_noLickPer);
+    TrialStart(t_noLickPer, verbose);
     t = t_now(t_init);
     
-    flutterStimulus(t_stimONSET_0);
+    ActiveDelay(t_stimONSET_0 - t, false, verbose);
+    
+    TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
     t = t_now(t_init);
     
-    flutterStimulus(t_stimONSET_0);
+    ActiveDelay(t_stimONSET_1 - t, false, verbose);
+    
+    TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
     t = t_now(t_init);
     
+    ActivDelay(t_rewardSTART - t, false, verbose);
+    t = t_now(t_init);
     
-    /* post stimulus delay
-    trial_phase3 */
-    while (t < t_rewardSTART){
-        /* this acts as a grace period, 
-           licks do not count still
-           1. update the time
-           2. check for licks
-        */
-        t = t_now(t_init);
-        lickOn[0] = senseLick(0); 
-        lickOn[1] = senseLick(1);
-        
-        //if (lickOn){Serial.println("gotcha");}
+    if (rewardCond != 'N') {
+        TrialReward(, verbose);
     }
-    
-    Serial.print("#Reward Start:\t"); Serial.println(t);
+    else {
+        ActivDelay(t_trialEND - t, false, verbose);
+    }
     
     // reward period
     //trial_phase0
-    while (t < t_rewardEND) {
-        t = t_now(t_init);
-        
-        lickOn[0] = senseLick(0); 
-        lickOn[1] = senseLick(1);
-        
-        // response reports if there was a lick in the reward
-        // period.
-        
-        if ((modeSwitch == 0) and stimTrial and rewardAvailable) {
-            // a freebie for conditioning trials
-            digitalWrite(waterPort[0], HIGH);
-            delay(10);
-            digitalWrite(waterPort[0], LOW);
-            rewardAvailable = false;
-        }
-        
-        if (lickOn){
-            if (stimTrial){
-                // the condition is that the animal has licked,
-                // but that no response has been reported yet
-                if (!response){
-                    response=lickOn;    
-                    digitalWrite(waterPort[0], HIGH);
-                    //delay(300); // a shit thing, but it seems essential
-                    
-                } else if (firstLick == true){
-                    // if this is the first lick in the response
-                    // period; loop for 20 ms to deliver some water
-                    
-                    delay(10);
-                    // shut off the waterport, and set firstLick false so only one
-                    // reward per trial
-                    digitalWrite(waterPort[0], LOW);
-                    firstLick = false;    
-                }
-            }
-            delay(10); // space out the lick reports a bit
-        }
-        digitalWrite(waterPort[0], LOW); //safety catch
-    }
+    
     
     Serial.print("#trial End:\t"); Serial.println(t - t_trialEND); Serial.print("#Licks? :\t"); Serial.println(response);
-    
-    // fixed cool down period
-    while (t < t_trialEND){
-        t = t_now(t_init);
-        
-        lickOn[0] = senseLick(0); 
-        lickOn[1] = senseLick(1);
-    }
     
     waterCount += (int(response) * waterVol);
     
@@ -361,20 +309,22 @@ int t_now(int t_init){
 }
 
 bool senseLick(bool sensor){
-  // check to see if the lick sensor has moved
+    // check to see if the lick sensor has moved
     // set lickDetected
-  boolean lickDetected = false;
+    boolean lickDetected = false;
     int sensVal = analogRead(lickSens[sensor]);
-  
-  if (sensVal <= lickThres){
-    digitalWrite(lickRep[sensor], HIGH);
-    lickDetected = true;
-  } else {
-    digitalWrite(lickRep[sensor], LOW);
-    lickDetected = false;
-  }
+
+    if (sensVal <= lickThres){
+        digitalWrite(lickRep[sensor], HIGH);
+        lickDetected = true;
+    } 
+    else {
+        digitalWrite(lickRep[sensor], LOW);
+        lickDetected = false;
+    }
+
     digitalWrite(tonePin, !random(0, random(50)));
-  return lickDetected;
+    return lickDetected;
 }
 
 char* getSerialInput(){
@@ -390,7 +340,6 @@ char* getSerialInput(){
     return readString;
 }
 
-
 int getValue(String input){
     
     int val = 0;   // value to return for port
@@ -399,10 +348,6 @@ int getValue(String input){
     int val = input.substring(getSepIndex(input)).toInt();
     return val;
 }
-
-
-
-
 
 int getMode(String input){
     
@@ -445,8 +390,6 @@ int getFreq(String input){
         return index;
     }
 }
-
-
 
 int getSepIndex(String input) {
     char c = 1;
@@ -547,6 +490,33 @@ THE TRIAL STATES
 ----------------
 */
 
+int ActiveDelay(int wait, 
+    bool break_on_lick = false, 
+    bool verbose = true) {
+    
+    unsigned long t_init = millis() // 
+    int t = t_now(t_init);
+    
+    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+    
+    while (t < wait) {
+        t = t_now(t_init);
+        lickOn[0] = senseLick(0);
+        lickOn[1] = senseLick(1);
+        
+        if (break_on lick and (lickOn[0] or lickOn[1])){
+            if (verbose) {
+                Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);
+                Serial.print("#port[0]:\t"); Serial.println(lickOn[0]);
+                Serial.print("#port[1]:\t"); Serial.println(lickOn[1]);
+            }
+            return 0;
+        }
+    }
+    
+    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+    return 1;
+}
 
 //0 PRETRIAL
 
@@ -664,14 +634,13 @@ int TrialStart(bool verbose = true) {
 }
 
 
-int TrialStimulus(int onset, 
+int TrialStimulus(int stimulusPin,
     int stimDUR,
     unsigned long ON = 5000, // us time of ON pulse    ie FREQUENCY of flutter
     unsigned long OFF = 5000, // us time of off pulse  ie FREQUENCY of flutter
     bool verbose = true) {
     
     int t = t_now(t_init);
-    int stimUPtime = onset + stimDUR;
     
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
@@ -681,7 +650,7 @@ int TrialStimulus(int onset,
         Serial.print("#OFF:\t"); Serial.println(OFF);
     }
     
-    while (t < stimUPtime){
+    while (t < stimDUR){
         /* Run the buzzer while:
            1. update the time
            2. check for licks
@@ -690,40 +659,64 @@ int TrialStimulus(int onset,
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
-        if (t > onset) {
-            flutter(stimulus, ON, OFF);
-        }
         
-    } digitalWrite(stimulus, LOW); //this is a safety catch
+        flutter(stimulusPin, ON, OFF);
+       
+        
+    } digitalWrite(stimulusPin, LOW); //this is a safety catch
     
     if (verbose) {Serial.print("#Exit `TrialStimulus`:\t"); Serial.println(t);}
     return 1
 }
 
-int ActiveDelay (int wait, 
-    bool break_on_lick = false, 
-    bool verbose,
-    unsigned long t_init = millis()) {
-    
+
+int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
+                char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
+                bool verbose = true) {
+
     int t = t_now(t_init);
     
-    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
-    
-    while (t < wait) {
+    while (t < t_rewardEND) {
+        
         t = t_now(t_init);
-        lickOn[0] = senseLick(0);
+        
+        lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
-        if (break_on lick and (lickOn[0] or lickOn[1])){
-            if (verbose) {
-                Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);
-                Serial.print("#port[0]:\t"); Serial.println(lickOn[0]);
-                Serial.print("#port[1]:\t"); Serial.println(lickOn[1]);
-            }
-            return 0;
+        // response reports if there was a lick in the reward period
+        
+        if ((modeSwitch == 0) and stimTrial and (rewardCond != 'N')) {
+            // a freebie for conditioning trials
+            digitalWrite(waterPort[0], HIGH);
+            delay(10);
+            digitalWrite(waterPort[0], LOW);
+            rewardCond = false;
         }
+        
+        if (lickOn){
+            if (stimTrial){
+                // the condition is that the animal has licked,
+                // but that no response has been reported yet
+                if (!response){
+                    response=lickOn;    
+                    digitalWrite(waterPort[0], HIGH);
+                    //delay(300); // a shit thing, but it seems essential
+                    
+                } else if (firstLick == true){
+                    // if this is the first lick in the response
+                    // period; loop for 20 ms to deliver some water
+                    
+                    delay(10);
+                    // shut off the waterport, and set firstLick false so only one
+                    // reward per trial
+                    digitalWrite(waterPort[0], LOW);
+                    firstLick = false;    
+                }
+            }
+            delay(10); // space out the lick reports a bit
+        }
+        digitalWrite(waterPort[0], LOW); //safety catch
     }
-    
-    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+   
     return 1;
 }
