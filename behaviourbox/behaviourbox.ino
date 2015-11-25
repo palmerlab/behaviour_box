@@ -98,6 +98,9 @@ int maxITI = 6000;        // ms
 int maxTimeOut = 0;    // ms
 int minTimeOut = 0;    // ms
 
+int t_stimONSET_0;
+int t_stimONSET_1;
+int stimDUR;
 
 
 
@@ -209,10 +212,10 @@ void loop () {
 
 int runTrial (int modeSwitch,
     int t_noLickPer,   // ms
-    int t_stimSTART0,   // ms
-    int t_stimEND0,     // ms
-    int t_stimSTART1,   // ms
-    int t_stimEND1,     // ms
+    int t_stimONSET_0, //time stim 0 turns on
+    int t_stimONSET_1, // time stim 1 turns on
+    int stimDUR, // duration of stimuli
+    int stimGAP, // gap from end stim 0 to start stim 1
     int t_rewardSTART, // ms
     int t_rewardEND,   // ms
     int t_trialEND,   // ms
@@ -555,7 +558,7 @@ THE TRIAL STATES
 
 //0 PRETRIAL
 
-void preTrial() {   
+void preTrial(bool verbose = true) {   
     /* while the trial has not started 
        1. update the time
        2. check for licks
@@ -596,7 +599,7 @@ void preTrial() {
 
 
 // 1 START PHASE
-int TrialStart(bool verbose) {
+int TrialStart(bool verbose = true) {
     /* This function returns a 1 if the trial can continue,
        
        
@@ -665,4 +668,41 @@ int TrialStart(bool verbose) {
     
     if (verbose) {Serial.print("#Exit `TrialStart`:\t"); Serial.println(t);}
     return 1;
+}
+
+
+int TrialStimulus (int onset, 
+    int stimDUR,
+    unsigned long ON = 5000, // us time of ON pulse    ie FREQUENCY of flutter
+    unsigned long OFF = 5000, // us time of off pulse  ie FREQUENCY of flutter
+    bool verbose = true){
+    
+    int t = t_now();
+    int stimUPtime = onset + stimDUR;
+    
+    if (verbose) {
+        // TODO make verbosity a scale instead of Boolean
+        Serial.print("#Enter `TrialStimulus`:\t"); Serial.println(t);
+        Serial.print("#stimDUR:\t"); Serial.println(stimDUR);
+        Serial.print("#ON:\t"); Serial.println(ON);
+        Serial.print("#OFF:\t"); Serial.println(OFF);
+    }
+    
+    while (t < stimUPtime){
+        /* Run the buzzer while:
+           1. update the time
+           2. check for licks
+        */
+        t = t_now();
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
+        
+        if (t > onset) {
+            flutter(stimulus, ON, OFF);
+        }
+        
+    } digitalWrite(stimulus, LOW); //this is a safety catch
+    
+    if (verbose) {Serial.print("#Exit `TrialStimulus`:\t"); Serial.println(t);}
+    return 1
 }
