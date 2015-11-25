@@ -25,16 +25,6 @@ def print_RED(x):
     print colorama.FORE.RED, x, colorama.Style.RESET_ALL
     return "warning:\t%s" %x
     
-
-def buffer_data()
-    """
-    Check if there is data available
-    read n bytes equivilent to char int char
-    first cahr says which port; the in is the time in
-    ms since the trial was triggered; The last char is a
-    terminator
-    """
-    
 def behaviour_log(logfile):
 
 
@@ -54,7 +44,7 @@ def behaviour_log(logfile):
                 behaviourDF = pd.read_table(StringIO(table), 
                     sep = "\t").convert_objects(convert_numeric=True)
 
-    return pass
+    return
     
 def check_input():
     
@@ -62,7 +52,7 @@ def check_input():
         c = m.getch()
         if c == '\xe0': c = m.getch()
         
-        if c = '\x1b':
+        if c == '\x1b':
             sys.exit(0)
         
         else:    

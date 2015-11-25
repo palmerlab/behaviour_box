@@ -1,5 +1,6 @@
 from __future__ import division
 
+import csv
 import datetime
 import time
 import os
@@ -44,87 +45,7 @@ from SerialFUNCTIONS import *
    been presented.
 9. The program calculates d_prime|any_stimuls; d`|rising; d`|falling
 
-
-
-"lickThres"      // 5V / 1024
-"trial_delay"    // ms
-"t_noLickPer"    // ms
-"t_stimONSET[0]" // ms
-"t_stimONSET[1]" // ms
-"stimDUR"        // ms
-"t_rewardSTART"  // ms
-"t_rewardEND"    // ms
-"t_trialEND"     // ms
-"waterVol"       // ms
-                 // ms
-"ON"             // ms
-"OFF[0]"         // ms
-"OFF[1]"         // ms
-
-
-"mode"           // 'c' or 'o'
-"rewardCond"     // 'L', 'R', 'B', 'N'
-"verbose"        // true
-
-
 """
-
-        
-
-"""
-
-df.head = ['modeString', 'waterCount', 'trial_delay', 
-    'istimeout', 'stimTrial', 'response']
-
-behaviourbox should report:
-        L%d:R%d true false
-        L0000:R2000:L50000:R30000
-    
-    
-df.head = ["frequency", on_Period ", off_Period", count", Timer"]
-
-"""
-
-parser = argparse.ArgumentParser(description="Open up Serial Port and log communications")
-parser.add_argument('-bp','--behaviourPORT', default = behaviourPORT
-                    help="Serial Port that behaviour box is connected to, defaults to COM5")
-parser.add_argument('-i', '--id', 
-                    help="animal ID")
-parser.add_argument('-m', '--mode', default = mode, 
-                    help="mode to send to behaviour box.")
-parser.add_argument('-dp', '--dprime', action='store_false', 
-                    help="calculate the d_prime, true by default")
-parser.add_argument('-v', '--verbose', action='store_true', 
-                    help="prints debug info from arduino")
-parser.add_argument('-b', '--block', type=int, default = 20, 
-                    help="Number of iterations to count d_prime")
-parser.add_argument('-f', '--freq', nargs="+", 
-                    type=int, default = frequency_block,
-                    help="a list of integer freq to be sent to flutter controller")
-parser.add_argument("--datadir", 
-                    help="path to save log file; defaults to `.\\YYMMDD\\`")
-
-parser.add_argument("--trial_delay"   , default = boxparams["trial_delay"   ])                    
-parser.add_argument("--t_noLickPer"   , default = boxparams["t_noLickPer"   ])                    
-parser.add_argument("--t_stimONSET[0]", default = boxparams["t_stimONSET[0]"])                    
-parser.add_argument("--t_stimONSET[1]", default = boxparams["t_stimONSET[1]"])                    
-parser.add_argument("--stimDUR"       , default = boxparams["stimDUR"       ])                    
-parser.add_argument("--t_rewardSTART" , default = boxparams["t_rewardSTART" ])                    
-parser.add_argument("--t_rewardEND"   , default = boxparams["t_rewardEND"   ])                    
-parser.add_argument("--t_trialEND"    , default = boxparams["t_trialEND"    ])                    
-parser.add_argument("--lickThres"     , default = boxparams["lickThres"     ])                    
-parser.add_argument("--waterVol"      , default = boxparams["waterVol"      ])                    
-parser.add_argument("--ON"            , default = boxparams["ON"            ])                    
-parser.add_argument("--OFF[0]"        , default = boxparams["OFF[0]"        ])                    
-parser.add_argument("--OFF[1]"        , default = boxparams["OFF[1]"        ])                    
-parser.add_argument("--mode"          , default = boxparams["mode"          ])                    
-parser.add_argument("--rewardCond"    , default = boxparams["rewardCond"    ])                    
-                                                                  
-                                            
-args = parser.parse_args()
-
-
-
 """
 
 MAIN FUNCTION HERE
@@ -140,10 +61,14 @@ if __name__ =="__main__":
     behaviourPORT = args.behaviourPORT
     id = args.id
     do_dprime = args.dprime
+    
     verbose = args.verbose
+    boxparams['verbose'] = verbose
+    
     block = args.block
     freq = args.freq
-
+    
+    
     if freq: 
         tmp_freq = []
         
@@ -212,8 +137,8 @@ if __name__ =="__main__":
                 # behaviour box: parse frequency
                 # frequency is converted from Hz to an off period in ms 
                 # (the box then coverts this to us)
-                boxparams["OFF[0]"] = 10e3/freq[t][0]) - 5
-                boxparams["OFF[1]"] = 10e3/freq[t][1]) - 5
+                boxparams["OFF[0]"] = 10e3/freq[t][0] - 5
+                boxparams["OFF[1]"] = 10e3/freq[t][1] - 5
                 
                 #based on frequencies send the reward contingency to
                 # the behaviour box
@@ -223,7 +148,7 @@ if __name__ =="__main__":
                         boxparams['rewardCond'] = 'R'
                     else:
                         boxparams['rewardCond'] = 'L'
-                else if freq[t][0] or freq[t][1]:
+                elif freq[t][0] or freq[t][1]:
                     #use either port
                     boxparams['rewardCond'] = 'B'
                 else:
