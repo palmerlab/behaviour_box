@@ -244,7 +244,7 @@ int ActiveDelay(int wait,
     
     bool response = false;
     
-    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+    if (verbose) {Serial.print("#Enter `ActiveDelay`:\t"); Serial.println(t);}
     
     while (t < wait) {
         t = t_now(t_init);
@@ -321,11 +321,12 @@ int TrialStimulus(int stimulusPin,
     unsigned long OFF = 5000, // us time of off pulse  ie FREQUENCY of flutter
     bool verbose = true) {
     
-    int t = t_now(t_init);
+    int t_local = millis();
+    int t = t_now(t_local);
     
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
-        Serial.print("#Enter `TrialStimulus`:\t"); Serial.println(t);
+        Serial.print("#Enter `TrialStimulus`:\t"); Serial.println(t_now(t_init));
         Serial.print("#stimDUR:\t"); Serial.println(stimDUR);
         Serial.print("#ON:\t"); Serial.println(ON);
         Serial.print("#OFF:\t"); Serial.println(OFF);
@@ -336,7 +337,7 @@ int TrialStimulus(int stimulusPin,
            1. update the time
            2. check for licks
         */
-        t = t_now(t_init);
+        t = t_now(t_local);
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
@@ -455,7 +456,7 @@ int runTrial (int mode,
     ActiveDelay(t_noLickPer - t, false, verbose);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET[0] - t, true, verbose);
+    ActiveDelay(t_stimONSET[0] - t, false, verbose);
     t = t_now(t_init);
     
     TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
@@ -490,95 +491,97 @@ int UpdateGlobals(String input) {
         String variable_name = input.substring(0,sep);
         String variable_value = input.substring(sep+1);
         
-        Serial.print("#");Serial.print(variable_name);Serial.print("\t");Serial.print(variable_value);
+        Serial.print("#");Serial.print(variable_name);Serial.print("\t");Serial.println(variable_value);
         
         // input before seperator?
         if (variable_name == "lickThres" ) {
             lickThres = variable_value.toInt();
-            Serial.print("#lickThres"); Serial.println(lickThres);
+            Serial.print("#lickThres\t"); Serial.println(lickThres);
             return 1;
         }
         if (variable_name == "trial_delay" ) {
             trial_delay = variable_value.toInt();
-            Serial.print("#trial_delay"); Serial.println(trial_delay);
+            Serial.print("#trial_delay\t"); Serial.println(trial_delay);
             return 1;
         }
         if (variable_name == "t_noLickPer" ) {
             t_noLickPer = variable_value.toInt();
-            Serial.print("#t_noLickPer"); Serial.println(t_noLickPer);
+            Serial.print("#t_noLickPer\t"); Serial.println(t_noLickPer);
             return 1;
         }
         if (variable_name == "t_stimONSET[0]" ) {
             t_stimONSET[0] = variable_value.toInt();
-            Serial.print("#t_stimONSET[0]"); Serial.println(t_stimONSET[0]);
+            Serial.print("#t_stimONSET[0]\t"); Serial.println(t_stimONSET[0]);
             return 1;
         }
         if (variable_name == "t_stimONSET[1]" ) {
             t_stimONSET[1] = variable_value.toInt();
-            Serial.print("#t_stimONSET[1]"); Serial.println(t_stimONSET[1]);                
+            Serial.print("#t_stimONSET[1]\t"); Serial.println(t_stimONSET[1]);                
             return 1;
         }
         if (variable_name == "stimDUR" ) {
             stimDUR = variable_value.toInt();
-            Serial.print("#stimDUR"); Serial.println(stimDUR);                
+            Serial.print("#stimDUR\t"); Serial.println(stimDUR);                
             return 1;
         }
         if (variable_name == "t_rewardSTART" ) {
             t_rewardSTART = variable_value.toInt();
-            Serial.print("#t_rewardSTART"); Serial.println(t_rewardSTART);                
+            Serial.print("#t_rewardSTART\t"); Serial.println(t_rewardSTART);                
             return 1;
         }
         if (variable_name == "t_rewardEND" ) {
             t_rewardEND = variable_value.toInt();
-            Serial.print("#t_rewardEND"); Serial.println(t_rewardEND);                
+            Serial.print("#t_rewardEND\t"); Serial.println(t_rewardEND);                
             return 1;
         }
         if (variable_name == "t_trialEND" ) {
             t_trialEND = variable_value.toInt();
-            Serial.print("#t_trialEND"); Serial.println(t_trialEND); 
+            Serial.print("#t_trialEND\t"); Serial.println(t_trialEND); 
             return 1;
         }
         if (variable_name == "waterVol" ) {
             waterVol = variable_value.toInt();
-            Serial.print("#waterVol"); Serial.println(waterVol);
+            Serial.print("#waterVol\t"); Serial.println(waterVol);
             return 1;
         }
 
         if (variable_name == "ON" ) {
             ON = (unsigned long) variable_value.toInt() * 1000;
-            Serial.print("#ON"); Serial.println(ON);
+            Serial.print("#ON\t"); Serial.println(ON);
             return 1;
         }
         if (variable_name == "OFF[0]" ) {
             OFF[0] = (unsigned long) variable_value.toInt() * 1000;
-            Serial.print("#OFF[0]"); Serial.println(OFF[0]);                
+            Serial.print("#OFF[0]\t"); Serial.println(OFF[0]);                
             return 1;
         }
         if (variable_name == "OFF[1]" ) {
             OFF[1] = (unsigned long) variable_value.toInt() * 1000;
-            Serial.print("#OFF[1]"); Serial.println(OFF[1]);  
+            Serial.print("#OFF[1]\t"); Serial.println(OFF[1]);  
             return 1;
         }
 
         if (variable_name == "mode" ) {
             mode = variable_value[0];
-            Serial.print("#mode"); Serial.println(mode);                
+            Serial.print("#mode\t"); Serial.println(mode);                
             return 1;
         }
         if (variable_name == "rewardCond" ) {
             rewardCond = variable_value[0];
-            Serial.print("#rewardCond"); Serial.println(rewardCond);    
+            Serial.print("#rewardCond\t"); Serial.println(rewardCond);    
             return 1;
         }
         if (variable_name == "verbose" ) {
             verbose = variable_value.toInt();
-            Serial.print("#verbose"); Serial.println(verbose);                  
+            Serial.print("#verbose\t"); Serial.println(verbose);                  
             return 1;
         }
    }
        
    return 0;
 }
+
+
 
 
 

@@ -129,23 +129,19 @@ def calc_dprime(df):
     except: 
         return "nan", "nan", "nan"
 
-def get_info(port, lines = 1):
+def get_info(port, verbose):
     
     info = ""
-    for l in xrange(lines):
-
-        inline = port.readline()
-
-        if inline.startswith("#"):
-            info = info + "#%s\t%s\t%s" %(timenow(), port, id, inline)
-        else: 
-            inline = "%s\t%s\t%s" %(timenow(), port, id, inline)
-            print colorama.Fore.YELLOW, inline
-            info = info + inline
-            
-        if (l == lines) and (port.inWaiting()):
-            info = info + get_info(port, 1)
     
+    inline = port.readline()
+
+    if inline.startswith("#"):
+        info = info + "#%s\t%s\t%s" %(timenow(), port, id, inline)
+    else: 
+        inline = "%s\t%s\t%s" %(timenow(), port, id, inline)
+        print colorama.Fore.YELLOW, inline
+        info = info + inline
+
     if verbose: print verbose, info
     
     return info
