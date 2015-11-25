@@ -5,65 +5,61 @@ String version = "#behaviourbox151119";
 //TODO: find an obvious method for producing constant noise
 
 /*
-Authour: Naoya Takahashi
-    modified by Andrew Micallef
-  
-This program delivers sensory stimulation and opens water 
-valve when the animal touches the licking sensor within a 
-certain time window.
+    Author: Naoya Takahashi
+        modified by Andrew Micallef
+      
+    This program delivers sensory stimulation and opens water 
+    valve when the animal touches the licking sensor within a 
+    certain time window.
 
-Setup connections:
-------------------
-  
----------   -----------------  ------------  
-DIGITAL     output             variable
----------   -----------------  ------------
-pin 2       recording trigger  `recTrig`  
-pin 4       stimulus TTL       `whiskStim`
-pin 6       speaker for cues   `tonePin`
+    Setup connections:
+    ------------------
+      
+    ---------   -----------------  ------------  
+    DIGITAL     output             variable
+    ---------   -----------------  ------------
+    pin 2       recording trigger  `recTrig`  
+    pin 4       stimulus TTL       `whiskStim`
+    pin 6       speaker for cues   `tonePin`
 
-pin 8       syringe pump TTL   `waterValve`
-pin 9       vacuum tube valve  `vacValve`
+    pin 8       syringe pump TTL   `waterValve`
+    pin 9       vacuum tube valve  `vacValve`
 
-pin 13      lick report        `licking`
+    pin 13      lick report        `licking`
 
----------   -----------------  ------------
-ANALOG IN   input
----------   -----------------  ------------
-A0          piezo lick sensor  lickSens
----------   -----------------  ------------
-Table: connections to lick controller
+    ---------   -----------------  ------------
+    ANALOG IN   input
+    ---------   -----------------  ------------
+    A0          piezo lick sensor  lickSens
+    ---------   -----------------  ------------
+    Table: connections to lick controller
 
-  
-Start program:
---------------
+      
+    Start program:
+    --------------
 
-Trial intervals will randomized between 'minITI' and 'maxITI'. 
-During a trial, the animal has to wait a stimulation without 
-licking (no-lick period, 'nolickPer').
+    Trial intervals will randomized between 'minITI' and 'maxITI'. 
+    During a trial, the animal has to wait a stimulation without 
+    licking (no-lick period, 'nolickPer').
 
-If it licks during no-lick period, the time of stimulation 
-will be postponed by giving a time out (randomized between 
-'minTimeOut' and 'maxTimeOut').
+    If it licks during no-lick period, the time of stimulation 
+    will be postponed by giving a time out (randomized between 
+    'minTimeOut' and 'maxTimeOut').
 
-When a stimulation is delivered (stimulus duration: 'stimDur'), 
-the animal need to respond (touch the sensor) within a certain 
-time window ('crPer') to get a water reward.
+    When a stimulation is delivered (stimulus duration: 'stimDur'), 
+    the animal need to respond (touch the sensor) within a certain 
+    time window ('crPer') to get a water reward.
 
-Delayed licking after the time window will not be rewarded. 
-Opening duration of the water valve is defined by 'valveDur'.
+    Delayed licking after the time window will not be rewarded. 
+    Opening duration of the water valve is defined by 'valveDur'.
 
-A TTL trigger for recording will be delivered 
-'baseLineTime' (1 s in default setting) before the stimulus.
+    A TTL trigger for recording will be delivered 
+    'baseLineTime' (1 s in default setting) before the stimulus.
 
 
 
 //lines preceded by `#` are for debug purposes
  */
-
-
-
-
 
 
 // IO port settings:
@@ -76,9 +72,6 @@ const int statusLED = 2;
 const int waterPort[] = {8,9};    // digital pin 8 control water valve 
 const int lickRep[] = {12,13};      // led connected to digital pin 13
 const int lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
-
-
-char lickport; //?? a value that is L R or 0 to represent lick port to be used
 
 
 int lickThres = 450;
@@ -97,12 +90,9 @@ int t_rewardSTART = 4500; // ms
 int t_rewardEND = 10000;   // ms
 int t_trialEND = 10000;   // ms
 
-int minITI = 3000;        // ms
-int maxITI = 6000;        // ms
-int maxTimeOut = 0;    // ms
-int minTimeOut = 0;    // ms
 
-char rewardCond = 'B';
+char mode = 'c';
+char rewardCond = 'B'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 
 // stimulus parameters
 unsigned long ON = 1000;
@@ -114,7 +104,7 @@ int toneDur = 100;
 
 // Global value to keep track of the total water consumed
 int waterCount = 0; 
-int waterVol = 5; //uL per dispense
+int waterVol = 10; //uL per dispense
 
 // Global lick on
 bool lickOn[] = {false, false};
@@ -150,14 +140,16 @@ void setup (){
 
 void loop () {
     
-    int mode = 0;
-        
+    if (Serial.available()){
+        String input = getSerialInput();
+        Serial.println(input);
+    }
+    
     Serial.println("modeString\tistimeout\tstimTrial\tresponse\tlickCount");
                        
     runTrial (mode, trial_delay, t_noLickPer, t_stimONSET_0,
             t_stimONSET_1, stimDUR, t_rewardSTART, t_rewardEND, 
-            t_trialEND, minITI, maxITI, maxTimeOut, minTimeOut,
-            stimTrial, rewardCond, verbose);
+            t_trialEND, stimTrial, rewardCond, waterVol, verbose);
     
     if (senseLick(0) or senseLick(1)){
         tone(tonePin, toneBad, 10);
@@ -190,9 +182,9 @@ bool senseLick(bool sensor){
     return lickDetected;
 }
 
-char* getSerialInput(){
+String getSerialInput(){
 
-    char* readString;
+    String readString;
     
     while (Serial.available()) { 
         delay(3);  //delay to allow buffer to fill
@@ -431,8 +423,6 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
     return 1;
 }
 
-
-
 int runTrial (int mode,
     int trial_delay,
     int t_noLickPer,   // ms
@@ -442,12 +432,9 @@ int runTrial (int mode,
     int t_rewardSTART, // ms
     int t_rewardEND,   // ms
     int t_trialEND,   // ms
-    int minITI,        // ms
-    int maxITI,        // ms
-    int maxTimeOut,    // ms
-    int minTimeOut,    // ms
     bool stimTrial,
     char rewardCond,
+    int waterVol,
     bool verbose) {
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -463,8 +450,6 @@ int runTrial (int mode,
        increases from there. */ 
     t_init = millis() + trial_delay;
     t = t_now(t_init);
-    
-    Serial.print(t); Serial.println(" ms");
     
     /*trial_phase0
     while the trial has not started 
@@ -494,7 +479,7 @@ int runTrial (int mode,
     t = t_now(t_init);
     
     if (rewardCond != 'N') {
-        TrialReward(mode, rewardCond, verbose);
+        TrialReward(mode, rewardCond, waterVol, verbose);
     }
     else {
         ActiveDelay(t_trialEND - t, false, verbose);
