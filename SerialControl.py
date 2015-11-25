@@ -11,14 +11,13 @@ import msvcrt as m
 import warnings
 warnings.simplefilter(action = "ignore", category = UserWarning)
 
-import numpy as np
+import numpy as np # bread and butter
 from numpy.random import random_integers, shuffle
-from collections import deque
-import pandas as pd
+import pandas as pd # on the fly data analysis
 from StringIO import StringIO
-from scipy.stats import norm
+from scipy.stats import norm #on the fly calculations
 from itertools import combinations_with_replacement as combinations
-import colorama
+import colorama # makes things look nice
 
 import config
 import SerialFUNCTIONS
