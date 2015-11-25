@@ -5,57 +5,60 @@ String version = "#behaviourbox151119";
 //TODO: find an obvious method for producing constant noise
 
 /*
-    Authour: Naoya Takahashi
-        modified by Andrew Micallef
-      
-    This program delivers sensory stimulation and opens water 
-    valve when the animal touches the licking sensor within a 
-    certain time window.
-
-    Setup connections:
-    ------------------
-      
-    ---------   -----------------  ------------  
-    DIGITAL     output             variable
-    ---------   -----------------  ------------
-    pin 2       recording trigger  `recTrig`  
-    pin 4       stimulus TTL       `whiskStim`
-    pin 6       speaker for cues   `tonePin`
-    pin 8       syringe pump TTL   `waterValve`
-    pin 9       vacuum tube valve  `vacValve`
-    pin 13      lick report        `licking`
-    ---------   -----------------  ------------
-    ANALOG IN   input
-    ---------   -----------------  ------------
-    A0          piezo lick sensor  lickSens
-    ---------   -----------------  ------------
-    Table: connections to lick controller
-
-      
-    Start program:
-    --------------
-
-    Trial intervals will randomized between 'minITI' and 'maxITI'. 
-    During a trial, the animal has to wait a stimulation without 
-    licking (no-lick period, 'nolickPer').
-
-    If it licks during no-lick period, the time of stimulation 
-    will be postponed by giving a time out (randomized between 
-    'minTimeOut' and 'maxTimeOut').
-
-    When a stimulation is delivered (stimulus duration: 'stimDur'), 
-    the animal need to respond (touch the sensor) within a certain 
-    time window ('crPer') to get a water reward.
-
-    Delayed licking after the time window will not be rewarded. 
-    Opening duration of the water valve is defined by 'valveDur'.
-
-    A TTL trigger for recording will be delivered 
-    'baseLineTime' (1 s in default setting) before the stimulus.
+Authour: Naoya Takahashi
+    modified by Andrew Micallef
   
+This program delivers sensory stimulation and opens water 
+valve when the animal touches the licking sensor within a 
+certain time window.
+
+Setup connections:
+------------------
   
+---------   -----------------  ------------  
+DIGITAL     output             variable
+---------   -----------------  ------------
+pin 2       recording trigger  `recTrig`  
+pin 4       stimulus TTL       `whiskStim`
+pin 6       speaker for cues   `tonePin`
+
+pin 8       syringe pump TTL   `waterValve`
+pin 9       vacuum tube valve  `vacValve`
+
+pin 13      lick report        `licking`
+
+---------   -----------------  ------------
+ANALOG IN   input
+---------   -----------------  ------------
+A0          piezo lick sensor  lickSens
+---------   -----------------  ------------
+Table: connections to lick controller
+
   
-    //lines preceded by `#` are for debug purposes
+Start program:
+--------------
+
+Trial intervals will randomized between 'minITI' and 'maxITI'. 
+During a trial, the animal has to wait a stimulation without 
+licking (no-lick period, 'nolickPer').
+
+If it licks during no-lick period, the time of stimulation 
+will be postponed by giving a time out (randomized between 
+'minTimeOut' and 'maxTimeOut').
+
+When a stimulation is delivered (stimulus duration: 'stimDur'), 
+the animal need to respond (touch the sensor) within a certain 
+time window ('crPer') to get a water reward.
+
+Delayed licking after the time window will not be rewarded. 
+Opening duration of the water valve is defined by 'valveDur'.
+
+A TTL trigger for recording will be delivered 
+'baseLineTime' (1 s in default setting) before the stimulus.
+
+
+
+//lines preceded by `#` are for debug purposes
  */
 
 
@@ -68,6 +71,7 @@ const int recTrig = 2;    // digital pin 2 triggers ITC-18
 const int stimulus = 4;    // digital pin 4 control whisker stimulation
 const int tonePin = 6;
 const int vacValve = 7;     // digital pin 9 controls vacuum
+const int statusLED = 2;
 
 const int waterPort[] = {8,9};    // digital pin 8 control water valve 
 const int lickRep[] = {12,13};      // led connected to digital pin 13
@@ -82,6 +86,29 @@ int lickThres = 450;
 // timing parameters
 int t_init;
 int t_start;
+
+int t_noLickPer = 0;   // ms
+int t_stimSTART = 4000;   // ms
+int t_stimEND = 4500;     // ms
+int t_rewardSTART = 4500; // ms
+int t_rewardEND = 10000;   // ms
+int t_trialEND = 10000;   // ms
+int minITI = 3000;        // ms
+int maxITI = 6000;        // ms
+int maxTimeOut = 0;    // ms
+int minTimeOut = 0;    // ms
+
+
+
+
+
+
+
+// stimulus parameters
+unsigned long ON = 1000;
+
+unsigned long OFF[] = {5000, 5000};
+
 
 int toneBad = 500; //Hz
 int toneDur = 100; 
@@ -109,134 +136,116 @@ void setup (){
     randomSeed(analogRead(5));
 
     pinMode(recTrig, OUTPUT); // declare the recTrig as as OUTPUT
-    pinMode(waterPort, OUTPUT); // declare the waterValve as as OUTPUT
+    pinMode(waterPort[0], OUTPUT); // declare the waterValve as as OUTPUT
     pinMode(vacValve, OUTPUT); // declare the vacValve as as OUTPUT
     pinMode(stimulus, OUTPUT); // declare the whiskStim as as OUTPUT
-    pinMode(lickRep, OUTPUT); // declare the licking as as OUTPUT
+    pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
     pinMode(tonePin, OUTPUT);
 }
 
 
 void loop () {
     
-    int mode = serialComs();
+    int mode = 0;
     
-    if (mode >= 0){
-        // single trial returns an inter trial interval   
-        Serial.println( 
-          "modeString\twaterCount\ttrial_delay\tistimeout\tstimTrial\tresponse\tlickCount"
-        );
-        
-        int n_trial = 0;
-        int interTrialInt = runTrial(n_trial, mode, 500);
-        
-        
-        while (!Serial.available()){
-            n_trial += 1;
-            interTrialInt = runTrial(n_trial, mode, interTrialInt);
+    String input = getSerialInput();
+    
+    if (input) {
+        // single char flags are preceded by '-'
+        // strip the '-' and proceed with parsing
+        if (input[0] == '-') {
+            
+            input = input.substring(1);
+            
+            if ((input[0] == 'm') or (input[0] == 'M'))) {
+            
+                mode = getMode(input);
+                
+                if (mode >= 0){
+                    // single trial returns an inter trial interval   
+                    Serial.println(
+                        "modeString\tistimeout\tstimTrial\tresponse\tlickCount");
+                   
+                    Serial.println(runTrial(mode));
+                }
+            }
+            
+            else if ((input[0] == 'f') or (input[0] == 'F')) {
+                getFreq(input);
+            }
+            
+            else if ((input[0] == 'p') or (input[0] == 'P')) {
+                port = getValue(input);
+            } 
         }
-    }
-    else {
-        if (senseLick()){
-            tone(tonePin, toneBad, 10);
-            delay(100);
+        
+        else {
+            
+            int sep = getSepIndex(input);
+            
+            // input before seperator?
+            if (input[0,sep] == "t_noLickPer") { t_noLickPer = getValue(input); }
+            if (input[0,sep] == "t_stimSTART0") { t_stimSTART0 = getValue(input); }
+            if (input[0,sep] == "t_stimEND0") { t_stimEND0 = getValue(input); }
+            if (input[0,sep] == "t_stimSTART1") { t_stimSTART1 = getValue(input); }
+            if (input[0,sep] == "t_stimEND1") { t_stimEND1 = getValue(input); }
+            if (input[0,sep] == "t_rewardSTART") { t_rewardSTART = getValue(input); }
+            if (input[0,sep] == "t_rewardEND") { t_rewardEND = getValue(input); }
+            if (input[0,sep] == "t_trialEND") { t_trialEND = getValue(input); }
+            if (input[0,sep] == "minITI") { minITI = getValue(input); } 
+            if (input[0,sep] == "maxITI") { maxITI = getValue(input); }
+            if (input[0,sep] == "maxTimeOut") { maxTimeOut = getValue(input); }
+            if (input[0,sep] == "minTimeOut") { minTimeOut = getValue(input); }
+            
+            
         }
+    }    
+
+    
+    
+    
+    if (senseLick(0) or senseLick(1)){
+        tone(tonePin, toneBad, 10);
+        delay(100);
     }
+    
+    
+        
+        
 }
 
-int runTrial (int trial_no, int modeSwitch, int trial_delay) {
-    // returns number of milliseconds
+int runTrial (int modeSwitch,
+    int t_noLickPer,   // ms
+    int t_stimSTART0,   // ms
+    int t_stimEND0,     // ms
+    int t_stimSTART1,   // ms
+    int t_stimEND1,     // ms
+    int t_rewardSTART, // ms
+    int t_rewardEND,   // ms
+    int t_trialEND,   // ms
+    int minITI,        // ms
+    int maxITI,        // ms
+    int maxTimeOut,    // ms
+    int minTimeOut,    // ms
+    bool stimTrial,
+    bool rewardAvailable,
+) {
+    // returns 0 if the stimulus was applied
+    // returns 1 if a timeout is required
     // until next trial
     
     // local variables and initialisation of the trial
     String outString = "";
     int t; // local time
     int timeout = 0;
-    int lickCount = 0;
-        
-    //timing parameters    
-    int t_noLickPer;   // ms
-    int t_stimSTART;   // ms
-    int t_stimEND;     // ms
-    int t_rewardSTART; // ms
-    int t_rewardEND;   // ms
-    int t_trialEND;   // ms
-    int minITI;        // ms
-    int maxITI;        // ms
-    int maxTimeOut;    // ms
-    int minTimeOut;    // ms
     
-   String modeString;
-   
-   // sets paramaters according to the training phase (mode)
-   switch (modeSwitch){
-     case 0: 
-        modeString = "conditioning0"; 
-        t_noLickPer = 0;   // ms
-        t_stimSTART = 4000;   // ms
-        t_stimEND = 4500;     // ms
-        t_rewardSTART = 4500; // ms
-        t_rewardEND = 10000;   // ms
-        t_trialEND = 10000;   // ms
-        minITI = 3000;        // ms
-        maxITI = 6000;        // ms
-        maxTimeOut = 0;    // ms
-        minTimeOut = 0;    // ms
-     break;
-     
-     case 1: 
-        modeString = "operant1";
-        t_noLickPer = 0;   // ms
-        t_stimSTART = 4000;   // ms
-        t_stimEND = 4500;     // ms
-        t_rewardSTART = 5000; // ms
-        t_rewardEND = 7000;   // ms
-        t_trialEND = 10000;   // ms
-        minITI = 3000;        // ms
-        maxITI = 6000;        // ms
-        maxTimeOut = 0;    // ms
-        minTimeOut = 0;    // ms
-     break;
-     
-      case 2: 
-        modeString = "operant2";
-        t_noLickPer = 3000;   // ms
-        t_stimSTART = 4000;   // ms
-        t_stimEND = 4500;     // ms
-        t_rewardSTART = 5000; // ms
-        t_rewardEND = 6000;   // ms
-        t_trialEND = 10000;   // ms
-        minITI = 3000;        // ms
-        maxITI = 6000;        // ms
-        maxTimeOut = 500;    // ms
-        minTimeOut = 1000;    // ms
-     break;
-     
-     case 3: 
-        modeString = "operant3";
-        t_noLickPer = 3000;   // ms
-        t_stimSTART = 4000;   // ms
-        t_stimEND = 4500;     // ms
-        t_rewardSTART = 5000; // ms
-        t_rewardEND = 7000;   // ms
-        t_trialEND = 10000;   // ms
-        minITI = 3000;        // ms
-        maxITI = 6000;        // ms
-        maxTimeOut = 1000;    // ms
-        minTimeOut = 3000;    // ms
-     break;
-     
-     default: 
-       Serial.println("invalid mode"); 
-       return 3000;
-     break;
-   }
+    String modeString;
   
-    bool stimTrial = random(0,5);
+    = random(0,5);
     bool response = false;
-    bool lickOn = false;
+    bool lickOn[] = {false, false};
     bool firstLick = true;
-    bool rewardAvailable = true;
+    
     
     //start the clock
     t_init = millis() + trial_delay;
@@ -248,106 +257,39 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
     Serial.print("#trial starts in:\t");
     Serial.print(t); Serial.println(" ms");
     
-    while (t < 0) {
-        /* while the trial has not started 
-           1. update the time
-           2. check for licks
-           3. punish licks with additional timeout
-           4. trigger the recording by putting recTrig -> HIGH
-        */
-        
-        // 1. update time
-        // 2. check for licks
-        t = t_now();
-        lickOn = senseLick();
-        
-        digitalWrite(vacValve, HIGH);
-
-        /* 3. punish licks\
-              additional time out requires that time is added to 
-              `t_init`. Apply a cool down period; the animal 
-              usually makes multiple licks and so it is important 
-              that an arbitrary limit is set, else she will end up
-              with infinite time out.
-        */
-        
-        // 4. trigger the recording
-        if (t > -10){
-            digitalWrite(recTrig, HIGH);
-        }
+    //trial_phase0
+    /* while the trial has not started 
+       1. update the time
+       2. check for licks
+       3. trigger the recording by putting recTrig -> HIGH
+    */
+    preTrial();
+    t = t_now();
     
-    // note, recTrig is switched off immediately after the
-    // loop to avoid artifacts in the recording
+    // Debug information is always prefixed with "#" so I can remove it 
+    // easily from the log file
+    Serial.print("#Trial Start:\t"); Serial.println(t); 
+    Serial.print("#Go trial:\t"); Serial.println(stimTrial);
     
-    } digitalWrite(recTrig, LOW); digitalWrite(vacValve, LOW);
-    
-    
-    Serial.print("#Trial Start:\t"); Serial.println(t); Serial.print("#Go trial:\t"); Serial.println(stimTrial);
-    
-    //trial start phase    
-    while (t < t_stimSTART){
-        /* The trial has started but the stimulus
-           is yet to be delivered, so long as timeout
-           is not in place
-           1. update the time
-           2. check for licks
-           3. punish licks with additional timeout\
-              this breaks the function and ultimatley results
-              in a line being printed with the lick time `t`.
-        */
-
-        // 1. update the time
-        // 2. check for licks  
-        t = t_now();
-        lickOn = senseLick();
-        
-        // 3. punish licks with additional timeout
-        if ((lickOn) and (t_noLickPer) and (t > t_noLickPer)) {
-            /* conditions
-                : 
-                1. if the animal has licked
-                2. if there is a no lick period 
-                    (is false during conditioning)
-                3. if the no lick period has started
-                    (the timenow is greater than no lick time)
-            */ 
-            
-            // 3.2. report that a timeout has occurred
-            Serial.print("#timeout added:\t");
-            Serial.print(timeout); Serial.println(" ms");
-            
-            // 3.3. report to the animal that timeout has occurred
-            tone(tonePin, toneBad, toneDur);
-            
-            // 3.4. make a standard output line
-           
-            Serial.print(modeString); Serial.print("\t"); 
-            Serial.print(waterCount); Serial.print("\t"); 
-            Serial.print(trial_delay); Serial.print("\t"); 
-            Serial.print(timeout>0); Serial.print("\t"); 
-            Serial.print(stimTrial); Serial.print("\t"); 
-            Serial.print(response); Serial.print("\t"); 
-            Serial.print(lickCount); Serial.print("\n");
-             
-            // exits, starting a new trial in the higher loop
-            // 3.1. set a timout value
-            return random(maxTimeOut, minTimeOut);
-        }
-    }
+    //trial start phase
+    //trial_phase1
+    TrialStart(t_noLickPer);
     
      Serial.print("#Stim Start:\t"); Serial.println(t);
     
     //The stimulus phase
+    //trial_phase2
     while (t < t_stimEND){
         /* Run the buzzer while:
            1. update the time
            2. check for licks
         */
         t = t_now();
-        lickOn = senseLick();
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
         
         if(stimTrial){
-            flutter(stimulus, t_on, t_off);
+            flutter(stimulus, ON, OFF[0]);
             }
         
     } digitalWrite(stimulus, LOW);
@@ -355,6 +297,7 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
      Serial.print("#Stim Endt:\t"); Serial.println(t);
     
     // post stimulus delay
+    //trial_phase3
     while (t < t_rewardSTART){
         /* this acts as a grace period, 
            licks do not count still
@@ -362,25 +305,30 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
            2. check for licks
         */
         t = t_now();
-        lickOn = senseLick();
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
+        
         //if (lickOn){Serial.println("gotcha");}
     }
     
     Serial.print("#Reward Start:\t"); Serial.println(t);
     
     // reward period
+    //trial_phase0
     while (t < t_rewardEND) {
         t = t_now();
-        lickOn = senseLick();
-        lickCount += lickOn;
+        
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
+        
         // response reports if there was a lick in the reward
         // period.
         
         if ((modeSwitch == 0) and stimTrial and rewardAvailable) {
             // a freebie for conditioning trials
-            digitalWrite(waterPort, HIGH);
+            digitalWrite(waterPort[0], HIGH);
             delay(10);
-            digitalWrite(waterPort, LOW);
+            digitalWrite(waterPort[0], LOW);
             rewardAvailable = false;
         }
         
@@ -390,7 +338,7 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
                 // but that no response has been reported yet
                 if (!response){
                     response=lickOn;    
-                    digitalWrite(waterPort, HIGH);
+                    digitalWrite(waterPort[0], HIGH);
                     //delay(300); // a shit thing, but it seems essential
                     
                 } else if (firstLick == true){
@@ -400,13 +348,13 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
                     delay(10);
                     // shut off the waterport, and set firstLick false so only one
                     // reward per trial
-                    digitalWrite(waterPort, LOW);
+                    digitalWrite(waterPort[0], LOW);
                     firstLick = false;    
                 }
             }
             delay(10); // space out the lick reports a bit
         }
-        digitalWrite(waterPort, LOW); //safety catch
+        digitalWrite(waterPort[0], LOW); //safety catch
     }
     
     Serial.print("#trial End:\t"); Serial.println(t - t_trialEND); Serial.print("#Licks? :\t"); Serial.println(response);
@@ -414,19 +362,19 @@ int runTrial (int trial_no, int modeSwitch, int trial_delay) {
     // fixed cool down period
     while (t < t_trialEND){
         t = t_now();
-        lickOn = senseLick();
+        
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
     }
     
     waterCount += (int(response) * waterVol);
-    
     
     Serial.print(modeString); Serial.print("\t"); 
     Serial.print(waterCount); Serial.print("\t"); 
     Serial.print(trial_delay); Serial.print("\t"); 
     Serial.print(timeout>0); Serial.print("\t"); 
     Serial.print(stimTrial); Serial.print("\t"); 
-    Serial.print(response); Serial.print("\t"); 
-    Serial.print(lickCount); Serial.print("\n"); 
+    Serial.print(response); Serial.print("\n"); 
                 
     return random(minITI, maxITI);
 }
@@ -438,49 +386,132 @@ int t_now(){
     return millis() - t_init;
 }
 
-bool senseLick(lickSens, lickRep){
-	// check to see if the lick sensor has moved
+bool senseLick(bool sensor){
+  // check to see if the lick sensor has moved
     // set lickDetected
-	boolean lickDetected = false;
-	int sensVal[] = {analogRead(lickSens[0]),
-                     analogRead(lickSens[1])};
-	
-	if (sensVal <= lickThres){
-		digitalWrite(lickRep, HIGH);
-		lickDetected = true;
-	} else {
-		digitalWrite(lickRep, LOW);
-		lickDetected = false;
-	}
+  boolean lickDetected = false;
+    int sensVal = analogRead(lickSens[sensor]);
+  
+  if (sensVal <= lickThres){
+    digitalWrite(lickRep[sensor], HIGH);
+    lickDetected = true;
+  } else {
+    digitalWrite(lickRep[sensor], LOW);
+    lickDetected = false;
+  }
     digitalWrite(tonePin, !random(0, random(50)));
-	return lickDetected;
+  return lickDetected;
+}
+
+char* getSerialInput(){
+
+    char* readString;
+    
+    while (Serial.available()) { 
+        delay(3);  //delay to allow buffer to fill
+        char c = Serial.read();  //gets one byte from serial buffer
+        readString += c; //makes the string readString
+    }
+    
+    return readString;
+}
+
+
+int getValue(String input){
+    
+    int val = 0;   // value to return for port
+    
+    //return the value of the string after the seperator
+    int val = input.substring(getSepIndex(input)).toInt();
+    return val;
+}
+
+
+
+
+
+int getMode(String input){
+    
+    int m = -1;    //value to return for mode
+
+    if ((input[0] != 'm') and (input[0] != 'M')){
+        Serial.println("Invalid input to getMode");
+        return -1;
+    }
+    
+    return input.substring(1).toInt();
+}
+
+int getFreq(String input){
+    // returns -ve on failure
+    if ((input[0] != 'f') and (input[0] != 'F')){
+        Serial.println("Invalid input to getFreq");
+        return -1;
+    }
+    
+    int index = input[1] - '0';
+
+    char c = 1;
+    int i = 0;
+   
+    while (c != 0) {
+        c = input[i];
+        
+        if (c == ':'){
+            break;
+        }
+        i ++;
+    }
+    if (c == 0) {
+        Serial.println("No frequency found");
+        return -2;
+    }
+    else {
+        OFF[index] = (unsigned long)input.substring(i+1).toInt();
+        return index;
+    }
+}
+
+
+
+int getSepIndex(String input) {
+    char c = 1;
+    int i = 0;
+   
+    while (c != 0) {
+        c = input[i];
+        
+        if (c == ':'){
+            return i;
+        }
+        i ++;
+    }
+    return 0;
 }
 
 int serialComs(){
     
-    int mode = -1;
-    String readString;
-       
-    if (Serial.available()) {
-        while (Serial.available()) {
-     
-            delay(3);  //delay to allow buffer to fill
-            char c = Serial.read();  //gets one byte from serial buffer
-            readString += c; //makes the string readString
-        }
-        
-        if (readString.length() > 0) {
-            Serial.print("#input:\t");
-            Serial.println(readString);
+  if (readString.length() > 0) {
+    Serial.print("#input:\t");
+    Serial.println(readString);
+    
+    
+  if (input.length() > 0) {
+  
+
+  input = "";
+  }
+      
+      
+      
              
             char flag = readString[0];
             
             switch(flag){
-                case 't':
-                {
+                case 't': {
                     char* value = strtok(readString, ":");
                     ++value; //move pointer by one
-                    lickThres = value.toInt();
+                    lickThres = value.atoi();
                     
                     Serial.print("#lickThres set:\t");
                         Serial.print(lickThres);
@@ -488,37 +519,28 @@ int serialComs(){
                         Serial.print((float(lickThres)/1024)*5);
                         Serial.println(" V)");
                 } break;
-                case 'm'
-                {
+                 case 'm': {
+                    return getMode(input);
+                } break;            
+                case 'p': {
                     char* value = strtok(readString, ":");
                     ++value; //move pointer by one
-                    mode = value.toInt();
-                    return mode;
-                } break;
-                
-                case 'p'
-                {
-                    char* value = strtok(readString, ":");
-                    ++value; //move pointer by one
-                    char lickPort = value;
-                    
-                    if value == 'L'{ //switch to reward left if left lick
+                   
+                    if value[0] == 'L'{ //switch to reward left if left lick
+                        return;
+                    }
+                    if value[0] == 'R'{ //switch to reward right if right lick
                         ;
                     }
-                    if value == 'R'{ //switch to reward right if right lick
-                        ;
-                    }
-                     if value == '1'{ 
+                     if value[0] == '1'{ 
                      // switch to reward from the port licked at
                      // if either port is detected.
                         ;
                     }
                     else { // no reward on this trial
                         ;
-                    }
-                    
+                    } 
                 }
-                
                 default:
                     Serial.println("#could not parse input");
                 break;
@@ -531,10 +553,130 @@ int serialComs(){
 }
 
 void flutter(int stim_pin, unsigned long on, unsigned long off){
+  
   digitalWrite(stim_pin, HIGH);
+  digitalWrite(statusLED, LOW);
+  
   delayMicroseconds(on);
+    
   digitalWrite(stim_pin, LOW);
-  digitalWrite(13, LOW);
+  digitalWrite(statusLED, LOW);
+  
   delayMicroseconds(off);
 }
 
+
+
+/*
+-----------------
+THE TRIAL STATES
+----------------
+*/
+
+
+//0 PRETRIAL
+
+void preTrial() {   
+    /* while the trial has not started 
+       1. update the time
+       2. check for licks
+       4. trigger the recording by putting recTrig -> HIGH
+    */
+    int t = t_now();
+    
+    while (t < 0){
+        // 1. update time
+        // 2. check for licks
+        t = t_now();
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
+
+        Serial.print(t); Serial.print("\r");
+        
+        digitalWrite(vacValve, HIGH);
+        
+        //TODO: define statusLED and plug in an LED to hardware
+        // LED to flash each second before the trial
+        if (t%1000 < 20){
+            digitalWrite(statusLED, HIGH);
+        } 
+        else {digitalWrite(statusLED, LOW);}
+        
+        // 3. trigger the recording
+        if (t > -10){
+            digitalWrite(recTrig, HIGH);
+        }
+        
+        // note, recTrig is switched off immediately after the
+        // loop to avoid artefacts in the recording
+    }
+    
+    digitalWrite(recTrig, LOW); 
+    digitalWrite(vacValve, LOW);
+} 
+
+
+// 1 START PHASE
+int TrialStart(int t_noLickPer) {
+    /* This function returns a 1 if the trial can continue,
+       
+       
+       returns 0 if a time out has been invoked
+
+     The trial has started but the stimulus
+       is yet to be delivered, so long as timeout
+       is not in place
+       1. update the time
+       2. check for licks
+       3. punish licks with additional timeout\
+          this breaks the function and ultimatley results
+          in a line being printed with the lick time `t`.
+    */
+    
+    int t = t_now();
+    
+    while (t < t_stimSTART){
+
+        // 1. update the time
+        // 2. check for licks  
+        t = t_now();
+        
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
+        
+        // 3. punish licks with additional timeout
+        if ((lickOn[0] or lickOn[1]) 
+            and (t_noLickPer) 
+            and (t > t_noLickPer)) {
+            /* conditions
+                : 
+                1. if the animal has licked
+                2. if there is a no lick period 
+                    (is false during conditioning)
+                3. if the no lick period has started
+                    (the timenow is greater than no lick time)
+            */ 
+            
+            // 3.2. report that a timeout has occurred
+            Serial.println("#timeout added:\t");
+            
+            // 3.3. report to the animal that timeout has occurred
+            tone(tonePin, toneBad, toneDur);
+            
+            // 3.4. make a standard output line
+           
+            Serial.print(modeString); Serial.print("\t"); 
+            Serial.print(waterCount); Serial.print("\t"); 
+            Serial.print(trial_delay); Serial.print("\t"); 
+            Serial.print(timeout>0); Serial.print("\t"); 
+            Serial.print(stimTrial); Serial.print("\t"); 
+            Serial.print(response);  Serial.print("\n");
+             
+            // exits, starting a new trial in the higher loop
+            // 3.1. set a timout value
+            return 0;
+        }
+    }
+    
+    return 1;
+}

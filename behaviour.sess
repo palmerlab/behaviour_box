@@ -1,0 +1,12 @@
+<NotepadPlus>
+    <Session activeView="0">
+        <mainView activeIndex="0">
+            <File firstVisibleLine="398" xOffset="0" scrollWidth="847" startPos="13864" endPos="13864" selMode="0" lang="C++" encoding="-1" filename="D:\GoogleDrive\02 PROTOCOLS\151117\behaviourbox\behaviourbox.ino" backupFilePath="" originalFileLastModifTimestamp="1448158732">
+                <Fold line="170" />
+            </File>
+            <File firstVisibleLine="84" xOffset="0" scrollWidth="588" startPos="3164" endPos="3164" selMode="0" lang="C++" encoding="-1" filename="D:\GoogleDrive\02 PROTOCOLS\151117\stimbox\stimbox.ino" backupFilePath="" originalFileLastModifTimestamp="1448075254" />
+            <File firstVisibleLine="229" xOffset="0" scrollWidth="681" startPos="7320" endPos="7320" selMode="0" lang="Python" encoding="-1" filename="D:\GoogleDrive\02 PROTOCOLS\151117\SerialControl.py" backupFilePath="" originalFileLastModifTimestamp="1448158505" />
+        </mainView>
+        <subView activeIndex="0" />
+    </Session>
+</NotepadPlus>

@@ -16,18 +16,19 @@ int TTLval = 0;
 
 void setup() {
 
-pinMode(stimulusPIN, OUTPUT);
- 
- randomSeed(analogRead(5));
- 
- Serial.begin(9600);
- while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
- }
- Serial.println("#Arduino online");
- Serial.println(version);
- 
- Serial.println("frequency (Hz)\ton Period (ms)\toff Period (ms)\tcount\tTimer");
+    pinMode(stimulusPIN, OUTPUT);
+    
+    randomSeed(analogRead(5));
+    
+    Serial.begin(9600);
+    
+    while (!Serial) {
+        ; // wait for serial port to connect. Needed for native USB port only
+    }
+    
+    Serial.println("#Arduino online");
+    Serial.println(version);
+    Serial.println("frequency (Hz)\ton Period (ms)\toff Period (ms)\tcount\tTimer");
 }
 
 // the loop routine runs over and over again forever:
