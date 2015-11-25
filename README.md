@@ -24,6 +24,7 @@ pin 8       syringe pump TTL   `waterValve`
 pin 9       vacuum tube valve  `vacValve`
 pin 13      lick report        `licking`
 ---------   -----------------  ------------
+
 ANALOG IN   input
 ---------   -----------------  ------------
 A0          piezo lick sensor  lickSens
