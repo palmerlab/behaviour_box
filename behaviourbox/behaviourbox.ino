@@ -82,8 +82,7 @@ unsigned long t_init;
 int trial_delay = 500;
 int t_noLickPer = 0;   // ms
 
-int t_stimONSET_0 = 5000;
-int t_stimONSET_1 = 6000;
+int t_stimONSET[] = {5000,6000};
 int stimDUR = 500;
 
 int t_rewardSTART = 4500; // ms
@@ -141,16 +140,51 @@ void setup (){
 void loop () {
     
     if (Serial.available()){
+        
         String input = getSerialInput();
-        Serial.println(input);
+        
+        
+        if (input == "GO"){
+            runTrial (mode, trial_delay, t_noLickPer, t_stimONSET,
+                    stimDUR, t_rewardSTART, t_rewardEND, 
+                    t_trialEND, rewardCond, waterVol, verbose);
+                    
+            Serial.println("#Ready");
+        }
+        
+        
+        int sep = getSepIndex(input);
+        
+        
+        if (sep) {
+            String variable_name = input.substring(0,sep);
+            String variable_value = input.substring(sep+1);
+            
+            Serial.print("#");Serial.print(variable_name);Serial.print("\t");Serial.print(variable_value);
+            
+            // input before seperator?
+           if (variable_name == "lickThres" ) { lickThres = variable_value.toInt(); }
+           if (variable_name == "trial_delay" ) { trial_delay = variable_value.toInt(); }
+           if (variable_name == "t_noLickPer" ) { t_noLickPer = variable_value.toInt(); }
+           if (variable_name == "t_stimONSET[0]" ) { t_stimONSET[0] = variable_value.toInt(); }
+           if (variable_name == "t_stimONSET[1]" ) { t_stimONSET[1] = variable_value.toInt(); }
+           if (variable_name == "stimDUR" ) { stimDUR = variable_value.toInt(); }
+           if (variable_name == "t_rewardSTART" ) { t_rewardSTART = variable_value.toInt(); }
+           if (variable_name == "t_rewardEND" ) { t_rewardEND = variable_value.toInt(); }
+           if (variable_name == "t_trialEND" ) { t_trialEND = variable_value.toInt(); }
+           if (variable_name == "waterVol" ) { waterVol = variable_value.toInt(); }
+               
+           if (variable_name == "ON" ) { ON = (unsigned long) variable_value.toInt() * 1000; }
+           if (variable_name == "OFF[0]" ) { OFF[0] = (unsigned long) variable_value.toInt() * 1000; }
+           if (variable_name == "OFF[1]" ) { OFF[1] = (unsigned long) variable_value.toInt() * 1000; }
+               
+           if (variable_name == "mode" ) { mode = variable_value[0]; }
+           if (variable_name == "rewardCond" ) { rewardCond = variable_value[0]; }
+           if (variable_name == "verbose" ) { verbose = variable_value.toInt(); }
+       }
+
     }
-    
-    Serial.println("modeString\tistimeout\tstimTrial\tresponse\tlickCount");
-                       
-    runTrial (mode, trial_delay, t_noLickPer, t_stimONSET_0,
-            t_stimONSET_1, stimDUR, t_rewardSTART, t_rewardEND, 
-            t_trialEND, stimTrial, rewardCond, waterVol, verbose);
-    
+
     if (senseLick(0) or senseLick(1)){
         tone(tonePin, toneBad, 10);
         delay(100);
@@ -426,13 +460,11 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
 int runTrial (int mode,
     int trial_delay,
     int t_noLickPer,   // ms
-    int t_stimONSET_0, //time stim 0 turns on
-    int t_stimONSET_1, // time stim 1 turns on
+    int t_stimONSET[2], //time stim turns on
     int stimDUR, // duration of stimuli
     int t_rewardSTART, // ms
     int t_rewardEND,   // ms
     int t_trialEND,   // ms
-    bool stimTrial,
     char rewardCond,
     int waterVol,
     bool verbose) {
@@ -464,13 +496,14 @@ int runTrial (int mode,
     ActiveDelay(t_noLickPer - t, false, verbose);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET_0 - t, true, verbose);
+    ActiveDelay(t_stimONSET[0] - t, true, verbose);
     t = t_now(t_init);
     
     TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET_1 - t, false, verbose);
+    ActiveDelay(t_stimONSET[1] - t, false, verbose);
+    t = t_now(t_init);
     
     TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
     t = t_now(t_init);
@@ -485,5 +518,10 @@ int runTrial (int mode,
         ActiveDelay(t_trialEND - t, false, verbose);
     }   
 }
+
+
+
+
+
 
 
