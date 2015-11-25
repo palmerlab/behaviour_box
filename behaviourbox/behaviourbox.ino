@@ -237,20 +237,17 @@ int runTrial (int modeSwitch,
     
     String modeString;
   
-    = random(0,5);
     bool response = false;
     bool lickOn[] = {false, false};
     bool firstLick = true;
     
     
-    //start the clock
-    t_init = millis() + trial_delay;
-    
     /* t_init is initialised such that t_now
        returns 0 at the start of the trial, and 
        increases from there. */ 
-    t = t_now();
-    Serial.print("#trial starts in:\t");
+    t_init = millis() + trial_delay;
+    t = t_now(t_init);
+    
     Serial.print(t); Serial.println(" ms");
     
     /*trial_phase0
@@ -261,22 +258,17 @@ int runTrial (int modeSwitch,
     */
     
     preTrial();
-    t = t_now();
+    t = t_now(t_init);
     
-    /* Debug information is always prefixed with "#" so I can remove it 
-     easily from the log file */
-    Serial.print("#Trial Start:\t"); Serial.println(t); 
-    Serial.print("#Go trial:\t"); Serial.println(stimTrial);
-    
-    /*trial start phase
-      trial_phase1 */
     TrialStart(t_noLickPer);
+    t = t_now(t_init);
     
+    flutterStimulus(t_stimONSET_0);
+    t = t_now(t_init);
     
+    flutterStimulus(t_stimONSET_0);
+    t = t_now(t_init);
     
-    flutterStimulus();
-    
-    Serial.print("#Stim Endt:\t"); Serial.println(t);
     
     /* post stimulus delay
     trial_phase3 */
@@ -286,7 +278,7 @@ int runTrial (int modeSwitch,
            1. update the time
            2. check for licks
         */
-        t = t_now();
+        t = t_now(t_init);
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
@@ -298,7 +290,7 @@ int runTrial (int modeSwitch,
     // reward period
     //trial_phase0
     while (t < t_rewardEND) {
-        t = t_now();
+        t = t_now(t_init);
         
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
@@ -343,7 +335,7 @@ int runTrial (int modeSwitch,
     
     // fixed cool down period
     while (t < t_trialEND){
-        t = t_now();
+        t = t_now(t_init);
         
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
@@ -362,7 +354,7 @@ int runTrial (int modeSwitch,
 }
 
 
-int t_now(){
+int t_now(int t_init){
     // is less than 0 before the trial starts
     // is greater than 0 after the start of trial
     return millis() - t_init;
@@ -564,16 +556,15 @@ void preTrial(bool verbose = true) {
        2. check for licks
        4. trigger the recording by putting recTrig -> HIGH
     */
-    int t = t_now();
+    int t = t_now(t_init);
+    if (verbose) {Serial.print("#Enter `preTrial`:\t"); Serial.println(t);}
     
     while (t < 0){
         // 1. update time
         // 2. check for licks
-        t = t_now();
+        t = t_now(t_init);
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
-
-        Serial.print(t); Serial.print("\r");
         
         digitalWrite(vacValve, HIGH);
         
@@ -595,8 +586,10 @@ void preTrial(bool verbose = true) {
     
     digitalWrite(recTrig, LOW); 
     digitalWrite(vacValve, LOW);
+    
+    if (verbose) {Serial.print("#Exit `preTrial`:\t"); Serial.println(t);}
+    
 } 
-
 
 // 1 START PHASE
 int TrialStart(bool verbose = true) {
@@ -615,7 +608,7 @@ int TrialStart(bool verbose = true) {
           in a line being printed with the lick time `t`.
     */
     
-    int t = t_now();
+    int t = t_now(t_init);
     
     if (verbose) {Serial.print("#Enter `TrialStart`:\t"); Serial.println(t);}
     
@@ -623,7 +616,7 @@ int TrialStart(bool verbose = true) {
 
         // 1. update the time
         // 2. check for licks  
-        t = t_now();
+        t = t_now(t_init);
         
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
@@ -671,13 +664,13 @@ int TrialStart(bool verbose = true) {
 }
 
 
-int TrialStimulus (int onset, 
+int TrialStimulus(int onset, 
     int stimDUR,
     unsigned long ON = 5000, // us time of ON pulse    ie FREQUENCY of flutter
     unsigned long OFF = 5000, // us time of off pulse  ie FREQUENCY of flutter
-    bool verbose = true){
+    bool verbose = true) {
     
-    int t = t_now();
+    int t = t_now(t_init);
     int stimUPtime = onset + stimDUR;
     
     if (verbose) {
@@ -693,7 +686,7 @@ int TrialStimulus (int onset,
            1. update the time
            2. check for licks
         */
-        t = t_now();
+        t = t_now(t_init);
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
@@ -705,4 +698,32 @@ int TrialStimulus (int onset,
     
     if (verbose) {Serial.print("#Exit `TrialStimulus`:\t"); Serial.println(t);}
     return 1
+}
+
+int ActiveDelay (int wait, 
+    bool break_on_lick = false, 
+    bool verbose,
+    unsigned long t_init = millis()) {
+    
+    int t = t_now(t_init);
+    
+    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+    
+    while (t < wait) {
+        t = t_now(t_init);
+        lickOn[0] = senseLick(0);
+        lickOn[1] = senseLick(1);
+        
+        if (break_on lick and (lickOn[0] or lickOn[1])){
+            if (verbose) {
+                Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);
+                Serial.print("#port[0]:\t"); Serial.println(lickOn[0]);
+                Serial.print("#port[1]:\t"); Serial.println(lickOn[1]);
+            }
+            return 0;
+        }
+    }
+    
+    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+    return 1;
 }
