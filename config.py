@@ -1,3 +1,10 @@
+"""
+Configuration settings
+
+TODO: make all editable in commandline options!
+TODO: output these within logfile
+
+"""
 
 behaviourPORT = "COM5"
 stimboxPORT = "COM4"
