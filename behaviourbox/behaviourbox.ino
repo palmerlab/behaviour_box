@@ -196,22 +196,15 @@ void loop () {
             if (input[0,sep] == "maxITI") { maxITI = getValue(input); }
             if (input[0,sep] == "maxTimeOut") { maxTimeOut = getValue(input); }
             if (input[0,sep] == "minTimeOut") { minTimeOut = getValue(input); }
-            
-            
+            if (input[0,sep] == "stimTrial") { stimTrial = getValue(input); }
+            if (input[0,sep] == "rewardAvailable") { rewardAvailable = getValue(input); }
         }
     }    
-
-    
-    
     
     if (senseLick(0) or senseLick(1)){
         tone(tonePin, toneBad, 10);
         delay(100);
     }
-    
-    
-        
-        
 }
 
 int runTrial (int modeSwitch,
@@ -250,54 +243,40 @@ int runTrial (int modeSwitch,
     //start the clock
     t_init = millis() + trial_delay;
     
-    // t_init is initialised such that t_now
-    // returns 0 at the start of the trial, and 
-    // increases from there.
+    /* t_init is initialised such that t_now
+       returns 0 at the start of the trial, and 
+       increases from there. */ 
     t = t_now();
     Serial.print("#trial starts in:\t");
     Serial.print(t); Serial.println(" ms");
     
-    //trial_phase0
-    /* while the trial has not started 
+    /*trial_phase0
+    while the trial has not started 
        1. update the time
        2. check for licks
        3. trigger the recording by putting recTrig -> HIGH
     */
+    
     preTrial();
     t = t_now();
     
-    // Debug information is always prefixed with "#" so I can remove it 
-    // easily from the log file
+    /* Debug information is always prefixed with "#" so I can remove it 
+     easily from the log file */
     Serial.print("#Trial Start:\t"); Serial.println(t); 
     Serial.print("#Go trial:\t"); Serial.println(stimTrial);
     
-    //trial start phase
-    //trial_phase1
+    /*trial start phase
+      trial_phase1 */
     TrialStart(t_noLickPer);
     
-     Serial.print("#Stim Start:\t"); Serial.println(t);
     
-    //The stimulus phase
-    //trial_phase2
-    while (t < t_stimEND){
-        /* Run the buzzer while:
-           1. update the time
-           2. check for licks
-        */
-        t = t_now();
-        lickOn[0] = senseLick(0); 
-        lickOn[1] = senseLick(1);
-        
-        if(stimTrial){
-            flutter(stimulus, ON, OFF[0]);
-            }
-        
-    } digitalWrite(stimulus, LOW);
     
-     Serial.print("#Stim Endt:\t"); Serial.println(t);
+    flutterStimulus();
     
-    // post stimulus delay
-    //trial_phase3
+    Serial.print("#Stim Endt:\t"); Serial.println(t);
+    
+    /* post stimulus delay
+    trial_phase3 */
     while (t < t_rewardSTART){
         /* this acts as a grace period, 
            licks do not count still
@@ -617,7 +596,7 @@ void preTrial() {
 
 
 // 1 START PHASE
-int TrialStart(int t_noLickPer) {
+int TrialStart(bool verbose) {
     /* This function returns a 1 if the trial can continue,
        
        
@@ -634,6 +613,8 @@ int TrialStart(int t_noLickPer) {
     */
     
     int t = t_now();
+    
+    if (verbose) {Serial.print("#Enter `TrialStart`:\t"); Serial.println(t);}
     
     while (t < t_stimSTART){
 
@@ -674,9 +655,14 @@ int TrialStart(int t_noLickPer) {
              
             // exits, starting a new trial in the higher loop
             // 3.1. set a timout value
+            if (verbose) {
+                Serial.print("#Exit `TrialStart`:\t"); 
+                Serial.print(t);
+                Serial.println(" with timeout")}
             return 0;
         }
     }
     
+    if (verbose) {Serial.print("#Exit `TrialStart`:\t"); Serial.println(t);}
     return 1;
 }
