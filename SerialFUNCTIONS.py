@@ -1,3 +1,9 @@
+"""
+
+Helper functions for `SerialControl.py`
+
+"""
+
 def random_block(frequency_block = ['0Hz', '5Hz', '10Hz', '25Hz', '50Hz', '100Hz']):
 	
         return np.random.shuffle(block)
