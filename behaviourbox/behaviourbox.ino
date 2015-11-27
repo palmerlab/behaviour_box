@@ -417,6 +417,11 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
     return 1;
 }
 
+
+/* ------------------------------
+     THE MAIN MAIN FUNCTION
+--------------------------------- */ 
+
 int runTrial (int mode,
     int trial_delay,
     int t_noLickPer,   // ms

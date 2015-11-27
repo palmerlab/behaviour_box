@@ -9,19 +9,82 @@ import glob
 import serial
 import argparse
 import msvcrt as m
-import warnings
-warnings.simplefilter(action = "ignore", category = UserWarning)
 
-import numpy as np # bread and butter
-from numpy.random import random_integers, shuffle
-import pandas as pd # on the fly data analysis
-from StringIO import StringIO
-from scipy.stats import norm #on the fly calculations
-from itertools import combinations_with_replacement as combinations
-import colorama # makes things look nice
 
 from config import *
 from SerialFUNCTIONS import *
+      
+      
+import colorama # makes things look nice
+from colorama import Fore as fc
+from colorama import Back as bc     
+from colorama import Style
+
+from style import colour      
+
+
+def timenow(): 
+    return str(datetime.datetime.now().time().strftime('%H:%M:%S'))      
+      
+def get_line(port, verbose):
+    
+    inline = port.readline()
+
+    if inline.startswith("#"):
+        inline = "#%s\t%s\t%s" %(timenow(), port, id, inline)
+        if verbose: print colour(inline, fc.CYAN, Style.BRIGHT)
+    else: 
+        inline = "%s\t%s\t%s" %(timenow(), port, id, inline)
+        print colour(inline, fc.YELLOW)
+    
+    return inline      
+
+def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
+    return "%s%s%s%s%s" %(fc, bc, style, x , c.Style.RESET_ALL)
+
+    
+"""
+    ------------
+    Arguments
+    ------------
+"""
+verbose = True # this will be a cmdline parameter
+port = "COM5" # a commandline parameter
+           
+           
+while m.kbhit() == False:
+    
+    get_line(serial, verbose)
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
 
 """
