@@ -1,5 +1,6 @@
 from __future__ import division
 
+import pandas as pd
 import csv
 import datetime
 import time
@@ -12,10 +13,10 @@ import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
 
-from SerialFUNCTIONS import *
+from itertools import combinations_with_replacement as combinations
       
       
-import colorama # makes things look nice
+import colorama as c # makes things look nice
 from colorama import Fore as fc
 from colorama import Back as bc     
 from colorama import Style
@@ -23,7 +24,7 @@ from colorama import Style
 from style import colour      
 
 
-
+c.init()
 
 def num(s):
     try:
@@ -40,7 +41,7 @@ def unpack_table(filename):
     reader = csv.reader(open(filename, 'r'), delimiter = "\t")
     d = {}
     for row in reader:
-       k, v = row[0] , row[1:]
+       k, v = row
        d[k] = v
     
     return d
@@ -53,10 +54,10 @@ def get_line(port, verbose):
     inline = port.readline()
 
     if inline.startswith("#"):
-        inline = "#%s\t%s\t%s" %(timenow(), port, id, inline)
+        inline = "#%s\t%s\t%s" %(timenow(), port, ID, inline)
         if verbose: print colour(inline, fc.CYAN, Style.BRIGHT)
     else: 
-        inline = "%s\t%s\t%s" %(timenow(), port, id, inline)
+        inline = "%s\t%s\t%s" %(timenow(), port, ID, inline)
         print colour(inline, fc.YELLOW)
     
     return inline      
@@ -64,18 +65,13 @@ def get_line(port, verbose):
 def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , c.Style.RESET_ALL)
 
-def Serial_monitor():
-
-    tmp_dict = {}
+def Serial_monitor(logfile):
     
-    while m.kbhit() == False:
+    line = ser.readline()
+    
+    if line:
         
-        line = port.readline()
-        
-        if line == "--Welcome back Commander":        
-            return tmp_dict
-        
-        fmt_line = "%s\t%s\t%s" %(timenow(), port, id, line)
+        fmt_line = "%s\t%s\t%s\t%s" %(timenow(), port, ID, line)
         
         if line.startswith("#"): 
             fmt_line = "#" + fmt_line
@@ -83,36 +79,46 @@ def Serial_monitor():
         
         elif line[0] != "#": 
             
-            print colour("%s\t%s" %(timenow(), port, id), fc.WHITE),
+            print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
             print colour(line, fc.YELLOW, Style.BRIGHT)
             
-            var, val = line.split(":\t")
-        
-            try: 
-                tmp_dict[var].append(val)
-            except:
-                tmp_dict[var] = [val]
-                
-        
         logfile.write(fmt_line)
+        
+    return line
 
         
 
 def update_bbox(params):
 
     for k in params.keys():
-        ser.write("%s:%s" %(k, params[k]))
-    
-    Serial_monitor()
+        ser.writelines("%s:%s" %(k, params[k]))
+        time.sleep(0.2)
         
+
+def create_logfile(DATADIR = ""):
     
+    date = datetime.date.today().strftime('%y%m%d')
+    
+    if not DATADIR: DATADIR = os.path.join(os.getcwd(), date)
+    
+    if not os.path.isdir(DATADIR):
+        os.mkdir((DATADIR))
+    
+    filename = "%s_%s_%s.log" %(port,ID,date)
+    logfile = os.path.join(DATADIR, filename)
+    print logfile.replace("\\", "\\\\")
+    
+    return logfile
+
+        
 """
     ------------
     Arguments
     ------------
 """
 verbose = True # this will be a cmdline parameter
-port = "COM5" # a commandline parameter
+port = "COM3" # a commandline parameter
+ID = ""
            
 
 params_i = unpack_table('config.tab')           
@@ -132,34 +138,112 @@ block = len(freq) * 5
 
 freq = np.array(freq)
 
-ser = serial.Serial(baudrate = 9600, timeout = 0.05, port = port)
+ser = serial.Serial()
+ser.baudrate = 115200
+ser.timeout = 1
+ser.port = port
 
 try: 
-    behaviourCOMs.open()
-    Serial_monitor()
-    
+    ser.open()
+    print colour("\nWe are a GO", fc.GREEN)
 except: 
-    print_RED("No communications on", behaviourPORT)
-    behaviourCOMs = False
+    print colour("No communications on %s" %port, fc.RED, Style.BRIGHT)
     sys.exit(0)
 
-shuffle(freq)
 
-params['OFF[0]'] = 10e3/freq[t][0] - 5
-params['OFF[1]'] = 10e3/freq[t][0] - 5
 
-update_bbox(params)
+params = params_i
 
-ser.write("GO")
-Serial_monitor()
+logfile = create_logfile()
 
 
 
-
-
-
+trial_num = 0
+with open(logfile, 'a') as log:
+           
+    print "\nAWAITING DISPATCH: ",
+    t = 0
+    while ser.inWaiting() == False:
+        print "\rAWAITING DISPATCH: ", t, "\r",
+        t += 1
     
-      
+    print "\r         DISPATCH: ", t
+    
+    time.sleep(.5)
+    
+    while ser.inWaiting(): Serial_monitor(log)
+    
+    
+    
+    shuffle(freq)
+    
+    for t in xrange(len(freq)):
+        
+        trial_df = {}
+        
+        trial_df['trial_num'] = [0]
+        
+        for f in (0,1):
+            if freq[t][f] == 0: 
+                params['ON[%d]' %f] = 0
+                params['OFF[%d]' %f] = 100
+            else:
+                params['ON[%d]' %f] = 5
+                params['OFF[%d]' %f] = 10e3/freq[t][f] - 5
+        
+        if freq[t][0] and freq[t][1]:
+            if freq[t][0] > freq[t][1]:params['mode'] = 'L'
+            if freq[t][0] < freq[t][1]:params['mode'] = 'R'
+        
+        else:
+            if freq[t][0] or freq[t][1]:params['mode'] = 'B'
+            else: params['mode'] = 'N'
+
+        update_bbox(params)
+        
+        while ser.inWaiting():
+            line = Serial_monitor(log).strip()
+            
+            
+            if line[0] != "#" and line[0] != "-":
+                var, val = line.split(":\t")
+                val = num(val)
+                try: trial_df[var].append(val)
+                except KeyError: trial_df[var] = [val]
+                except AttributeError: trial_df[var] = [trial_df[var], val]
+            
+        
+        for i in range(0,5):
+            time.sleep(1)
+            print colour(i, fc.MAGENTA, Style.BRIGHT), "\r",
+        
+        ser.write("GO")
+        
+        
+        while line.strip() != "--Welcome back Commander":
+            
+            line = Serial_monitor(log).strip()
+
+            if line[0] != "#" and line[0] != "-":
+                var, val = line.split(":\t")
+                val = num(val)
+                try: trial_df[var].append(val)
+                except KeyError: trial_df[var] = [val]
+                except AttributeError: trial_df[var] = [trial_df[var], val]
+            
+        
+        for k in trial_df.keys():
+            if len(trial_df[k]) != len(trial_df['response']):
+                trial_df[k] = trial_df[k]*len(trial_df['response'])
+                
+        trial_df = pd.DataFrame(trial_df)
+        
+        with open('data.tab', 'a') as datafile:
+            trial_df.to_csv(datafile, 
+                header=(trial_num==0))
+        
+        trial_num += 1
+
       
       
       
