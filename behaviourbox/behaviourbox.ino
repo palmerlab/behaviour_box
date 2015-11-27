@@ -134,6 +134,8 @@ void setup (){
     pinMode(stimulusPin, OUTPUT); // declare the whiskStim as as OUTPUT
     pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
     pinMode(tonePin, OUTPUT);
+    
+    Serial.println("--Welcome back Commander");
 }
 
 
@@ -149,7 +151,7 @@ void loop () {
                     stimDUR, t_rewardSTART, t_rewardEND, 
                     t_trialEND, rewardCond, waterVol, verbose);
                     
-            Serial.println("#Ready");
+            Serial.println("--Welcome back Commander");
         }
         
         else { UpdateGlobals(input); }
@@ -238,8 +240,7 @@ THE TRIAL STATES
 int ActiveDelay(int wait, 
     bool break_on_lick = false, 
     bool verbose = true) {
-    
-    unsigned long t_init = millis();
+
     int t = t_now(t_init);
     
     bool response = false;
@@ -254,15 +255,13 @@ int ActiveDelay(int wait,
         if (lickOn[0] or lickOn[1]){
             response = true;
             
-            Serial.print("#response `ActiveDelay`:\t"); Serial.println(t);
-            Serial.print("#port[0]:\t"); Serial.println(lickOn[0]);
-            Serial.print("#port[1]:\t"); Serial.println(lickOn[1]);
+            Serial.print("response:\t"); Serial.println(t);
+            
+            if (lickOn[0]){ Serial.print("port[0]:\t"); Serial.println(lickOn[0]); }
+            if (lickOn[1]){ Serial.print("port[1]:\t"); Serial.println(lickOn[1]); }
+            
             if (break_on_lick){
-                if (verbose) {
-                    Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);
-                    Serial.print("#port[0]:\t"); Serial.println(lickOn[0]);
-                    Serial.print("#port[1]:\t"); Serial.println(lickOn[1]);
-                }
+                if (verbose) { Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t); }
                 return response;
             }
         }
@@ -458,22 +457,22 @@ int runTrial (int mode,
     preTrial(verbose);
     t = t_now(t_init);
        
-    ActiveDelay(t_noLickPer - t, false, verbose);
+    ActiveDelay(t_noLickPer, false, verbose);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET[0] - t, false, verbose);
-    t = t_now(t_init);
-    
-    TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
-    t = t_now(t_init);
-    
-    ActiveDelay(t_stimONSET[1] - t, false, verbose);
+    ActiveDelay(t_stimONSET[0], false, verbose);
     t = t_now(t_init);
     
     TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
     t = t_now(t_init);
     
-    ActiveDelay(t_rewardSTART - t, false, verbose);
+    ActiveDelay(t_stimONSET[1], false, verbose);
+    t = t_now(t_init);
+    
+    TrialStimulus(stimulusPin, stimDUR, ON, OFF[0], verbose);
+    t = t_now(t_init);
+    
+    ActiveDelay(t_rewardSTART, false, verbose);
     t = t_now(t_init);
     
     if (rewardCond != 'N') {

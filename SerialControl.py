@@ -9,9 +9,9 @@ import glob
 import serial
 import argparse
 import msvcrt as m
+import numpy as np
+from numpy.random import shuffle
 
-
-from config import *
 from SerialFUNCTIONS import *
       
       
@@ -22,6 +22,28 @@ from colorama import Style
 
 from style import colour      
 
+
+
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        try: 
+            return float(s)
+        except ValueError:
+            return s
+        
+
+def unpack_table(filename):
+
+    reader = csv.reader(open(filename, 'r'), delimiter = "\t")
+    d = {}
+    for row in reader:
+       k, v = row[0] , row[1:]
+       d[k] = v
+    
+    return d
 
 def timenow(): 
     return str(datetime.datetime.now().time().strftime('%H:%M:%S'))      
@@ -42,6 +64,47 @@ def get_line(port, verbose):
 def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , c.Style.RESET_ALL)
 
+def Serial_monitor():
+
+    tmp_dict = {}
+    
+    while m.kbhit() == False:
+        
+        line = port.readline()
+        
+        if line == "--Welcome back Commander":        
+            return tmp_dict
+        
+        fmt_line = "%s\t%s\t%s" %(timenow(), port, id, line)
+        
+        if line.startswith("#"): 
+            fmt_line = "#" + fmt_line
+            if verbose: print colour(fmt_line, fc.CYAN, Style.BRIGHT)
+        
+        elif line[0] != "#": 
+            
+            print colour("%s\t%s" %(timenow(), port, id), fc.WHITE),
+            print colour(line, fc.YELLOW, Style.BRIGHT)
+            
+            var, val = line.split(":\t")
+        
+            try: 
+                tmp_dict[var].append(val)
+            except:
+                tmp_dict[var] = [val]
+                
+        
+        logfile.write(fmt_line)
+
+        
+
+def update_bbox(params):
+
+    for k in params.keys():
+        ser.write("%s:%s" %(k, params[k]))
+    
+    Serial_monitor()
+        
     
 """
     ------------
@@ -51,11 +114,51 @@ def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
 verbose = True # this will be a cmdline parameter
 port = "COM5" # a commandline parameter
            
-           
-while m.kbhit() == False:
+
+params_i = unpack_table('config.tab')           
+freq = np.loadtxt('frequencies.tab', skiprows = 1)
+
+#generate the frequency pairs
+tmp_freq = []        
+
+for f in combinations(freq, 2): 
+    tmp_freq.append(f)
+freq = tmp_freq
+
+del tmp_freq
+
+#set the block proportional to the number of freq to be tested
+block = len(freq) * 5 
+
+freq = np.array(freq)
+
+ser = serial.Serial(baudrate = 9600, timeout = 0.05, port = port)
+
+try: 
+    behaviourCOMs.open()
+    Serial_monitor()
     
-    get_line(serial, verbose)
-      
+except: 
+    print_RED("No communications on", behaviourPORT)
+    behaviourCOMs = False
+    sys.exit(0)
+
+shuffle(freq)
+
+params['OFF[0]'] = 10e3/freq[t][0] - 5
+params['OFF[1]'] = 10e3/freq[t][0] - 5
+
+update_bbox(params)
+
+ser.write("GO")
+Serial_monitor()
+
+
+
+
+
+
+    
       
       
       
@@ -114,113 +217,3 @@ while m.kbhit() == False:
 MAIN FUNCTION HERE
 
 """
-
-if __name__ =="__main__":
-    os.system("cls")
-
-    colorama.init()
-        
-    #get all arguments
-    behaviourPORT = args.behaviourPORT
-    id = args.id
-    do_dprime = args.dprime
-    
-    verbose = args.verbose
-    boxparams['verbose'] = verbose
-    
-    block = args.block
-    freq = args.freq
-    
-    
-    if freq: 
-        tmp_freq = []
-        
-        for f in combinations(freq, 2): 
-            tmp_freq.append(f)
-        
-        freq = tmp_freq
-        del tmp_freq
-
-        #set the block proportional to the number of freq to be tested
-        block = len(freq) * 5 
-        
-        freq = np.array(freq)
-        
-
-    datadir = args.datadir
-
-    #open Serial ports
-    behaviourCOMs = serial.Serial(baudrate = 9600, timeout = 0.05, port = behaviourPORT)
-    try: behaviourCOMs.open()
-    except: 
-        print_RED("No communications on", behaviourPORT)
-        behaviourCOMs = False
-        sys.exit(0)
-
-            
-    logfile = create_logfile(datadir)        
-
-    with open(logfile, 'a') as log:
-        
-        if behaviourCOMs: 
-            log.write("#%s\tstimbox OPEN port %s\n" %(timenow(),behaviourPORT))
-            print_CYAN("#%s\tbehaviour OPEN port %s\n" %(timenow(),behaviourPORT), verbose)
-    
-    
-    
-    while True:
-
-        cmds = check_input()
-        log.write(get_info(behaviourCOMS, verbose))
-        
-        
-        
-    ##repeat  per block
-    
-        for k in boxparams.keys():
-            behaviourCOMS.write("%s:%s" %(k, boxparams[k]))
-            log.write(get_info(behaviourCOMS))
-        
-    
-        for b in xrange(block):
-        
-            boxparams_old = boxparams
-            
-            shuffle(freq)
-
-
-            print colorama.Fore.MAGENTA + "freq:\t",
-            for i in xrange(len(freq)): print freq[i], "Hz\t",
-            print colorama.Style.RESET_ALL
-
-                #frequency input to stimbox  = "%d:%d&%d%d"
-            for t in xrange(len(freq)):
-                t = 0
-
-                # behaviour box: parse frequency
-                # frequency is converted from Hz to an off period in ms 
-                # (the box then coverts this to us)
-                boxparams["OFF[0]"] = 10e3/freq[t][0] - 5
-                boxparams["OFF[1]"] = 10e3/freq[t][1] - 5
-                
-                #based on frequencies send the reward contingency to
-                # the behaviour box
-                # 0 results in no reward on this trial
-                if freq[t][0] and freq[t][1]:
-                    if freq[t][0] > freq[t][1]:
-                        boxparams['rewardCond'] = 'R'
-                    else:
-                        boxparams['rewardCond'] = 'L'
-                elif freq[t][0] or freq[t][1]:
-                    #use either port
-                    boxparams['rewardCond'] = 'B'
-                else:
-                    # no reward
-                    boxparams['rewardCond'] = 'N'
-
-                for k in boxparams.keys():
-                    if boxparams_old[k] != boxparams[k]:
-                        behaviourCOMS.write("%s:%s" %(k, boxparams[k]))
-                        log.write(get_info(behaviourCOMS))
-        
-        behaviour_log()
