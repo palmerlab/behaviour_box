@@ -12,6 +12,7 @@ import argparse
 import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
+import AndrewSignalDetection as sig
 
 from itertools import combinations_with_replacement as combinations
       
@@ -25,6 +26,20 @@ from style import colour
 
 
 c.init()
+
+def goto_interpreter():
+    
+    if m.kbhit():
+        c = m.getch()
+        if c == '\xe0': c = m.getch()
+        
+        if c == '\x1b':
+            sys.exit(0)
+        
+        else:    
+            mode = raw_input(">>> ")
+            exec(mode)
+            return
 
 def num(s):
     try:
@@ -159,8 +174,10 @@ logfile = create_logfile()
 
 
 trial_num = 0
+#open a file to save data in
 with open(logfile, 'a') as log:
-           
+    
+    #IDLE while Arduino performs it's setup functions
     print "\nAWAITING DISPATCH: ",
     t = 0
     while ser.inWaiting() == False:
@@ -169,27 +186,45 @@ with open(logfile, 'a') as log:
     
     print "\r         DISPATCH: ", t
     
+    # Buffer for 500 ms to let arduino finish it's setup
     time.sleep(.5)
     
     while ser.inWaiting(): Serial_monitor(log)
     
     
+    # shuffle the frequencies
     
     shuffle(freq)
     
     for t in xrange(len(freq)):
-        
+            
+        # create an empty dictionary to store data in
         trial_df = {}
         
-        trial_df['trial_num'] = [0]
         
+        trial_df['trial_num'] = [trial_num]
+        
+        
+        
+        # convert the frequencies into an on off square pulse
         for f in (0,1):
+            trial_df['freq%d' %f] = freq[t][f]
+            # if the frequency is 0 make the on time = 0
             if freq[t][f] == 0: 
                 params['ON[%d]' %f] = 0
-                params['OFF[%d]' %f] = 100
+                params['OFF[%d]' %f] = 1 # ms
+            # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
             else:
                 params['ON[%d]' %f] = 5
-                params['OFF[%d]' %f] = 10e3/freq[t][f] - 5
+                params['OFF[%d]' %f] = (10e3/freq[t][f]) - 5
+                
+        
+        
+        # Determine the reward condition
+        #     1. f0 > f1 :: lick left
+        #     2. f0 < f1 :: lick right
+        #     3. f0 == 0 OR f1 == 0, either port is valid
+        #     4. f0 == 0 AND f1 == 0, neither port is valid
         
         if freq[t][0] and freq[t][1]:
             if freq[t][0] > freq[t][1]:params['mode'] = 'L'
@@ -198,13 +233,19 @@ with open(logfile, 'a') as log:
         else:
             if freq[t][0] or freq[t][1]:params['mode'] = 'B'
             else: params['mode'] = 'N'
-
+        
+        
+        #THE HANDSHAKE
+        # send all current parameters to the arduino box to rul the trial
         update_bbox(params)
         
+        # log the receipt of the parameters
         while ser.inWaiting():
+            
+            # get info about licks, strip away trailing white space
             line = Serial_monitor(log).strip()
             
-            
+            # store it if it isn't debug or the ready line
             if line[0] != "#" and line[0] != "-":
                 var, val = line.split(":\t")
                 val = num(val)
@@ -212,11 +253,12 @@ with open(logfile, 'a') as log:
                 except KeyError: trial_df[var] = [val]
                 except AttributeError: trial_df[var] = [trial_df[var], val]
             
-        
+        # todo make this a random timer
         for i in range(0,5):
             time.sleep(1)
             print colour(i, fc.MAGENTA, Style.BRIGHT), "\r",
         
+        # Send the literal GO symbol
         ser.write("GO")
         
         
@@ -240,7 +282,7 @@ with open(logfile, 'a') as log:
         
         with open('data.tab', 'a') as datafile:
             trial_df.to_csv(datafile, 
-                header=(trial_num==0))
+                header=(trial_num==0), sep = "\t")
         
         trial_num += 1
 
