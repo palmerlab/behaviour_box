@@ -23,9 +23,6 @@ from colorama import Fore as fc
 from colorama import Back as bc     
 from colorama import Style
 
-from style import colour      
-
-
 c.init()
 date = datetime.date.today().strftime('%y%m%d')
 
@@ -61,6 +58,9 @@ def num(s):
         except ValueError:
             return s
         
+def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
+    return "%s%s%s%s%s" %(fc, bc, style, x , c.Style.RESET_ALL)
+
 
 def unpack_table(filename):
 
@@ -81,15 +81,12 @@ def get_line(port, verbose):
 
     if inline.startswith("#"):
         inline = "#%s\t%s\t%s" %(timenow(), port, ID, inline)
-        if verbose: print colour(inline, fc.CYAN, Style.BRIGHT)
+        if verbose: print colour(inline, fc.CYAN, style = Style.BRIGHT)
     else: 
         inline = "%s\t%s\t%s" %(timenow(), port, ID, inline)
         print colour(inline, fc.YELLOW)
     
     return inline      
-
-def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
-    return "%s%s%s%s%s" %(fc, bc, style, x , c.Style.RESET_ALL)
 
 def Serial_monitor(logfile):
     
@@ -101,12 +98,12 @@ def Serial_monitor(logfile):
         
         if line.startswith("#"): 
             fmt_line = "#" + fmt_line
-            if verbose: print colour(fmt_line, fc.CYAN, Style.BRIGHT)
+            if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
         
         elif line[0] != "#": 
             
             print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
-            print colour(line, fc.YELLOW, Style.BRIGHT)
+            print colour(line, fc.YELLOW, style =  Style.BRIGHT)
             
         logfile.write(fmt_line)
         
@@ -173,7 +170,7 @@ try:
     ser.open()
     print colour("\nWe are a GO", fc.GREEN)
 except: 
-    print colour("No communications on %s" %port, fc.RED, Style.BRIGHT)
+    print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
     sys.exit(0)
 
 
@@ -268,7 +265,7 @@ with open(logfile, 'a') as log:
         ITI = 5 * random.random()
         print "about to go in " ITI
         time.sleep(ITI)
-        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, Style.BRIGHT)
+        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
         
         # Send the literal GO symbol
         ser.write("GO")
