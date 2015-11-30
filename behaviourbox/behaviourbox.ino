@@ -328,23 +328,20 @@ int TrialStimulus(int stimulusPin,
         Serial.print("#ON:\t"); Serial.println(ON);
         Serial.print("#OFF:\t"); Serial.println(OFF);
     }
-    
-    if (ON > 0) {
-        while (t < stimDUR){
-            /* Run the buzzer while:
-               1. update the time
-               2. check for licks
-            */
-            t = t_now(t_local);
-            lickOn[0] = senseLick(0); 
-            lickOn[1] = senseLick(1);
-            
-            
-            flutter(stimulusPin, ON, OFF);
-           
-            
-        } digitalWrite(stimulusPin, LOW); //this is a safety catch
-    }
+   
+    while (t < stimDUR){
+        /* Run the buzzer while:
+           1. update the time
+           2. check for licks
+        */
+        t = t_now(t_local);
+        lickOn[0] = senseLick(0); 
+        lickOn[1] = senseLick(1);
+        
+        flutter(stimulusPin, ON, OFF);
+
+    } digitalWrite(stimulusPin, LOW); //this is a safety catch
+
     
     if (verbose) {Serial.print("#Exit `TrialStimulus`:\t"); Serial.println(t);}
     return 1;
@@ -463,13 +460,15 @@ int runTrial (int mode,
     ActiveDelay(t_stimONSET[0], false, verbose);
     t = t_now(t_init);
     
-    TrialStimulus(stimulusPin, stimDUR, ON[0], OFF[0], verbose);
+    if (ON[0]) {TrialStimulus(stimulusPin, stimDUR, ON[0], OFF[0], verbose);}
+    else {if (verbose){Serial.println("#skipping stim0");}}
     t = t_now(t_init);
     
     ActiveDelay(t_stimONSET[1], false, verbose);
     t = t_now(t_init);
     
-    TrialStimulus(stimulusPin, stimDUR, ON[1], OFF[1], verbose);
+    if (ON[1]){ TrialStimulus(stimulusPin, stimDUR, ON[1], OFF[1], verbose);}
+    else {if (verbose){Serial.println("#skipping stim1");}}
     t = t_now(t_init);
     
     ActiveDelay(t_rewardSTART, false, verbose);
@@ -594,12 +593,3 @@ int UpdateGlobals(String input) {
        
    return 0;
 }
-
-
-
-
-
-
-
-
-

@@ -62,7 +62,9 @@ p = argparse.ArgumentParser(description="This program controls the Arduino and r
 p.add_argument("-v", "--verbose", action='store_true', help='for debug, will print everything if enabled')
 p.add_argument("-p", "--port", default = "COM5", help = "port that the Arduino is connected to")
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
-
+p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
+p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in Hz (separated by spaces)")
+p.add_argument('--ITI',  nargs='*', type=float, help="an interval for randomising between trials")
 
 def bin_array(array, bin_size):
     
@@ -150,6 +152,7 @@ def update_bbox(params):
 
     for k in params.keys():
         ser.writelines("%s:%s" %(k, params[k]))
+        #print "%s:%s" %(k, params[k])
         time.sleep(0.2)
         
 
@@ -184,11 +187,15 @@ if __name__ == "__main__":
         port = args.port # a commandline parameter
         ID = args.ID
         
+        
         c.init()
         date = datetime.date.today().strftime('%y%m%d')
 
-        params_i = unpack_table('config.tab')           
+        params_i = unpack_table('config.tab')
+        if args.mode: params_i['mode'] = args.mode
+        
         freq = np.loadtxt('frequencies.tab', skiprows = 1)
+        if args.freq: freq = args.freq
 
         #generate the frequency pairs
         tmp_freq = []        
@@ -263,7 +270,7 @@ if __name__ == "__main__":
                     # if the frequency is 0 make the on time = 0
                     if freq[t][f] == 0: 
                         params['ON[%d]' %f] = 0
-                        params['OFF[%d]' %f] = 1 # ms
+                        params['OFF[%d]' %f] = 10 # ms
                     # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
                     else:
                         params['ON[%d]' %f] = 5
@@ -304,10 +311,14 @@ if __name__ == "__main__":
                         except AttributeError: trial_df[var] = [trial_df[var], val]
                     
                 # todo make this a random timer
-                ITI = 3 + (2 * random.random())
+                try: ITI = random.uniform(args.ITI[0], args.ITI[1])
+                except: ITI = random.uniform(2,3)
+                
                 print "about to go in ",  ITI
                 print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                 time.sleep(ITI)
+                
+                trial_df['time'] = [timenow()]
                 
                 # Send the literal GO symbol
                 ser.write("GO")
@@ -326,26 +337,29 @@ if __name__ == "__main__":
                 
                 
                 # patitions lick responses into three handy numbers each
-                licksL = trial_df['port[0]']
-                licksR = trial_df['port[1]']
+                licksL = np.array(trial_df['port[0]'])
+                licksR = np.array(trial_df['port[1]'])
                 
+                print licksL.size
                 
                 t_f0 = params['t_stimONSET[0]']
                 t_f1 = params['t_stimONSET[1]']
-                stimdur = params['stimDUR']
+                t_post = params['t_rewardSTART']
                 
-                try: trial_df['left_pre'] = [licksL[licksL < t_f0].size]
+                
+                
+                try: trial_df['left_pre'] = [licksL[licksL < t_f0].sum()]
                 except: trial_df['left_pre'] = [0]
-                try: trial_df['left_stim'] = licksL[(licksL > t_f0) & (licksL < (t_f1 + stimdur))].size
+                try: trial_df['left_stim'] = [licksL[(licksL > t_f0) & (licksL < t_post)].sum()]
                 except: trial_df['left_stim'] = [0]
-                try: trial_df['left_post'] = licksL[licksL > (t_f1 + stimdur)].size
+                try: trial_df['left_post'] = [licksL[licksL > t_post].sum()]
                 except: trial_df['left_post'] = [0]
                                                                                     
-                try: trial_df['right_pre'] = licksR[licksR < t_f0].size
+                try: trial_df['right_pre'] = [licksR[licksR < t_f0].sum()]
                 except: trial_df['right_pre'] = [0]
-                try: trial_df['right_stim'] = licksR[(licksR > t_f0) & (licksR < (t_f1 + stimdur))].size
+                try: trial_df['right_stim'] = [licksR[(licksR > t_f0) & (licksR < t_post)].sum()]
                 except: trial_df['right_stim'] = [0]
-                try: trial_df['right_post'] = licksR[licksR > (t_f1 + stimdur)].size
+                try: trial_df['right_post'] = [licksR[licksR > t_post].sum()]
                 except: trial_df['right_post'] = [0]
                 
                 np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
@@ -354,12 +368,14 @@ if __name__ == "__main__":
                 del trial_df['port[0]']
                 del trial_df['port[1]']
                 
+                trial_df['ID'] = [ID]
                 
                 trial_df = pd.DataFrame(trial_df)
                 
                 with open('data.tab', 'a') as datafile:
                     trial_df.to_csv(datafile, 
-                        header=(trial_num==0), sep = "\t")
+                        header=(trial_num==0), sep = "\t",
+                        index=False)
                 
                 trial_num += 1
                 
