@@ -26,6 +26,16 @@ from style import colour
 
 
 c.init()
+date = datetime.date.today().strftime('%y%m%d')
+
+
+def bin_array(array, bin_size):
+    
+    pad_size = math.ceil((array.size/bin_size)*bin_size - array.size)
+    array_padded = np.append(array, np.zeroes(pad_size)*np.NaN)
+    return np.nanmean(array_padded.reshape(-1,bin_size), axis = 1)
+    
+
 
 def goto_interpreter():
     
@@ -227,12 +237,12 @@ with open(logfile, 'a') as log:
         #     4. f0 == 0 AND f1 == 0, neither port is valid
         
         if freq[t][0] and freq[t][1]:
-            if freq[t][0] > freq[t][1]:params['mode'] = 'L'
-            if freq[t][0] < freq[t][1]:params['mode'] = 'R'
+            if freq[t][0] > freq[t][1]: params['rewardCond'] = 'L'
+            if freq[t][0] < freq[t][1]: params['rewardCond'] = 'R'
         
         else:
-            if freq[t][0] or freq[t][1]:params['mode'] = 'B'
-            else: params['mode'] = 'N'
+            if freq[t][0] or freq[t][1]:params['rewardCond'] = 'B'
+            else: params['rewardCond'] = 'N'
         
         
         #THE HANDSHAKE
@@ -274,47 +284,46 @@ with open(logfile, 'a') as log:
                 except AttributeError: trial_df[var] = [trial_df[var], val]
             
         
-        for k in trial_df.keys():
-            if len(trial_df[k]) != len(trial_df['response']):
-                trial_df[k] = trial_df[k]*len(trial_df['response'])
-                
+        lick_response = np.array(trial_df['port[0]'],trial_df['port[1]'])
+        
+        np.savetxt("%s_%s_licktimes_trial%04d.tab" %(ID,date, trial_num), 
+            lick_response, fmt = %d, delimiter = "\t", 
+            header = "port[0]\tport[1]")
+        
+        for r in trial_df['response']:
+        
+            try: if r in trial_df['port[0]']: lick_response[0][r] = 1
+            except: pass
+            try: if r in trial_df['port[1]']: lick_response[1][r] = 1
+            except: pass
+        
+        lick_response[0] = bin_array(lick_response[0], 2000) #compact into 2 s bins
+        lick_response[1] = bin_array(lick_response[1], 2000) #compact into 2 s bins
+        
+        
+        if (trial_df['rewardCond'] == 'L') and sum(lick_response[0][2:]):
+            trial_df['response'] = 1
+        
+        elif (trial_df['rewardCond'] == 'R') and sum(lick_response[1][2:]):
+            trial_df['response'] = 1
+            
+        elif (trial_df['rewardCond'] == 'B') and (sum(lick_response[0][2:]) or sum(lick_response[1][2:])):
+            trial_df['response'] = 1
+            
+        elif (trial_df['rewardCond'] == 'N') and (sum(lick_response[0][2:]) or sum(lick_response[1][2:])):
+            trial_df['response'] = 0
+        
+        else: trial_df['response'] = 0
+        
+        
+        
         trial_df = pd.DataFrame(trial_df)
         
         with open('data.tab', 'a') as datafile:
             trial_df.to_csv(datafile, 
                 header=(trial_num==0), sep = "\t")
         
-        trial_num += 1
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+        trial_num += 1      
 
 """
 1. The program starts
