@@ -242,6 +242,7 @@ with open(logfile, 'a') as log:
             if freq[t][0] or freq[t][1]:params['rewardCond'] = 'B'
             else: params['rewardCond'] = 'N'
         
+        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT),
         
         #THE HANDSHAKE
         # send all current parameters to the arduino box to rul the trial
@@ -262,10 +263,10 @@ with open(logfile, 'a') as log:
                 except AttributeError: trial_df[var] = [trial_df[var], val]
             
         # todo make this a random timer
-        ITI = 5 * random.random()
-        print "about to go in " ITI
-        time.sleep(ITI)
+        ITI = 3 + (2 * random.random())
+        print "about to go in ",  ITI
         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+        time.sleep(ITI)
         
         # Send the literal GO symbol
         ser.write("GO")
@@ -281,43 +282,7 @@ with open(logfile, 'a') as log:
                     try: trial_df[var].append(val)
                     except KeyError: trial_df[var] = [val]
                     except AttributeError: trial_df[var] = [trial_df[var], val]
-            
-        if trial_df['response']:
-            lick_response = np.array(trial_df['port[0]'],trial_df['port[1]'])
-            
-            np.savetxt("%s_%s_licktimes_trial%04d.tab" %(ID,date, trial_num), 
-                lick_response, fmt = "%d", delimiter = "\t", 
-                header = "port[0]\tport[1]")
-            
-            for r in trial_df['response']:
-            
-                try: 
-                    if r in trial_df['port[0]']: lick_response[0][r] = 1
-                except: pass
-                try: 
-                    if r in trial_df['port[1]']: lick_response[1][r] = 1
-                except: pass
-            
-            lick_response[0] = bin_array(lick_response[0], 2000) #compact into 2 s bins
-            lick_response[1] = bin_array(lick_response[1], 2000) #compact into 2 s bins
-            
-            
-            if (trial_df['rewardCond'] == 'L') and sum(lick_response[0][2:]):
-                trial_df['response'] = 1
-            
-            elif (trial_df['rewardCond'] == 'R') and sum(lick_response[1][2:]):
-                trial_df['response'] = 1
-                
-            elif (trial_df['rewardCond'] == 'B') and (sum(lick_response[0][2:]) or sum(lick_response[1][2:])):
-                trial_df['response'] = 1
-                
-            elif (trial_df['rewardCond'] == 'N') and (sum(lick_response[0][2:]) or sum(lick_response[1][2:])):
-                trial_df['response'] = 0
-            
-            else: trial_df['response'] = 0
-        
-        
-        
+
         trial_df = pd.DataFrame(trial_df)
         
         with open('data.tab', 'a') as datafile:
