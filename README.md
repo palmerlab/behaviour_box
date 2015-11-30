@@ -71,14 +71,30 @@ pin 9     vacuum tube valve `vacValve`
 pin 13    lick report       `licking`
 --------- ----------------- ------------
 
-ANALOG IN   input
----------   -----------------  ------------
-A0          piezo lick sensor  lickSens
----------   -----------------  ------------
+--------- ----------------- ------------
+ANALOG IN input
+--------- ----------------- ------------
+A0        piezo lick sensor lickSens
+--------- ----------------- ------------
 Table: connections to lick controller
   
 Start program:
 --------------
+
+The arduino program is a little complicated; but in principle a simple
+setup. The main method is `runTrial` which on initialisation:
+
+1. Waits a period of ms defined by `trial_delay`. In this period the timer counts
+   up to zero; and the sensors detect licks. 10 ms before zero, a pulse is sent to
+   the `recTrig` to trigger the recording
+2. Next two periods of `ActiveDelay` are intialised in sequence. Two are used 
+   so that if I decide the set a `noLickPer` time, I can have that come on a
+   short time after the trigger. `ActiveDelay` has the condition `break_on_lick`
+   as it's second argument. If `true` the program will exit the function before
+   it reaches the time that it is set to delay until. **TODO** make it so that if
+   `ActiveDelay` is broken the trial exits and prints `"#timeout initiated"` or
+    equivalent, for the SerialController to parse.
+
 Trial intervals will randomized between 'minITI' and 'maxITI'. 
 During a trial, the animal has to wait a stimulation without 
 licking (no-lick period, 'nolickPer').
@@ -88,7 +104,7 @@ will be postponed by giving a time out (randomized between
 When a stimulation is delivered (stimulus duration: 'stimDur'), 
 the animal need to respond (touch the sensor) within a certain 
 time window ('crPer') to get a water reward.
-Delayed licking after the time window will not be rewarded. 
+Delayed lickig after the time window will not be rewarded. 
 Opening duration of the water valve is defined by 'valveDur'.
 A TTL trigger for recording will be delivered 
 'baseLineTime' (1 s in default setting) before the stimulus.
