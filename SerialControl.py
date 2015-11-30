@@ -12,6 +12,7 @@ import argparse
 import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
+import random
 import AndrewSignalDetection as sig
 
 from itertools import combinations_with_replacement as combinations
@@ -264,6 +265,8 @@ with open(logfile, 'a') as log:
                 except AttributeError: trial_df[var] = [trial_df[var], val]
             
         # todo make this a random timer
+        
+        print "about to go in " 
         for i in range(0,5):
             time.sleep(1)
             print colour(i, fc.MAGENTA, Style.BRIGHT), "\r",
