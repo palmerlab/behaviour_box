@@ -1,4 +1,4 @@
-String version = "#behaviourbox151119";
+String version = "#behaviourbox151130";
 
 //TODO: make a conditioning protocol
 //TODO: rename singlestim operant
@@ -176,7 +176,7 @@ bool senseLick(bool sensor){
     boolean lickDetected = false;
     int sensVal = analogRead(lickSens[sensor]);
 
-    if (sensVal <= lickThres){
+    if (sensVal >= lickThres){
         digitalWrite(lickRep[sensor], HIGH);
         lickDetected = true;
     } 
@@ -255,8 +255,8 @@ int ActiveDelay(int wait,
         if (lickOn[0] or lickOn[1]){
             response = true;
             
-            if (LickOn[0]) { Serial.print("port[0]:\t"); Serial.println(t); }
-            if (LickOn[1]) { Serial.print("port[1]:\t"); Serial.println(t); }
+            if (lickOn[0]) { Serial.print("port[0]:\t"); Serial.println(t); }
+            if (lickOn[1]) { Serial.print("port[1]:\t"); Serial.println(t); }
             
             if (break_on_lick){
                 if (verbose) { Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t); }

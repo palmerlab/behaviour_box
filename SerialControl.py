@@ -177,184 +177,193 @@ MAIN FUNCTION HERE
     
     
 if __name__ == "__main__":
-    args = p.parse_args()
+    try:
+        args = p.parse_args()
 
-    verbose = args.verbose # this will be a cmdline parameter
-    port = args.port # a commandline parameter
-    ID = args.ID
-    
-    c.init()
-    date = datetime.date.today().strftime('%y%m%d')
-
-    params_i = unpack_table('config.tab')           
-    freq = np.loadtxt('frequencies.tab', skiprows = 1)
-
-    #generate the frequency pairs
-    tmp_freq = []        
-
-    for f in permutations(freq, 2): 
-        tmp_freq.append(np.array(f))
-    freq = tmp_freq
-
-    del tmp_freq
-
-    #set the block proportional to the number of freq to be tested
-    block = len(freq) * 5 
-
-    freq = np.array(freq)
-
-    ser = serial.Serial()
-    ser.baudrate = 115200
-    ser.timeout = 1
-    ser.port = port
-
-    try: 
-        ser.open()
-        print colour("\nWe are a GO", fc.GREEN)
-    except: 
-        print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
-        sys.exit(0)
-
-
-    params = params_i
-    logfile = create_logfile()
-
-
-
-    trial_num = 0
-    #open a file to save data in
-    with open(logfile, 'a') as log:
+        verbose = args.verbose # this will be a cmdline parameter
+        port = args.port # a commandline parameter
+        ID = args.ID
         
-        #IDLE while Arduino performs it's setup functions
-        print "\nAWAITING DISPATCH: ",
-        t = 0
-        while ser.inWaiting() == False:
-            print "\rAWAITING DISPATCH: ", t, "\r",
-            t += 1
-        
-        print "\r         DISPATCH: ", t
-        
-        # Buffer for 500 ms to let arduino finish it's setup
-        time.sleep(.5)
-        
-        while ser.inWaiting(): Serial_monitor(log)
-        
-        
-        # shuffle the frequencies
-        
-        shuffle(freq)
-        
-        for t in xrange(len(freq)):
-                
-            # create an empty dictionary to store data in
-            trial_df = {}
+        c.init()
+        date = datetime.date.today().strftime('%y%m%d')
+
+        params_i = unpack_table('config.tab')           
+        freq = np.loadtxt('frequencies.tab', skiprows = 1)
+
+        #generate the frequency pairs
+        tmp_freq = []        
+
+        for f in permutations(freq, 2): 
+            tmp_freq.append(np.array(f))
+        freq = tmp_freq
+
+        del tmp_freq
+
+        #set the block proportional to the number of freq to be tested
+        block = len(freq) * 5 
+
+        freq = np.array(freq)
+
+        ser = serial.Serial()
+        ser.baudrate = 115200
+        ser.timeout = 1
+        ser.port = port
+
+        try: 
+            ser.open()
+            print colour("\nWe are a GO", fc.GREEN)
+        except: 
+            print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
+            sys.exit(0)
+
+
+        params = params_i
+        logfile = create_logfile()
+
+
+
+        trial_num = 0
+        #open a file to save data in
+        with open(logfile, 'a') as log:
+            
+            #IDLE while Arduino performs it's setup functions
+            print "\nAWAITING DISPATCH: ",
+            t = 0
+            while ser.inWaiting() == False:
+                print "\rAWAITING DISPATCH: ", t, "\r",
+                t += 1
+            
+            print "\r         DISPATCH: ", t
+            
+            # Buffer for 500 ms to let arduino finish it's setup
+            time.sleep(.5)
+            
+            while ser.inWaiting(): Serial_monitor(log)
             
             
-            trial_df['trial_num'] = [trial_num]
+            # shuffle the frequencies
             
-            trial_df['port[0]'] = [0]
-            trial_df['port[1]'] = [0]
+            shuffle(freq)
             
-            
-            # convert the frequencies into an on off square pulse
-            for f in (0,1):
-                trial_df['freq%d' %f] = [freq[t][f]]
-                # if the frequency is 0 make the on time = 0
-                if freq[t][f] == 0: 
-                    params['ON[%d]' %f] = 0
-                    params['OFF[%d]' %f] = 1 # ms
-                # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
-                else:
-                    params['ON[%d]' %f] = 5
-                    params['OFF[%d]' %f] = (10e3/freq[t][f]) - 5
+            for t in xrange(len(freq)):
                     
-            # Determine the reward condition
-            #     1. f0 > f1 :: lick left
-            #     2. f0 < f1 :: lick right
-            #     3. f0 == 0 OR f1 == 0, either port is valid
-            #     4. f0 == 0 AND f1 == 0, neither port is valid
-            
-            if freq[t][0] and freq[t][1]:
-                if freq[t][0] > freq[t][1]: params['rewardCond'] = 'L'
-                if freq[t][0] < freq[t][1]: params['rewardCond'] = 'R'
-            
-            else:
-                if freq[t][0] or freq[t][1]:params['rewardCond'] = 'B'
-                else: params['rewardCond'] = 'N'
-            
-            print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
-            
-            #THE HANDSHAKE
-            # send all current parameters to the arduino box to rul the trial
-            update_bbox(params)
-            
-            # log the receipt of the parameters
-            while ser.inWaiting():
+                # create an empty dictionary to store data in
+                trial_df = {}
                 
-                # get info about licks, strip away trailing white space
-                line = Serial_monitor(log).strip()
                 
-                # store it if it isn't debug or the ready line
-                if line[0] != "#" and line[0] != "-":
-                    var, val = line.split(":\t")
-                    val = num(val)
-                    try: trial_df[var].append(val)
-                    except KeyError: trial_df[var] = [val]
-                    except AttributeError: trial_df[var] = [trial_df[var], val]
+                trial_df['trial_num'] = [trial_num]
                 
-            # todo make this a random timer
-            ITI = 3 + (2 * random.random())
-            print "about to go in ",  ITI
-            print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
-            time.sleep(ITI)
-            
-            # Send the literal GO symbol
-            ser.write("GO")
-            
-            
-            while line.strip() != "--Welcome back Commander":
+                trial_df['port[0]'] = [0]
+                trial_df['port[1]'] = [0]
                 
-                line = Serial_monitor(log).strip()
-                if line:
+                
+                # convert the frequencies into an on off square pulse
+                for f in (0,1):
+                    trial_df['freq%d' %f] = [freq[t][f]]
+                    # if the frequency is 0 make the on time = 0
+                    if freq[t][f] == 0: 
+                        params['ON[%d]' %f] = 0
+                        params['OFF[%d]' %f] = 1 # ms
+                    # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
+                    else:
+                        params['ON[%d]' %f] = 5
+                        params['OFF[%d]' %f] = (10e3/freq[t][f]) - 5
+                        
+                # Determine the reward condition
+                #     1. f0 > f1 :: lick left
+                #     2. f0 < f1 :: lick right
+                #     3. f0 == 0 OR f1 == 0, either port is valid
+                #     4. f0 == 0 AND f1 == 0, neither port is valid
+                
+                if freq[t][0] and freq[t][1]:
+                    if freq[t][0] > freq[t][1]: params['rewardCond'] = 'L'
+                    if freq[t][0] < freq[t][1]: params['rewardCond'] = 'R'
+                
+                else:
+                    if freq[t][0] or freq[t][1]:params['rewardCond'] = 'B'
+                    else: params['rewardCond'] = 'N'
+                
+                print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                
+                #THE HANDSHAKE
+                # send all current parameters to the arduino box to rul the trial
+                update_bbox(params)
+                
+                # log the receipt of the parameters
+                while ser.inWaiting():
+                    
+                    # get info about licks, strip away trailing white space
+                    line = Serial_monitor(log).strip()
+                    
+                    # store it if it isn't debug or the ready line
                     if line[0] != "#" and line[0] != "-":
                         var, val = line.split(":\t")
                         val = num(val)
                         try: trial_df[var].append(val)
                         except KeyError: trial_df[var] = [val]
                         except AttributeError: trial_df[var] = [trial_df[var], val]
-            
-            
-            # patitions lick responses into three handy numbers each
-            licksL = trial_df['port[0]']
-            licksR = trial_df['port[1]']
-            
-            
-            t_f0 = params['t_stimONSET[0]']
-            t_f1 = params['t_stimONSET[1]']
-            stimdur = params['stimDUR']
-            
-            trial_df['left_pre']   = licksL[licksL < t_f0].size
-            trial_df['left_stim']  = licksL[licksL > t_f0) & (licksL < (t_f1 + stimdur))].size
-            trial_df['left_post']  = licksL[licksL > (t_f1 + stimdur)].size
-                                                                                
-            trial_df['right_pre']  = licksR[licksR < t_f0].size
-            trial_df['right_stim'] = licksR[licksR > t_f0) & (licksR < (t_f1 + stimdur))].size
-            trial_df['right_post'] = licksR[licksR > (t_f1 + stimdur)].size
-            
-            np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = %d)
-            np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = %d)
-            np.savetxt("response_%strial%s.tab" %(ID, trial_num), trial_df['response'], fmt = %d)
-            del trial_df['port[0]']
-            del trial_df['port[1]']
-            del trial_df['response']
-            
-            trial_df = pd.DataFrame(trial_df)
-            
-            with open('data.tab', 'a') as datafile:
-                trial_df.to_csv(datafile, 
-                    header=(trial_num==0), sep = "\t")
-            
-            trial_num += 1      
-
+                    
+                # todo make this a random timer
+                ITI = 3 + (2 * random.random())
+                print "about to go in ",  ITI
+                print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                time.sleep(ITI)
+                
+                # Send the literal GO symbol
+                ser.write("GO")
+                
+                
+                while line.strip() != "--Welcome back Commander":
+                    
+                    line = Serial_monitor(log).strip()
+                    if line:
+                        if line[0] != "#" and line[0] != "-":
+                            var, val = line.split(":\t")
+                            val = num(val)
+                            try: trial_df[var].append(val)
+                            except KeyError: trial_df[var] = [val]
+                            except AttributeError: trial_df[var] = [trial_df[var], val]
+                
+                
+                # patitions lick responses into three handy numbers each
+                licksL = trial_df['port[0]']
+                licksR = trial_df['port[1]']
+                
+                
+                t_f0 = params['t_stimONSET[0]']
+                t_f1 = params['t_stimONSET[1]']
+                stimdur = params['stimDUR']
+                
+                try: trial_df['left_pre'] = [licksL[licksL < t_f0].size]
+                except: trial_df['left_pre'] = [0]
+                try: trial_df['left_stim'] = licksL[(licksL > t_f0) & (licksL < (t_f1 + stimdur))].size
+                except: trial_df['left_stim'] = [0]
+                try: trial_df['left_post'] = licksL[licksL > (t_f1 + stimdur)].size
+                except: trial_df['left_post'] = [0]
+                                                                                    
+                try: trial_df['right_pre'] = licksR[licksR < t_f0].size
+                except: trial_df['right_pre'] = [0]
+                try: trial_df['right_stim'] = licksR[(licksR > t_f0) & (licksR < (t_f1 + stimdur))].size
+                except: trial_df['right_stim'] = [0]
+                try: trial_df['right_post'] = licksR[licksR > (t_f1 + stimdur)].size
+                except: trial_df['right_post'] = [0]
+                
+                np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
+                np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = '%d')
+                
+                del trial_df['port[0]']
+                del trial_df['port[1]']
+                
+                
+                trial_df = pd.DataFrame(trial_df)
+                
+                with open('data.tab', 'a') as datafile:
+                    trial_df.to_csv(datafile, 
+                        header=(trial_num==0), sep = "\t")
+                
+                trial_num += 1
+                
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
