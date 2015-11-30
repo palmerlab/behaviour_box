@@ -53,11 +53,11 @@ def dprime(response, stimulus):
     return {
             'pHit': pHit, 
             'pFAl': pFAl, 
-            'd_prime': d_prime
+            'd_prime': d_prime,
             'hits': hits,
             'miss': miss,
             'true_neg': true_neg,
-            'false_pos': false_pos
+            'false_pos': false_pos,
             'N': N_tot,
             'n_stim_true': N_stim_true,
             'n_stim_false': N_stim_false
