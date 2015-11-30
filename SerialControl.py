@@ -324,10 +324,29 @@ if __name__ == "__main__":
                         except AttributeError: trial_df[var] = [trial_df[var], val]
             
             
+            # patitions lick responses into three handy numbers each
+            licksL = trial_df['port[0]']
+            licksR = trial_df['port[1]']
             
-            for k in trial_df.keys():
-                if len(trial_df[k]) != len(trial_df['response']):
-                    trial_df[k] = trial_df[k]*len(trial_df['response'])
+            
+            t_f0 = params['t_stimONSET[0]']
+            t_f1 = params['t_stimONSET[1]']
+            stimdur = params['stimDUR']
+            
+            trial_df['left_pre']   = licksL[licksL < t_f0].size
+            trial_df['left_stim']  = licksL[licksL > t_f0) & (licksL < (t_f1 + stimdur))].size
+            trial_df['left_post']  = licksL[licksL > (t_f1 + stimdur)].size
+                                                                                
+            trial_df['right_pre']  = licksR[licksR < t_f0].size
+            trial_df['right_stim'] = licksR[licksR > t_f0) & (licksR < (t_f1 + stimdur))].size
+            trial_df['right_post'] = licksR[licksR > (t_f1 + stimdur)].size
+            
+            np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'])
+            np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'])
+            np.savetxt("response_%strial%s.tab" %(ID, trial_num), trial_df['response'])
+            del trial_df['port[0]']
+            del trial_df['port[1]']
+            del trial_df['response']
             
             trial_df = pd.DataFrame(trial_df)
             
