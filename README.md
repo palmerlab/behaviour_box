@@ -10,12 +10,12 @@ This is code to run my experiments
 #SerialController.py
 
 1. The program starts
-2. The program reads `config.tab` and `freq.tab`,
+2. The program reads `config.tab` and `Frequencies.tab`,
     
     `config.tab` contains the details for a single run, 
     each line in the format `variablename : value`
     
-    `freq.tab` contains the block of frequencies that will be shuffled, in Hz. 
+    `Frequencies.tab` contains the block of frequencies that will be shuffled, in Hz. 
     The first line is a header with the title `frequency`, that gets ignored
     
 2. The program opens communications with available serial port
