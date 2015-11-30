@@ -59,7 +59,9 @@ certain time window.
 
 Setup connections:
 ------------------
-  
+
+`This looks like a table in the RAW file!`
+OLD, needs to be updated!  
 --------- ----------------- ------------  
  DIGITAL    output           variable
 --------- ----------------- ------------
@@ -94,6 +96,13 @@ setup. The main method is `runTrial` which on initialisation:
    it reaches the time that it is set to delay until. **TODO** make it so that if
    `ActiveDelay` is broken the trial exits and prints `"#timeout initiated"` or
     equivalent, for the SerialController to parse.
+3. Two stimuli are delivered, seperated by an `ActiveDelay` method.
+4. After another `ActiveDelay` the program enters the `TrialReward` period, if
+   `rewardCond` is not `'N'`, which stands for neither port giving water. During
+   the `TrialReward` phase, if the `mode` is `c` then water is dispensed 
+   immediately from the associated port.
+5. The program delays again, and then exits the `runTrial` function. Resulting in
+   the program sending the ready string to the Serial controller.
 
 Trial intervals will randomized between 'minITI' and 'maxITI'. 
 During a trial, the animal has to wait a stimulation without 
