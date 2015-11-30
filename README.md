@@ -1,5 +1,3 @@
-
-
 Sorry it's a mess,
 
 I'm a Neuroscientist not a software engineer
@@ -45,7 +43,7 @@ This is code to run my experiments
    
 TODO:
 
-9. The program calculates d_prime|any_stimuls; d`|rising; d`|falling
+9. The program calculates d\`|any_stimuls; d\`|rising; d\`|falling
 
 
 
