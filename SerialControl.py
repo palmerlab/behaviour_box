@@ -265,11 +265,10 @@ with open(logfile, 'a') as log:
                 except AttributeError: trial_df[var] = [trial_df[var], val]
             
         # todo make this a random timer
-        
-        print "about to go in " 
-        for i in range(0,5):
-            time.sleep(1)
-            print colour(i, fc.MAGENTA, Style.BRIGHT), "\r",
+        ITI = 5 * random.random()
+        print "about to go in " ITI
+        time.sleep(ITI)
+        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, Style.BRIGHT)
         
         # Send the literal GO symbol
         ser.write("GO")
