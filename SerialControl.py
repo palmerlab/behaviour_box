@@ -15,7 +15,7 @@ from numpy.random import shuffle
 import random
 import AndrewSignalDetection as sig
 
-from itertools import permuatations
+from itertools import permutations
       
       
 import colorama as c # makes things look nice
@@ -192,8 +192,8 @@ if __name__ == "__main__":
     #generate the frequency pairs
     tmp_freq = []        
 
-    for f in permutations(freq, 1): 
-        tmp_freq.append(f)
+    for f in permutations(freq, 2): 
+        tmp_freq.append(np.array(f))
     freq = tmp_freq
 
     del tmp_freq
