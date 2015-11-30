@@ -15,7 +15,7 @@ from numpy.random import shuffle
 import random
 import AndrewSignalDetection as sig
 
-from itertools import product
+from itertools import permuatations
       
       
 import colorama as c # makes things look nice
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     #generate the frequency pairs
     tmp_freq = []        
 
-    for f in product(freq, freq): 
+    for f in permutations(freq, 1): 
         tmp_freq.append(f)
     freq = tmp_freq
 
