@@ -61,7 +61,7 @@ Setup connections:
 ------------------
   
 --------- ----------------- ------------  
-DIGITAL   output            variable
+ DIGITAL    output           variable
 --------- ----------------- ------------
 pin 2     recording trigger `recTrig`  
 pin 4     stimulus TTL      `whiskStim`
