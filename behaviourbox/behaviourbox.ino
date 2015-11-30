@@ -64,13 +64,13 @@ String version = "#behaviourbox151119";
 
 // IO port settings:
 const int recTrig = 2;    // digital pin 2 triggers ITC-18
-const int stimulusPin = 4;    // digital pin 4 control whisker stimulation
-const int tonePin = 6;
+const int stimulusPin = 3;    // digital pin 4 control whisker stimulation
+const int tonePin = 8;
 const int vacValve = 7;     // digital pin 9 controls vacuum
-const int statusLED = 2;
+const int statusLED = 13;
 
 const int waterPort[] = {8,9};    // digital pin 8 control water valve 
-const int lickRep[] = {12,13};      // led connected to digital pin 13
+const int lickRep[] = {10,11};      // led connected to digital pin 13
 const int lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
 
 
