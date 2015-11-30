@@ -255,9 +255,8 @@ int ActiveDelay(int wait,
         if (lickOn[0] or lickOn[1]){
             response = true;
             
-            Serial.print("response:\t"); Serial.println(t);
-                Serial.print("port[0]:\t"); Serial.println(lickOn[0]);
-                Serial.print("port[1]:\t"); Serial.println(lickOn[1]);
+            if (LickOn[0]) { Serial.print("port[0]:\t"); Serial.println(t); }
+            if (LickOn[1]) { Serial.print("port[1]:\t"); Serial.println(t); }
             
             if (break_on_lick){
                 if (verbose) { Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t); }

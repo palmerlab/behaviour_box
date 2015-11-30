@@ -251,7 +251,7 @@ if __name__ == "__main__":
             
             
             trial_df['trial_num'] = [trial_num]
-            trial_df['response'] = [0]
+            
             trial_df['port[0]'] = [0]
             trial_df['port[1]'] = [0]
             
@@ -323,14 +323,13 @@ if __name__ == "__main__":
                         except KeyError: trial_df[var] = [val]
                         except AttributeError: trial_df[var] = [trial_df[var], val]
             
+            
+            
             for k in trial_df.keys():
                 if len(trial_df[k]) != len(trial_df['response']):
                     trial_df[k] = trial_df[k]*len(trial_df['response'])
             
             trial_df = pd.DataFrame(trial_df)
-            
-            
-            
             
             with open('data.tab', 'a') as datafile:
                 trial_df.to_csv(datafile, 
