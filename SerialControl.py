@@ -211,7 +211,9 @@ with open(logfile, 'a') as log:
         
         
         trial_df['trial_num'] = [trial_num]
-        
+        trial_df['response'] = [0]
+        trial_df['port[0]'] = [0]
+        trial_df['port[1]'] = [0]
         
         
         # convert the frequencies into an on off square pulse
@@ -226,8 +228,6 @@ with open(logfile, 'a') as log:
                 params['ON[%d]' %f] = 5
                 params['OFF[%d]' %f] = (10e3/freq[t][f]) - 5
                 
-        
-        
         # Determine the reward condition
         #     1. f0 > f1 :: lick left
         #     2. f0 < f1 :: lick right
@@ -282,8 +282,15 @@ with open(logfile, 'a') as log:
                     try: trial_df[var].append(val)
                     except KeyError: trial_df[var] = [val]
                     except AttributeError: trial_df[var] = [trial_df[var], val]
-
+        
+        for k in trial_df.keys():
+            if len(trial_df[k]) != len(trial_df['response']):
+                trial_df[k] = trial_df[k]*len(trial_df['response'])
+        
         trial_df = pd.DataFrame(trial_df)
+        
+        
+        
         
         with open('data.tab', 'a') as datafile:
             trial_df.to_csv(datafile, 
