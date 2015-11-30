@@ -341,9 +341,9 @@ if __name__ == "__main__":
             trial_df['right_stim'] = licksR[licksR > t_f0) & (licksR < (t_f1 + stimdur))].size
             trial_df['right_post'] = licksR[licksR > (t_f1 + stimdur)].size
             
-            np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'])
-            np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'])
-            np.savetxt("response_%strial%s.tab" %(ID, trial_num), trial_df['response'])
+            np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = %d)
+            np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = %d)
+            np.savetxt("response_%strial%s.tab" %(ID, trial_num), trial_df['response'], fmt = %d)
             del trial_df['port[0]']
             del trial_df['port[1]']
             del trial_df['response']
