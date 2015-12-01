@@ -60,24 +60,26 @@ certain time window.
 Setup connections:
 ------------------
 
-`This looks like a table in the RAW file!`
-OLD, needs to be updated!  
---------- ----------------- ------------  
- DIGITAL    output           variable
---------- ----------------- ------------
-pin 2     recording trigger `recTrig`  
-pin 4     stimulus TTL      `whiskStim`
-pin 6     speaker for cues  `tonePin`
-pin 8     syringe pump TTL  `waterValve`
-pin 9     vacuum tube valve `vacValve`
-pin 13    lick report       `licking`
---------- ----------------- ------------
 
---------- ----------------- ------------
-ANALOG IN input
---------- ----------------- ------------
-A0        piezo lick sensor lickSens
---------- ----------------- ------------
+| --------- | ----------------- | --------------- | 
+|  DIGITAL  | output            | variable        |
+| --------- | ----------------- | --------------- |
+| pin 2     | recording trigger | `recTrig`       |
+| pin 3     | stimulus          | `stimulusPin`   |
+| pin 8     | speaker           | `tonePin`       |
+| pin 7     | vacuum tube valve | `vacValve`      |
+| pin 10    | left water valve  | `waterValve[0]` |
+| pin 11    | right water valve | `waterValve[1]` |
+| pin 13    | left  lick report | `lickRep[0]`    |
+| pin 13    | right lick report | `lickRep[1]`    |
+| --------- | ----------------- | --------------- |                               
+| --------- | ----------------- | --------------- |
+| ANALOG    | input             |                 |
+| --------- | ----------------- | --------------- |
+| A0        | left  lick sensor | `lickSens[0]`   |
+| A1        | right lick sensor | `lickSens[1]`   |
+| --------- | ----------------- | --------------- |
+
 Table: connections to lick controller
   
 Start program:
