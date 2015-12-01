@@ -63,7 +63,7 @@ Setup connections:
 
 
 |  DIGITAL  | output            | variable        |
-|---------|-----------------|---------------|
+| --------- | ----------------- | --------------- |
 | pin 2     | recording trigger | `recTrig`       |
 | pin 3     | stimulus          | `stimulusPin`   |
 | pin 8     | speaker           | `tonePin`       |
@@ -72,13 +72,13 @@ Setup connections:
 | pin 11    | right water valve | `waterValve[1]` |
 | pin 13    | left  lick report | `lickRep[0]`    |
 | pin 13    | right lick report | `lickRep[1]`    |
-
+| --------- | ----------------- | --------------- |
 
 | ANALOG    | input             |                 |
-|---------|-----------------|---------------|
+| --------- | ----------------- | --------------- |
 | A0        | left  lick sensor | `lickSens[0]`   |
 | A1        | right lick sensor | `lickSens[1]`   |
-
+| --------- | ----------------- | --------------- |
 
 Table: connections to lick controller
   
