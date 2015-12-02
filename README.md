@@ -112,17 +112,58 @@ do the following:
 
 `t_now(t_init)`
 : Returns the number of milliseconds since `t_init`. `t_init` is a global
-  unsigned long. It takes the value of `millis()` at the start of a run;
-  which in turn is the number of milliseconds since the Arduino was turned on.
+    unsigned long. It takes the value of `millis()` at the start of a run;
+    which in turn is the number of milliseconds since the Arduino was turned on.
   
 `senseLick(sensor)`  
 : Returns true or false depending on the value of the lick sensor. `sensor`
-  is a Boolean, because I only have implemented two lick sensors, which can
-  be 0 or 1, for the left and right sensors respectively. This function
-  reads the value of the analog input defined by `lickSens[sensor]`. If this
-  is greater than the threshold the function returns true, and sets the
-  `lickRep[sensor]` pin to ON.
+    is a Boolean, because I only have implemented two lick sensors, which can
+    be 0 or 1, for the left and right sensors respectively. This function
+    reads the value of the analog input defined by `lickSens[sensor]`. If this
+    is greater than the threshold the function returns true, and sets the
+    `lickRep[sensor]` pin to ON.
   
-  In addition this function includes a line to set the speaker to be ON or OFF
-  at random. This is how the auditory masking noise is produced. 
-  A consequence of this 
+    In addition this function includes a line to set the speaker to be ON or OFF
+    at random. This is how the auditory masking noise is produced. 
+    A consequence of this is that each state the controller gets in has
+    a different timbre. The obvious solution is to use a PC speaker to go to
+    `youtube>10 hours of white noise` instead of this tangled solution!
+    
+`getSerialInput()`
+: Returns data from the serial port as a string. `while Serial.available()`
+
+`getSepIndex(string, sep)`
+: Returns the first index at which the character `sep` is found in `string`.
+    If no separator is present this function will return 0. 
+    
+    (Possible source of bugs, it would be better to uses -1 and to check that
+    the output is valid on call!)
+
+`flutter(stim_pin, on, off)`
+: This function runs single square pulse on `stim_pin` which is high
+    for the duration `on`, defined in microseconds. The `off` value gives
+    a delay in which the pin is in low state such that by stringing multiple 
+    of these together I can generate a square wave.
+    
+`ActiveDelay(wait, break_on_lick = false, verbose = true)`
+: Returns true if a lick is detected in the period defined by `wait`. `wait` is
+    some time relative to the time that the trial started (`t_init`).
+    
+    if `break_on_lick` is set true, this function will return before the end 
+    of the delay period.
+    
+    TODO: It would be best to make the return value depend on whether or not
+    an early break has happened!
+
+`preTrial(verbose = true)`
+: While the trial has not started 
+    1. update the time
+    2. check for licks
+    4. trigger the recording by putting recTrig -> HIGH
+    5. flash the LED each second.
+
+`UpdateGlobals(input)`
+: This function parses an `input` string and uses it to set the value
+   of global paramaters. If the input is of the form `variablename : value`
+   `variablename` will be updated to be equal to `value`
+    
