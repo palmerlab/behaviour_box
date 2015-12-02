@@ -98,24 +98,31 @@ setup. The main method is `runTrial` which on initialisation:
    it reaches the time that it is set to delay until. **TODO** make it so that if
    `ActiveDelay` is broken the trial exits and prints `"#timeout initiated"` or
     equivalent, for the SerialController to parse.
-3. Two stimuli are delivered, seperated by an `ActiveDelay` method.
+3. Two stimuli are delivered, separated by an `ActiveDelay` method.
 4. After another `ActiveDelay` the program enters the `TrialReward` period, if
    `rewardCond` is not `'N'`, which stands for neither port giving water. During
    the `TrialReward` phase, if the `mode` is `c` then water is dispensed 
    immediately from the associated port.
 5. The program delays again, and then exits the `runTrial` function. Resulting in
    the program sending the ready string to the Serial controller.
+   
+   
+In addition to the basic functionality the program also features modules that
+do the following:
 
-Trial intervals will randomized between 'minITI' and 'maxITI'. 
-During a trial, the animal has to wait a stimulation without 
-licking (no-lick period, 'nolickPer').
-If it licks during no-lick period, the time of stimulation 
-will be postponed by giving a time out (randomized between 
-'minTimeOut' and 'maxTimeOut').
-When a stimulation is delivered (stimulus duration: 'stimDur'), 
-the animal need to respond (touch the sensor) within a certain 
-time window ('crPer') to get a water reward.
-Delayed lickig after the time window will not be rewarded. 
-Opening duration of the water valve is defined by 'valveDur'.
-A TTL trigger for recording will be delivered 
-'baseLineTime' (1 s in default setting) before the stimulus.
+`t_now(t_init)`
+: Returns the number of milliseconds since `t_init`. `t_init` is a global
+  unsigned long. It takes the value of `millis()` at the start of a run;
+  which in turn is the number of milliseconds since the Arduino was turned on.
+  
+`senseLick(sensor)`  
+: Returns true or false depending on the value of the lick sensor. `sensor`
+  is a Boolean, because I only have implemented two lick sensors, which can
+  be 0 or 1, for the left and right sensors respectively. This function
+  reads the value of the analog input defined by `lickSens[sensor]`. If this
+  is greater than the threshold the function returns true, and sets the
+  `lickRep[sensor]` pin to ON.
+  
+  In addition this function includes a line to set the speaker to be ON or OFF
+  at random. This is how the auditory masking noise is produced. 
+  A consequence of this 
