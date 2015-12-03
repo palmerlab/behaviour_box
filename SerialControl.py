@@ -167,7 +167,8 @@ def create_logfile(DATADIR = ""):
     
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
-    print logfile.replace("\\", "\\\\")
+    print colour("Saving in: \n\t", fc = fc.BLUE, style=Style.BRIGHT),
+    print colour(logfile.replace("\\", "\\\\"), fc = fc.BLUE, style=Style.BRIGHT)
     
     return logfile
 
@@ -218,7 +219,7 @@ if __name__ == "__main__":
 
         try: 
             ser.open()
-            print colour("\nWe are a GO", fc.GREEN)
+            print colour("\nWe are a GO", fc.GREEN, style = Style.BRIGHT)
         except: 
             print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
             sys.exit(0)
@@ -312,9 +313,9 @@ if __name__ == "__main__":
                     
                 # todo make this a random timer
                 try: ITI = random.uniform(args.ITI[0], args.ITI[1])
-                except: ITI = random.uniform(2,3)
+                except: ITI = random.uniform(2,5)
                 
-                print "about to go in ",  ITI
+                print "about to go in %d"  %ITI
                 print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                 time.sleep(ITI)
                 
