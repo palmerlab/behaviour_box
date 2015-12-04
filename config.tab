@@ -4,8 +4,8 @@ t_stimONSET[0]	2000
 t_stimONSET[1]	3000
 stimDUR	500
 t_rewardSTART	3000
-t_rewardEND	4000
-t_trialEND	4000
+t_rewardEND	6000
+t_trialEND	10000
 lickThres	50
 waterVol	10
 ON[0]	1

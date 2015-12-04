@@ -253,16 +253,22 @@ if __name__ == "__main__":
             
             shuffle(freq)
             
+            
+            #This starts a loop that goes through 1 run per frequency combination
             for t in xrange(len(freq)):
                 
+<<<<<<< HEAD
                 goto_interpreter()
                     
+=======
+                #TODO: this should be a separate thread!
+                goto_interpreter()
+                
+>>>>>>> 01c99ae2f4fb85d09cd2af23413eb4ab3879156d
                 # create an empty dictionary to store data in
                 trial_df = {}
                 
-                
                 trial_df['trial_num'] = [trial_num]
-                
                 trial_df['port[0]'] = [0]
                 trial_df['port[1]'] = [0]
                 
@@ -349,7 +355,6 @@ if __name__ == "__main__":
                 t_f0 = params['t_stimONSET[0]']
                 t_f1 = params['t_stimONSET[1]']
                 t_post = params['t_rewardSTART']
-                
                 
                 
                 try: trial_df['left_pre'] = [licksL[licksL < t_f0].sum()]
