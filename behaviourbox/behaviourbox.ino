@@ -217,17 +217,17 @@ int getSepIndex(String input) {
     return 0;
 }
 
-void flutter(int stim_pin, unsigned long on, unsigned long off){
+void flutter(int stim_pin, int on, int off){
   
   digitalWrite(stim_pin, HIGH);
-  digitalWrite(statusLED, LOW);
+  digitalWrite(statusLED, HIGH);
   
-  delayMicroseconds(on);
+  delay(on);
     
   digitalWrite(stim_pin, LOW);
   digitalWrite(statusLED, LOW);
   
-  delayMicroseconds(off);
+  delay(off);
 }
 
 
@@ -314,8 +314,9 @@ void preTrial(bool verbose = true) {
 
 int TrialStimulus(int stimulusPin,
     int stimDUR,
-    unsigned long ON = 5000, // us time of ON pulse    ie FREQUENCY of flutter
-    unsigned long OFF = 5000, // us time of off pulse  ie FREQUENCY of flutter
+    int ON = 5, // us time of ON pulse    ie FREQUENCY of flutter
+    int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
+    int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
     bool verbose = true) {
     
     int t_local = millis();
@@ -324,9 +325,9 @@ int TrialStimulus(int stimulusPin,
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t"); Serial.println(t_now(t_init));
-        Serial.print("#stimDUR:\t"); Serial.println(stimDUR);
-        Serial.print("#ON:\t"); Serial.println(ON);
-        Serial.print("#OFF:\t"); Serial.println(OFF);
+        Serial.print("#\tstimDUR:\t"); Serial.println(stimDUR);
+        Serial.print("#\tON:\t"); Serial.println(ON);
+        Serial.print("#\tOFF:\t"); Serial.println(OFF);
     }
    
     while (t < stimDUR){
@@ -338,6 +339,7 @@ int TrialStimulus(int stimulusPin,
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
+        analogWrite(pin, 256)
         flutter(stimulusPin, ON, OFF);
 
     } digitalWrite(stimulusPin, LOW); //this is a safety catch
@@ -453,7 +455,7 @@ int runTrial (int mode,
     
     preTrial(verbose);
     t = t_now(t_init);
-       
+      
     ActiveDelay(t_noLickPer, false, verbose);
     t = t_now(t_init);
     
@@ -552,24 +554,24 @@ int UpdateGlobals(String input) {
         }
 
         if (variable_name == "ON[0]" ) {
-            ON[0] = (unsigned long) variable_value.toInt() * 1000;
+            ON[0] = variable_value.toInt();
             Serial.print("ON[0]:\t"); Serial.println(ON[0]);
             return 1;
         }
 
         if (variable_name == "ON[1]" ) {
-            ON[1] = (unsigned long) variable_value.toInt() * 1000;
+            ON[1] = variable_value.toInt();
             Serial.print("ON[1]:\t"); Serial.println(ON[1]);
             return 1;
         }
         
         if (variable_name == "OFF[0]" ) {
-            OFF[0] = (unsigned long) variable_value.toInt() * 1000;
+            OFF[0] = variable_value.toInt();
             Serial.print("OFF[0]:\t"); Serial.println(OFF[0]);                
             return 1;
         }
         if (variable_name == "OFF[1]" ) {
-            OFF[1] = (unsigned long) variable_value.toInt() * 1000;
+            OFF[1] = variable_value.toInt();
             Serial.print("OFF[1]:\t"); Serial.println(OFF[1]);  
             return 1;
         }
@@ -593,3 +595,4 @@ int UpdateGlobals(String input) {
        
    return 0;
 }
+
