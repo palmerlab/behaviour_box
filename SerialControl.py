@@ -256,15 +256,9 @@ if __name__ == "__main__":
             
             #This starts a loop that goes through 1 run per frequency combination
             for t in xrange(len(freq)):
-                
-<<<<<<< HEAD
-                goto_interpreter()
-                    
-=======
+
                 #TODO: this should be a separate thread!
                 goto_interpreter()
-                
->>>>>>> 01c99ae2f4fb85d09cd2af23413eb4ab3879156d
                 # create an empty dictionary to store data in
                 trial_df = {}
                 
