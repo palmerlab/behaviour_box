@@ -286,6 +286,7 @@ if __name__ == "__main__":
                 #     4. f0 == 0 AND f1 == 0, neither port is valid
                 
                 if freq[t][0] and freq[t][1]:
+                    if freq[t][0] == freq[t][1]: params['rewardCond'] = 'B'
                     if freq[t][0] > freq[t][1]: params['rewardCond'] = 'L'
                     if freq[t][0] < freq[t][1]: params['rewardCond'] = 'R'
                 
@@ -327,7 +328,7 @@ if __name__ == "__main__":
                 ser.write("GO")
                 
                 
-                while line.strip() != "--Welcome back Commander":
+                while line.strip() != "-- Status: Ready --":
                     
                     line = Serial_monitor(log).strip()
                     if line:

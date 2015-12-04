@@ -1,4 +1,4 @@
-String version = "#behaviourbox151130";
+String version = "#behaviourbox151204";
 
 //TODO: make a conditioning protocol
 //TODO: rename singlestim operant
@@ -135,7 +135,7 @@ void setup (){
     pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
     pinMode(tonePin, OUTPUT);
     
-    Serial.println("--Welcome back Commander");
+    Serial.println("-- Status: Ready --");
 }
 
 
@@ -151,7 +151,7 @@ void loop () {
                     stimDUR, t_rewardSTART, t_rewardEND, 
                     t_trialEND, rewardCond, waterVol, verbose);
                     
-            Serial.println("--Welcome back Commander");
+            Serial.println("-- Status: Ready --");
         }
         
         else { UpdateGlobals(input); }
@@ -316,7 +316,6 @@ int TrialStimulus(int stimulusPin,
     int stimDUR,
     int ON = 5, // us time of ON pulse    ie FREQUENCY of flutter
     int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
-    int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
     bool verbose = true) {
     
     int t_local = millis();
@@ -339,7 +338,6 @@ int TrialStimulus(int stimulusPin,
         lickOn[0] = senseLick(0); 
         lickOn[1] = senseLick(1);
         
-        analogWrite(pin, 256)
         flutter(stimulusPin, ON, OFF);
 
     } digitalWrite(stimulusPin, LOW); //this is a safety catch
@@ -357,6 +355,8 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
     int t = t_now(t_init);
     bool RewardTest;
     int RewardPort;
+    
+    if (verbose) {Serial.print("#Enter `TrialReward`:\t"); Serial.println(t);}
     
     while (t < t_rewardEND) {
         
@@ -595,4 +595,5 @@ int UpdateGlobals(String input) {
        
    return 0;
 }
+
 

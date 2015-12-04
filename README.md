@@ -20,8 +20,7 @@ This is code to run my experiments
     
 2. The program opens communications with available serial port
     The program waits until it gets the arduino is active, and prints all output
-    until the ready signal is transmitted. Which, because I played too much 
-    command and conquer as a kid is `--Welcome Back Commander`
+    until the ready signal is transmitted. Which is `-- Status: Ready --`
     
 3. The program starts a block
 4. The program shuffles the stimuli (frequencies list)
