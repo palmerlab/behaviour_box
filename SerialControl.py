@@ -15,7 +15,7 @@ from numpy.random import shuffle
 import random
 import AndrewSignalDetection as sig
 
-from itertools import permutations
+from itertools import product
       
       
 import colorama as c # makes things look nice
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         #generate the frequency pairs
         tmp_freq = []        
 
-        for f in permutations(freq, 2): 
+        for f in product(freq, freq): 
             tmp_freq.append(np.array(f))
         freq = tmp_freq
 
@@ -254,6 +254,8 @@ if __name__ == "__main__":
             shuffle(freq)
             
             for t in xrange(len(freq)):
+                
+                goto_interpreter()
                     
                 # create an empty dictionary to store data in
                 trial_df = {}
@@ -274,8 +276,8 @@ if __name__ == "__main__":
                         params['OFF[%d]' %f] = 10 # ms
                     # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
                     else:
-                        params['ON[%d]' %f] = 5
-                        params['OFF[%d]' %f] = (10e3/freq[t][f]) - 5
+                        params['ON[%d]' %f] = (1000/freq[t][f])/2
+                        params['OFF[%d]' %f] = (1000/freq[t][f])/2
                         
                 # Determine the reward condition
                 #     1. f0 > f1 :: lick left
