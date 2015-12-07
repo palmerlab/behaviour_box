@@ -184,23 +184,34 @@ def update_bbox(params):
         time.sleep(0.2)
         
 
-def create_logfile(DATADIR = ""):
+def create_datapath(DATADIR = ""):
     """
     
     """
-    
-    
     date = datetime.date.today().strftime('%y%m%d')
     
     if not DATADIR: DATADIR = os.path.join(os.getcwd(), date)
+    else: DATADIR = os.path.join(DATADIR, date)
     
     if not os.path.isdir(DATADIR):
         os.mkdir((DATADIR))
     
+    print colour("datapath: \n\t", fc = fc.GREEN, style=Style.BRIGHT),
+    print colour(DATADIR.replace("\\", "\\\\"), fc = fc.GREEN, style=Style.BRIGHT)
+    
+    return DATADIR        
+
+        
+def create_logfile(DATADIR = ""):
+    """
+    
+    """
+    date = datetime.date.today().strftime('%y%m%d')
+    
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
     print colour("Saving log in: \n\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour(logfile.replace("\\", "\\\\"), fc = fc.GREEN, style=Style.BRIGHT)
+    print colour(".\\$datapath$\\%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
     
     return logfile
 
@@ -220,31 +231,15 @@ if __name__ == "__main__":
         port = args.port # a commandline parameter
         ID = args.ID
         repeats = args.repeats
+        datapath = args.datapath
+        
+        datapath = create_datapath(datapath) #appends todays date to the datapath
+        logfile = create_logfile(datapath) #creates a filepath for the logfile
         
         c.init()
         
-        date = datetime.date.today().strftime('%y%m%d')
-
-        params_i = unpack_table('config.tab')
-        if args.mode: params_i['mode'] = args.mode
+        # open communications
         
-        freq = np.loadtxt('frequencies.tab', skiprows = 1)
-        if args.freq: freq = args.freq
-
-        #generate the frequency pairs
-        tmp_freq = []        
-
-        for f in product(freq, freq): 
-            tmp_freq.append(np.array(f))
-        freq = tmp_freq
-
-        del tmp_freq
-
-        #set the block proportional to the number of freq to be tested
-        block = len(freq) * 5 
-
-        freq = np.array(freq)
-
         ser = serial.Serial()
         ser.baudrate = 115200
         ser.timeout = 1
@@ -256,13 +251,29 @@ if __name__ == "__main__":
         except: 
             print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
             sys.exit(0)
-
-
+            
+        date = datetime.date.today().strftime('%y%m%d')
+        
+        params_i = unpack_table('config.tab')
+        if args.mode: params_i['mode'] = args.mode
         params = params_i
-        logfile = create_logfile()
+        
+        freq = np.loadtxt('frequencies.tab', skiprows = 1)
+        if args.freq: freq = args.freq
+
+        #generate the frequency pairs
+        tmp_freq = []        
+        for f in product(freq, freq): 
+            tmp_freq.append(np.array(f))
+        freq = tmp_freq
+        del tmp_freq
+
+        #set the block proportional to the number of freq to be tested
+        block = len(freq) * 5 
+        freq = np.array(freq)
 
 
-
+        
         trial_num = 0
         #open a file to save data in
         with open(logfile, 'a') as log:
