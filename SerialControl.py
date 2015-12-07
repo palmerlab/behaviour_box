@@ -66,8 +66,18 @@ p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or 
 p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in Hz (separated by spaces)")
 p.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
 p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
+p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\\%Y\%M\%D'")
+
 
 def bin_array(array, bin_size):
+    """
+    returns a down sampled array using the mean to interpolate data
+    
+    Keyword arguments:
+    array    -- the array to be down sampled (an numpy.array)
+    bin_size -- the width of bins to generate the down 
+                sampled array (an integer > 1)
+    """
     
     pad_size = math.ceil((array.size/bin_size)*bin_size - array.size)
     array_padded = np.append(array, np.zeroes(pad_size)*np.NaN)
@@ -93,9 +103,9 @@ def goto_interpreter():
 def num(s):
     """ 
     First attempts to convert string s to an integer. 
-    If that gives a ValueError then it attempts to return s as a float.
-    Finally if s cannot be converted to a float or an int, 
-    the string is returned unchanged.
+    If that gives a ValueError then it attempts to return s 
+    as a float. Finally if s cannot be converted to a float or 
+    an int, the string is returned unchanged.
     """
     try:
         return int(s)
@@ -119,7 +129,8 @@ def unpack_table(filename):
     
     return d
 
-def timenow(): 
+def timenow():
+    """provides the current time string in the form `HH:MM:SS`"""
     return str(datetime.datetime.now().time().strftime('%H:%M:%S'))      
       
 def get_line(port, verbose):
@@ -159,7 +170,14 @@ def Serial_monitor(logfile):
     return line
 
 def update_bbox(params):
-
+    """
+    Communicates the contents of the dict `params` through
+    the serial communications port. 
+    
+    data is sent in the form: `dict[key] = value`  --> `key:value`
+    
+    TODO: make this more general by putting `ser` as a parameter
+    """
     for k in params.keys():
         ser.writelines("%s:%s" %(k, params[k]))
         #print "%s:%s" %(k, params[k])
@@ -167,6 +185,10 @@ def update_bbox(params):
         
 
 def create_logfile(DATADIR = ""):
+    """
+    
+    """
+    
     
     date = datetime.date.today().strftime('%y%m%d')
     
