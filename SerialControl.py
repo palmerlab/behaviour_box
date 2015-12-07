@@ -59,7 +59,7 @@ from colorama import Style
 
 p = argparse.ArgumentParser(description="This program controls the Arduino and reads from it too" )
 
-p.add_argument("-v", "--verbose", action='store_true', help='for debug, will print everything if enabled')
+p.add_argument("-v", "--verbose", action='store_true', help = 'for debug, will print everything if enabled')
 p.add_argument("-p", "--port", default = "COM5", help = "port that the Arduino is connected to")
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
 p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
@@ -74,7 +74,9 @@ def bin_array(array, bin_size):
     return np.nanmean(array_padded.reshape(-1,bin_size), axis = 1)
     
 def goto_interpreter():
+    """
     
+    """
     if m.kbhit():
         c = m.getch()
         if c == '\xe0': c = m.getch()
@@ -85,9 +87,16 @@ def goto_interpreter():
         else:    
             mode = raw_input(">>> ")
             exec(mode)
+            print _
             return
 
 def num(s):
+    """ 
+    First attempts to convert string s to an integer. 
+    If that gives a ValueError then it attempts to return s as a float.
+    Finally if s cannot be converted to a float or an int, 
+    the string is returned unchanged.
+    """
     try:
         return int(s)
     except ValueError:
