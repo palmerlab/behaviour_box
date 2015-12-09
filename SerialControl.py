@@ -64,11 +64,13 @@ p.add_argument("-p", "--port", default = "COM5", help = "port that the Arduino i
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
 p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in Hz (separated by spaces)")
-p.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
 p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
 p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\YYMMDD'")
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 
+arg_group = p.add_mutually_exclusive_group()
+arg_group.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
+arg_group.add_argument('--triggered',  action='store_true', help="waits for key press to initiate a trial")
 
 def bin_array(array, bin_size):
     """
@@ -375,12 +377,20 @@ if __name__ == "__main__":
                     #    try: ITI = random.uniform(args.ITI[0], args.ITI[1])
                     #    except: ITI = random.uniform(2,5)
                     #else: 
-                    ITI = args.ITI[0]
+                    if not args.triggered:
+                        
+                        ITI = args.ITI[0]
+                        
+                        print "about to go in %d"  %ITI
+                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                        time.sleep(ITI)
                     
-                    print "about to go in %d"  %ITI
-                    print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
-                    time.sleep(ITI)
-                    
+                    else:
+                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                        while m.kbhit() == False:
+                            print colour("\ts waiting for trigger\r" %(timenow()), fc.MAGENTA, style = Style.BRIGHT),
+                        
+                        
                     trial_df['time'] = [timenow()]
                     
                     # Send the literal GO symbol
