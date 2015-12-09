@@ -224,21 +224,9 @@ def create_logfile(DATADIR = ""):
 MAIN FUNCTION HERE
 
 """    
-    
-    
-if __name__ == "__main__":
-    try:
-        args = p.parse_args()
 
-        verbose = args.verbose # this will be a cmdline parameter
-        port = args.port # a commandline parameter
-        ID = args.ID
-        repeats = args.repeats
-        datapath = args.datapath
-        singlestim = args.singlestim
-        
-        c.init()
-        
+def main(**kwargs):
+    try:
         datapath = create_datapath(datapath) #appends todays date to the datapath
         logfile = create_logfile(datapath) #creates a filepath for the logfile
         
@@ -260,15 +248,15 @@ if __name__ == "__main__":
         date = datetime.date.today().strftime('%y%m%d')
         
         params_i = unpack_table('config.tab')
-        if args.mode: params_i['mode'] = args.mode
+        if mode: params_i['mode'] = mode
         params = params_i
         
-        freq = np.loadtxt('frequencies.tab', skiprows = 1)
-        if args.freq: freq = args.freq
+        if not freq:
+            freq = np.loadtxt('frequencies.tab', skiprows = 1)
 
         #generate the frequency pairs
         if singlestim: 
-            freq = np.array([freq, np.zeros(len(freq))])
+            freq = np.array([freq, np.zeros(len(freq))]).transpose()
         else:
             tmp_freq = []        
             for f in product(freq, freq): 
@@ -298,7 +286,6 @@ if __name__ == "__main__":
             
             while ser.inWaiting(): Serial_monitor(log)
             
-            
             for r in xrange(repeats):
                 
                 print colour("BLOCK:\t%02d" %r, 
@@ -312,7 +299,7 @@ if __name__ == "__main__":
                 for t in xrange(len(freq)):
 
                     #TODO: this should be a separate thread!
-                    if not args.triggered: goto_interpreter()
+                    if not triggered: goto_interpreter()
                     # create an empty dictionary to store data in
                     trial_df = {}
                     
@@ -374,9 +361,9 @@ if __name__ == "__main__":
                     #    try: ITI = random.uniform(args.ITI[0], args.ITI[1])
                     #    except: ITI = random.uniform(2,5)
                     #else: 
-                    if not args.triggered:
+                    if not triggered:
                         
-                        ITI = args.ITI[0]
+                        ITI = ITI[0]
                         
                         print "about to go in %d"  %ITI
                         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
@@ -451,5 +438,12 @@ if __name__ == "__main__":
                 
     except KeyboardInterrupt:
         sys.exit(0)
+
+    
+    
+if __name__ == "__main__":
+    c.init()
+    
+    main(**vars(p.parse_args()))
 
 
