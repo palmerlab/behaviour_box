@@ -66,7 +66,7 @@ p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or 
 p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in Hz (separated by spaces)")
 p.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
 p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
-p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\\%Y\%M\%D'")
+p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\YYMMDD'")
 
 
 def bin_array(array, bin_size):
@@ -232,11 +232,11 @@ if __name__ == "__main__":
         ID = args.ID
         repeats = args.repeats
         datapath = args.datapath
+        c.init()
         
         datapath = create_datapath(datapath) #appends todays date to the datapath
         logfile = create_logfile(datapath) #creates a filepath for the logfile
         
-        c.init()
         
         # open communications
         
@@ -314,6 +314,8 @@ if __name__ == "__main__":
                     trial_df['port[0]'] = [0]
                     trial_df['port[1]'] = [0]
                     
+                    #HACK
+                    freq[t][0] = 0
                     
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
@@ -326,7 +328,9 @@ if __name__ == "__main__":
                         else:
                             params['ON[%d]' %f] = 10
                             params['OFF[%d]' %f] = (1000/freq[t][f]) - 10
-                            
+                    
+                    
+                    
                     # Determine the reward condition
                     #     1. f0 > f1 :: lick left
                     #     2. f0 < f1 :: lick right
@@ -363,8 +367,11 @@ if __name__ == "__main__":
                             except AttributeError: trial_df[var] = [trial_df[var], val]
                         
                     # todo make this a random timer
-                    try: ITI = random.uniform(args.ITI[0], args.ITI[1])
-                    except: ITI = random.uniform(2,5)
+                    #if type(args.ITI) is not int:
+                    #    try: ITI = random.uniform(args.ITI[0], args.ITI[1])
+                    #    except: ITI = random.uniform(2,5)
+                    #else: 
+                    ITI = args.ITI[0]
                     
                     print "about to go in %d"  %ITI
                     print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
@@ -374,8 +381,7 @@ if __name__ == "__main__":
                     
                     # Send the literal GO symbol
                     ser.write("GO")
-                    
-                    
+
                     while line.strip() != "-- Status: Ready --":
                         
                         line = Serial_monitor(log).strip()
