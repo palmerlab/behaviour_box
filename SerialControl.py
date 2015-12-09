@@ -312,16 +312,13 @@ if __name__ == "__main__":
                 for t in xrange(len(freq)):
 
                     #TODO: this should be a separate thread!
-                    goto_interpreter()
+                    if not args.triggered: goto_interpreter()
                     # create an empty dictionary to store data in
                     trial_df = {}
                     
                     trial_df['trial_num'] = [trial_num]
                     trial_df['port[0]'] = [0]
                     trial_df['port[1]'] = [0]
-                    
-                    #HACK
-                    freq[t][0] = 0
                     
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
@@ -388,8 +385,11 @@ if __name__ == "__main__":
                     else:
                         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         while m.kbhit() == False:
-                            print colour("\ts waiting for trigger\r" %(timenow()), fc.MAGENTA, style = Style.BRIGHT),
+                            print colour("%s waiting for trigger\r" %(timenow()), fc.RED, style = Style.BRIGHT),
+                        while m.kbhit():
+                            m.getch() #clear the buffer
                         
+                    print colour("\nGO!\n%s" %timenow(), fc.GREEN, style=Style.BRIGHT)
                         
                     trial_df['time'] = [timenow()]
                     
