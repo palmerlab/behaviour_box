@@ -67,6 +67,7 @@ p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in 
 p.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
 p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
 p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\YYMMDD'")
+p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 
 
 def bin_array(array, bin_size):
@@ -232,6 +233,8 @@ if __name__ == "__main__":
         ID = args.ID
         repeats = args.repeats
         datapath = args.datapath
+        singlestim = args.singlestim
+        
         c.init()
         
         datapath = create_datapath(datapath) #appends todays date to the datapath
@@ -262,17 +265,18 @@ if __name__ == "__main__":
         if args.freq: freq = args.freq
 
         #generate the frequency pairs
-        tmp_freq = []        
-        for f in product(freq, freq): 
-            tmp_freq.append(np.array(f))
-        freq = tmp_freq
-        del tmp_freq
+        if singlestim: 
+            freq = np.array([freq, np.zeros(len(freq))])
+        else:
+            tmp_freq = []        
+            for f in product(freq, freq): 
+                tmp_freq.append(np.array(f))
+            freq = tmp_freq
+            del tmp_freq
 
         #set the block proportional to the number of freq to be tested
         block = len(freq) * 5 
         freq = np.array(freq)
-
-
         
         trial_num = 0
         #open a file to save data in
