@@ -250,6 +250,7 @@ MAIN FUNCTION HERE
 """    
 
 def main(**kwargs):
+    
     try:
         datapath = create_datapath(datapath) #appends todays date to the datapath
         logfile = create_logfile(datapath) #creates a filepath for the logfile
@@ -477,7 +478,7 @@ def main(**kwargs):
     
 if __name__ == "__main__":
     c.init()
-    
+
     main(**vars(p.parse_args()))
 
 
