@@ -69,7 +69,7 @@ p.add_argument('--datapath', default = "", help = "path to save data to, by defa
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 
 arg_group = p.add_mutually_exclusive_group()
-arg_group.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
+arg_group.add_argument('--ITI',  nargs='+', type=float, default = [2], help="an interval for randomising between trials")
 arg_group.add_argument('--triggered',  action='store_true', help="waits for key press to initiate a trial")
 
 def bin_array(array, bin_size):
@@ -267,14 +267,12 @@ if __name__ == "__main__":
         if args.freq: freq = args.freq
 
         #generate the frequency pairs
-        if singlestim: 
-            freq = np.array([freq, np.zeros(len(freq))])
-        else:
-            tmp_freq = []        
-            for f in product(freq, freq): 
-                tmp_freq.append(np.array(f))
-            freq = tmp_freq
-            del tmp_freq
+        
+        tmp_freq = []        
+        for f in product(freq, freq): 
+            tmp_freq.append(np.array(f))
+        freq = tmp_freq
+        del tmp_freq
 
         #set the block proportional to the number of freq to be tested
         block = len(freq) * 5 
@@ -321,6 +319,8 @@ if __name__ == "__main__":
                     trial_df['port[1]'] = [0]
                     
                     # convert the frequencies into an on off square pulse
+                    if singlestim: freq[t][1] = 0
+                    
                     for f in (0,1):
                         trial_df['freq%d' %f] = [freq[t][f]]
                         # if the frequency is 0 make the on time = 0
@@ -442,7 +442,7 @@ if __name__ == "__main__":
                     
                     trial_df = pd.DataFrame(trial_df)
                     
-                    with open('%s\\data.tab' %date, 'a') as datafile:
+                    with open('%s\\data.tab' %datapath, 'a') as datafile:
                         trial_df.to_csv(datafile, 
                             header=(trial_num==0), sep = "\t",
                             index=False)
