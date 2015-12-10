@@ -429,7 +429,7 @@ def main(**kwargs):
                     
                     trial_df = pd.DataFrame(trial_df)
                     
-                    with open('%s\\data.tab' %date, 'a') as datafile:
+                    with open('%s\\data.tab' %datapath, 'a') as datafile:
                         trial_df.to_csv(datafile, 
                             header=(trial_num==0), sep = "\t",
                             index=False)
