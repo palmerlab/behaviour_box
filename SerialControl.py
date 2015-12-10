@@ -218,6 +218,29 @@ def create_logfile(DATADIR = ""):
     
     return logfile
 
+    
+def manual_response_check(logfile):
+
+    response = None
+    response_time = None
+
+    if m.kbhit():
+        key = ord(m.getch())
+        response_time =  timenow()
+        if key == 224: #Special keys (arrows, f keys, ins, del, etc.)
+            key = ord(m.getch())
+            if key == 75: #Left arrow
+                response = "L"
+            elif key == 77: #Right arrow
+                response = "R"
+
+        line = "%s\tManual declared response at:%s" %(timenow(), response)
+
+        print colour(line, fc.MAGENTA, style = Style.BRIGHT)
+
+        logfile.write(line+"\n")
+
+    return [response], [response_time]    
 
 """
 
@@ -407,6 +430,12 @@ if __name__ == "__main__":
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
                     
+                    
+                        if triggered:
+                            while not trial_df['response']:
+                                trial_df['reponse'], trial_df['reponse_time'] = manual_response_check(logfile)
+                            
+                        
                     
                     # patitions lick responses into three handy numbers each
                     licksL = np.array(trial_df['port[0]'])
