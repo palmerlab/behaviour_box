@@ -218,6 +218,30 @@ def create_logfile(DATADIR = ""):
     
     return logfile
 
+    
+    
+def manual_response_check(logfile):
+    
+    response = None
+    response_time = None
+    
+    if m.kbhit():
+        key = ord(m.getch())
+        response_time =  timenow()
+        if key == 224: #Special keys (arrows, f keys, ins, del, etc.)
+            key = ord(m.getch())
+            if key == 75: #Left arrow
+                response = "L"
+            elif key == 77: #Right arrow
+                response = "R"
+        
+        line = "%s\tManual declared response at:%s" %(timenow(), response)
+        
+        print colour(line, fc.MAGENTA, style = Style.BRIGHT)
+        
+        logfile.write(line+"\n")
+        
+    return response, response_time
 
 """
 
@@ -304,9 +328,11 @@ def main(**kwargs):
                     # create an empty dictionary to store data in
                     trial_df = {}
                     
-                    trial_df['trial_num'] = [trial_num]
-                    trial_df['port[0]'] = [0]
-                    trial_df['port[1]'] = [0]
+                    trial_df['trial_num'] = trial_num
+                    trial_df['port[0]'] = 0
+                    trial_df['port[1]'] = 0
+                    trial_df['reponse'] = None
+                    trial_df['reponse_time'] = None
                     
                     # convert the frequencies into an on off square pulse
                     if singlestim: freq[t][1] = 0
@@ -381,13 +407,13 @@ def main(**kwargs):
                         
                     print colour("\nGO!\n%s" %timenow(), fc.GREEN, style=Style.BRIGHT)
                         
-                    trial_df['time'] = [timenow()]
+                    trial_df['time'] = timenow()
                     
                     # Send the literal GO symbol
                     ser.write("GO")
 
                     while line.strip() != "-- Status: Ready --":
-                        
+
                         line = Serial_monitor(log).strip()
                         if line:
                             if line[0] != "#" and line[0] != "-":
@@ -396,31 +422,36 @@ def main(**kwargs):
                                 try: trial_df[var].append(val)
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
-                    
+                        
+                        trial_df['reponse'], trial_df['reponse_time'] = manual_response_check(logfile)
+                        
+                        
+                    if triggered:
+                        while not trial_df['response']:
+                            trial_df['reponse'], trial_df['reponse_time'] = manual_response_check(logfile)
                     
                     # patitions lick responses into three handy numbers each
                     licksL = np.array(trial_df['port[0]'])
                     licksR = np.array(trial_df['port[1]'])
-
                     
                     t_f0 = params['t_stimONSET[0]']
                     t_f1 = params['t_stimONSET[1]']
                     t_post = params['t_rewardSTART']
                     
                     
-                    try: trial_df['left_pre'] = [licksL[licksL < t_f0].sum()]
-                    except: trial_df['left_pre'] = [0]
-                    try: trial_df['left_stim'] = [licksL[(licksL > t_f0) & (licksL < t_post)].sum()]
-                    except: trial_df['left_stim'] = [0]
-                    try: trial_df['left_post'] = [licksL[licksL > t_post].sum()]
-                    except: trial_df['left_post'] = [0]
+                    try: trial_df['left_pre'] = licksL[licksL < t_f0].sum()
+                    except: trial_df['left_pre'] = 0
+                    try: trial_df['left_stim'] = licksL[(licksL > t_f0) & (licksL < t_post)].sum()
+                    except: trial_df['left_stim'] = 0
+                    try: trial_df['left_post'] = licksL[licksL > t_post].sum()
+                    except: trial_df['left_post'] = 0
                                                                                         
-                    try: trial_df['right_pre'] = [licksR[licksR < t_f0].sum()]
-                    except: trial_df['right_pre'] = [0]
-                    try: trial_df['right_stim'] = [licksR[(licksR > t_f0) & (licksR < t_post)].sum()]
-                    except: trial_df['right_stim'] = [0]
-                    try: trial_df['right_post'] = [licksR[licksR > t_post].sum()]
-                    except: trial_df['right_post'] = [0]
+                    try: trial_df['right_pre'] = licksR[licksR < t_f0].sum()
+                    except: trial_df['right_pre'] = 0
+                    try: trial_df['right_stim'] = licksR[(licksR > t_f0) & (licksR < t_post)].sum()
+                    except: trial_df['right_stim'] = 0
+                    try: trial_df['right_post'] = licksR[licksR > t_post].sum()
+                    except: trial_df['right_post'] = 0
                     
                     np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
                     np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = '%d')
@@ -428,7 +459,7 @@ def main(**kwargs):
                     del trial_df['port[0]']
                     del trial_df['port[1]']
                     
-                    trial_df['ID'] = [ID]
+                    trial_df['ID'] = ID
                     
                     trial_df = pd.DataFrame(trial_df)
                     
