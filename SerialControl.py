@@ -69,7 +69,7 @@ p.add_argument('--datapath', default = "", help = "path to save data to, by defa
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 
 arg_group = p.add_mutually_exclusive_group()
-arg_group.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
+arg_group.add_argument('--ITI',  nargs='+', type=float, default = [2], help="an interval for randomising between trials")
 arg_group.add_argument('--triggered',  action='store_true', help="waits for key press to initiate a trial")
 
 def bin_array(array, bin_size):
@@ -255,6 +255,7 @@ def main(**kwargs):
             freq = np.loadtxt('frequencies.tab', skiprows = 1)
 
         #generate the frequency pairs
+
         if singlestim: 
             freq = np.array([freq, np.zeros(len(freq))]).transpose()
         else:
@@ -308,6 +309,8 @@ def main(**kwargs):
                     trial_df['port[1]'] = [0]
                     
                     # convert the frequencies into an on off square pulse
+                    if singlestim: freq[t][1] = 0
+                    
                     for f in (0,1):
                         trial_df['freq%d' %f] = [freq[t][f]]
                         # if the frequency is 0 make the on time = 0
