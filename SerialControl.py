@@ -342,6 +342,8 @@ if __name__ == "__main__":
                     trial_df['trial_num'] = [trial_num]
                     trial_df['port[0]'] = [0]
                     trial_df['port[1]'] = [0]
+                    trial_df['response'] = [None]
+                    trial_df['response_time'] = [None]
                     
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
@@ -429,11 +431,12 @@ if __name__ == "__main__":
                                 try: trial_df[var].append(val)
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
+                        
+                        trial_df['response'], trial_df['response_time'] = manual_response_check(log)
                     
-                    
-                        if triggered:
-                            while not trial_df['response']:
-                                trial_df['reponse'], trial_df['reponse_time'] = manual_response_check(logfile)
+                    if args.triggered:
+                        while trial_df['response'] == [None]:
+                            trial_df['response'], trial_df['response_time'] = manual_response_check(log)
                             
                         
                     
