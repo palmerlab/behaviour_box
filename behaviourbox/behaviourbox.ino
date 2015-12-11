@@ -478,10 +478,10 @@ int runTrial (int mode,
     
     if (rewardCond != 'N') {
         TrialReward(mode, rewardCond, waterVol, verbose);
-        ActiveDelay(t_trialEND - t, false, verbose);
+        ActiveDelay(t_trialEND, false, verbose);
     }
     else {
-        ActiveDelay(t_trialEND - t, false, verbose);
+        ActiveDelay(t_trialEND, false, verbose);
     }   
 }
 
