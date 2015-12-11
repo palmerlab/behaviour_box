@@ -244,6 +244,21 @@ def manual_response_check(logfile):
 
     return [response], [response_time]    
 
+    
+def save_2Ddict_as_table(trial_df, datapath = "", fname = "data", header = True):
+    """
+    takes a 2d dictionary, converts it to a pandas dataframe
+    then saves it as a table in the directory `datapath`
+    """
+    
+    trial_df = pd.DataFrame(trial_df)
+
+    with open('%s\\%s.tab' %(datapath, fname), 'a') as datafile:
+        trial_df.to_csv(datafile, 
+            header, sep = "\t",
+            index=False)    
+    
+    
 """
 
 MAIN FUNCTION HERE
@@ -481,12 +496,7 @@ if __name__ == "__main__":
                     
                     trial_df['ID'] = [ID]
                     
-                    trial_df = pd.DataFrame(trial_df)
-                    
-                    with open('%s\\data.tab' %datapath, 'a') as datafile:
-                        trial_df.to_csv(datafile, 
-                            header=(trial_num==0), sep = "\t",
-                            index=False)
+                    save_2Ddict_as_table(trial_df, datapath, header = (trial_num==0))
                     
                     trial_num += 1
                 
