@@ -457,20 +457,20 @@ if __name__ == "__main__":
 
                     t_f0 = num(params['t_stimONSET[0]'])
                     t_f1 = num(params['t_stimONSET[1]'])
-                    t_post = params['t_rewardSTART']
-                                       
-                    try: trial_df['left_pre'] = [licksL[licksL < t_f0].sum()]
+                    t_post = num(params['t_rewardSTART'])
+
+                    try: trial_df['left_pre'] = [len(licksL[licksL < t_f0])]
                     except: trial_df['left_pre'] = [0]
-                    try: trial_df['left_stim'] = [licksL[(licksL > t_f0) & (licksL < t_post)].sum()]
+                    try: trial_df['left_stim'] = [len(licksL[(licksL > t_f0) & (licksL < t_post)])]
                     except: trial_df['left_stim'] = [0]
-                    try: trial_df['left_post'] = [licksL[licksL > t_post].sum()]
+                    try: trial_df['left_post'] = [len(licksL[licksL > t_post])]
                     except: trial_df['left_post'] = [0]
                                                                                         
-                    try: trial_df['right_pre'] = [licksR[licksR < t_f0].sum()]
+                    try: trial_df['right_pre'] = [len(licksR[licksR < t_f0])]
                     except: trial_df['right_pre'] = [0]
-                    try: trial_df['right_stim'] = [licksR[(licksR > t_f0) & (licksR < t_post)].sum()]
+                    try: trial_df['right_stim'] = [len(licksR[(licksR > t_f0) & (licksR < t_post)])]
                     except: trial_df['right_stim'] = [0]
-                    try: trial_df['right_post'] = [licksR[licksR > t_post].sum()]
+                    try: trial_df['right_post'] = [len(licksR[licksR > t_post])]
                     except: trial_df['right_post'] = [0]
                              
                     np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
