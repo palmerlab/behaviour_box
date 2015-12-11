@@ -69,7 +69,7 @@ p.add_argument('--datapath', default = "", help = "path to save data to, by defa
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 
 arg_group = p.add_mutually_exclusive_group()
-arg_group.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
+arg_group.add_argument('--ITI',  nargs='+', default = [5], type=float, help="an interval for randomising between trials")
 arg_group.add_argument('--triggered',  action='store_true', help="waits for key press to initiate a trial")
 
 def bin_array(array, bin_size):
@@ -436,7 +436,7 @@ if __name__ == "__main__":
                             
                                 if (trial_df['response'] == [None]) and ("port" in var):
                                     
-                                    trial_df['response_time'] = [time_now()]
+                                    trial_df['response_time'] = [timenow()]
                                     trial_df['response'] = ["L"] if var == "port[0]" else ["R"]
                                     
                     
@@ -455,10 +455,10 @@ if __name__ == "__main__":
                     licksL = np.array(trial_df['port[0]'])
                     licksR = np.array(trial_df['port[1]'])
 
-                    t_f0 = params['t_stimONSET[0]']
-                    t_f1 = params['t_stimONSET[1]']
+                    t_f0 = num(params['t_stimONSET[0]'])
+                    t_f1 = num(params['t_stimONSET[1]'])
                     t_post = params['t_rewardSTART']
-                    
+                                       
                     try: trial_df['left_pre'] = [licksL[licksL < t_f0].sum()]
                     except: trial_df['left_pre'] = [0]
                     try: trial_df['left_stim'] = [licksL[(licksL > t_f0) & (licksL < t_post)].sum()]
@@ -472,7 +472,7 @@ if __name__ == "__main__":
                     except: trial_df['right_stim'] = [0]
                     try: trial_df['right_post'] = [licksR[licksR > t_post].sum()]
                     except: trial_df['right_post'] = [0]
-                    
+                             
                     np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
                     np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = '%d')
                     
