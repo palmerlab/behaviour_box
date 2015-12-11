@@ -69,7 +69,7 @@ p.add_argument('--datapath', default = "", help = "path to save data to, by defa
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 
 arg_group = p.add_mutually_exclusive_group()
-arg_group.add_argument('--ITI',  nargs='+', type=float, help="an interval for randomising between trials")
+arg_group.add_argument('--ITI',  nargs='+', default = [5], type=float, help="an interval for randomising between trials")
 arg_group.add_argument('--triggered',  action='store_true', help="waits for key press to initiate a trial")
 
 def bin_array(array, bin_size):
@@ -433,25 +433,32 @@ if __name__ == "__main__":
                                 try: trial_df[var].append(val)
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
-                        
-                        trial_df['response'], trial_df['response_time'] = manual_response_check(log)
-                    
-                    if args.triggered:
-                        while trial_df['response'] == [None]:
-                            trial_df['response'], trial_df['response_time'] = manual_response_check(log)
                             
+                                if (trial_df['response'] == [None]) and ("port" in var):
+                                    
+                                    trial_df['response_time'] = [timenow()]
+                                    trial_df['response'] = ["L"] if var == "port[0]" else ["R"]
+                                    
+                    
+                    while trial_df['response'] == [None]:
+                        if args.triggered:
+                            trial_df['response'], trial_df['response_time'] = manual_response_check(log)
+                        else:
+                            trial_df['response'] = ["-"]
+                            trial_df['response_time'] = ["-"]
                         
+                        # manually activate the vacuum?
+                        if trial_df['response'] == ["-"]:
+                            ser.write("VacOn")
                     
                     # patitions lick responses into three handy numbers each
                     licksL = np.array(trial_df['port[0]'])
                     licksR = np.array(trial_df['port[1]'])
 
-                    
-                    t_f0 = params['t_stimONSET[0]']
-                    t_f1 = params['t_stimONSET[1]']
+                    t_f0 = num(params['t_stimONSET[0]'])
+                    t_f1 = num(params['t_stimONSET[1]'])
                     t_post = params['t_rewardSTART']
-                    
-                    
+                                       
                     try: trial_df['left_pre'] = [licksL[licksL < t_f0].sum()]
                     except: trial_df['left_pre'] = [0]
                     try: trial_df['left_stim'] = [licksL[(licksL > t_f0) & (licksL < t_post)].sum()]
@@ -465,7 +472,7 @@ if __name__ == "__main__":
                     except: trial_df['right_stim'] = [0]
                     try: trial_df['right_post'] = [licksR[licksR > t_post].sum()]
                     except: trial_df['right_post'] = [0]
-                    
+                             
                     np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
                     np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = '%d')
                     
