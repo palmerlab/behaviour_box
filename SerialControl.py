@@ -233,6 +233,8 @@ def manual_response_check(logfile):
                 response = "L"
             elif key == 77: #Right arrow
                 response = "R"
+            else:
+                response = "-"
 
         line = "%s\tManual declared response at:%s" %(timenow(), response)
 
@@ -474,7 +476,7 @@ if __name__ == "__main__":
                     
                     trial_df = pd.DataFrame(trial_df)
                     
-                    with open('%s\\data.tab' %date, 'a') as datafile:
+                    with open('%s\\data.tab' %datapath, 'a') as datafile:
                         trial_df.to_csv(datafile, 
                             header=(trial_num==0), sep = "\t",
                             index=False)
