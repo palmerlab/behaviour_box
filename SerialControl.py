@@ -183,7 +183,8 @@ def update_bbox(params):
     """
     for k in params.keys():
         ser.writelines("%s:%s" %(k, params[k]))
-        #print "%s:%s" %(k, params[k])
+        if verbose: print "%s:%s" %(k, params[k])
+        
         time.sleep(0.2)
         
 
@@ -257,7 +258,44 @@ def save_2Ddict_as_table(trial_df, datapath = "", fname = "data", header = True)
         trial_df.to_csv(datafile, 
             header, sep = "\t",
             index=False)    
+
+def update_progress(progress):
+
+    """
+    Prints a wicked progress bar to the screen, 
+    with the form
+    ` [######                                ] 030% `
+    """
+
+    line = '  %s  %3d%%\r' %((' '*50), progress) + \
+        '  %s]\r' %(' '*50) + \
+        ' [%s\r' %('#'*(progress/2))
     
+    print line,
+    
+    if progress == 100: print ""            
+        
+def manual(freq):
+    
+    """
+    Function to manually select a specific condition
+    given the keyboard input
+    """
+    
+    
+    character = {
+        'L' : [12, 76, 108, (224, 75)],
+        'R' : [18, 82, 114, (224, 77)]
+    }
+    
+    if m.kbhit():
+        c = m.getch()
+        
+        while m.kbhit()
+            c = (c, m.getch())
+            
+        
+        if c in character
     
 """
 
@@ -308,10 +346,10 @@ if __name__ == "__main__":
 
         #generate the frequency pairs
         if singlestim: 
-            freq = np.array([freq, np.zeros(len(freq))])
+            freq = np.array([freq, np.zeros(len(freq))]).transpose()
         else:
             tmp_freq = []        
-            for f in product(freq, freq): 
+            for f in permutations(freq, freq): 
                 tmp_freq.append(np.array(f))
             freq = tmp_freq
             del tmp_freq
@@ -346,8 +384,7 @@ if __name__ == "__main__":
                     
                 # shuffle the frequencies
                 shuffle(freq)
-                
-                
+                                
                 #This starts a loop that goes through 1 run per frequency combination
                 for t in xrange(len(freq)):
 
