@@ -256,7 +256,7 @@ def save_2Ddict_as_table(trial_df, datapath = "", fname = "data", header = True)
 
     with open('%s\\%s.tab' %(datapath, fname), 'a') as datafile:
         trial_df.to_csv(datafile, 
-            header, sep = "\t",
+            header = header, sep = "\t",
             index=False)    
 
 def update_progress(progress):
@@ -520,8 +520,8 @@ if __name__ == "__main__":
                             trial_df['response_time'] = ["-"]
                         
                         # manually activate the vacuum?
-                        if trial_df['response'] == ["-"]:
-                            ser.write("VacOn")
+                        #if trial_df['response'] == ["-"]:
+                        #    ser.write("VacOn")
                     
                     # patitions lick responses into three handy numbers each
                     licksL = np.array(trial_df['port[0]'])
