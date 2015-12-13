@@ -15,10 +15,10 @@ from numpy.random import shuffle
 import random
 import AndrewSignalDetection as sig
 
-from itertools import product
+from itertools import permutations
       
       
-import colorama as c # makes things look nice
+import colorama as color # makes things look nice
 from colorama import Fore as fc
 from colorama import Back as bc     
 from colorama import Style
@@ -67,6 +67,8 @@ p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in 
 p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
 p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\YYMMDD'")
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
+p.add_argument('--manfreq',  action='store_true', help="choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
+
 
 arg_group = p.add_mutually_exclusive_group()
 arg_group.add_argument('--ITI',  nargs='+', default = [5], type=float, help="an interval for randomising between trials")
@@ -118,8 +120,8 @@ def num(s):
         except ValueError:
             return s
         
-def colour (x, fc = c.Fore.WHITE, bc = c.Back.BLACK, style = c.Style.NORMAL):
-    return "%s%s%s%s%s" %(fc, bc, style, x , c.Style.RESET_ALL)
+def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
+    return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
 
 def unpack_table(filename):
@@ -275,7 +277,7 @@ def update_progress(progress):
     
     if progress == 100: print ""            
         
-def manual(freq):
+def manual(freq, t):
     
     """
     Function to manually select a specific condition
@@ -290,29 +292,30 @@ def manual(freq):
         'L' : [12, 76, 108, (224, 75)],
         'R' : [18, 82, 114, (224, 77)]
     }
-    
-    if m.kbhit():
-        c = ord(m.getch())
-        
-        # in the event that an arrow key was pressed
-        # check the buffer for the next character
-        if c == 224: 
-            c = (c, ord(m.getch()))
-        
-        for k in character.keys():
-            if c in character[k]:
-                print "manual %s trial" %k 
-                
-                if k == 'L':
-                    freq = freq[freq[:,0] > freq[:,1]]
-                elif k == 'R':
-                    freq = freq[freq[:,0] < freq[:,1]]
+    while True:
+        if m.kbhit():
+            c = ord(m.getch())
 
-                shuffle(freq)
-                return freq[0]
+            # in the event that an arrow key was pressed
+            # check the buffer for the next character
+            if c == 224: 
+                c = (c, ord(m.getch()))
+
+            for k in character.keys():
+                if c in character[k]:
+                    print "manual %s trial" %k 
+                    
+                    if k == 'L':
+                        freq = freq[freq[:,0] > freq[:,1]]
+                    elif k == 'R':
+                        freq = freq[freq[:,0] < freq[:,1]]
+
+                    shuffle(freq)
+                    return freq[0]
                 
-            else: 
-                return
+        
+            print "The next random frequency pair"
+            return freq[t]
     
 """
 
@@ -332,8 +335,9 @@ if __name__ == "__main__":
         repeats = args.repeats
         datapath = args.datapath
         singlestim = args.singlestim
+        manfreq = args.manfreq
         
-        c.init()
+        color.init()
         
         datapath = create_datapath(datapath) #appends todays date to the datapath
         logfile = create_logfile(datapath) #creates a filepath for the logfile
@@ -368,7 +372,7 @@ if __name__ == "__main__":
             freq = np.array([freq, np.zeros(len(freq))]).transpose()
         else:
             tmp_freq = []        
-            for f in permutations(freq, freq): 
+            for f in permutations(freq, 2): 
                 tmp_freq.append(np.array(f))
             freq = tmp_freq
             del tmp_freq
@@ -414,17 +418,26 @@ if __name__ == "__main__":
                     trial_df['response'] = [None]
                     trial_df['response_time'] = [None]
                    
-                    #In triggered mode 
-                    if args.triggered:
-                        while m.kbhit() == False:
-                            trial_freq = manual(freq)
+                    #In triggered mode
+                    if m.kbhit():
+                        c = ord(m.getch())
+                        while m.kbhit():
+                            c = (c, ord(m.getch()))
+                            
+                        if c == 13:
+                            manfreq = not manfreq
+                            print "Manual mode:\t%s" %manfreq
+                            log.write("Manual mode:\t%s\n" %manfreq)
                         
+                    if manfreq:
+                        print "Choose condition"
+                        trial_freq = manual(freq, t)
                     else:
                         trial_freq = freq[t]
-                    
+
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
-                        trial_df['freq%d' %f] = [trial_freq[f]]
+                        trial_df['freq%d' %f] = [trial_freq]
                         # if the frequency is 0 make the on time = 0
                         if trial_freq[f] == 0: 
                             params['ON[%d]' %f] = 0
@@ -551,6 +564,7 @@ if __name__ == "__main__":
                     trial_df['ID'] = [ID]
                     
                     save_2Ddict_as_table(trial_df, datapath, header = (trial_num==0))
+                    
                     
                     trial_num += 1
                 
