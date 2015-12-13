@@ -280,22 +280,39 @@ def manual(freq):
     """
     Function to manually select a specific condition
     given the keyboard input
+    
+    Requires freq to be a 2d array with 2 columns and N rows
+    ie freq.shape = (N, 2L)
     """
     
-    
+    # all the possible key values for 'L' and 'R' respectively
     character = {
         'L' : [12, 76, 108, (224, 75)],
         'R' : [18, 82, 114, (224, 77)]
     }
     
     if m.kbhit():
-        c = m.getch()
+        c = ord(m.getch())
         
-        while m.kbhit()
-            c = (c, m.getch())
-            
+        # in the event that an arrow key was pressed
+        # check the buffer for the next character
+        if c == 224: 
+            c = (c, ord(m.getch()))
         
-        if c in character
+        for k in character.keys():
+            if c in character[k]:
+                print "manual %s trial" %k 
+                
+                if k == 'L':
+                    freq = freq[freq[:,0] > freq[:,1]]
+                elif k == 'R':
+                    freq = freq[freq[:,0] < freq[:,1]]
+
+                shuffle(freq)
+                return freq[0]
+                
+            else: 
+                return
     
 """
 
@@ -387,9 +404,7 @@ if __name__ == "__main__":
                                 
                 #This starts a loop that goes through 1 run per frequency combination
                 for t in xrange(len(freq)):
-
-                    #TODO: this should be a separate thread!
-                    if not args.triggered: goto_interpreter()
+                
                     # create an empty dictionary to store data in
                     trial_df = {}
                     
@@ -398,20 +413,26 @@ if __name__ == "__main__":
                     trial_df['port[1]'] = [0]
                     trial_df['response'] = [None]
                     trial_df['response_time'] = [None]
+                   
+                    #In triggered mode 
+                    if args.triggered:
+                        while m.kbhit() == False:
+                            trial_freq = manual(freq)
+                        
+                    else:
+                        trial_freq = freq[t]
                     
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
-                        trial_df['freq%d' %f] = [freq[t][f]]
+                        trial_df['freq%d' %f] = [trial_freq[f]]
                         # if the frequency is 0 make the on time = 0
-                        if freq[t][f] == 0: 
+                        if trial_freq[f] == 0: 
                             params['ON[%d]' %f] = 0
                             params['OFF[%d]' %f] = 10 # ms
                         # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
                         else:
                             params['ON[%d]' %f] = 10
-                            params['OFF[%d]' %f] = (1000/freq[t][f]) - 10
-                    
-                    
+                            params['OFF[%d]' %f] = (1000/trial_freq[f]) - 10
                     
                     # Determine the reward condition
                     #     1. f0 > f1 :: lick left
@@ -419,16 +440,16 @@ if __name__ == "__main__":
                     #     3. f0 == 0 OR f1 == 0, either port is valid
                     #     4. f0 == 0 AND f1 == 0, neither port is valid
                     
-                    if freq[t][0] and freq[t][1]:
-                        if freq[t][0] == freq[t][1]: params['rewardCond'] = 'B'
-                        if freq[t][0] > freq[t][1]: params['rewardCond'] = 'L'
-                        if freq[t][0] < freq[t][1]: params['rewardCond'] = 'R'
+                    if trial_freq[0] and trial_freq[1]:
+                        if trial_freq[0] == trial_freq[1]: params['rewardCond'] = 'B'
+                        if trial_freq[0] > trial_freq[1]: params['rewardCond'] = 'L'
+                        if trial_freq[0] < trial_freq[1]: params['rewardCond'] = 'R'
                     
                     else:
-                        if freq[t][0] or freq[t][1]:params['rewardCond'] = 'B'
+                        if trial_freq[0] or trial_freq[1]:params['rewardCond'] = 'B'
                         else: params['rewardCond'] = 'N'
                     
-                    print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                    print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                     
                     #THE HANDSHAKE
                     # send all current parameters to the arduino box to rul the trial
@@ -458,11 +479,11 @@ if __name__ == "__main__":
                         ITI = args.ITI[0]
                         
                         print "about to go in %d"  %ITI
-                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         time.sleep(ITI)
                     
                     else:
-                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(freq[t][0], freq[t][1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         while m.kbhit() == False:
                             print colour("%s waiting for trigger\r" %(timenow()), fc.RED, style = Style.BRIGHT),
                         while m.kbhit():
