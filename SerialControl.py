@@ -319,8 +319,9 @@ def manual(freq):
 MAIN FUNCTION HERE
 
 """    
-    
-    
+
+#namespace.all?    
+
 if __name__ == "__main__":
     try:
         args = p.parse_args()
@@ -336,7 +337,6 @@ if __name__ == "__main__":
         
         datapath = create_datapath(datapath) #appends todays date to the datapath
         logfile = create_logfile(datapath) #creates a filepath for the logfile
-        
         
         # open communications
         
@@ -390,10 +390,10 @@ if __name__ == "__main__":
             
             # Buffer for 500 ms to let arduino finish it's setup
             time.sleep(.5)
-            
+            # Log the debug info for the setup
             while ser.inWaiting(): Serial_monitor(log)
             
-            
+            # loop for r repeats
             for r in xrange(repeats):
                 
                 print colour("BLOCK:\t%02d" %r, 
@@ -470,14 +470,13 @@ if __name__ == "__main__":
                             except AttributeError: trial_df[var] = [trial_df[var], val]
                         
                     # todo make this a random timer
-                    #if type(args.ITI) is not int:
-                    #    try: ITI = random.uniform(args.ITI[0], args.ITI[1])
-                    #    except: ITI = random.uniform(2,5)
-                    #else: 
                     if not args.triggered:
-                        
                         ITI = args.ITI[0]
                         
+                        if len(args.ITI) > 1:
+                            try: ITI = random.uniform(args.ITI[0], args.ITI[1])
+                            except: ITI = random.uniform(2,5)
+
                         print "about to go in %d"  %ITI
                         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         time.sleep(ITI)
