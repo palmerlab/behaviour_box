@@ -341,8 +341,10 @@ if __name__ == "__main__":
         if args.mode: params_i['mode'] = args.mode
         params = params_i
         
+        
         freq = np.loadtxt('frequencies.tab', skiprows = 1)
-        if args.freq: freq = args.freq
+        if args.freq: 
+            freq = args.freq
 
         #generate the frequency pairs
         if singlestim: 
@@ -354,8 +356,6 @@ if __name__ == "__main__":
             freq = tmp_freq
             del tmp_freq
 
-        #set the block proportional to the number of freq to be tested
-        block = len(freq) * 5 
         freq = np.array(freq)
         
         trial_num = 0
@@ -524,10 +524,7 @@ if __name__ == "__main__":
                     except: trial_df['right_stim'] = [0]
                     try: trial_df['right_post'] = [len(licksR[licksR > t_post])]
                     except: trial_df['right_post'] = [0]
-                             
-                    np.savetxt("port[0]_%s_trial%s.tab" %(ID, trial_num), trial_df['port[0]'], fmt = '%d')
-                    np.savetxt("port[1]_%strial%s.tab" %(ID, trial_num), trial_df['port[1]'], fmt = '%d')
-                    
+                  
                     del trial_df['port[0]']
                     del trial_df['port[1]']
                     
