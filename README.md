@@ -7,6 +7,36 @@ This is code to run my experiments
 
 #SerialController.py
 
+```
+usage: SerialControl.py [-h] [-v] [-p PORT] [-i ID] [-m MODE]
+                        [-f [FREQ [FREQ ...]]] [-r REPEATS]
+                        [--datapath DATAPATH] [--singlestim] [--manfreq]
+                        [--ITI ITI [ITI ...] | --triggered]
+
+This program controls the Arduino and reads from it too
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         for debug, will print everything if enabled
+  -p PORT, --port PORT  port that the Arduino is connected to
+  -i ID, --ID ID        identifier for this animal/run
+  -m MODE, --mode MODE  the mode `c`onditioning or `o`perant, by default will
+                        look in the config table
+  -f [FREQ [FREQ ...]], --freq [FREQ [FREQ ...]]
+                        list of frequencies in Hz (separated by spaces)
+  -r REPEATS, --repeats REPEATS
+                        the number of times this block should repeat, by
+                        default this is 1
+  --datapath DATAPATH   path to save data to, by default is '.\YYMMDD'
+  --singlestim          For anaesthetised experiments, only run a single
+                        stimulus
+  --manfreq             choose left or right trial for each iteration, can be
+                        enabled mid run by hitting Ctrl-m
+  --ITI ITI [ITI ...]   an interval for randomising between trials
+  --triggered           waits for key press to initiate a trial
+```
+
+
 1. The program starts
 2. The program reads `config.tab` and `Frequencies.tab`,
     
@@ -165,4 +195,3 @@ do the following:
 : This function parses an `input` string and uses it to set the value
    of global paramaters. If the input is of the form `variablename : value`
    `variablename` will be updated to be equal to `value`
-    
