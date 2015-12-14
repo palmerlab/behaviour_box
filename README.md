@@ -6,7 +6,7 @@ This is code to run my experiments
 
 
 #SerialController.py
-```
+```{text}
 usage: SerialControl.py [-h] [-v] [-p PORT] [-i ID] [-m MODE]
                         [-f [FREQ [FREQ ...]]] [-r REPEATS]
                         [--datapath DATAPATH] [--singlestim] [--manfreq]
