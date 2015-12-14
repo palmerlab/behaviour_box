@@ -6,7 +6,6 @@ This is code to run my experiments
 
 
 #SerialController.py
-
 ```
 usage: SerialControl.py [-h] [-v] [-p PORT] [-i ID] [-m MODE]
                         [-f [FREQ [FREQ ...]]] [-r REPEATS]
@@ -35,7 +34,6 @@ optional arguments:
   --ITI ITI [ITI ...]   an interval for randomising between trials
   --triggered           waits for key press to initiate a trial
 ```
-
 
 1. The program starts
 2. The program reads `config.tab` and `Frequencies.tab`,
