@@ -24,7 +24,6 @@ from colorama import Back as bc
 from colorama import Style
 
 
-
 """
 1. The program starts
 2. The program opens communications with available serial ports
@@ -46,15 +45,9 @@ from colorama import Style
    been presented.
 9. The program calculates d_prime|any_stimuls; d`|rising; d`|falling
 
-"""
-
-
-
-
-"""
-    ------------
-    Arguments
-    ------------
+--------------------------------------------------------------------
+Arguments
+--------------------------------------------------------------------
 """
 
 p = argparse.ArgumentParser(description="This program controls the Arduino and reads from it too" )
@@ -123,7 +116,6 @@ def num(s):
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
-
 def unpack_table(filename):
 
     reader = csv.reader(open(filename, 'r'), delimiter = "\t")
@@ -189,7 +181,6 @@ def update_bbox(params):
         
         time.sleep(0.2)
         
-
 def create_datapath(DATADIR = ""):
     """
     
@@ -206,8 +197,7 @@ def create_datapath(DATADIR = ""):
     print colour(DATADIR.replace("\\", "\\\\"), fc = fc.GREEN, style=Style.BRIGHT)
     
     return DATADIR        
-
-        
+  
 def create_logfile(DATADIR = ""):
     """
     
@@ -221,7 +211,6 @@ def create_logfile(DATADIR = ""):
     
     return logfile
 
-    
 def manual_response_check(logfile):
 
     response = None
@@ -246,8 +235,7 @@ def manual_response_check(logfile):
         logfile.write(line+"\n")
 
     return [response], [response_time]    
-
-    
+  
 def save_2Ddict_as_table(trial_df, datapath = "", fname = "data", header = True):
     """
     takes a 2d dictionary, converts it to a pandas dataframe
@@ -318,9 +306,9 @@ def manual(freq, t):
             return freq[t]
     
 """
-
+---------------------------------------------------------------------
 MAIN FUNCTION HERE
-
+---------------------------------------------------------------------
 """    
 
 #namespace.all?    
@@ -360,7 +348,7 @@ if __name__ == "__main__":
         
         params_i = unpack_table('config.tab')
         if args.mode: params_i['mode'] = args.mode
-        params = params_i
+        params = dict(params_i) #create a copy of the original
         
         
         freq = np.loadtxt('frequencies.tab', skiprows = 1)
@@ -444,8 +432,10 @@ if __name__ == "__main__":
                             params['OFF[%d]' %f] = 10 # ms
                         # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
                         else:
-                            params['ON[%d]' %f] = 10
-                            params['OFF[%d]' %f] = (1000/trial_freq[f]) - 10
+                            ON = num(params_i['ON[%d]' %f])
+                            params['ON[%d]' %f] = ON
+                            OFF = (1000/trial_freq[f]) -  ON
+                            params['OFF[%d]' %f] =  OFF if OFF > 0 else 1 
                     
                     # Determine the reward condition
                     #     1. f0 > f1 :: lick left
