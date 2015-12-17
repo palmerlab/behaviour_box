@@ -425,7 +425,7 @@ if __name__ == "__main__":
 
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
-                        trial_df['freq%d' %f] = [trial_freq]
+                        trial_df['freq%d' %f] = [trial_freq][f]
                         # if the frequency is 0 make the on time = 0
                         if trial_freq[f] == 0: 
                             params['ON[%d]' %f] = 0
