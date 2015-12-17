@@ -419,7 +419,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             break;
         }
         
-        if (RewardTest){
+        if (RewardTest) {
             digitalWrite(waterPort[RewardPort], HIGH);
             
             delay(waterVol);
