@@ -411,8 +411,6 @@ if __name__ == "__main__":
                     trial_df['trial_num'] = [trial_num]
                     trial_df['port[0]'] = [0]
                     trial_df['port[1]'] = [0]
-                    trial_df['response'] = [None]
-                    trial_df['response_time'] = [None]
                    
                     #In triggered mode 
                     if args.triggered:
@@ -506,22 +504,7 @@ if __name__ == "__main__":
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
                             
-                                if (trial_df['response'] == [None]) and ("port" in var):
-                                    
-                                    trial_df['response_time'] = [timenow()]
-                                    trial_df['response'] = ["L"] if var == "port[0]" else ["R"]
-                                    
-                    
-                    while trial_df['response'] == [None]:
-                        if args.triggered:
-                            trial_df['response'], trial_df['response_time'] = manual_response_check(log)
-                        else:
-                            trial_df['response'] = ["-"]
-                            trial_df['response_time'] = ["-"]
-                        
-                        # manually activate the vacuum?
-                        #if trial_df['response'] == ["-"]:
-                        #    ser.write("VacOn")
+
                     
                     # patitions lick responses into three handy numbers each
                     licksL = np.array(trial_df['port[0]'])
