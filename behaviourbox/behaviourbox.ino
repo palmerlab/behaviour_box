@@ -103,7 +103,7 @@ int toneDur = 100;
 
 // Global value to keep track of the total water consumed
 int waterCount = 0; 
-int waterVol = 10; //uL per dispense
+byte waterVol = 10; //uL per dispense
 
 // Global lick on
 bool lickOn[] = {false, false};
@@ -349,7 +349,7 @@ int TrialStimulus(int stimulusPin,
 
 int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
                 char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
-                int waterVol = 10, // 10 ms gives ~ 5-8 uL
+                byte waterVol = 10, // 10 ms gives ~ 5-8 uL
                 bool verbose = true) {
 
     int t = t_now(t_init);
@@ -420,7 +420,8 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
      THE MAIN MAIN FUNCTION
 --------------------------------- */ 
 
-int runTrial (int mode,
+int runTrial (
+    int mode,
     int trial_delay,
     int t_noLickPer,   // ms
     int t_stimONSET[2], //time stim turns on
@@ -429,7 +430,7 @@ int runTrial (int mode,
     int t_rewardEND,   // ms
     int t_trialEND,   // ms
     char rewardCond,
-    int waterVol,
+    byte waterVol,
     bool verbose) {
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -548,7 +549,7 @@ int UpdateGlobals(String input) {
             return 1;
         }
         if (variable_name == "waterVol" ) {
-            waterVol = variable_value.toInt();
+            waterVol = byte(variable_value.toInt());
             Serial.print("waterVol:\t"); Serial.println(waterVol);
             return 1;
         }
