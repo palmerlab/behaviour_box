@@ -58,7 +58,7 @@ p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/ru
 p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in Hz (separated by spaces)")
 p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
-p.add_argument('--datapath', default = "", help = "path to save data to, by default is '.\\YYMMDD'")
+p.add_argument('--datapath', default = "C:\\DATA\\wavesurfer", help = "path to save data to, by default is 'C:\\DATA\\wavesurfer\\%%YY%%MM%%DD'")
 p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
 p.add_argument('--manfreq',  action='store_true', help="choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
 
@@ -403,6 +403,11 @@ if __name__ == "__main__":
                     trial_df['trial_num'] = [trial_num]
                     trial_df['port[0]'] = [0]
                     trial_df['port[1]'] = [0]
+                    
+                    trial_df['WaterPort[0]'] = [0]
+                    trial_df['WaterPort[1]'] = [0]
+                    
+                    
                     trial_df['response'] = [None]
                     trial_df['response_time'] = [None]
                    
@@ -417,15 +422,21 @@ if __name__ == "__main__":
                             print "Manual mode:\t%s" %manfreq
                             log.write("Manual mode:\t%s\n" %manfreq)
                         
+                        
                     if manfreq:
                         print "Choose condition"
+                        
                         trial_freq = manual(freq, t)
+                        trial_df['manfreq'] = [manfreq]
                     else:
                         trial_freq = freq[t]
-
+                        
+                        trial_df['manfreq'] = [False]
+                    
+                    
                     # convert the frequencies into an on off square pulse
                     for f in (0,1):
-                        trial_df['freq%d' %f] = [trial_freq][f]
+                        trial_df['freq%d' %f] = [trial_freq[f]]
                         # if the frequency is 0 make the on time = 0
                         if trial_freq[f] == 0: 
                             params['ON[%d]' %f] = 0
@@ -547,6 +558,10 @@ if __name__ == "__main__":
                     except: trial_df['right_stim'] = [0]
                     try: trial_df['right_post'] = [len(licksR[licksR > t_post])]
                     except: trial_df['right_post'] = [0]
+                    
+                    #HACK!!!
+                    trial_df['WaterPort[0]'] = [sum(trial_df['WaterPort[0]'])]
+                    trial_df['WaterPort[1]'] = [sum(trial_df['WaterPort[1]'])]
                   
                     del trial_df['port[0]']
                     del trial_df['port[1]']
