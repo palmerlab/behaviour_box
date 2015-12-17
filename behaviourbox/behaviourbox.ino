@@ -63,16 +63,15 @@ String version = "#behaviourbox151204";
 
 
 // IO port settings:
-const int recTrig = 2;    // digital pin 2 triggers ITC-18
-const int stimulusPin = 3;    // digital pin 4 control whisker stimulation
-const int tonePin = 8;
-const int vacValve = 7;     // digital pin 9 controls vacuum
-const int statusLED = 13;
-
-const int waterPort[] = {10,11};    // digital pin 8 control water valve 
-const int lickRep[] = {13,13};      // led connected to digital pin 13
-const int lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
-
+const byte recTrig = 2;    // digital pin 2 triggers ITC-18
+const byte stimulusPin = 3;    // digital pin 4 control whisker stimulation
+const byte tonePin = 8;
+const byte vacValve = 7;     // digital pin 9 controls vacuum
+const byte statusLED = 13;
+      
+const byte waterPort[] = {10,11};    // digital pin 8 control water valve 
+const byte lickRep[] = {13,13};      // led connected to digital pin 13
+const byte lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
 
 int lickThres = 450;
 
@@ -109,7 +108,6 @@ int waterVol = 10; //uL per dispense
 bool lickOn[] = {false, false};
 bool stimTrial = true; //sets if there is a stimulus this run
 bool verbose = true;
-
 
 void setup (){
     // Open serial communications and wait for port to open:
@@ -217,7 +215,7 @@ int getSepIndex(String input) {
     return 0;
 }
 
-void flutter(int stim_pin, int on, int off){
+void flutter(byte stim_pin, int on, int off){
   
   digitalWrite(stim_pin, HIGH);
   digitalWrite(statusLED, HIGH);
@@ -312,7 +310,7 @@ void preTrial(bool verbose = true) {
     
 } 
 
-int TrialStimulus(int stimulusPin,
+int TrialStimulus(byte stimulusPin,
     int stimDUR,
     int ON = 5, // us time of ON pulse    ie FREQUENCY of flutter
     int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
@@ -404,6 +402,11 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
             
             digitalWrite(waterPort[RewardPort], LOW);
             
+            if (verbose) { Serial.print("WaterPort["); 
+                            Serial.println(RewardPort);
+                            Serial.print("]:\t");
+                            Serial.print("1");
+                }
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             return 1;
         } 
