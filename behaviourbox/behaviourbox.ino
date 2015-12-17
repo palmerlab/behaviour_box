@@ -20,7 +20,7 @@ String version = "#behaviourbox151204";
     ---------   -----------------  ------------
     pin 2       recording trigger  `recTrig`  
     pin 4       stimulus TTL       `whiskStim`
-    pin 6       speaker for cues   `tonePin`
+    pin 6       speaker for cues   `speakerPin`
 
     pin 8       syringe pump TTL   `waterValve`
     pin 9       vacuum tube valve  `vacValve`
@@ -65,7 +65,7 @@ String version = "#behaviourbox151204";
 // IO port settings:
 const int recTrig = 2;    // digital pin 2 triggers ITC-18
 const int stimulusPin = 3;    // digital pin 4 control whisker stimulation
-const int tonePin = 8;
+const int speakerPin = 8;
 const int vacValve = 7;     // digital pin 9 controls vacuum
 const int statusLED = 13;
 
@@ -133,7 +133,7 @@ void setup (){
     pinMode(vacValve, OUTPUT); // declare the vacValve as as OUTPUT
     pinMode(stimulusPin, OUTPUT); // declare the whiskStim as as OUTPUT
     pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
-    pinMode(tonePin, OUTPUT);
+    pinMode(speakerPin, OUTPUT);
     
     Serial.println("-- Status: Ready --");
 }
@@ -159,7 +159,7 @@ void loop () {
     }
 
     if (senseLick(0) or senseLick(1)){
-        tone(tonePin, toneBad, 10);
+        tone(speakerPin, toneBad, 10);
         delay(100);
     }
 }
@@ -185,7 +185,7 @@ bool senseLick(bool sensor){
         lickDetected = false;
     }
 
-    digitalWrite(tonePin, !random(0, random(50)));
+    digitalWrite(speakerPin, !random(0, random(50)));
     return lickDetected;
 }
 
@@ -406,13 +406,22 @@ int TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (re
             
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             return 1;
-        } 
+        }
+        else if ((lickOn[0] or lickOn[1]) and break_on_lick){
+            // declare the fail condition??
+            if (lickOn[0]) { Serial.print("port[0]:\t"); Serial.println(t); }
+            if (lickOn[1]) { Serial.print("port[1]:\t"); Serial.println(t); }
+            
+            if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+            return 0;
+        }
+        
         digitalWrite(waterPort[0], LOW);
         digitalWrite(waterPort[1], LOW);        //safety catch
     }
     
     if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
-    return 1;
+    return 0;
 }
 
 
@@ -431,15 +440,16 @@ int runTrial (
     int t_trialEND,   // ms
     char rewardCond,
     byte waterVol,
-    bool verbose) {
+    bool verbose,
+    byte break_on_lick = 0 // the contingency for when to reset
+    ) {                    //       if a lick is detected
+    
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
     // until next trial
     
     // local variables and initialisation of the trial
     int t; // local time
-    
-    
     
     /* t_init is initialised such that t_now
        returns 0 at the start of the trial, and 
@@ -477,9 +487,29 @@ int runTrial (
     ActiveDelay(t_rewardSTART, false, verbose);
     t = t_now(t_init);
     
+    /* this is a little complicated:
+       1. check that there is a reward due, ie the condition is not `N`
+       2. TrialReward returns 0 if break_on_miss is set.
+          therefore if TrialReward is false, the incorrect sensor was tripped
+          during the reward period. A bad tone is played; and the function
+          returns, resseting the program
+       3. Otherwise we wait until the trial period has ended
+    */
+    
     if (rewardCond != 'N') {
-        TrialReward(mode, rewardCond, waterVol, verbose);
-        ActiveDelay(t_trialEND, false, verbose);
+        
+        if (TrialReward(mode, rewardCond, break_on_miss ,waterVol, verbose)) {
+            // that we are here means the animal got it right
+            if (mode == 'o') { tone(speakerPin, toneGood, 25); }
+            
+            ActiveDelay(t_trialEND, false, verbose);
+            return 1
+        }
+        else {
+            // The program can only get here if the animal got it wrong
+            
+            return 0
+        }
     }
     else {
         ActiveDelay(t_trialEND, false, verbose);
@@ -490,7 +520,19 @@ int runTrial (
      END MAIN MAIN FUNCTION
 --------------------------------- */ 
 
+/* ------------------------------
+     END OF THE MAP... here be monsters
+--------------------------------- */ 
+
+
 int UpdateGlobals(String input) {
+    /*
+    This is a big ugly function which compares the
+    input string to the names of variables that I have
+    stored in memory; This is very much not the `C` 
+    way to do things...
+    */
+    
     
     int sep = getSepIndex(input);
         
