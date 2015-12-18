@@ -478,15 +478,18 @@ if __name__ == "__main__":
                         
                     # todo make this a random timer
                     if not args.triggered:
-                        ITI = args.ITI[0]
-                        
-                        if len(args.ITI) > 1:
-                            try: ITI = random.uniform(args.ITI[0], args.ITI[1])
-                            except: ITI = random.uniform(2,5)
+                    
+                        try: 
+                            if not ITI:
+                                ITI = random.uniform(args.ITI[0], args.ITI[1])
+                                
+                        except: ITI = random.uniform(2, args.ITI[0])
 
                         print "about to go in %d"  %ITI
                         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         time.sleep(ITI)
+                    
+                        ITI = None
                     
                     else:
                         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
@@ -512,9 +515,7 @@ if __name__ == "__main__":
                                 try: trial_df[var].append(val)
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
-                            
-
-                    
+                                                
                     # patitions lick responses into three handy numbers each
                     licksL = np.array(trial_df['port[0]'])
                     licksR = np.array(trial_df['port[1]'])
@@ -547,6 +548,10 @@ if __name__ == "__main__":
                   
                     del trial_df['port[0]']
                     del trial_df['port[1]']
+                    
+                    for k in trial_df.keys():
+                        try: trial_df[k] = trial_df[k][0]
+                        except AttributeError: pass
                     
                     trial_df['ID'] = [ID]
                     

@@ -368,9 +368,12 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         
         if (RewardTest) {
             
-            digitalWrite(waterPort[RewardPort], HIGH);
+            if (rewardCond == 'B') { 
+                digitalWrite(waterPort[0], HIGH); 
+                digitalWrite(waterPort[1], HIGH); 
+            }
+            else { digitalWrite(waterPort[RewardPort], HIGH); }
             
-            if (rewardCond == 'B') { digitalWrite(waterPort[!RewardPort], HIGH); }
             
             delay(waterVol);
             
@@ -389,7 +392,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             return response;
         }
-        else if ((lickOn[0] or lickOn[1]) and break_wrongChoice){
+        else if ((lickOn[!RewardPort]) and break_wrongChoice){
             // declare the fail condition??
             
             if (lickOn[0]) {
@@ -407,7 +410,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             
             return response;
         }
-        
+
         digitalWrite(waterPort[0], LOW);
         digitalWrite(waterPort[1], LOW);        //safety catch
     }
@@ -415,7 +418,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     response = 'M';
     
     Serial.print("response:\t"); Serial.println(response);
-    Serial.print("response_time:\tNan");
+    Serial.println("response_time:\tNan");
     
     // miss 
     if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
@@ -510,23 +513,15 @@ int runTrial ( int mode,
             ActiveDelay(t_trialEND, false, verbose);
             return 1;
         }
-        else if (response == '-') {
-            // The program can only get here if the animal got it wrong
-            Serial.print(":\t"); Serial.println(t);
-            return 0;
-        }
     }
-    else {
-        response = ActiveDelay(t_trialEND, true, verbose);
-        
-        Serial.print("response:\t"); Serial.println(response);
-        Serial.print("response_time:\t"); Serial.println(t);
-        
-        ActiveDelay(t_trialEND, false, verbose);
-        
-        return 0;
-    }   
+
+    response = ActiveDelay(t_trialEND, true, verbose);
     
+    Serial.print("response:\t"); Serial.println(response);
+    Serial.print("response_time:\t"); Serial.println(t);
+    
+    ActiveDelay(t_trialEND, false, verbose);
+
     return 0;
 }
 
@@ -702,7 +697,7 @@ void loop () {
 
             runTrial(mode, trial_delay, t_noLickPer, t_stimONSET,
                     stimDUR, t_rewardSTART, t_rewardEND, 
-                    t_trialEND, rewardCond, waterVol, verbose);
+                    t_trialEND, rewardCond, waterVol, verbose, break_wrongChoice);
                     
             Serial.println("-- Status: Ready --");
         }
@@ -716,9 +711,6 @@ void loop () {
         delay(100);
     }
 }
-
-
-
 
 
 
