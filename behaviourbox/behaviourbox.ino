@@ -205,11 +205,13 @@ char ActiveDelay(int wait,
             
             if (lickOn[0]) { 
                 response = 'l';
-                Serial.print("port[0]:\t"); Serial.println(t); 
+                Serial.print("port[0]:\t"); Serial.println(t);
+
             }
             if (lickOn[1]) { 
                 response = 'r';
-                Serial.print("port[1]:\t"); Serial.println(t); 
+                Serial.print("port[1]:\t"); Serial.println(t);
+              
             }
             
             if (break_on_lick){
@@ -381,8 +383,14 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             digitalWrite(waterPort[1], LOW);            
            
             if (mode != 'c'){ 
-                if (lickOn[0]){ response = 'L'; } // hit left
-                if (lickOn[1]){ response = 'R';} // hit right
+                if (lickOn[0]){ 
+                    response = 'L'; 
+
+                } // hit left
+                if (lickOn[1]){ 
+                    response = 'R';
+
+                } // hit right
                 
                 Serial.print("response:\t"); Serial.println(response);
                 Serial.print("response_time:\t"); Serial.println(t);
@@ -397,11 +405,15 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             
             if (lickOn[0]) {
                 response = 'l'; //bad left 
-                Serial.print("port[0]:\t"); Serial.println(t); }
+                Serial.print("port[0]:\t"); Serial.println(t);
+
+            }
             
             if (lickOn[1]) {
                 response = 'r'; //bad right
-                Serial.print("port[1]:\t"); Serial.println(t); }
+                Serial.print("port[1]:\t"); Serial.println(t); 
+
+            }
             
             Serial.print("response:\t"); Serial.println(response);
             Serial.print("response_time:\t"); Serial.println(t);
@@ -506,7 +518,7 @@ int runTrial ( int mode,
         if ( response == rewardCond ) {
             // that we are here means the animal got it right
             if (mode == 'o') { 
-                tone(speakerPin, toneGood, 25); 
+                tone(speakerPin, toneGood, 50); 
                 //Serial.print(something informative);
             }
             
@@ -519,6 +531,7 @@ int runTrial ( int mode,
     
     Serial.print("response:\t"); Serial.println(response);
     Serial.print("response_time:\t"); Serial.println(t);
+    tone(speakerPin, toneBad, 50); 
     
     ActiveDelay(t_trialEND, false, verbose);
 
@@ -707,10 +720,6 @@ void loop () {
     }
 
     if (senseLick(0) or senseLick(1)){
-        tone(speakerPin, toneBad, 10);
         delay(100);
     }
 }
-
-
-
