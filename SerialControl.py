@@ -538,8 +538,12 @@ if __name__ == "__main__":
                     except: trial_df['right_post'] = [0]
                     
                     #HACK!!!
-                    trial_df['WaterPort[0]'] = [sum(trial_df['WaterPort[0]'])]
-                    trial_df['WaterPort[1]'] = [sum(trial_df['WaterPort[1]'])]
+                    for i in (0,1):
+                        try: 
+                            trial_df['WaterPort%d]' %i]
+                            trial_df['WaterPort[%d]' %i] = [1]
+                        except KeyError: trial_df['WaterPort[%d]' %i] = [0]
+           
                   
                     del trial_df['port[0]']
                     del trial_df['port[1]']
