@@ -374,7 +374,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 
     int t = t_now(t_init);
     bool RewardTest;
-    int RewardPort;
+    bool RewardPort;
     char response;
     
     if (verbose) {Serial.print("#Enter `TrialReward`:\t"); Serial.println(t);}
@@ -419,11 +419,15 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         }
         
         if (RewardTest) {
+            
             digitalWrite(waterPort[RewardPort], HIGH);
+            
+            if (rewardCond == 'B') { digitalWrite(waterPort[!RewardPort], HIGH); }
             
             delay(waterVol);
             
-            digitalWrite(waterPort[RewardPort], LOW);        
+            digitalWrite(waterPort[0], LOW);
+            digitalWrite(waterPort[1], LOW);            
            
             if (mode != 'c'){ 
                 if (lickOn[0]){ response = 'L'; } // hit left
