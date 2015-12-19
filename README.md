@@ -193,3 +193,16 @@ do the following:
 : This function parses an `input` string and uses it to set the value
    of global paramaters. If the input is of the form `variablename : value`
    `variablename` will be updated to be equal to `value`
+
+
+`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false, waterVol = 10, verbose = true)`
+: This fucntion returns a character corresponding to the lick status
+ returns a character: 
+             'L' -- correct hit on left port
+             'R' -- correct hit on right port
+             'l' -- incorrect lick on left port
+             'r' -- incorrect lick on right port
+             '-' -- unknown; in conditioning this 
+                    function exits before the animal has 
+                    a chance to respond
+             'M' -- No lick detected during reward period
