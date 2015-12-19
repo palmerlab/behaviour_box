@@ -93,7 +93,7 @@ Setup connections:
 | --------- | ----------------- | --------------- |
 | pin 2     | recording trigger | `recTrig`       |
 | pin 3     | stimulus          | `stimulusPin`   |
-| pin 8     | speaker           | `tonePin`       |
+| pin 8     | speaker           | `SpeakerPin`    |
 | pin 7     | vacuum tube valve | `vacValve`      |
 | pin 10    | left water valve  | `waterValve[0]` |
 | pin 11    | right water valve | `waterValve[1]` |
