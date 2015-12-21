@@ -197,12 +197,20 @@ do the following:
 
 `TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false, waterVol = 10, verbose = true)`
 : This fucntion returns a character corresponding to the lick status
- returns a character: 
-             'L' -- correct hit on left port
-             'R' -- correct hit on right port
-             'l' -- incorrect lick on left port
-             'r' -- incorrect lick on right port
-             '-' -- unknown; in conditioning this 
-                    function exits before the animal has 
-                    a chance to respond
-             'M' -- No lick detected during reward period
+
+|    |                                       |
+| -- | ------------------------------------- |
+|'L' | correct hit on left port              |
+|    |                                       |
+|'R' | correct hit on right port             |
+|    |                                       |
+|'l' | incorrect lick on left port           |
+|    |                                       |
+|'r' | incorrect lick on right port          |
+|    |                                       |
+|'-' | unknown; in conditioning this         |
+|    | function exits before the animal has  |
+|    | a chance to respond                   |
+|    |                                       |
+|'M' | No lick detected during reward period |
+| -- | ------------------------------------- |
