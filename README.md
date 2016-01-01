@@ -6,6 +6,7 @@ This is code to run my experiments
 
 
 #SerialController.py
+
 ```{text}
 usage: SerialControl.py [-h] [-v] [-p PORT] [-i ID] [-m MODE]
                         [-f [FREQ [FREQ ...]]] [-r REPEATS]
@@ -87,8 +88,6 @@ certain time window.
 Setup connections:
 ------------------
 
-
-
 |  DIGITAL  | output            | variable        |
 | --------- | ----------------- | --------------- |
 | pin 2     | recording trigger | `recTrig`       |
@@ -111,6 +110,15 @@ Table: connections to lick controller
   
 Start program:
 --------------
+
+
+Working on
+:    I want the program to only report when the lickOn variable changes.
+    Ultimately I want to generate a raster plot, which requires the time
+    of each hit.
+
+    To do this I shall check the current LickOn value on senseLick. If
+    the value has changed then LickOn is updated. 
 
 The arduino program is a little complicated; but in principle a simple
 setup. The main method is `runTrial` which on initialisation:
@@ -142,8 +150,9 @@ do the following:
     unsigned long. It takes the value of `millis()` at the start of a run;
     which in turn is the number of milliseconds since the Arduino was turned on.
   
-`senseLick(sensor)`  
-: Returns true or false depending on the value of the lick sensor. `sensor`
+`senseLickChange(bool sensor, bool* lickOn, bool* lickChange,
+byte[] lickSens = lickSens, byte[] lickRep = lickRep)`  
+: `sensor`
     is a Boolean, because I only have implemented two lick sensors, which can
     be 0 or 1, for the left and right sensors respectively. This function
     reads the value of the analog input defined by `lickSens[sensor]`. If this
@@ -195,22 +204,22 @@ do the following:
    `variablename` will be updated to be equal to `value`
 
 
-`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false, waterVol = 10, verbose = true)`
+`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false, 
+waterVol = 10, verbose = true)`
 : This fucntion returns a character corresponding to the lick status
 
-    |    |                                       |
-    | -- | ------------------------------------- |
-    |'L' | correct hit on left port              |
-    |    |                                       |
-    |'R' | correct hit on right port             |
-    |    |                                       |
-    |'l' | incorrect lick on left port           |
-    |    |                                       |
-    |'r' | incorrect lick on right port          |
-    |    |                                       |
-    |'-' | unknown; in conditioning this         |
-    |    | function exits before the animal has  |
-    |    | a chance to respond                   |
-    |    |                                       |
-    |'M' | No lick detected during reward period |
-    | -- | ------------------------------------- |
+    --- -------------------------------------
+    'L' correct hit on left port             
+                                             
+    'R' correct hit on right port            
+                                             
+    'l' incorrect lick on left port          
+                                             
+    'r' incorrect lick on right port         
+                                             
+    '-' unknown; in conditioning this        
+        function exits before the animal has 
+        a chance to respond                  
+                                             
+    'M' No lick detected during reward period
+    --- -------------------------------------

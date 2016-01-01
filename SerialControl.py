@@ -16,8 +16,7 @@ import random
 import AndrewSignalDetection as sig
 
 from itertools import permutations
-      
-      
+            
 import colorama as color # makes things look nice
 from colorama import Fore as fc
 from colorama import Back as bc     
@@ -52,20 +51,20 @@ Arguments
 
 p = argparse.ArgumentParser(description="This program controls the Arduino and reads from it too" )
 
-p.add_argument("-v", "--verbose", action='store_true', help = 'for debug, will print everything if enabled')
+p.add_argument("-v", "--verbose", action = 'store_true', help = 'for debug, will print everything if enabled')
 p.add_argument("-p", "--port", default = "COM5", help = "port that the Arduino is connected to")
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
 p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
-p.add_argument('-f','--freq', nargs='*', type=int, help="list of frequencies in Hz (separated by spaces)")
-p.add_argument('-r', '--repeats', default = "1", type=int, help="the number of times this block should repeat, by default this is 1")
+p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
+p.add_argument('-r', '--repeats', default = "1", type = int, help = "the number of times this block should repeat, by default this is 1")
 p.add_argument('--datapath', default = "C:\\DATA\\wavesurfer", help = "path to save data to, by default is 'C:\\DATA\\wavesurfer\\%%YY%%MM%%DD'")
-p.add_argument('--singlestim', action='store_true', help = "For anaesthetised experiments, only run a single stimulus")
-p.add_argument('--manfreq',  action='store_true', help="choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
+p.add_argument('--singlestim', action = 'store_true', help = "For anaesthetised experiments, only run a single stimulus")
+p.add_argument('--manfreq',  action = 'store_true', help = "choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
 
 
 arg_group = p.add_mutually_exclusive_group()
-arg_group.add_argument('--ITI',  nargs='+', default = [5], type=float, help="an interval for randomising between trials")
-arg_group.add_argument('--triggered',  action='store_true', help="waits for key press to initiate a trial")
+arg_group.add_argument('--ITI',  nargs = '+', default = [5], type = float, help = "an interval for randomising between trials")
+arg_group.add_argument('--triggered',  action = 'store_true', help = "waits for key press to initiate a trial")
 
 def bin_array(array, bin_size):
     """
@@ -128,7 +127,11 @@ def unpack_table(filename):
 
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
-    return str(datetime.datetime.now().time().strftime('%H:%M:%S'))      
+    return datetime.datetime.now().time().strftime('%H:%M:%S')      
+      
+def today():
+    """provides today's date as a string in the form YYMMDD"""
+    return datetime.date.today().strftime('%y%m%d')
       
 def get_line(port, verbose):
     
@@ -181,11 +184,10 @@ def update_bbox(params):
         
         time.sleep(0.2)
         
-def create_datapath(DATADIR = ""):
+def create_datapath(DATADIR = "", date = today()):
     """
     
     """
-    date = datetime.date.today().strftime('%y%m%d')
     
     if not DATADIR: DATADIR = os.path.join(os.getcwd(), date)
     else: DATADIR = os.path.join(DATADIR, date)
@@ -198,12 +200,11 @@ def create_datapath(DATADIR = ""):
     
     return DATADIR        
   
-def create_logfile(DATADIR = ""):
+def create_logfile(DATADIR = "", date = today()):
     """
     
     """
-    date = datetime.date.today().strftime('%y%m%d')
-    
+
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
     print colour("Saving log in: \n\t", fc = fc.GREEN, style=Style.BRIGHT),
@@ -305,6 +306,27 @@ def manual(freq, t):
             print "The next random frequency pair"
             return freq[t]
     
+def init_serialport(port):
+    """
+    Open communications with the arduino;
+    quits the program if no communications are 
+    found on port.
+    """
+    
+    ser = serial.Serial()
+    ser.baudrate = 115200
+    ser.timeout = 1
+    ser.port = port
+
+    try: 
+        ser.open()
+        print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
+    except: 
+        print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
+        sys.exit(0)
+    
+    return ser
+    
 """
 ---------------------------------------------------------------------
 MAIN FUNCTION HERE
@@ -330,30 +352,19 @@ if __name__ == "__main__":
         datapath = create_datapath(datapath) #appends todays date to the datapath
         logfile = create_logfile(datapath) #creates a filepath for the logfile
         
-        # open communications
+        #open the communications line
+        ser = init_serialport(port)
         
-        ser = serial.Serial()
-        ser.baudrate = 115200
-        ser.timeout = 1
-        ser.port = port
-
-        try: 
-            ser.open()
-            print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
-        except: 
-            print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
-            sys.exit(0)
-            
-        date = datetime.date.today().strftime('%y%m%d')
-        
-        params_i = unpack_table('config.tab')
-        if args.mode: params_i['mode'] = args.mode
+        if args.mode: 
+            params_i['mode'] = args.mode
+        else: 
+            params_i = unpack_table('config.tab')
         params = dict(params_i) #create a copy of the original
         
-        
-        freq = np.loadtxt('frequencies.tab', skiprows = 1)
         if args.freq: 
             freq = args.freq
+        else:
+            freq = np.loadtxt('frequencies.tab', skiprows = 1)
 
         #generate the frequency pairs
         if singlestim: 
@@ -517,6 +528,8 @@ if __name__ == "__main__":
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
                                                 
                     # patitions lick responses into three handy numbers each
+                    
+                    
                     licksL = np.array(trial_df['port[0]'])
                     licksR = np.array(trial_df['port[1]'])
 
