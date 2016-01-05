@@ -92,6 +92,8 @@ int t_trialEND = 10000;    // ms
 
 char mode = 'c';
 char rewardCond = 'B'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+byte minlickCount = 5;
+
 
 // stimulus parameters
 unsigned long ON[] = {1000, 1000};
@@ -130,7 +132,7 @@ void senseLickChange(bool sensor) {
     
     lickChange[sensor] = (is_up != lickOn[sensor]);
     lickOn[sensor] = is_up;
-    
+
     digitalWrite(lickRep[sensor], lickOn[sensor]);
 }
 
@@ -303,6 +305,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 int t_rewardEND,
                 char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
                 bool break_wrongChoice = false, // exits the function if the animal makes a bad decision
+                byte minlickCount = 1, 
                 byte waterVol = 10, // 10 ms gives ~ 5-8 uL
                 bool verbose = true) {
 
@@ -322,6 +325,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     bool RewardTest;
     bool RewardPort;
     char response;
+    byte count;
     
     if (verbose) {Serial.print("#Enter `TrialReward`:\t"); Serial.println(t);}
     
@@ -337,19 +341,23 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         switch (rewardCond){
             
             case 'L':
-                RewardTest = (lickOn[0]) or (mode == 'c');
+                count = count + lickChange[0];
+                if (verbose and lickChange[0]) { Serial.print("#Count:\t"); Serial.println(count);}
+                RewardTest = (count >= minlickcount) or (mode == 'c');
                 RewardPort = 0;
             break;
                 
             case 'R':
-                RewardTest = (lickOn[1]) or (mode == 'c');
+                count = count + lickChange[1];
+                if (verbose and lickChange[1]) { Serial.print("#Count:\t"); Serial.println(count);}
+                RewardTest = (count >= minlickcount) or (mode == 'c');
                 RewardPort = 1;
             break;
             
             case 'B':
-                RewardTest = (lickOn[0] or lickOn[1]) or (mode == 'c');
-                if (lickOn[0]){RewardPort = 0;}
-                if (lickOn[1]){RewardPort = 1;}
+                count = count + lickChange[0];
+                count = count + lickChange[1];
+                RewardTest = (count >= minlickcount) or (mode == 'c');
             break;
             
             case 'N':
@@ -658,6 +666,13 @@ int UpdateGlobals(String input) {
             Serial.print("break_wrongChoice:\t"); Serial.println(break_wrongChoice);                  
             return 1;
         }
+        
+        if (variable_name == "minlickCount" ) {
+            minlickCount = variable_value.toInt();
+            Serial.print("minlickCount:\t"); Serial.println(minlickCount);  
+            return 1;
+        }
+        
    }
        
    return 0;
