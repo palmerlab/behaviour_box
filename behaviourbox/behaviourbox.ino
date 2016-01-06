@@ -1,9 +1,5 @@
 String version = "#behaviourbox150106";
 
-//TODO: make a conditioning protocol
-//TODO: rename singlestim operant
-//TODO: find an obvious method for producing constant noise
-
 /*
     Author: Naoya Takahashi
         modified by Andrew Micallef
@@ -127,11 +123,7 @@ void senseLick(bool sensor) {
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has changed
     
-    int sensVal = analogRead(lickSens[sensor]);
-    bool is_up = (sensVal >= lickThres);
-        
-    
-    if (is_up){
+    if (analogRead(lickSens[sensor]) >= lickThres){
         if (lickOn[sensor] == false) { 
             lickCounted[sensor] = true;
             // counted = true
@@ -139,7 +131,7 @@ void senseLick(bool sensor) {
         lickOn[sensor] = true;
     }
     else {
-        lickOn[sensor] == false;
+        lickOn[sensor] = false;
         lickCounted[sensor] = false;
         // counted = false
     }
@@ -741,5 +733,7 @@ void loop () {
         delay(100);
     }
 }
+
+
 
 
