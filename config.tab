@@ -8,10 +8,11 @@ t_rewardEND	6000
 t_trialEND	6000
 lickThres	100
 waterVol	10
-ON[0]	1
-ON[1]	1
+ON[0]	30
+ON[1]	30
 OFF[0]	5
 OFF[1]	5
 mode	c
-rewardCond  B
-break_wrongChoice   1
+rewardCond	B
+break_wrongChoice	1
+minlickCount	40

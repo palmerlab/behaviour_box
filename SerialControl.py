@@ -354,11 +354,10 @@ if __name__ == "__main__":
         
         #open the communications line
         ser = init_serialport(port)
+
         
-        if args.mode: 
-            params_i['mode'] = args.mode
-        else: 
-            params_i = unpack_table('config.tab')
+        params_i = unpack_table('config.tab')
+        params_i['mode'] = args.mode
         params = dict(params_i) #create a copy of the original
         
         if args.freq: 

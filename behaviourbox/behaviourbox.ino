@@ -1,4 +1,4 @@
-String version = "#behaviourbox151218";
+String version = "#behaviourbox150106";
 
 //TODO: make a conditioning protocol
 //TODO: rename singlestim operant
@@ -205,11 +205,11 @@ char ActiveDelay(int wait,
             
             if (lickChange[0]) { 
                 response = 'l';
-                Serial.print("port[0]:\t"); Serial.println(t);
+                Serial.print("#port[0]:\t"); Serial.println(t);
             }
             if (lickChange[1]) { 
                 response = 'r';
-                Serial.print("port[1]:\t"); Serial.println(t);
+                Serial.print("#port[1]:\t"); Serial.println(t);
             }
             
             if (break_on_lick){
@@ -325,7 +325,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     bool RewardTest;
     bool RewardPort;
     char response;
-    byte count;
+    byte count[] = {0,0};
     
     if (verbose) {Serial.print("#Enter `TrialReward`:\t"); Serial.println(t);}
     
@@ -336,28 +336,25 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         senseLickChange(0); 
         senseLickChange(1);
         
+        count[0] = count[0] + lickChange[0];
+        count[1] = count[1] + lickChange[1];
+        
         // response reports if there was a lick in the reward period
         
         switch (rewardCond){
             
             case 'L':
-                count = count + lickChange[0];
-                if (verbose and lickChange[0]) { Serial.print("#Count:\t"); Serial.println(count);}
-                RewardTest = (count >= minlickcount) or (mode == 'c');
+                RewardTest = (count[0] >= minlickCount) or (mode == 'c');
                 RewardPort = 0;
             break;
                 
             case 'R':
-                count = count + lickChange[1];
-                if (verbose and lickChange[1]) { Serial.print("#Count:\t"); Serial.println(count);}
-                RewardTest = (count >= minlickcount) or (mode == 'c');
+                RewardTest = (count[1] >= minlickCount) or (mode == 'c');
                 RewardPort = 1;
             break;
             
             case 'B':
-                count = count + lickChange[0];
-                count = count + lickChange[1];
-                RewardTest = (count >= minlickcount) or (mode == 'c');
+                RewardTest = (count[0] >= minlickCount) or (count[1] >= minlickCount) or (mode == 'c');
             break;
             
             case 'N':
@@ -398,29 +395,29 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 
                 Serial.print("response:\t"); Serial.println(response);
                 Serial.print("response_time:\t"); Serial.println(t);
+                Serial.print("count[0]:\t"); Serial.println(count[0]);
+                Serial.print("count[1]:\t"); Serial.println(count[1]);
             }
             else { response = '-'; } // unknown
 
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             return response;
         }
-        else if ((lickOn[!RewardPort]) and break_wrongChoice){
+        else if ((count[!RewardPort] >= minlickCount) and break_wrongChoice){
             // declare the fail condition??
             
             if (lickOn[0]) {
                 response = 'l'; //bad left 
-                Serial.print("port[0]:\t"); Serial.println(t);
-
             }
             
             if (lickOn[1]) {
                 response = 'r'; //bad right
-                Serial.print("port[1]:\t"); Serial.println(t); 
-
             }
             
             Serial.print("response:\t"); Serial.println(response);
             Serial.print("response_time:\t"); Serial.println(t);
+            Serial.print("count[0]:\t"); Serial.println(count[0]);
+            Serial.print("count[1]:\t"); Serial.println(count[1]);
             
             if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             
@@ -435,6 +432,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     
     Serial.print("response:\t"); Serial.println(response);
     Serial.println("response_time:\tNan");
+    Serial.print("count[0]:\t"); Serial.println(count[0]);
+    Serial.print("count[1]:\t"); Serial.println(count[1]);
     
     // miss 
     if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
@@ -518,7 +517,7 @@ int runTrial ( int mode,
     if (rewardCond != 'N') {
         
         response = TrialReward(mode, t_rewardEND, rewardCond, 
-                                break_wrongChoice, waterVol, verbose); 
+                                break_wrongChoice, minlickCount, waterVol, verbose); 
         if ( response == rewardCond ) {
             // that we are here means the animal got it right
             if (mode == 'o') { 
@@ -529,13 +528,10 @@ int runTrial ( int mode,
             ActiveDelay(t_trialEND, false, verbose);
             return 1;
         }
+        else { 
+            tone(speakerPin, toneBad, 50);
+        }
     }
-
-    response = ActiveDelay(t_trialEND, true, verbose);
-    
-    Serial.print("response:\t"); Serial.println(response);
-    Serial.print("response_time:\t"); Serial.println(t);
-    tone(speakerPin, toneBad, 50); 
     
     ActiveDelay(t_trialEND, false, verbose);
 
@@ -734,3 +730,5 @@ void loop () {
         delay(100);
     }
 }
+
+
