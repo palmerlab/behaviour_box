@@ -110,6 +110,7 @@ byte waterVol = 10; //uL per dispense
 
 // Global lick on
 bool lickOn[] = {false, false};
+bool lickCounted[] = {false, false};
 bool stimTrial = true; //sets if there is a stimulus this run
 bool verbose = true;
 bool break_wrongChoice = false; // stop the trial if the animal makes a mistake during reward period
@@ -128,17 +129,22 @@ void senseLick(bool sensor) {
     
     int sensVal = analogRead(lickSens[sensor]);
     bool is_up = (sensVal >= lickThres);
+        
     
     if (is_up){
         if (lickOn[sensor] == false) { 
-            lickOn[sensor] = true;
+            lickCounted[sensor] = true;
+            // counted = true
         }
+        lickOn[sensor] = true;
     }
     else {
         lickOn[sensor] == false;
+        lickCounted[sensor] = false;
+        // counted = false
     }
     
-    digitalWrite(lickRep[sensor], lickOn[sensor]);
+    digitalWrite(lickRep[sensor], lickOn[sensor]); 
 }
 
 String getSerialInput(){
@@ -341,8 +347,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         senseLick(0); 
         senseLick(1);
         
-        count[0] = count[0] + lickOn[0];
-        count[1] = count[1] + lickOn[1];
+        count[0] = count[0] + lickCounted[0];
+        count[1] = count[1] + lickCounted[1];
         
         // response reports if there was a lick in the reward period
         
