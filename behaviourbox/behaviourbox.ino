@@ -123,6 +123,8 @@ void senseLick(bool sensor) {
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has changed
     
+    lickCounted[sensor] = false;
+    
     if (analogRead(lickSens[sensor]) >= lickThres){
         if (lickOn[sensor] == false) { 
             lickCounted[sensor] = true;
@@ -131,8 +133,7 @@ void senseLick(bool sensor) {
         lickOn[sensor] = true;
     }
     else {
-        lickOn[sensor] = false;
-        lickCounted[sensor] = false;
+        lickOn[sensor] = false;    
         // counted = false
     }
     
@@ -728,12 +729,13 @@ void loop () {
 
     senseLick(0);
     senseLick(1);
+
+    Serial.print(lickCounted[0]);
+    Serial.print("\t");
+    Serial.print(lickOn[0]);
+    Serial.print("\n");
     
     if (lickOn[0] or lickOn[1]){
         delay(100);
     }
 }
-
-
-
-
