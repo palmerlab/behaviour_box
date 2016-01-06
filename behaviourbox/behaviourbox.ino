@@ -110,7 +110,6 @@ byte waterVol = 10; //uL per dispense
 
 // Global lick on
 bool lickOn[] = {false, false};
-bool lickChange[] = {false, false};
 bool stimTrial = true; //sets if there is a stimulus this run
 bool verbose = true;
 bool break_wrongChoice = false; // stop the trial if the animal makes a mistake during reward period
@@ -121,7 +120,7 @@ int t_now(unsigned long t_init){
     return (int) millis() - t_init;
 }
 
-void senseLickChange(bool sensor) {
+void senseLick(bool sensor) {
 
     // 1. check to see if the lick sensor has moved
     // 2. check if the sensor is above threshold
@@ -130,9 +129,15 @@ void senseLickChange(bool sensor) {
     int sensVal = analogRead(lickSens[sensor]);
     bool is_up = (sensVal >= lickThres);
     
-    lickChange[sensor] = (is_up != lickOn[sensor]);
-    lickOn[sensor] = is_up;
-
+    if (is_up){
+        if (lickOn[sensor] == false) { 
+            lickOn[sensor] = true;
+        }
+    }
+    else {
+        lickOn[sensor] == false;
+    }
+    
     digitalWrite(lickRep[sensor], lickOn[sensor]);
 }
 
@@ -197,17 +202,17 @@ char ActiveDelay(int wait,
     while (t < wait) {
         t = t_now(t_init);
         
-        // Change the values of lickOn and lickChange 
-        senseLickChange(0);
-        senseLickChange(1);
+        // Change the values of lickOn and lickOn 
+        senseLick(0);
+        senseLick(1);
 
-        if (lickChange[0] or lickChange[1]){
+        if (lickOn[0] or lickOn[1]){
             
-            if (lickChange[0]) { 
+            if (lickOn[0]) { 
                 response = 'l';
                 Serial.print("#port[0]:\t"); Serial.println(t);
             }
-            if (lickChange[1]) { 
+            if (lickOn[1]) { 
                 response = 'r';
                 Serial.print("#port[1]:\t"); Serial.println(t);
             }
@@ -238,8 +243,8 @@ void preTrial(bool verbose = true) {
         // 1. update time
         // 2. check for licks
         t = t_now(t_init);
-        senseLickChange(0); 
-        senseLickChange(1);
+        senseLick(0); 
+        senseLick(1);
         
         digitalWrite(vacValve, HIGH);
         
@@ -289,8 +294,8 @@ int TrialStimulus(byte stimulusPin,
            2. check for licks
         */
         t = t_now(t_local);
-        senseLickChange(0); 
-        senseLickChange(1);
+        senseLick(0); 
+        senseLick(1);
         
         flutter(stimulusPin, ON, OFF);
 
@@ -333,11 +338,11 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         
         t = t_now(t_init);
         
-        senseLickChange(0); 
-        senseLickChange(1);
+        senseLick(0); 
+        senseLick(1);
         
-        count[0] = count[0] + lickChange[0];
-        count[1] = count[1] + lickChange[1];
+        count[0] = count[0] + lickOn[0];
+        count[1] = count[1] + lickOn[1];
         
         // response reports if there was a lick in the reward period
         
@@ -723,8 +728,8 @@ void loop () {
 
     }
 
-    senseLickChange(0);
-    senseLickChange(1);
+    senseLick(0);
+    senseLick(1);
     
     if (lickOn[0] or lickOn[1]){
         delay(100);
