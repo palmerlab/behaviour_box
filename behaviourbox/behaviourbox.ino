@@ -729,11 +729,6 @@ void loop () {
 
     senseLick(0);
     senseLick(1);
-
-    Serial.print(lickCounted[0]);
-    Serial.print("\t");
-    Serial.print(lickOn[0]);
-    Serial.print("\n");
     
     if (lickOn[0] or lickOn[1]){
         delay(100);
