@@ -1,4 +1,4 @@
-String version = "#behaviourbox150106";
+String version = "#behaviourbox150108";
 
 /*
     Author: Naoya Takahashi
@@ -207,13 +207,13 @@ char ActiveDelay(int wait,
 
         if (lickOn[0] or lickOn[1]){
             
-            if (lickOn[0]) { 
+            if (lickCounted[0]) { 
                 response = 'l';
-                Serial.print("#port[0]:\t"); Serial.println(t);
+                Serial.print("port[0]:\t"); Serial.println(t);
             }
-            if (lickOn[1]) { 
+            if (lickCounted[1]) { 
                 response = 'r';
-                Serial.print("#port[1]:\t"); Serial.println(t);
+                Serial.print("port[1]:\t"); Serial.println(t);
             }
             
             if (break_on_lick){
@@ -377,9 +377,17 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             
             if (rewardCond == 'B') { 
                 digitalWrite(waterPort[0], HIGH); 
-                digitalWrite(waterPort[1], HIGH); 
+                digitalWrite(waterPort[1], HIGH);
+                if (verbose) {Serial.print("WaterPort["0"]:\t1\nWaterPort["1"]:\t1");}
             }
-            else { digitalWrite(waterPort[RewardPort], HIGH); }
+            else { 
+                digitalWrite(waterPort[RewardPort], HIGH); 
+                    if (verbose) { Serial.print("WaterPort["); 
+                           Serial.println(RewardPort);
+                           Serial.print("]:\t");
+                           Serial.print("1");
+                    }
+                }
             
             
             delay(waterVol);
@@ -734,3 +742,4 @@ void loop () {
         delay(100);
     }
 }
+
