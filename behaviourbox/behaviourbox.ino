@@ -378,14 +378,14 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             if (rewardCond == 'B') { 
                 digitalWrite(waterPort[0], HIGH); 
                 digitalWrite(waterPort[1], HIGH);
-                if (verbose) {Serial.print("WaterPort[0]:\t1\nWaterPort[1]:\t1");}
+                if (verbose) {Serial.println("WaterPort[0]:\t1\nWaterPort[1]:\t1");}
             }
             else { 
                 digitalWrite(waterPort[RewardPort], HIGH); 
                     if (verbose) { Serial.print("WaterPort["); 
-                           Serial.println(RewardPort);
+                           Serial.print(RewardPort);
                            Serial.print("]:\t");
-                           Serial.print("1");
+                           Serial.println("1");
                     }
                 }
             
@@ -407,8 +407,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 
                 Serial.print("response:\t"); Serial.println(response);
                 Serial.print("response_time:\t"); Serial.println(t);
-                Serial.print("count[0]:\t"); Serial.println(count[0]);
-                Serial.print("count[1]:\t"); Serial.println(count[1]);
+                //Serial.print("count[0]:\t"); Serial.println(count[0]);
+                //Serial.print("count[1]:\t"); Serial.println(count[1]);
             }
             else { response = '-'; } // unknown
 
@@ -428,8 +428,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             
             Serial.print("response:\t"); Serial.println(response);
             Serial.print("response_time:\t"); Serial.println(t);
-            Serial.print("count[0]:\t"); Serial.println(count[0]);
-            Serial.print("count[1]:\t"); Serial.println(count[1]);
+            //Serial.print("count[0]:\t"); Serial.println(count[0]);
+            //Serial.print("count[1]:\t"); Serial.println(count[1]);
             
             if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             
@@ -444,8 +444,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     
     Serial.print("response:\t"); Serial.println(response);
     Serial.println("response_time:\tNan");
-    Serial.print("count[0]:\t"); Serial.println(count[0]);
-    Serial.print("count[1]:\t"); Serial.println(count[1]);
+    //Serial.print("count[0]:\t"); Serial.println(count[0]);
+    //Serial.print("count[1]:\t"); Serial.println(count[1]);
     
     // miss 
     if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
@@ -540,7 +540,11 @@ int runTrial ( int mode,
             ActiveDelay(t_trialEND, false, verbose);
             return 1;
         }
-        else { 
+        else {
+            response = ActiveDelay(t_trialEND, true, verbose);
+            Serial.print("response:\t"); Serial.println(response);
+            Serial.print("response_time:\t"); Serial.println(t);
+            
             tone(speakerPin, toneBad, 50);
         }
     }
@@ -742,4 +746,5 @@ void loop () {
         delay(100);
     }
 }
+
 

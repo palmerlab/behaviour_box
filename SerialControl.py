@@ -161,9 +161,9 @@ def Serial_monitor(logfile):
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
         
         elif line[0] != "#": 
-            
-            print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
-            print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
+            if line.startswith("port") == False:
+                print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
+                print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
             
         logfile.write(fmt_line + "\n")
         
@@ -569,6 +569,7 @@ if __name__ == "__main__":
                     
                     save_2Ddict_as_table(trial_df, datapath, header = (trial_num==0))
                     
+                    print pd.DataFrame(trial_df)
                     
                     trial_num += 1
                 

@@ -3,10 +3,10 @@ t_noLickPer	0
 t_stimONSET[0]	2000
 t_stimONSET[1]	3000
 stimDUR	500
-t_rewardSTART	4000
-t_rewardEND	6000
-t_trialEND	6000
-lickThres	100
+t_rewardSTART	3500
+t_rewardEND	10000
+t_trialEND	10000
+lickThres	300
 waterVol	10
 ON[0]	30
 ON[1]	30
@@ -15,4 +15,4 @@ OFF[1]	5
 mode	c
 rewardCond	B
 break_wrongChoice	1
-minlickCount	40
+minlickCount	2
