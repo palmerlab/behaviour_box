@@ -378,7 +378,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             if (rewardCond == 'B') { 
                 digitalWrite(waterPort[0], HIGH); 
                 digitalWrite(waterPort[1], HIGH);
-                if (verbose) {Serial.print("WaterPort["0"]:\t1\nWaterPort["1"]:\t1");}
+                if (verbose) {Serial.print("WaterPort[0]:\t1\nWaterPort[1]:\t1");}
             }
             else { 
                 digitalWrite(waterPort[RewardPort], HIGH); 
