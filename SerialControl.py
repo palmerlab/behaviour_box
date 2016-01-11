@@ -148,7 +148,7 @@ def get_line(port, verbose):
     
     return inline      
 
-def Serial_monitor(logfile):
+def Serial_monitor(logfile, show = True):
     
     line = ser.readline()
     
@@ -160,7 +160,7 @@ def Serial_monitor(logfile):
             fmt_line = "#" + fmt_line
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
         
-        elif line[0] != "#": 
+        elif show: 
             if line.startswith("port") == False:
                 print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
                 print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
@@ -195,8 +195,8 @@ def create_datapath(DATADIR = "", date = today()):
     if not os.path.isdir(DATADIR):
         os.mkdir((DATADIR))
     
-    print colour("datapath: \n\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour(DATADIR.replace("\\", "\\\\"), fc = fc.GREEN, style=Style.BRIGHT)
+    print colour("datapath:\t", fc = fc.GREEN, style=Style.BRIGHT),
+    print colour(DATADIR.replace("\\", "/"), fc = fc.GREEN, style=Style.BRIGHT)
     
     return DATADIR        
   
@@ -207,8 +207,8 @@ def create_logfile(DATADIR = "", date = today()):
 
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
-    print colour("Saving log in: \n\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour(".\\$datapath$\\%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
+    print colour("Saving log in:\t", fc = fc.GREEN, style=Style.BRIGHT),
+    print colour("./$datapath$/%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
     
     return logfile
 
@@ -236,19 +236,7 @@ def manual_response_check(logfile):
         logfile.write(line+"\n")
 
     return [response], [response_time]    
-  
-def save_2Ddict_as_table(trial_df, datapath = "", fname = "data", header = True):
-    """
-    takes a 2d dictionary, converts it to a pandas dataframe
-    then saves it as a table in the directory `datapath`
-    """
-    
-    trial_df = pd.DataFrame(trial_df)
-
-    with open('%s\\%s.tab' %(datapath, fname), 'a') as datafile:
-        trial_df.to_csv(datafile, 
-            header = header, sep = "\t",
-            index=False)    
+ 
 
 def update_progress(progress):
 
@@ -479,7 +467,7 @@ if __name__ == "__main__":
                     while ser.inWaiting():
                         
                         # get info about licks, strip away trailing white space
-                        line = Serial_monitor(log).strip()
+                        line = Serial_monitor(log, show = verbose).strip()
                         
                         # store it if it isn't debug or the ready line
                         if line[0] != "#" and line[0] != "-":
@@ -557,11 +545,21 @@ if __name__ == "__main__":
                     del trial_df['port[1]']
                     
                     for k in trial_df.keys():
-                        trial_df[k] = trial_df[k][0]
+                        if type(trial_df[k]) == list: trial_df[k] = trial_df[k][0]
                     
-                    save_2Ddict_as_table(trial_df, datapath, header = (trial_num==0))
-                    
-                    print pd.DataFrame(trial_df)
+                   
+                    with open('%s/%s_%s.csv' %(datapath, ID, today()), 'a') as datafile:
+                        df = pd.DataFrame(trial_df, index = [trial_num])
+                        df.to_csv(datafile, header = (trial_num == 0))
+
+                    for k in trial_df:
+                        if k.endswith("]"): string = k.split("[")[0][:6]+k[-2],
+                        else: string =  k[:7],
+                        print '%-8s' %(string),
+                    print '\r'
+                    for k in trial_df:
+                        print '%-8s' %(str(trial_df[k])),
+                    print '\r'
                     
                     trial_num += 1
                 
