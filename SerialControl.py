@@ -408,11 +408,16 @@ if __name__ == "__main__":
                 for t in xrange(len(freq)):
                 
                     # create an empty dictionary to store data in
-                    trial_df = {}
+                    trial_df = {
+                        'trial_num' : [trial_num],
+                        'port[0]' : [0],
+                        'port[1]' : [0],
+                        'WaterPort[0]': [0],
+                        'WaterPort[1]': [0],
+                        'ID' : ID,
+                        'manfreq' : manfreq
+                    }
                     
-                    trial_df['trial_num'] = [trial_num]
-                    trial_df['port[0]'] = [0]
-                    trial_df['port[1]'] = [0]
                    
                     #In triggered mode
                     if m.kbhit():
@@ -430,11 +435,9 @@ if __name__ == "__main__":
                         print "Choose condition"
                         
                         trial_freq = manual(freq, t)
-                        trial_df['manfreq'] = [manfreq]
                     else:
                         trial_freq = freq[t]
                         
-                        trial_df['manfreq'] = [False]
                     
                     
                     # convert the frequencies into an on off square pulse
@@ -498,7 +501,7 @@ if __name__ == "__main__":
                         print "about to go in %d"  %ITI
                         print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         time.sleep(ITI)
-                    
+
                         ITI = None
                     
                     else:
@@ -526,16 +529,15 @@ if __name__ == "__main__":
                                 except KeyError: trial_df[var] = [val]
                                 except AttributeError: trial_df[var] = [trial_df[var], val]
                                                 
-                    # patitions lick responses into three handy numbers each
-                    
-                    
+                    # partitions lick responses into three handy numbers each
+
                     licksL = np.array(trial_df['port[0]'])
                     licksR = np.array(trial_df['port[1]'])
 
                     t_f0 = num(params['t_stimONSET[0]'])
                     t_f1 = num(params['t_stimONSET[1]'])
                     t_post = num(params['t_rewardSTART'])
-
+                    
                     try: trial_df['left_pre'] = [len(licksL[licksL < t_f0])]
                     except: trial_df['left_pre'] = [0]
                     try: trial_df['left_stim'] = [len(licksL[(licksL > t_f0) & (licksL < t_post)])]
@@ -549,23 +551,13 @@ if __name__ == "__main__":
                     except: trial_df['right_stim'] = [0]
                     try: trial_df['right_post'] = [len(licksR[licksR > t_post])]
                     except: trial_df['right_post'] = [0]
-                    
-                    #HACK!!!
-                    for i in (0,1):
-                        try: 
-                            trial_df['WaterPort%d]' %i]
-                            trial_df['WaterPort[%d]' %i] = [1]
-                        except KeyError: trial_df['WaterPort[%d]' %i] = [0]
-           
+
                   
                     del trial_df['port[0]']
                     del trial_df['port[1]']
                     
                     for k in trial_df.keys():
-                        try: trial_df[k] = trial_df[k][0]
-                        except AttributeError: pass
-                    
-                    trial_df['ID'] = [ID]
+                        trial_df[k] = trial_df[k][0]
                     
                     save_2Ddict_as_table(trial_df, datapath, header = (trial_num==0))
                     
