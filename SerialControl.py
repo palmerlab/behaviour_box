@@ -54,7 +54,7 @@ p = argparse.ArgumentParser(description="This program controls the Arduino and r
 p.add_argument("-v", "--verbose", action = 'store_true', help = 'for debug, will print everything if enabled')
 p.add_argument("-p", "--port", default = "COM5", help = "port that the Arduino is connected to")
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
-p.add_argument("-m", "--mode", default = "", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
+p.add_argument("-m", "--mode", default = "c", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
 p.add_argument('-r', '--repeats', default = "1", type = int, help = "the number of times this block should repeat, by default this is 1")
 p.add_argument('--datapath', default = "C:\\DATA\\wavesurfer", help = "path to save data to, by default is 'C:\\DATA\\wavesurfer\\%%YY%%MM%%DD'")
@@ -400,8 +400,8 @@ if __name__ == "__main__":
                         'trial_num' : [trial_num],
                         'port[0]' : [0],
                         'port[1]' : [0],
-                        'WaterPort[0]': [0],
-                        'WaterPort[1]': [0],
+                        'WaterPort[0]': 0,
+                        'WaterPort[1]': 0,
                         'ID' : ID,
                         'manfreq' : manfreq
                     }
@@ -471,12 +471,9 @@ if __name__ == "__main__":
                         
                         # store it if it isn't debug or the ready line
                         if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":\t")
-                            val = num(val)
-                            try: trial_df[var].append(val)
-                            except KeyError: trial_df[var] = [val]
-                            except AttributeError: trial_df[var] = [trial_df[var], val]
-                        
+                            var, val = line.split(":")
+                            trial_df[var] = num(val)
+                            
                     # todo make this a random timer
                     if not args.triggered:
                     
@@ -511,11 +508,11 @@ if __name__ == "__main__":
                         line = Serial_monitor(log).strip()
                         if line:
                             if line[0] != "#" and line[0] != "-":
-                                var, val = line.split(":\t")
+                                var, val = line.split(":")
                                 val = num(val)
-                                try: trial_df[var].append(val)
-                                except KeyError: trial_df[var] = [val]
-                                except AttributeError: trial_df[var] = [trial_df[var], val]
+                                if var.startswith("port"): trial_df[var].append(val)
+                                else: trial_df[var] = val
+                                
                                                 
                     # partitions lick responses into three handy numbers each
 
