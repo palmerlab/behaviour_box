@@ -153,10 +153,7 @@ int getSepIndex(String input) {
    
     while (c != 0) {
         c = input[i];
-        
-        if (c == ':'){
-            return i;
-        }
+        if (c == ':'){ return i; }
         i ++;
     }
     return 0;
