@@ -471,7 +471,7 @@ if __name__ == "__main__":
                         
                         # store it if it isn't debug or the ready line
                         if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":")
+                            var, val = line.split(":\t")
                             trial_df[var] = num(val)
                             
                     # todo make this a random timer
@@ -508,7 +508,7 @@ if __name__ == "__main__":
                         line = Serial_monitor(log, False).strip()
                         if line:
                             if line[0] != "#" and line[0] != "-":
-                                var, val = line.split(":")
+                                var, val = line.split(":\t")
                                 val = num(val)
                                 if var.startswith("port"): trial_df[var].append(val)
                                 else: trial_df[var] = val
