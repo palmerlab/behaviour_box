@@ -201,11 +201,11 @@ char ActiveDelay(int wait,
         if (lickOn[0] or lickOn[1]){
             
             if (lickCounted[0]) { 
-                response = 'l';
+                response = 'L';
                 Serial.print("port[0]:\t"); Serial.println(t);
             }
             if (lickCounted[1]) { 
-                response = 'r';
+                response = 'R';
                 Serial.print("port[1]:\t"); Serial.println(t);
             }
             
@@ -543,9 +543,16 @@ int runTrial ( int mode,
             if (mode == 'c'){
                 // response + 32 converts to uppercase!
                 //if (((response + 32) == rewardCond) or (rewardCond == 'B')){
-                if (response) {    
+                if (response == rewardCond) {    
                     tone(speakerPin, toneGood, 50);
                 }
+                else {
+                    // changes the case so I know the animal made 
+                    // the wrong initial choice
+                    response -= 32; 
+                }
+                
+                ActiveDelay(t_trialEND, false, verbose);
             }
             else {
                 tone(speakerPin, toneBad, 50);
