@@ -457,7 +457,7 @@ if __name__ == "__main__":
                         if trial_freq[0] or trial_freq[1]:params['rewardCond'] = 'B'
                         else: params['rewardCond'] = 'N'
                     
-                    print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                    print colour("frequencies:\t%s\t%s\tCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                     
                     #THE HANDSHAKE
                     # send all current parameters to the arduino box to rul the trial
@@ -484,19 +484,19 @@ if __name__ == "__main__":
                         except: ITI = random.uniform(2, args.ITI[0])
 
                         print "about to go in %d"  %ITI
-                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                        #print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         time.sleep(ITI)
 
                         ITI = None
                     
                     else:
-                        print colour("frequencies:\t%s\t%s\nCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                        print colour("frequencies:\t%s\t%s\tCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                         while m.kbhit() == False:
                             print colour("%s waiting for trigger\r" %(timenow()), fc.RED, style = Style.BRIGHT),
                         while m.kbhit():
                             m.getch() #clear the buffer
                         
-                    print colour("\nGO!\n%s" %timenow(), fc.GREEN, style=Style.BRIGHT)
+                    print colour("%s\tGO!" %timenow(), fc.GREEN, style=Style.BRIGHT)
                         
                     trial_df['time'] = [timenow()]
                     
@@ -505,7 +505,7 @@ if __name__ == "__main__":
 
                     while line.strip() != "-- Status: Ready --":
                         
-                        line = Serial_monitor(log).strip()
+                        line = Serial_monitor(log, False).strip()
                         if line:
                             if line[0] != "#" and line[0] != "-":
                                 var, val = line.split(":")
@@ -548,15 +548,14 @@ if __name__ == "__main__":
                     with open('%s/%s_%s.csv' %(datapath, ID, today()), 'a') as datafile:
                         df = pd.DataFrame(trial_df, index = [trial_num])
                         df.to_csv(datafile, header = (trial_num == 0))
-
-                    for k in trial_df:
-                        if k.endswith("]"): string = k.split("[")[0][:6]+k[-2],
-                        else: string =  k[:7],
-                        print '%-8s' %(string),
-                    print '\r'
-                    for k in trial_df:
-                        print '%-8s' %(str(trial_df[k])),
-                    print '\r'
+                    
+                    print Style.BRIGHT, '\r',
+                    for k in ('trial_num', 'mode', 'rewardCond', 'response', 'WaterPort[0]', 'WaterPort[1]','OFF[0]', 'OFF[1]',):
+                        if (trial_df['rewardCond'].lower() == trial_df['response'].lower()) or (trial_df['rewardCond'] == 'B' and trial_df['response'] != '-'):
+                            print '%s%s:%s%4s' %(fc.WHITE, k,fc.GREEN, str(trial_df[k]).strip()),
+                        else:
+                            print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k]).strip()),
+                    print '\r', Style.RESET_ALL
                     
                     trial_num += 1
                 

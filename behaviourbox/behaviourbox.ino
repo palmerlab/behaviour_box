@@ -1,4 +1,4 @@
-String version = "#behaviourbox150108";
+String version = "#behaviourbox150112";
 
 /*
     Author: Naoya Takahashi
@@ -52,11 +52,8 @@ String version = "#behaviourbox150108";
     A TTL trigger for recording will be delivered 
     'baseLineTime' (1 s in default setting) before the stimulus.
 
-
-
 //lines preceded by `#` are for debug purposes
  */
-
 
 // IO port settings:
 const byte recTrig = 2;    // digital pin 2 triggers ITC-18
@@ -68,7 +65,6 @@ const byte statusLED = 13;
 const byte waterPort[] = {10,11};    // digital pin 8 control water valve 
 const byte lickRep[] = {13,13};      // led connected to digital pin 13
 const byte lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
-
 
 int lickThres = 450;
 
@@ -85,11 +81,9 @@ int t_rewardSTART = 4500;  // ms
 int t_rewardEND = 10000;   // ms
 int t_trialEND = 10000;    // ms
 
-
 char mode = 'c';
 char rewardCond = 'B'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
-
 
 // stimulus parameters
 unsigned long ON[] = {1000, 1000};
@@ -181,7 +175,6 @@ void flutter(byte stim_pin, int on, int off){
   delay(off);
 }
 
-
 /*
 -----------------
 THE TRIAL STATES
@@ -194,7 +187,7 @@ char ActiveDelay(int wait,
 
     int t = t_now(t_init);
     
-    char response = '-';
+    char response = 0;
     
     if (verbose) {Serial.print("#Enter `ActiveDelay`:\t"); Serial.println(t);}
     
@@ -328,7 +321,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     int t = t_now(t_init);
     bool RewardTest;
     bool RewardPort;
-    char response;
+    char response = 0;
     byte count[] = {0,0};
     
     if (verbose) {Serial.print("#Enter `TrialReward`:\t"); Serial.println(t);}
@@ -410,7 +403,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 //Serial.print("count[0]:\t"); Serial.println(count[0]);
                 //Serial.print("count[1]:\t"); Serial.println(count[1]);
             }
-            else { response = '-'; } // unknown
+            else { response = 0; } // unknown
 
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             return response;
@@ -440,10 +433,10 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
         digitalWrite(waterPort[1], LOW);        //safety catch
     }
     
-    response = 'M';
+    response = 0;
     
-    Serial.print("response:\t"); Serial.println(response);
-    Serial.println("response_time:\tNan");
+    //Serial.print("response:\t"); Serial.println(response);
+    //Serial.println("response_time:\tNan");
     //Serial.print("count[0]:\t"); Serial.println(count[0]);
     //Serial.print("count[1]:\t"); Serial.println(count[1]);
     
@@ -483,7 +476,7 @@ int runTrial ( int mode,
     t_init = millis() + trial_delay;
     t = t_now(t_init);
 
-    char response = '-';
+    char response = 0;
     
     /*trial_phase0
     while the trial has not started 
@@ -522,7 +515,7 @@ int runTrial ( int mode,
        2. TrialReward returns 0 if break_wrongChoice is set.
           therefore if TrialReward is false, the incorrect sensor was tripped
           during the reward period. A bad tone is played; and the function
-          returns, resseting the program
+          returns, resetting the program
        3. Otherwise we wait until the trial period has ended
     */
     
@@ -530,22 +523,37 @@ int runTrial ( int mode,
         
         response = TrialReward(mode, t_rewardEND, rewardCond, 
                                 break_wrongChoice, minlickCount, waterVol, verbose); 
-        if ( response == rewardCond ) {
-            // that we are here means the animal got it right
-            if (mode == 'o') { 
-                tone(speakerPin, toneGood, 50); 
-                //Serial.print(something informative);
+        
+        if (response) {
+            if ( response == rewardCond ) {
+                // that we are here means the animal got it right
+                if (mode == 'o') { 
+                    tone(speakerPin, toneGood, 50); 
+                    //Serial.print(something informative);
+                }
             }
-            
             ActiveDelay(t_trialEND, false, verbose);
             return 1;
         }
         else {
             response = ActiveDelay(t_trialEND, true, verbose);
+            
+            // for consistency the first lick in conditioning
+            // will get a reward tone
+            if (mode == 'c'){
+                // response + 32 converts to uppercase!
+                //if (((response + 32) == rewardCond) or (rewardCond == 'B')){
+                if (response) {    
+                    tone(speakerPin, toneGood, 50);
+                }
+            }
+            else {
+                tone(speakerPin, toneBad, 50);
+            }
+            
             Serial.print("response:\t"); Serial.println(response);
             Serial.print("response_time:\t"); Serial.println(t);
             
-            tone(speakerPin, toneBad, 50);
         }
     }
     
@@ -570,11 +578,9 @@ int UpdateGlobals(String input) {
     stored in memory; This is very much not the `C` 
     way to do things...
     */
-    
-    
+
     int sep = getSepIndex(input);
-        
-        
+
     if (sep) {
         
         String variable_name = input.substring(0,sep);
@@ -718,13 +724,11 @@ void setup (){
     Serial.println("-- Status: Ready --");
 }
 
-
 void loop () {
     
     if (Serial.available()){
         
         String input = getSerialInput();
-        
         
         if (input == "GO"){
 
@@ -746,5 +750,3 @@ void loop () {
         delay(100);
     }
 }
-
-
