@@ -5,6 +5,7 @@ import csv
 import datetime
 import time
 import os
+import shutil # for duplicating config!
 import sys
 import glob
 import serial
@@ -13,7 +14,6 @@ import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
 import random
-import AndrewSignalDetection as sig
 
 from itertools import permutations
             
@@ -343,7 +343,7 @@ if __name__ == "__main__":
         #open the communications line
         ser = init_serialport(port)
 
-        
+        shutil.copyfile('config.tab', '%s/%s_config_%s_%s.tab' %(datapath, ID, today(), timenow().replace(":","")))            
         params_i = unpack_table('config.tab')
         params_i['mode'] = args.mode
         params = dict(params_i) #create a copy of the original
