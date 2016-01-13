@@ -60,10 +60,10 @@ p.add_argument('--datapath', default = "C:/DATA/wavesurfer", help = "path to sav
 p.add_argument("--port", default = "COM5", help = "port that the Arduino is connected to")
 p.add_argument("--verbose", action = 'store_true', help = 'for debug, will print everything if enabled')
 
-p.add_argument('-p','--punish', action = 'store_false', help = 'sets `break_wrongChoice` to True, incorrect licks will end an operant trial early')
+p.add_argument('-p','--punish', action = 'store_true', help = 'sets `break_wrongChoice` to True, incorrect licks will end an operant trial early')
 
-p.add_argument('--lickThres', type = int, help = 'set `lickThres` in arduino')
-p.add_argument('--lcount', type = int, help = 'set `minlickCount` in arduino')
+p.add_argument('--lickThres', default = 300, type = int, help = 'set `lickThres` in arduino')
+p.add_argument('--lcount', default = 2, type = int, help = 'set `minlickCount` in arduino')
 
 runtype = p.add_mutually_exclusive_group()
 runtype.add_argument('--dualmethod', default = 'permutation', help = "either permutations or product; product will give 'B' conditions")
@@ -77,6 +77,38 @@ trigstate = p.add_mutually_exclusive_group()
 trigstate.add_argument('--ITI',  nargs = 2, default = [2,5], type = float, help = "an interval for randomising between trials")
 trigstate.add_argument('--triggered',  action = 'store_true', help = "waits for key press to initiate a trial")
 trigstate.add_argument('--manfreq',  action = 'store_true', help = "choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
+
+
+args = p.parse_args()
+
+verbose = args.verbose # this will be a cmdline parameter
+port = args.port # a commandline parameter
+ID = args.ID
+repeats = args.repeats
+datapath = args.datapath
+singlestim = args.singlestim
+manfreq = args.manfreq
+triggered = args.triggered
+dualmethod = args.dualmethod
+
+
+
+#----- shared paramaters -----
+lickThres = args.lickThres
+mode = args.mode
+punish = args.punish
+lcount = args.lcount
+
+
+"""
+--------------------------------------------------------------------
+END Arguments
+--------------------------------------------------------------------
+"""
+
+
+
+
 
 def bin_array(array, bin_size):
     """
@@ -96,41 +128,70 @@ def menu():
     """
     a sort of REPL
     """
-    while m.kbhit():
-        c = m.getch()
-        if c == '\xe0': c = c + m.getch()
+    c = "\x00"
     
-    #menu:::
     
-    if c in ("Z", "z", "\x1a"):
-        return
+    global manfreq
+    global punish
+    global triggered
+    global lickThres
+    global lcount
     
-    if c in ("M","m","\r"): #m,Ctrl-m
-        manfreq = not manfreq
-        print "Manual mode:\t%s" %manfreq
-        log.write("Manual mode:\t%s\n" %manfreq)
-    
-    if c in ("P", "p", "\x10"):
-        punish = not punish
-        print "Punish for wrong lick:\t%s" %punish
-        log.write("Punish for wrong lick:\t%s\n" %punish)
-    
-    if c in ("T", "t", "\x14"):
-        triggered = not triggered
-        print "Triggered mode:\t%s" %manfreq
-        log.write("Triggered mode:\t%s\n" %manfreq)
-
-    # update lickThreshold....
-    if c in (",<"):
-        lickThres -= 25
-        print "lickThres: %4d .... %4.2f V" %(lickThres, (lickThres / 1024)*5)
-    
-    if c in (".>"):
-        lickThres += 25
-        print "lickThres: %4d .... %4.2f V" %(lickThres, (lickThres / 1024)*5)
+    while True:
+        while m.kbhit():
+            c = m.getch()
+            if c == '\xe0': c = c + m.getch()
         
-    if c in ("/?"):
-        print "lickThres: %4d .... %4.2f V" %(lickThres, (lickThres / 1024)*5)
+        #menu:::
+        
+            if c in ("Z", "z", "\x1a", "\r"):
+                return
+            
+            elif c in ("M","m"): #m,Ctrl-m
+                manfreq = not manfreq
+                print "Manual mode:\t%s" %manfreq
+                log.write("Manual mode:\t%s\n" %manfreq)
+                return
+            
+            elif c in ("P", "p", "\x10"):
+                punish = not punish
+                print "Punish for wrong lick:\t%s" %punish
+                log.write("Punish for wrong lick:\t%s\n" %punish)
+                return
+            
+            elif c in ("T", "t", "\x14"):
+                triggered = not triggered
+                print "Triggered mode:\t%s" %manfreq
+                log.write("Triggered mode:\t%s\n" %manfreq)
+                return
+            
+            elif c in ("[", "{"):
+                lcount -= 1
+                print "minLickCount: %3d\r" %lcount,
+            
+            elif c in ("]", "}"):
+                lcount += 1
+                print "minLickCount: %3d\r" %lcount,
+                
+            elif c in ("|", "\\"):
+                print "minLickCount: %3d\r" %lcount,
+
+            # update lickThreshold....
+            elif c in (",<"):
+                lickThres -= 25
+                print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
+            
+            elif c in (".>"):
+                lickThres += 25
+                print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
+                
+            elif c in ("/?"):
+                print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
+            
+            else:
+                print "options: P T M < > ? h [ ] \\"
+        
+        
 
 def num(s):
     """ 
@@ -315,7 +376,7 @@ def manual(freq, t):
 
             for k in character.keys():
                 if c in character[k]:
-                    print "manual %s trial" %k 
+                    print "manual %s trial" %k,
                     
                     if k == 'L':
                         freq = freq[freq[:,0] > freq[:,1]]
@@ -326,7 +387,7 @@ def manual(freq, t):
                     return freq[0]
                 
         
-            print "The next random frequency pair"
+            print "The next random frequency pair\r",
             return freq[t]
     
 def init_serialport(port):
@@ -359,20 +420,7 @@ MAIN FUNCTION HERE
 #namespace.all?    
 
 
-args = p.parse_args()
 
-verbose = args.verbose # this will be a cmdline parameter
-port = args.port # a commandline parameter
-ID = args.ID
-repeats = args.repeats
-datapath = args.datapath
-singlestim = args.singlestim
-manfreq = args.manfreq
-dualmethod = args.dualmethod
-
-#----- shared paramaters -----
-lickThres = args.lickThres
-mode = args.mode
 
 
 color.init()
@@ -380,13 +428,11 @@ color.init()
 datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
 
-open the communications line
+#open the communications line
 ser = init_serialport(port)
 
 copyfile('config.tab', '%s/%s_config_%s_%s.tab' %(datapath, ID, today(), timenow().replace(":","")))            
 params_i = unpack_table('config.tab')
-params_i['mode'] = args.mode
-params_i['lickThres'] = lickThres
 params = dict(params_i) #create a copy of the original
 
 if args.freq: 
@@ -462,12 +508,13 @@ try:
 
                
                 #In triggered mode
-                if m.kbhit():
+                while m.kbhit():
+                    print "yes?"
                     menu()
            
                     
                 if manfreq:
-                    print "Choose condition"
+                    print "Choose condition",
                     
                     trial_freq = manual(freq, t)
                 else:
@@ -504,10 +551,16 @@ try:
                 
                 print colour("frequencies:\t%s\t%s\tCondition:\t%s" \
                                 %(trial_freq[0], trial_freq[1], params['rewardCond']), 
-                                fc.MAGENTA, style = Style.BRIGHT)
+                                fc.MAGENTA, style = Style.BRIGHT),
                 
                 #THE HANDSHAKE
-                # send all current parameters to the arduino box to rul the trial
+                # send all current parameters to the arduino box to run the trial
+                
+                params_i['mode'] = mode
+                params_i['lickThres'] = lickThres
+                params_i['break_wrongChoice'] = punish
+                params_i['minLickCount'] = lcount
+                
                 update_bbox(params)
                 
                 # log the receipt of the parameters
@@ -522,21 +575,21 @@ try:
                         trial_df[var] = num(val)
                         
                 
-                print colour("frequencies:\t%s\t%s\tCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
+                #print colour("frequencies:\t%s\t%s\tCondition:\t%s" %(trial_freq[0], trial_freq[1], params['rewardCond']), fc.MAGENTA, style = Style.BRIGHT)
                 
                 # todo make this a random timer
-                if (args.triggered == False) or (manfreq == False):
+                if (triggered == False) and (manfreq == False):
                     ITI = random.uniform(args.ITI[0], args.ITI[1])
                     print "go in %d\r"  %ITI,
                     time.sleep(ITI)
                 
-                elif args.triggered:
+                elif triggered and (manfreq == False):
                     while m.kbhit() == False:
-                        print colour("%s waiting for trigger\r" %(timenow()), fc.RED, style = Style.BRIGHT),
+                        print colour("\r%s waiting for trigger\r" %(timenow()), fc.RED, style = Style.BRIGHT),
                     while m.kbhit():
                         m.getch() #clear the buffer
                     
-                print colour("%s\tGO!" %timenow(), fc.GREEN, style=Style.BRIGHT)
+                print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
                     
                 trial_df['time'] = timenow()
                 
