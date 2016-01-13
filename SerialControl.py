@@ -51,6 +51,7 @@ Arguments
 
 p = argparse.ArgumentParser(description="This program controls the Arduino and reads from it too" )
 
+p.add_argument("--weight", default = 0)
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
 p.add_argument("-m", "--mode", default = "c", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
@@ -90,7 +91,7 @@ singlestim = args.singlestim
 manfreq = args.manfreq
 triggered = args.triggered
 dualmethod = args.dualmethod
-
+weight = args.weight
 
 
 #----- shared paramaters -----
@@ -503,7 +504,8 @@ try:
                     'WaterPort[0]': 0,
                     'WaterPort[1]': 0,
                     'ID' : ID,
-                    'manfreq' : manfreq
+                    'manfreq' : manfreq,
+                    'weight' : weight
                 }
 
                
