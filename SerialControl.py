@@ -51,7 +51,7 @@ Arguments
 
 p = argparse.ArgumentParser(description="This program controls the Arduino and reads from it too" )
 
-p.add_argument("--weight", default = 0)
+p.add_argument("--weight", default = 0, help = "weight of the animal in grams")
 p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
 p.add_argument("-m", "--mode", default = "c", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
@@ -137,6 +137,7 @@ def menu():
     global triggered
     global lickThres
     global lcount
+    global mode
     
     while True:
         while m.kbhit():
@@ -145,7 +146,13 @@ def menu():
         
         #menu:::
         
-            if c in ("Z", "z", "\x1a", "\r"):
+            if c in ("\r"):
+                return
+            
+            elif c in ("\t"):
+                if mode == "c": mode = "o"
+                elif mode == "o": mode = "c"
+                print "Training mode:\t%s" %mode
                 return
             
             elif c in ("M","m"): #m,Ctrl-m
@@ -190,7 +197,7 @@ def menu():
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
             else:
-                print "options: P T M < > ? h [ ] \\"
+                print "options: P T M < > ? h [ ] \\ \t"
         
         
 
@@ -377,7 +384,7 @@ def manual(freq, t):
 
             for k in character.keys():
                 if c in character[k]:
-                    print "manual %s trial" %k,
+                    print "manual %s trial\r" %k,
                     
                     if k == 'L':
                         freq = freq[freq[:,0] > freq[:,1]]
@@ -464,6 +471,8 @@ else:
 
 freq = np.array(freq)
 
+
+
 trial_num = 0
 
 try:
@@ -505,7 +514,8 @@ try:
                     'WaterPort[1]': 0,
                     'ID' : ID,
                     'manfreq' : manfreq,
-                    'weight' : weight
+                    'weight' : weight,
+                    'block' : r
                 }
 
                
@@ -558,10 +568,10 @@ try:
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 
-                params_i['mode'] = mode
-                params_i['lickThres'] = lickThres
-                params_i['break_wrongChoice'] = punish
-                params_i['minLickCount'] = lcount
+                params['mode'] = mode
+                params['lickThres'] = lickThres
+                params['break_wrongChoice'] = punish
+                params['minLickCount'] = lcount
                 
                 update_bbox(params)
                 
@@ -640,7 +650,10 @@ try:
                 
                
                 with open('%s/%s_%s.csv' %(datapath, ID, today()), 'a') as datafile:
-                    df = pd.DataFrame(trial_df, index = [trial_num])
+                    if trial_num == 0:
+                        df = pd.DataFrame(pd.DataFrame(trial_df, index=[trial_num]))
+                    else: 
+                        df = df.append(pd.DataFrame(trial_df, index=[trial_num]), ignore_index = True)
                     df.to_csv(datafile, header = (trial_num == 0))
                 
                 print Style.BRIGHT, '\r',
@@ -650,6 +663,14 @@ try:
                     else:
                         print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k]).strip()),
                 print '\r', Style.RESET_ALL
+                
+                hits = df.response[df.response == df.rewardCond].count() / df.response.count() 
+                hit_L = df.response[df.response == "L"][df.rewardCond == "L"].count() / df.response[df.rewardCond == "L"].count()
+                hit_R = df.response[df.response == "R"][df.rewardCond == "R"].count() / df.response[df.rewardCond == "R"].count()
+                
+                print 54*" ","hits:%03s%%  R:%03s%%  L:%03s%%" %(hits*100, hit_R*100, hit_L*100),  "\r",
+               
+               
                 
                 trial_num += 1
             
