@@ -1,4 +1,4 @@
-String version = "#behaviourbox150112";
+String version = "#behaviourbox150113";
 
 /*
     Author: Naoya Takahashi
@@ -395,8 +395,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
 
                 } // hit right
                 
-                Serial.print("response:\t"); Serial.println(response);
-                Serial.print("response_time:\t"); Serial.println(t);
+                //Serial.print("response:\t"); Serial.println(response);
+                //Serial.print("response_time:\t"); Serial.println(t);
                 //Serial.print("count[0]:\t"); Serial.println(count[0]);
                 //Serial.print("count[1]:\t"); Serial.println(count[1]);
             }
@@ -416,8 +416,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 response = 'r'; //bad right
             }
             
-            Serial.print("response:\t"); Serial.println(response);
-            Serial.print("response_time:\t"); Serial.println(t);
+            //Serial.print("response:\t"); Serial.println(response);
+            //Serial.print("response_time:\t"); Serial.println(t);
             //Serial.print("count[0]:\t"); Serial.println(count[0]);
             //Serial.print("count[1]:\t"); Serial.println(count[1]);
             
@@ -468,7 +468,9 @@ int runTrial ( int mode,
     /* t_init is initialised such that t_now
        returns 0 at the start of the trial, and 
        increases from there. */ 
-    int t; 
+    int t;
+    int response_time = 0;
+    
     // local time
     t_init = millis() + trial_delay;
     t = t_now(t_init);
@@ -521,47 +523,58 @@ int runTrial ( int mode,
         response = TrialReward(mode, t_rewardEND, rewardCond, 
                                 break_wrongChoice, minlickCount, waterVol, verbose); 
         
-        if (response) {
-            if ( response == rewardCond ) {
-                // that we are here means the animal got it right
-                if (mode == 'o') { 
+        if (mode == 'o') {
+            if (response) {
+                
+                response_time = t;
+                
+                if ( response == rewardCond ) {
+                    // that we are here means the animal got it right
                     tone(speakerPin, toneGood, 50); 
                     //Serial.print(something informative);
                 }
+                else { tone(speakerPin, toneBad, 50); }
             }
-            ActiveDelay(t_trialEND, false, verbose);
-            return 1;
+            else { response = '-'; }
         }
         else {
+            
             response = ActiveDelay(t_trialEND, true, verbose);
             
             // for consistency the first lick in conditioning
             // will get a reward tone
-            if (mode == 'c'){
-                // response + 32 converts to uppercase!
-                //if (((response + 32) == rewardCond) or (rewardCond == 'B')){
-                if (response == rewardCond) {    
+            
+            if (response) {
+                
+                response_time = t;
+                
+                if ((response == rewardCond) or (rewardCond == 'B')) {
                     tone(speakerPin, toneGood, 50);
                 }
                 else {
                     // changes the case so I know the animal made 
                     // the wrong initial choice
-                    response -= 32; 
+                    if (response == 'L'){
+                        response = 'l';
+                        //tone(speakerPin, toneBad, 50);
+                    }
+                    else if (response == 'R'){
+                        response = 'r';
+                        //tone(speakerPin, toneBad, 50);
+                    }
                 }
-                
-                ActiveDelay(t_trialEND, false, verbose);
             }
-            else {
-                tone(speakerPin, toneBad, 50);
-            }
-            
-            Serial.print("response:\t"); Serial.println(response);
-            Serial.print("response_time:\t"); Serial.println(t);
-            
+            else { response = '-'; }
         }
+        
+        if (response != rewardCond) { tone(speakerPin, toneBad, 50); }
+        
+        ActiveDelay(t_trialEND, false, verbose);
+        
+        Serial.print("response:\t"); Serial.println(response);
+        Serial.print("response_time:\t"); Serial.println(response_time);
     }
     
-    ActiveDelay(t_trialEND, false, verbose);
 
     return 0;
 }
