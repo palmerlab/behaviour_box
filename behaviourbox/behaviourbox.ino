@@ -1,4 +1,4 @@
-String version = "#behaviourbox150113";
+String version = "#behaviourbox150114";
 
 /*
     Author: Naoya Takahashi
@@ -385,7 +385,13 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             digitalWrite(waterPort[0], LOW);
             digitalWrite(waterPort[1], LOW);            
            
-            if (mode != 'c'){ 
+           if (rewardCond == 'B'){
+               if (count[0] > count[1]) { response = 'L';}
+               else if (count[0] < count[1]) { response = 'R';}
+               else { response = 'B';}
+           }
+           
+            else if (mode != 'c'){ 
                 if (lickOn[0]){ 
                     response = 'L'; 
 
@@ -394,44 +400,39 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                     response = 'R';
 
                 } // hit right
-                
-                //Serial.print("response:\t"); Serial.println(response);
-                //Serial.print("response_time:\t"); Serial.println(t);
-                //Serial.print("count[0]:\t"); Serial.println(count[0]);
-                //Serial.print("count[1]:\t"); Serial.println(count[1]);
             }
             else { response = 0; } // unknown
 
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
             return response;
         }
-        else if ((count[!RewardPort] >= minlickCount) and break_wrongChoice){
+        else if ((count[!RewardPort] >= minlickCount) and (rewardCond != 'B')){
             // declare the fail condition??
             
             if (lickOn[0]) {
-                response = 'l'; //bad left 
+                if (!response) { 
+                    tone(speakerPin, toneBad, 50);
+                    response = 'l';
+                } //bad left 
             }
             
             if (lickOn[1]) {
-                response = 'r'; //bad right
+                if (!response) { 
+                    tone(speakerPin, toneBad, 50);
+                    response = 'r';
+                }  //bad right
             }
             
-            //Serial.print("response:\t"); Serial.println(response);
-            //Serial.print("response_time:\t"); Serial.println(t);
-            //Serial.print("count[0]:\t"); Serial.println(count[0]);
-            //Serial.print("count[1]:\t"); Serial.println(count[1]);
-            
-            if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
-            
-            return response;
+            if (break_wrongChoice){
+                if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+                return response;
+            }
         }
 
         digitalWrite(waterPort[0], LOW);
         digitalWrite(waterPort[1], LOW);        //safety catch
     }
-    
-    response = 0;
-    
+
     //Serial.print("response:\t"); Serial.println(response);
     //Serial.println("response_time:\tNan");
     //Serial.print("count[0]:\t"); Serial.println(count[0]);
@@ -528,7 +529,7 @@ int runTrial ( int mode,
                 
                 response_time = t;
                 
-                if ( response == rewardCond ) {
+                if ((response == rewardCond) or ((rewardCond == 'B') and ((response == 'L') or (response == 'R')))){
                     // that we are here means the animal got it right
                     tone(speakerPin, toneGood, 50); 
                     //Serial.print(something informative);
@@ -548,10 +549,13 @@ int runTrial ( int mode,
                 
                 response_time = t;
                 
+                //Serial.println((response == rewardCond) or (rewardCond == 'B'));
                 if ((response == rewardCond) or (rewardCond == 'B')) {
                     tone(speakerPin, toneGood, 50);
                 }
                 else {
+                    
+                    tone(speakerPin, toneBad, 50);
                     // changes the case so I know the animal made 
                     // the wrong initial choice
                     if (response == 'L'){
@@ -567,7 +571,7 @@ int runTrial ( int mode,
             else { response = '-'; }
         }
         
-        if (response != rewardCond) { tone(speakerPin, toneBad, 50); }
+        if (response == '-') { tone(speakerPin, toneBad, 50); }
         
         ActiveDelay(t_trialEND, false, verbose);
         
@@ -767,3 +771,6 @@ void loop () {
         delay(100);
     }
 }
+
+
+

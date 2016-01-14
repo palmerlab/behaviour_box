@@ -205,7 +205,10 @@ def menu():
                 print "options: P T M < > ? h [ ] \\ \t"
         
         
-
+def na_to_string(s):
+    if np.isnan(num(s)): return str(s)
+    else: return num(s)
+        
 def num(s):
     """ 
     First attempts to convert string s to an integer. 
@@ -302,7 +305,7 @@ def create_datapath(DATADIR = "", date = today()):
     else: DATADIR = os.path.join(DATADIR, date)
     
     if not os.path.isdir(DATADIR):
-        os.mkdir((DATADIR))
+        os.mkdirs((DATADIR))
     
     print colour("datapath:\t", fc = fc.GREEN, style=Style.BRIGHT),
     print colour(DATADIR, fc = fc.GREEN, style=Style.BRIGHT)
@@ -443,9 +446,6 @@ MAIN FUNCTION HERE
 #namespace.all?    
 
 
-
-
-
 color.init()
 
 datapath = create_datapath(datapath) #appends todays date to the datapath
@@ -481,7 +481,10 @@ else:
         for f in product(freq, freq): 
             tmp_freq.append(np.array(f))
         freq = tmp_freq
-        
+    
+    elif dualmethod in "merge":
+        freq = np.array((freq, freq)).transpose()
+    
     del tmp_freq
 
 freq = np.array(freq)
@@ -534,6 +537,7 @@ try:
                
                 #In triggered mode
                 while m.kbhit():
+                    print "\nChoose...",
                     menu()
            
                     
@@ -573,7 +577,7 @@ try:
                     if trial_freq[0] or trial_freq[1]:params['rewardCond'] = 'B'
                     else: params['rewardCond'] = 'N'
                 
-                print colour("frequencies:\t%s\t%s\tCondition:\t%s" \
+                print colour("F:%3d %3d C: %s" \
                                 %(trial_freq[0], trial_freq[1], params['rewardCond']), 
                                 fc.MAGENTA, style = Style.BRIGHT),
                 
@@ -582,7 +586,7 @@ try:
                 
                 params['mode'] = mode
                 params['lickThres'] = lickThres
-                params['break_wrongChoice'] = punish
+                params['break_wrongChoice'] = num(punish)
                 params['minLickCount'] = lcount
                 
                 update_bbox(params)
@@ -600,7 +604,7 @@ try:
                 
                 if (triggered == False) and (manfreq == False):
                     ITI = random.uniform(args.ITI[0], args.ITI[1])
-                    print "go in %d\r"  %ITI,
+                    #print "go in %d\r"  %ITI,
                     time.sleep(ITI)
                 
                 elif triggered and (manfreq == False):
@@ -609,7 +613,7 @@ try:
                     while m.kbhit():
                         m.getch() #clear the buffer
                     
-                print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
+                #print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
                     
                 trial_df['time'] = timenow()
                 
@@ -668,12 +672,15 @@ try:
                         df = trial_df
                     else: 
                         df = df.append(trial_df, ignore_index = True)
-
-                    correct = df[df.response == df.rewardCond]
                     
-                    hits =  correct.response.count() / df.response.count() 
-                    hit_L = correct.response[correct.response == "L"].count() / df.rewardCond[df.rewardCond == "L"].count()
-                    hit_R = df.response[correct.response == "R"].count() / df.rewardCond[df.rewardCond == "R"].count()
+                    df['correct'] = df.response.str.isupper()
+                    df['miss'] = df.response == '-'
+                    df['wrong'] = df.response.str.islower()
+                    
+                    
+                    hits = df.correct.sum()
+                    hit_L = df.correct[df.response == 'L'].sum() / df.ID[df.rewardCond == "L"].count()
+                    hit_R = df.correct[df.response == 'R'].sum() / df.ID[df.rewardCond == "R"].count()
                     
                     cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                     
@@ -689,21 +696,33 @@ try:
                 
                 print Style.BRIGHT, '\r',
                 for k in ('trial_num', 'mode', 'rewardCond', 'response', 'WaterPort[0]', 'WaterPort[1]','OFF[0]', 'OFF[1]',):
-                    if (trial_df['rewardCond'].lower() == trial_df['response'].lower()) or (trial_df['rewardCond'] == 'B' and trial_df['response'] != '-'):
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.BLUE, str(trial_df[k]).strip()),
+                    N = trial_num
+                    
+                    
+                    if df.correct[N]:
+                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.GREEN, str(trial_df[k][N]).strip()),
+                    elif df.miss[N]:
+                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.YELLOW, str(trial_df[k][N]).strip()),
                     else:
-                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k][N]).strip()),
                 print '\r', Style.RESET_ALL
                 
                 #calculate percentage success
                 
-                print 100 * " ", "\r", #clear the line 
+                print "\r", 100 * " ", "\r              ", #clear the line 
                 
-                hits = num(str(hits*100))
-                hit_L = num(str(hit_L*100))
-                hit_R = num(str(hit_R*100))
+                misses = (df.miss.sum() / df.ID[df.rewardCond != 'N'].count())*100
+                wrong = (df.wrong.sum() / df.ID.count())*100
+
+                hits = hits / df.ID.count()
+                hits = "%3d" %(hits*100)
+                
+                try: hit_L = "%3d" %(hit_L*100)
+                except: hit_L = str(hit_L*100)
+                try: hit_R = "%3d" %(hit_R*100)
+                except: hit_R = str(hit_R*100)
                                 
-                print "hits:%03d%%  R:%03d%%  L:%03d%%  Count:%4d  Water:%3d" %(hits, hit_R, hit_L, correct.response.count(), cumWater),  "\r",
+                print "hits:%03s%%  misses:%3d%%  wrong:%3d%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d" %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),  "\r",
                 
                 trial_num += 1
             
