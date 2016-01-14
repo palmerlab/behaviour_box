@@ -138,6 +138,8 @@ def menu():
     global lickThres
     global lcount
     global mode
+    global leftmode
+    global rightmode
     
     while True:
         while m.kbhit():
@@ -161,6 +163,24 @@ def menu():
                 manfreq = not manfreq
                 print "Manual mode:\t%s" %manfreq
                 log.write("Manual mode:\t%s\n" %manfreq)
+                return
+            
+            elif c in '\xe0K':
+                leftmode = True
+                rightmode = False
+                print "left mode:\t%s" %leftmode
+                return
+            
+            elif c in '\xe0M':
+                rightmode = True
+                leftmode = False
+                print "right mode:\t%s" %rightmode
+                return
+            
+            elif c in ('\xe0P', '\xe0H'):
+                leftmode = False
+                rightmode = False
+                print "random mode:\t True"
                 return
             
             # Toggle punishment
@@ -539,14 +559,18 @@ try:
                 while m.kbhit():
                     print "\nChoose...",
                     menu()
-           
-                    
+                
+                   
                 if manfreq:
                     print "Choose condition",
                     
                     trial_freq = manual(freq, t)
                 else:
                     trial_freq = freq[t]
+                    if leftmode: 
+                        trial_freq.sort()
+                        trial_freq = trial_freq[::-1]
+                    elif rightmode: trial_freq.sort()
 
                 # convert the frequencies into an on off square pulse
                 for f in (0,1):
