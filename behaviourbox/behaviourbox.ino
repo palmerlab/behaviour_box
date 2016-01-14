@@ -519,7 +519,7 @@ int runTrial ( int mode,
        3. Otherwise we wait until the trial period has ended
     */
     
-    if (rewardCond != 'N') {
+    //if (rewardCond != 'N') {
         
         response = TrialReward(mode, t_rewardEND, rewardCond, 
                                 break_wrongChoice, minlickCount, waterVol, verbose); 
@@ -577,7 +577,7 @@ int runTrial ( int mode,
         
         Serial.print("response:\t"); Serial.println(response);
         Serial.print("response_time:\t"); Serial.println(response_time);
-    }
+    //}
     
 
     return 0;
@@ -598,6 +598,11 @@ int UpdateGlobals(String input) {
     input string to the names of variables that I have
     stored in memory; This is very much not the `C` 
     way to do things...
+    
+    I think this could be a hash table. I haven't
+    learned enough about hash table implementation
+    yet and I know this works, so for the moment:
+    *If it ain't broke*...
     */
 
     int sep = getSepIndex(input);
