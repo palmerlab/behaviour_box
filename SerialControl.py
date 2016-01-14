@@ -180,7 +180,7 @@ def menu():
             elif c in ('\xe0P', '\xe0H'):
                 leftmode = False
                 rightmode = False
-                print "random mode:\t True"
+                print "random mode:\t", not (leftmode or rightmode)
                 return
             
             # Toggle punishment
@@ -708,13 +708,13 @@ try:
                     
                     cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                     
-                    trial_df['hits'] =  hits
-                    trial_df['hit_L'] = hit_R
-                    trial_df['hit_R'] = hit_L
+                    df['hits'] =  hits
+                    df['hit_L'] = hit_R
+                    df['hit_R'] = hit_L
                     
-                    trial_df['cumWater'] = cumWater               
+                    df['cumWater'] = cumWater               
 
-                    trial_df.to_csv(datafile, header = (trial_num == 0))
+                    df[df.trial_num == trial_num].to_csv(datafile)
                 
                 #Print the important data and coloured code for hits / misses
                 
