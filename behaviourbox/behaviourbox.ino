@@ -1,4 +1,4 @@
-String version = "#behaviourbox150114";
+String version = "#behaviourbox150115";
 
 /*
     Author: Naoya Takahashi
@@ -302,7 +302,6 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                 byte minlickCount = 1, 
                 byte waterVol = 10, // 10 ms gives ~ 5-8 uL
                 bool verbose = true) {
-
     /* 
     returns a character: 
              'L' -- correct hit on left port
@@ -359,7 +358,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             default:
                 Serial.print("ERROR: rewardCond not specified");
                 Serial.println(" requires 'L'eft, 'R'ight, 'B'oth, 'N'either");
-                return -1;
+                return "!";
             break;
         }
         
@@ -390,14 +389,12 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                else if (count[0] < count[1]) { response = 'R';}
                else { response = 'B';}
            }
-            else if (mode != 'c'){ 
+           else if (mode != 'c'){ 
                 if (lickOn[0]){ 
                     response = 'L'; 
-
                 } // hit left
                 if (lickOn[1]){ 
                     response = 'R';
-
                 } // hit right
             }
 
@@ -523,7 +520,7 @@ int runTrial ( int mode,
         else if (response == 'R'){
             response = 'r';
             //tone(speakerPin, toneBad, 50);
-        }        
+        }
     }
     
     ActiveDelay(t_trialEND, false, verbose);
@@ -532,7 +529,6 @@ int runTrial ( int mode,
     Serial.print("response_time:\t"); Serial.println(response_time);    
 
     return 0;
-    
 }
 
 /* ------------------------------
@@ -557,13 +553,13 @@ int UpdateGlobals(String input) {
     *If it ain't broke*...
     */
 
+    // sep is the index of the ':' character
     int sep = getSepIndex(input);
 
     if (sep) {
         
         String variable_name = input.substring(0,sep);
         String variable_value = input.substring(sep+1);
-        
         Serial.print("#");Serial.print(variable_name);Serial.print("\t");Serial.println(variable_value);
         
         // input before seperator?
@@ -668,9 +664,7 @@ int UpdateGlobals(String input) {
             Serial.print("minlickCount:\t"); Serial.println(minlickCount);  
             return 1;
         }
-        
    }
-       
    return 0;
 }
 
@@ -694,6 +688,7 @@ void setup (){
 
     pinMode(recTrig, OUTPUT); // declare the recTrig as as OUTPUT
     pinMode(waterPort[0], OUTPUT); // declare the waterValve as as OUTPUT
+    pinMode(waterPort[1], OUTPUT); // declare the waterValve as as OUTPUT
     pinMode(vacValve, OUTPUT); // declare the vacValve as as OUTPUT
     pinMode(stimulusPin, OUTPUT); // declare the whiskStim as as OUTPUT
     pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
