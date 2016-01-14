@@ -673,7 +673,7 @@ try:
                     
                     hits =  correct.response.count() / df.response.count() 
                     hit_L = correct.response[correct.response == "L"].count() / df.rewardCond[df.rewardCond == "L"].count()
-                    hit_R = df.response[corrrect.response == "R"].count() / df.rewardCond[df.rewardCond == "R"].count()
+                    hit_R = df.response[correct.response == "R"].count() / df.rewardCond[df.rewardCond == "R"].count()
                     
                     cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                     
