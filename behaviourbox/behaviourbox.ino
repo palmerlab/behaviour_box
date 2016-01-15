@@ -115,20 +115,18 @@ void senseLick(bool sensor) {
 
     // 1. check to see if the lick sensor has moved
     // 2. check if the sensor is above threshold
-    // 3. report if the state of lickOn has changed
-    
-    lickCounted[sensor] = false;
+    // 3. report if the state of lickOn has change
     
     if (analogRead(lickSens[sensor]) >= lickThres){
         if (lickOn[sensor] == false) { 
             lickCounted[sensor] = true;
             // counted = true
         }
+        else { lickCounted[sensor] = false; }
         lickOn[sensor] = true;
     }
     else {
         lickOn[sensor] = false;    
-        // counted = false
     }
     
     digitalWrite(lickRep[sensor], lickOn[sensor]); 
@@ -184,7 +182,7 @@ char ActiveDelay(int wait,
 
     int t = t_now(t_init);
     
-    char response = 0;
+    char response = '-';
     
     if (verbose) {Serial.print("#Enter `ActiveDelay`:\t"); Serial.println(t);}
     
@@ -384,18 +382,18 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             digitalWrite(waterPort[0], LOW);
             digitalWrite(waterPort[1], LOW);            
            
-           if (rewardCond == 'B'){
-               if (count[0] > count[1]) { response = 'L';}
-               else if (count[0] < count[1]) { response = 'R';}
-               else { response = 'B';}
-           }
-           else if (mode != 'c'){ 
+           if (mode != 'c'){ 
                 if (lickOn[0]){ 
                     response = 'L'; 
                 } // hit left
                 if (lickOn[1]){ 
                     response = 'R';
                 } // hit right
+                if (rewardCond == 'B'){
+                   if (count[0] > count[1]) { response = 'L';}
+                   else if (count[0] < count[1]) { response = 'R';}
+                   else { response = 'B';}
+                }
             }
 
             if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
@@ -502,7 +500,7 @@ int runTrial ( int mode,
                             break_wrongChoice, minlickCount, waterVol, verbose); 
     
     if (response) {
-        response_time = t;
+        response_time = t_now(t_init);
     }
     else {
         response = ActiveDelay(t_trialEND, true, verbose);
@@ -723,6 +721,5 @@ void loop () {
         delay(100);
     }
 }
-
 
 

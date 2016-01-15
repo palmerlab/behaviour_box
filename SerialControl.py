@@ -14,6 +14,7 @@ import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
 import random
+import re
 
 from itertools import permutations, product
             
@@ -225,9 +226,9 @@ def menu():
                 print "options: P T M < > ? h [ ] \\ \t"
         
         
-def na_to_string(s):
-    if np.isnan(num(s)): return str(s)
-    else: return num(s)
+def na_printr(s):
+    try: return "%3d" %s
+    except: return "%03s" %s
         
 def num(s):
     """ 
@@ -325,7 +326,7 @@ def create_datapath(DATADIR = "", date = today()):
     else: DATADIR = os.path.join(DATADIR, date)
     
     if not os.path.isdir(DATADIR):
-        os.mkdirs((DATADIR))
+        os.makedirs((DATADIR))
     
     print colour("datapath:\t", fc = fc.GREEN, style=Style.BRIGHT),
     print colour(DATADIR, fc = fc.GREEN, style=Style.BRIGHT)
@@ -470,6 +471,14 @@ color.init()
 
 datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
+
+
+f = 0
+df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
+while os.path.isfile(df_file):
+    f += 1
+    df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
+
 
 #open the communications line
 ser = init_serialport(port)
@@ -686,9 +695,8 @@ try:
                 """
                 #Save the data to a data frame / Save to a file
                 """
-                
-                
-                with open('%s/%s_%s.csv' %(datapath, ID, today()), 'a') as datafile:
+                    
+                with open(df_file, 'w') as datafile:
                     
                     trial_df = pd.DataFrame(trial_df, index=[trial_num])
                     
@@ -698,15 +706,15 @@ try:
                         df = df.append(trial_df, ignore_index = True)
                     
                     df['correct'] = df.response.str.isupper()
-                    df['miss'] = df.response == '-'
-                    df['wrong'] = df.response.str.islower()
+                    df['miss'] = df.response[df.rewardCond != 'N'] == '-'
+                    df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
                     
                     
-                    hits = df.correct.sum()
-                    hit_L = df.correct[df.response == 'L'].sum() / df.ID[df.rewardCond == "L"].count()
-                    hit_R = df.correct[df.response == 'R'].sum() / df.ID[df.rewardCond == "R"].count()
+                    hits = df.correct.cumsum()
+                    hit_L = df.correct[df.response == 'L'].cumsum()
+                    hit_R = df.correct[df.response == 'R'].cumsum()
                     
-                    cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
+                    cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
                     
                     df['hits'] =  hits
                     df['hit_L'] = hit_R
@@ -714,7 +722,7 @@ try:
                     
                     df['cumWater'] = cumWater               
 
-                    df[df.trial_num == trial_num].to_csv(datafile)
+                    df.to_csv(datafile)
                 
                 #Print the important data and coloured code for hits / misses
                 
@@ -733,20 +741,33 @@ try:
                 
                 #calculate percentage success
                 
-                print "\r", 100 * " ", "\r              ", #clear the line 
+                print "\r", 100 * " ", "\r                ", #clear the line 
                 
-                misses = (df.miss.sum() / df.ID[df.rewardCond != 'N'].count())*100
+                hits = df.correct.sum() / df.ID.count()
+                
+                if df.ID[df.rewardCond.isin(['L','B'])].count():
+                     hit_L = df.correct[df.response == 'L'].sum() / df.ID[df.rewardCond.isin(['L','B'])].count()
+                else: hit_L = float('nan')
+                
+                if df.ID[df.rewardCond.isin(['R','B'])].count():
+                     hit_R = df.correct[df.response == 'R'].sum() / df.ID[df.rewardCond.isin(['R','B'])].count()
+                else: hit_R = float('nan')
+                
+                if df.ID[df.rewardCond != 'N'].count():
+                    misses = (df.miss.sum() / df.ID[df.rewardCond != 'N'].count())*100
+                else: misses = float('nan')
+                
                 wrong = (df.wrong.sum() / df.ID.count())*100
-
-                hits = hits / df.ID.count()
-                hits = "%3d" %(hits*100)
                 
-                try: hit_L = "%3d" %(hit_L*100)
-                except: hit_L = str(hit_L*100)
-                try: hit_R = "%3d" %(hit_R*100)
-                except: hit_R = str(hit_R*100)
+                misses = na_printr(misses)
+                wrong = na_printr(wrong)
+                hits =  na_printr(hits*100)
+                hit_L = na_printr(hit_L*100)
+                hit_R = na_printr(hit_R*100)
+                cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                                 
-                print "hits:%03s%%  misses:%3d%%  wrong:%3d%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d" %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),  "\r",
+                print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d                         " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
+                                fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                 
                 trial_num += 1
             
