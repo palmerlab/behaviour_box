@@ -358,7 +358,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             default:
                 Serial.print("ERROR: rewardCond not specified");
                 Serial.println(" requires 'L'eft, 'R'ight, 'B'oth, 'N'either");
-                return "!";
+                return '!';
             break;
         }
         
