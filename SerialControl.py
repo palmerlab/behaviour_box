@@ -57,6 +57,7 @@ p.add_argument("-w", "--weight", default = 0, help = "weight of the animal in gr
 p.add_argument("-m", "--mode", default = "c", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
 p.add_argument('-r', '--repeats', default = "1000", type = int, help = "the number of times this block should repeat, by default this is 1")
+p.add_argument("-N", '--trial_num', default = 0, help = 'trial number to start at')
 
 p.add_argument('--datapath', default = "C:/DATA/wavesurfer", help = "path to save data to, by default is 'C:/DATA/wavesurfer/%%YY%%MM%%DD'")
 p.add_argument("--port", default = "COM5", help = "port that the Arduino is connected to")
@@ -80,6 +81,7 @@ trigstate.add_argument('--ITI',  nargs = 2, default = [2,5], type = float, help 
 trigstate.add_argument('--triggered',  action = 'store_true', help = "waits for key press to initiate a trial")
 trigstate.add_argument('--manfreq',  action = 'store_true', help = "choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
 
+
 args = p.parse_args()
 
 verbose = args.verbose # this will be a cmdline parameter
@@ -92,6 +94,7 @@ manfreq = args.manfreq
 triggered = args.triggered
 dualmethod = args.dualmethod
 weight = args.weight
+trial_num = args.trial_num
 
 leftmode =  args.left
 rightmode = args.right
@@ -141,6 +144,7 @@ def menu():
     global mode
     global leftmode
     global rightmode
+    global comment
     
     while True:
         while m.kbhit():
@@ -166,6 +170,10 @@ def menu():
                 log.write("Manual mode:\t%s\n" %manfreq)
                 return
             
+            elif c in ("C","c"): #m,Ctrl-m
+                comment = raw_input("Comment: ")
+                log.write("Comment:\t%s\n" %comment)
+                
             elif c in '\xe0K':
                 leftmode = True
                 rightmode = False
@@ -194,8 +202,8 @@ def menu():
             # Go to triggered mode
             elif c in ("T", "t", "\x14"):
                 triggered = not triggered
-                print "Triggered mode:\t%s" %manfreq
-                log.write("Triggered mode:\t%s\n" %manfreq)
+                print "Triggered mode:\t%s" %triggered
+                log.write("Triggered mode:\t%s\n" %triggered)
                 return
             
             # adjust minLickCount
@@ -387,7 +395,7 @@ def update_progress(progress):
     
     if progress == 100: print ""            
         
-def manual(freq, t):
+def manual():
     
     """
     Function to manually select a specific condition
@@ -418,25 +426,21 @@ def manual(freq, t):
                 if c in character[k]:
                     print "manual %s trial\r" %k,
                     
-                    if (k == 'L') or leftmode:
-                        freq = freq[freq[:,0] > freq[:,1]]
+                    if k == 'L':
                         leftmode = True
-                        
-                    elif (k == 'R') or rightmode:
-                        freq = freq[freq[:,0] < freq[:,1]]
-                        rightmode = True
-                    
-                    else:
-                        leftmode = False
                         rightmode = False
+                        return
                         
-                    shuffle(freq)
-                    return freq[0]
-                
-        
+                    elif k == 'R':
+                        rightmode = True
+                        leftmode = False
+                        return
+            
             print "The next random frequency pair\r",
-            return freq[t]
-    
+            leftmode = False
+            rightmode = False
+            return
+                    
 def init_serialport(port):
     """
     Open communications with the arduino;
@@ -463,6 +467,7 @@ def init_serialport(port):
 MAIN FUNCTION HERE
 ---------------------------------------------------------------------
 """    
+
 
 #namespace.all?    
 
@@ -518,7 +523,6 @@ else:
 
 freq = np.array(freq)
 
-trial_num = 0
 
 try:
     #open a file to save data in
@@ -549,6 +553,7 @@ try:
                             
             #This starts a loop that goes through 1 run per frequency combination
             for t in xrange(len(freq)):
+                comment = ""
             
                 # create an empty dictionary to store data in
                 trial_df = {
@@ -560,7 +565,8 @@ try:
                     'ID' : ID,
                     'manfreq' : manfreq,
                     'weight' : weight,
-                    'block' : r
+                    'block' : r,
+                    'comment' : comment,
                 }
 
                
@@ -569,17 +575,17 @@ try:
                     print "\nChoose...",
                     menu()
                 
-                   
+                trial_freq = freq[t]
+                
                 if manfreq:
                     print "Choose condition",
+                    manual()
+                
                     
-                    trial_freq = manual(freq, t)
-                else:
-                    trial_freq = freq[t]
-                    if leftmode: 
-                        trial_freq.sort()
-                        trial_freq = trial_freq[::-1]
-                    elif rightmode: trial_freq.sort()
+                if leftmode: 
+                    trial_freq.sort()
+                    trial_freq = trial_freq[::-1]
+                elif rightmode: trial_freq.sort()
 
                 # convert the frequencies into an on off square pulse
                 for f in (0,1):
