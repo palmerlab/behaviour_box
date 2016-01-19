@@ -50,37 +50,126 @@ Arguments
 --------------------------------------------------------------------
 """
 
-p = argparse.ArgumentParser(description="This program controls the Arduino and reads from it too" )
+p = argparse.ArgumentParser(description="This program controls the Arduino " 
+                                           "and reads from it too"
+                                            )
 
-p.add_argument("-i", "--ID", default = "", help = "identifier for this animal/run")
-p.add_argument("-w", "--weight", default = 0, help = "weight of the animal in grams")
-p.add_argument("-m", "--mode", default = "c", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
-p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
-p.add_argument('-r', '--repeats', default = "1000", type = int, help = "the number of times this block should repeat, by default this is 1")
-p.add_argument("-N", '--trial_num', default = 0, type = int, help = 'trial number to start at')
+p.add_argument("-i", 
+                "--ID", 
+                default = "", 
+                help = "identifier for this animal/run",
+                )
 
-p.add_argument('--datapath', default = "C:/DATA/wavesurfer", help = "path to save data to, by default is 'C:/DATA/wavesurfer/%%YY%%MM%%DD'")
-p.add_argument("--port", default = "COM5", help = "port that the Arduino is connected to")
-p.add_argument("--verbose", action = 'store_true', help = 'for debug, will print everything if enabled')
+p.add_argument("-w", 
+                "--weight", 
+                default = 0, 
+                help = "weight of the animal in grams",
+                )
 
-p.add_argument('-p','--punish', action = 'store_true', help = 'sets `break_wrongChoice` to True, incorrect licks will end an operant trial early')
+p.add_argument("-m", 
+                "--mode", 
+                default = "c", 
+                help = "the mode `c`onditioning or `o`perant, "
+                        "by default will look in the config table",
+                )
+                
+p.add_argument('-f','--freq', 
+                nargs = '*', 
+                type = int, 
+                help = "list of frequencies in Hz (separated by spaces)",
+                )
+                
+p.add_argument('-r', 
+                '--repeats', 
+                default = "1000", 
+                type = int, 
+                help = "the number of times this block should repeat, " 
+                        "by default this is 1",
+                )
+                
+p.add_argument('-p','--punish', 
+                action = 'store_true', 
+                help = "sets `break_wrongChoice` to True, " 
+                        "incorrect licks will end an operant "
+                        "trial early",
+                )
 
-p.add_argument('--lickThres', default = 300, type = int, help = 'set `lickThres` in arduino')
-p.add_argument('--lcount', default = 2, type = int, help = 'set `minlickCount` in arduino')
+p.add_argument("-N", 
+                '--trial_num', 
+                default = 0, 
+                type = int, 
+                help = 'trial number to start at',
+                )
+
+p.add_argument('--datapath', 
+                default = "C:/DATA/wavesurfer", 
+                help = "path to save data to, " 
+                        "by default is "
+                        "'C:/DATA/wavesurfer/%%YY%%MM%%DD'",
+                )
+                
+p.add_argument("--port", 
+                default = "COM5", 
+                help = "port that the Arduino is connected to",
+                )
+                
+p.add_argument("--verbose", 
+                action = 'store_true', 
+                help = "for debug this will print everything if enabled",
+                )
+
+p.add_argument('--lickThres', 
+                default = 300, 
+                type = int, 
+                help = 'set `lickThres` in arduino',
+                )
+                
+p.add_argument('--lcount', 
+                default = 2, 
+                type = int, 
+                help = 'set `minlickCount` in arduino'
+                )
 
 runtype = p.add_mutually_exclusive_group()
-runtype.add_argument('--dualmethod', default = 'permutation', help = "either permutations or product; product will give 'B' conditions")
-runtype.add_argument('--singlestim', action = 'store_true', help = "For anaesthetised experiments, only run a single stimulus")
+
+runtype.add_argument('--dualmethod', 
+                default = 'permutation', 
+                help = "either permutations or product; "
+                        "product will give 'B' conditions",
+                )
+                
+runtype.add_argument('--singlestim', 
+                action = 'store_true', 
+                help = "For anaesthetised experiments, "
+                        "only run a single stimulus",
+                )
 
 lickside = p.add_mutually_exclusive_group()
-lickside.add_argument("-L", "--left", action = 'store_true')
-lickside.add_argument("-R", "--right", action = 'store_true')
 
-trigstate = p.add_mutually_exclusive_group()
-trigstate.add_argument('--ITI',  nargs = 2, default = [2,5], type = float, help = "an interval for randomising between trials")
-trigstate.add_argument('--triggered',  action = 'store_true', help = "waits for key press to initiate a trial")
-trigstate.add_argument('--manfreq',  action = 'store_true', help = "choose left or right trial for each iteration, can be enabled mid run by hitting Ctrl-m")
+lickside.add_argument("-L", 
+                "--left", 
+                action = 'store_true',
+                )
+                
+lickside.add_argument("-R", 
+                "--right", 
+                action = 'store_true',
+                )
 
+p.add_argument('--ITI', 
+                 nargs = 2, 
+                default = [2,5], 
+                type = float, 
+                help = "an interval for randomising between trials",
+                )
+                
+p.add_argument('--manfreq', 
+                action = 'store_true', 
+                help = "choose left or right trial for each iteration, "
+                        "can be enabled mid run by hitting 'm'. "
+                        "In this state the program waits for a key "
+                        "press before proceeding to the next trial.",
+                )
 
 args = p.parse_args()
 
@@ -199,14 +288,7 @@ def menu():
                 print "Punish for wrong lick:\t%s" %punish
                 log.write("Punish for wrong lick:\t%s\n" %punish)
                 return
-            
-            # Go to triggered mode
-            elif c in ("T", "t", "\x14"):
-                triggered = not triggered
-                print "Triggered mode:\t%s" %triggered
-                log.write("Triggered mode:\t%s\n" %triggered)
-                return
-            
+                   
             # adjust minLickCount
             elif c in ("[", "{"):
                 lcount -= 1
@@ -232,7 +314,7 @@ def menu():
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
             else:
-                print "options: P T M < > ? h [ ] \\ \t"
+                print "options: P M < > ? h [ ] \\ \\t"
         
         
 def na_printr(s):
@@ -524,6 +606,7 @@ else:
 
 freq = np.array(freq)
 
+comment = ""
 
 try:
     #open a file to save data in
@@ -554,8 +637,7 @@ try:
                             
             #This starts a loop that goes through 1 run per frequency combination
             for t in xrange(len(freq)):
-                comment = ""
-            
+                
                 # create an empty dictionary to store data in
                 trial_df = {
                     'trial_num' : trial_num,
@@ -569,24 +651,16 @@ try:
                     'block' : r,
                     'comment' : comment,
                 }
-
                
                 #In triggered mode
                 while m.kbhit():
                     print "\nChoose...\r",
                     menu()
-<<<<<<< HEAD
-                   
-=======
-                
-                trial_freq = freq[t]
-                
->>>>>>> 3c0a13399f8cc0e44abd77451469ccf1f950c673
+
                 if manfreq:
                     print "Choose condition\r",
                     manual()
                 
-                    
                 if leftmode: 
                     trial_freq.sort()
                     trial_freq = trial_freq[::-1]
@@ -646,17 +720,10 @@ try:
                         var, val = line.split(":\t")
                         trial_df[var] = num(val)
                 
-                if (triggered == False) and (manfreq == False):
+                if manfreq == False:
                     ITI = random.uniform(args.ITI[0], args.ITI[1])
-                    
                     time.sleep(ITI)
-                
-                elif triggered and (manfreq == False):
-                    while m.kbhit() == False:
-                        print colour("\r%s waiting for trigger\r" %(timenow()), fc.RED, style = Style.BRIGHT),
-                    while m.kbhit():
-                        m.getch() #clear the buffer
-                    
+                                  
                 #print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
                     
                 trial_df['time'] = timenow()
@@ -676,26 +743,22 @@ try:
                             
                 # partitions lick responses into three handy numbers each
 
-                licksL = np.array(trial_df['port[0]'])
-                licksR = np.array(trial_df['port[1]'])
-
-                t_f0 = num(params['t_stimONSET[0]'])
-                t_f1 = num(params['t_stimONSET[1]'])
-                t_post = num(params['t_rewardSTART'])
+                licks = { 
+                        'left' : trial_df['port[0]'], 
+                        'right': trial_df['port[1]'],
+                }
                 
-                try: trial_df['left_pre'] = [len(licksL[licksL < t_f0])]
-                except: trial_df['left_pre'] = [0]
-                try: trial_df['left_stim'] = [len(licksL[(licksL > t_f0) & (licksL < t_post)])]
-                except: trial_df['left_stim'] = [0]
-                try: trial_df['left_post'] = [len(licksL[licksL > t_post])]
-                except: trial_df['left_post'] = [0]
-                                                                                    
-                try: trial_df['right_pre'] = [len(licksR[licksR < t_f0])]
-                except: trial_df['right_pre'] = [0]
-                try: trial_df['right_stim'] = [len(licksR[(licksR > t_f0) & (licksR < t_post)])]
-                except: trial_df['right_stim'] = [0]
-                try: trial_df['right_post'] = [len(licksR[licksR > t_post])]
-                except: trial_df['right_post'] = [0]
+                epoch = [
+                    num(params['t_stimONSET[0]']),
+                    num(params['t_stimONSET[1]']) + num(params['t_stimDUR']),
+                ]
+                
+                for k in licks:
+                    licks[k] = np.array(licks[k])
+                
+                trial_df['%s_pre' %k] = licks[k][licks[k] < epoch[0]].size
+                trial_df['%s_stim' %k] = licks[k][(licks[k] > epoch[0]) & (licks[k] < epoch[1])].size
+                trial_df['%s_post' %k] = licks[k][licks[k] > epoch[1]].size
 
                 del trial_df['port[0]']
                 del trial_df['port[1]']
@@ -739,15 +802,13 @@ try:
                 
                 print Style.BRIGHT, '\r',
                 for k in ('trial_num', 'mode', 'rewardCond', 'response', 'WaterPort[0]', 'WaterPort[1]','OFF[0]', 'OFF[1]',):
-                    N = trial_num
                     
-                    
-                    if df.correct[N]:
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.GREEN, str(trial_df[k][N]).strip()),
-                    elif df.miss[N]:
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.YELLOW, str(trial_df[k][N]).strip()),
+                    if df.correct.iloc[-1]:
+                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.GREEN, str(trial_df[k][-1]).strip()),
+                    elif df.miss.iloc[-1]:
+                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.YELLOW, str(trial_df[k][-1]).strip()),
                     else:
-                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k][N]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k][-1]).strip()),
                 print '\r', Style.RESET_ALL
                 
                 #calculate percentage success
@@ -781,6 +842,7 @@ try:
                                 fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                 
                 trial_num += 1
+                comment = ""
             
 except KeyboardInterrupt:
     print "Closing", port
