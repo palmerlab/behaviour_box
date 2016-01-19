@@ -57,7 +57,7 @@ p.add_argument("-w", "--weight", default = 0, help = "weight of the animal in gr
 p.add_argument("-m", "--mode", default = "c", help = "the mode `c`onditioning or `o`perant, by default will look in the config table")
 p.add_argument('-f','--freq', nargs = '*', type = int, help = "list of frequencies in Hz (separated by spaces)")
 p.add_argument('-r', '--repeats', default = "1000", type = int, help = "the number of times this block should repeat, by default this is 1")
-p.add_argument("-N", '--trial_num', default = 0, help = 'trial number to start at')
+p.add_argument("-N", '--trial_num', default = 0, type = int, help = 'trial number to start at')
 
 p.add_argument('--datapath', default = "C:/DATA/wavesurfer", help = "path to save data to, by default is 'C:/DATA/wavesurfer/%%YY%%MM%%DD'")
 p.add_argument("--port", default = "COM5", help = "port that the Arduino is connected to")
@@ -173,6 +173,7 @@ def menu():
             elif c in ("C","c"): #m,Ctrl-m
                 comment = raw_input("Comment: ")
                 log.write("Comment:\t%s\n" %comment)
+                print "Choose...\r",
                 
             elif c in '\xe0K':
                 leftmode = True
@@ -572,13 +573,13 @@ try:
                
                 #In triggered mode
                 while m.kbhit():
-                    print "\nChoose...",
+                    print "\nChoose...\r",
                     menu()
                 
                 trial_freq = freq[t]
                 
                 if manfreq:
-                    print "Choose condition",
+                    print "Choose condition\r",
                     manual()
                 
                     
@@ -643,7 +644,7 @@ try:
                 
                 if (triggered == False) and (manfreq == False):
                     ITI = random.uniform(args.ITI[0], args.ITI[1])
-                    #print "go in %d\r"  %ITI,
+                    
                     time.sleep(ITI)
                 
                 elif triggered and (manfreq == False):
@@ -706,10 +707,10 @@ try:
                     
                     trial_df = pd.DataFrame(trial_df, index=[trial_num])
                     
-                    if trial_num == 0:
-                        df = trial_df
-                    else: 
+                    try: 
                         df = df.append(trial_df, ignore_index = True)
+                    except NameError:
+                        df = trial_df
                     
                     df['correct'] = df.response.str.isupper()
                     df['miss'] = df.response[df.rewardCond != 'N'] == '-'
