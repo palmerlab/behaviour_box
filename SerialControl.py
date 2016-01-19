@@ -473,12 +473,12 @@ datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
 
 
+#make a unique filename
 f = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
 while os.path.isfile(df_file):
     f += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
-
 
 #open the communications line
 ser = init_serialport(port)
@@ -568,7 +568,6 @@ try:
                 while m.kbhit():
                     print "\nChoose...",
                     menu()
-                
                    
                 if manfreq:
                     print "Choose condition",
