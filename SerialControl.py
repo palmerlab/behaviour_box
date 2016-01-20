@@ -396,7 +396,6 @@ def update_bbox(params, trial_df):
     
     TODO: make this more general by putting `ser` as a parameter
     """
-    print ""
     
     for k in params.keys():
     
@@ -680,7 +679,10 @@ try:
                     trial_freq.sort()
                     trial_freq = trial_freq[::-1]
                 elif rightmode: trial_freq.sort()
-
+                
+                
+                trial_df['comment'] = comment
+                
                 # convert the frequencies into an on off square pulse
                 for f in (0,1):
                     trial_df['freq%d' %f] = [trial_freq[f]]
@@ -843,8 +845,8 @@ try:
                 print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
                                 fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                 
-                trial_num += 1
                 comment = ""
+                trial_num += 1
             
 except KeyboardInterrupt:
     print "Closing", port
