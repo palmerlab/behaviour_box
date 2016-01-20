@@ -86,8 +86,8 @@ char rewardCond = 'B'; // a value that is 'L' 'R', 'B' or 'N' to represent lick 
 byte minlickCount = 5;
 
 // stimulus parameters
-unsigned long ON[] = {1000, 1000};
-unsigned long OFF[] = {5000, 5000};
+unsigned long ON[] = {1, 1};
+unsigned long OFF[] = {30, 30};
 
 // audio
 int toneGood = 2000; //Hz
@@ -313,8 +313,8 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     */
                 
     int t = t_now(t_init);
-    bool RewardTest;
-    bool RewardPort;
+    bool RewardTest = 0;
+    bool RewardPort = 0;
     char response = 0;
     byte count[] = {0,0};
     
@@ -370,9 +370,13 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             else { 
                 digitalWrite(waterPort[RewardPort], HIGH); 
                     if (verbose) { Serial.print("WaterPort["); 
-                           Serial.print(RewardPort);
-                           Serial.print("]:\t");
-                           Serial.println("1");
+                        Serial.print(RewardPort);
+                        Serial.print("]:\t");
+                        Serial.println("1");
+                
+                        Serial.print("count[0]:\t");Serial.println(count[0]);
+                        Serial.print("count[1]:\t");Serial.println(count[0]);
+                        Serial.println(mode);
                     }
                 }
             
@@ -525,7 +529,6 @@ int runTrial ( int mode,
     
     Serial.print("response:\t"); Serial.println(response);
     Serial.print("response_time:\t"); Serial.println(response_time);    
-
     return 0;
 }
 
@@ -721,5 +724,9 @@ void loop () {
         delay(100);
     }
 }
+
+
+
+
 
 

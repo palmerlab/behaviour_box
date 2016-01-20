@@ -54,14 +54,12 @@ p = argparse.ArgumentParser(description="This program controls the Arduino "
                                            "and reads from it too"
                                             )
 
-p.add_argument("-i", 
-                "--ID", 
+p.add_argument("-i", "--ID", 
                 default = "", 
                 help = "identifier for this animal/run",
                 )
 
-p.add_argument("-w", 
-                "--weight", 
+p.add_argument("-w", "--weight", 
                 default = 0, 
                 help = "weight of the animal in grams",
                 )
@@ -73,39 +71,37 @@ p.add_argument("-m",
                         "by default will look in the config table",
                 )
                 
-p.add_argument('-f','--freq', 
+p.add_argument('-f', '--freq', 
                 nargs = '*', 
                 type = int, 
                 help = "list of frequencies in Hz (separated by spaces)",
                 )
                 
-p.add_argument('-r', 
-                '--repeats', 
-                default = "1000", 
+p.add_argument('-r', '--repeats', 
+                default = 1000, 
                 type = int, 
                 help = "the number of times this block should repeat, " 
                         "by default this is 1",
                 )
                 
-p.add_argument('-p','--punish', 
+p.add_argument('-p', '--punish', 
                 action = 'store_true', 
                 help = "sets `break_wrongChoice` to True, " 
                         "incorrect licks will end an operant "
                         "trial early",
                 )
 
-p.add_argument("-N", 
-                '--trial_num', 
+p.add_argument("-N", '--trial_num', 
                 default = 0, 
                 type = int, 
                 help = 'trial number to start at',
                 )
 
 p.add_argument('--datapath', 
-                default = "C:/DATA/wavesurfer", 
+                default = "C:/DATA/Andrew/wavesurfer", 
                 help = "path to save data to, " 
                         "by default is "
-                        "'C:/DATA/wavesurfer/%%YY%%MM%%DD'",
+                        "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
                 )
                 
 p.add_argument("--port", 
@@ -118,13 +114,13 @@ p.add_argument("--verbose",
                 help = "for debug this will print everything if enabled",
                 )
 
-p.add_argument('--lickThres', 
-                default = 300, 
+p.add_argument('-lt', '--lickThres', 
+                default = 160, 
                 type = int, 
                 help = 'set `lickThres` in arduino',
                 )
                 
-p.add_argument('--lcount', 
+p.add_argument('-lc', '--lcount', 
                 default = 2, 
                 type = int, 
                 help = 'set `minlickCount` in arduino'
@@ -180,7 +176,6 @@ repeats = args.repeats
 datapath = args.datapath
 singlestim = args.singlestim
 manfreq = args.manfreq
-triggered = args.triggered
 dualmethod = args.dualmethod
 weight = args.weight
 trial_num = args.trial_num
@@ -227,7 +222,6 @@ def menu():
     
     global manfreq
     global punish
-    global triggered
     global lickThres
     global lcount
     global mode
@@ -393,7 +387,7 @@ def Serial_monitor(logfile, show = True):
         
     return line
 
-def update_bbox(params):
+def update_bbox(params, trial_df):
     """
     Communicates the contents of the dict `params` through
     the serial communications port. 
@@ -402,11 +396,28 @@ def update_bbox(params):
     
     TODO: make this more general by putting `ser` as a parameter
     """
+    print ""
+    
     for k in params.keys():
+    
+        print fc.YELLOW, k, 
         ser.writelines("%s:%s" %(k, params[k]))
         if verbose: print "%s:%s" %(k, params[k])
         
-        time.sleep(0.2)
+        time.sleep(0.1)
+        
+        while ser.inWaiting():
+
+            line = Serial_monitor(log, False).strip()
+
+            if line[0] != "#" and line[0] != "-":
+                var, val = line.split(":\t")
+                trial_df[var] = num(val)
+                print fc.GREEN, var, val, Style.RESET_ALL , "\r",
+                
+    return trial_df
+        
+      
         
 def create_datapath(DATADIR = "", date = today()):
     """
@@ -624,7 +635,7 @@ try:
         # Buffer for 500 ms to let arduino finish it's setup
         time.sleep(.5)
         # Log the debug info for the setup
-        while ser.inWaiting(): Serial_monitor(log)
+        while ser.inWaiting(): Serial_monitor(log, True)
         
         # loop for r repeats
         for r in xrange(repeats):
@@ -660,6 +671,8 @@ try:
                 if manfreq:
                     print "Choose condition\r",
                     manual()
+                    
+                trial_freq = freq[t]
                 
                 if leftmode: 
                     trial_freq.sort()
@@ -695,9 +708,6 @@ try:
                     if trial_freq[0] or trial_freq[1]:params['rewardCond'] = 'B'
                     else: params['rewardCond'] = 'N'
                 
-                print colour("F:%3d %3d C: %s" \
-                                %(trial_freq[0], trial_freq[1], params['rewardCond']), 
-                                fc.MAGENTA, style = Style.BRIGHT),
                 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
@@ -705,20 +715,13 @@ try:
                 params['mode'] = mode
                 params['lickThres'] = lickThres
                 params['break_wrongChoice'] = num(punish)
-                params['minLickCount'] = lcount
+                params['minlickCount'] = lcount
                 
-                update_bbox(params)
+                trial_df = update_bbox(params, trial_df)
                 
-                # log the receipt of the parameters
-                while ser.inWaiting():
-                    
-                    # get info about licks, strip away trailing white space
-                    line = Serial_monitor(log, show = verbose).strip()
-                    
-                    # store it if it isn't debug or the ready line
-                    if line[0] != "#" and line[0] != "-":
-                        var, val = line.split(":\t")
-                        trial_df[var] = num(val)
+                print colour("F:%3d %3d C: %s" \
+                                %(trial_freq[0], trial_freq[1], params['rewardCond']), 
+                                fc.MAGENTA, style = Style.BRIGHT),
                 
                 if manfreq == False:
                     ITI = random.uniform(args.ITI[0], args.ITI[1])
@@ -730,7 +733,9 @@ try:
                 
                 # Send the literal GO symbol
                 ser.write("GO")
-
+                
+                line = Serial_monitor(log, show = verbose).strip()
+                
                 while line.strip() != "-- Status: Ready --":
                     
                     line = Serial_monitor(log, False).strip()
@@ -750,7 +755,7 @@ try:
                 
                 epoch = [
                     num(params['t_stimONSET[0]']),
-                    num(params['t_stimONSET[1]']) + num(params['t_stimDUR']),
+                    num(params['t_stimONSET[1]']) + num(params['stimDUR']),
                 ]
                 
                 for k in licks:
@@ -804,11 +809,11 @@ try:
                 for k in ('trial_num', 'mode', 'rewardCond', 'response', 'WaterPort[0]', 'WaterPort[1]','OFF[0]', 'OFF[1]',):
                     
                     if df.correct.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.GREEN, str(trial_df[k][-1]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
                     elif df.miss.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.YELLOW, str(trial_df[k][-1]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
                     else:
-                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k][-1]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k].iloc[-1]).strip()),
                 print '\r', Style.RESET_ALL
                 
                 #calculate percentage success

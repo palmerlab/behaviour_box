@@ -3,7 +3,7 @@ t_noLickPer	0
 t_stimONSET[0]	2000
 t_stimONSET[1]	3500
 stimDUR	500
-t_rewardSTART	3500
+t_rewardSTART	4500
 t_rewardEND	8000
 t_trialEND	10000
 lickThres	300
