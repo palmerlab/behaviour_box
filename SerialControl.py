@@ -404,7 +404,7 @@ def update_bbox(params, trial_df):
         ser.writelines("%s:%s" %(k, params[k]))
         if verbose: print "%s:%s" %(k, params[k])
         
-        time.sleep(0.1)
+        time.sleep(0.2)
         
         while ser.inWaiting():
 
@@ -413,7 +413,11 @@ def update_bbox(params, trial_df):
             if line[0] != "#" and line[0] != "-":
                 var, val = line.split(":\t")
                 trial_df[var] = num(val)
-                print fc.GREEN, var, val, Style.RESET_ALL , "\r",
+                if var == k:
+                    print  fc.GREEN, "\r", var, val, Style.RESET_ALL , "\r",
+                else:
+                    print  fc.RED, "\r", var, val, Style.RESET_ALL 
+                    quit()
                 
     return trial_df
         
@@ -652,8 +656,6 @@ try:
                 # create an empty dictionary to store data in
                 trial_df = {
                     'trial_num' : trial_num,
-                    'port[0]' : [],
-                    'port[1]' : [],
                     'WaterPort[0]': 0,
                     'WaterPort[1]': 0,
                     'ID' : ID,
@@ -743,30 +745,10 @@ try:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
                             val = num(val)
-                            if var.startswith("port"): trial_df[var].append(val)
-                            else: trial_df[var] = val
+                            trial_df[var] = val
                             
                 # partitions lick responses into three handy numbers each
 
-                licks = { 
-                        'left' : trial_df['port[0]'], 
-                        'right': trial_df['port[1]'],
-                }
-                
-                epoch = [
-                    num(params['t_stimONSET[0]']),
-                    num(params['t_stimONSET[1]']) + num(params['stimDUR']),
-                ]
-                
-                for k in licks:
-                    licks[k] = np.array(licks[k])
-                
-                trial_df['%s_pre' %k] = licks[k][licks[k] < epoch[0]].size
-                trial_df['%s_stim' %k] = licks[k][(licks[k] > epoch[0]) & (licks[k] < epoch[1])].size
-                trial_df['%s_post' %k] = licks[k][licks[k] > epoch[1]].size
-
-                del trial_df['port[0]']
-                del trial_df['port[1]']
                 
                 for k in trial_df.keys():
                     if type(trial_df[k]) == list: trial_df[k] = trial_df[k][0]                
@@ -788,7 +770,6 @@ try:
                     df['miss'] = df.response[df.rewardCond != 'N'] == '-'
                     df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
                     
-                    
                     hits = df.correct.cumsum()
                     hit_L = df.correct[df.response == 'L'].cumsum()
                     hit_R = df.correct[df.response == 'R'].cumsum()
@@ -806,14 +787,30 @@ try:
                 #Print the important data and coloured code for hits / misses
                 
                 print Style.BRIGHT, '\r',
-                for k in ('trial_num', 'mode', 'rewardCond', 'response', 'WaterPort[0]', 'WaterPort[1]','OFF[0]', 'OFF[1]',):
+                
+                
+                table = {
+                        'trial_num' : 't', 
+                        'mode': 'mode', 
+                        'rewardCond': 'rewCond', 
+                        'response': 'response', 
+                        'count[0]':'L', 
+                        'count[1]': 'R', 
+                        'WaterPort[0]': 'waterL', 
+                        'WaterPort[1]': 'waterR',
+                        'OFF[0]' : 'off0', 
+                        'OFF[1]': 'off1',
+                }
+                
+                for k in ('trial_num' , 'mode', 'rewardCond', 'response', 'count[0]', 'count[1]', 
+                                'WaterPort[0]', 'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
                     
                     if df.correct.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
                     elif df.miss.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, k, fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
                     else:
-                        print '%s%s:%s%4s' %(fc.WHITE, k,fc.RED, str(trial_df[k].iloc[-1]).strip()),
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
                 print '\r', Style.RESET_ALL
                 
                 #calculate percentage success
@@ -843,7 +840,7 @@ try:
                 hit_R = na_printr(hit_R*100)
                 cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                                 
-                print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d                         " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
+                print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
                                 fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                 
                 trial_num += 1

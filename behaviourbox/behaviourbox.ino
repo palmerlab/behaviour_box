@@ -1,4 +1,4 @@
-String version = "#behaviourbox150115";
+String version = "#behaviourbox150120";
 
 /*
     Author: Naoya Takahashi
@@ -198,11 +198,9 @@ char ActiveDelay(int wait,
             
             if (lickCounted[0]) { 
                 response = 'L';
-                Serial.print("port[0]:\t"); Serial.println(t);
             }
             if (lickCounted[1]) { 
                 response = 'R';
-                Serial.print("port[1]:\t"); Serial.println(t);
             }
             
             if (break_on_lick){
@@ -350,7 +348,11 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             break;
             
             case 'N':
-                if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+                if (verbose) { 
+                    Serial.print("count[0]:\t");Serial.println(count[0]);
+                    Serial.print("count[1]:\t");Serial.println(count[1]);
+                    Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);
+                }
                 return 0;
             break;
             
@@ -373,11 +375,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                     if (verbose) { Serial.print("WaterPort["); 
                         Serial.print(RewardPort);
                         Serial.print("]:\t");
-                        Serial.println("1");
-                
-                        Serial.print("count[0]:\t");Serial.println(count[0]);
-                        Serial.print("count[1]:\t");Serial.println(count[0]);
-                        Serial.println(mode);
+                        Serial.println("1");                        
                     }
                 }
             
@@ -400,8 +398,12 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
                    else { response = 'B';}
                 }
             }
-
-            if (verbose) { Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+            
+            if (verbose) { 
+                Serial.print("count[0]:\t");Serial.println(count[0]);
+                Serial.print("count[1]:\t");Serial.println(count[1]);
+                Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);
+            }
             return response;
         }
         else if ((count[!RewardPort] >= minlickCount) and (rewardCond != 'B')){
@@ -412,7 +414,11 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
             }
             if (break_wrongChoice){
                 tone(speakerPin, toneBad, 50);
-                if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+                if (verbose) { 
+                    Serial.print("count[0]:\t");Serial.println(count[0]);
+                    Serial.print("count[1]:\t");Serial.println(count[1]);
+                    Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);
+                }
                 return response;
             }
         }
@@ -422,7 +428,11 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     }
 
     // miss 
-    if (verbose) {Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);}
+    if (verbose) { 
+        Serial.print("count[0]:\t");Serial.println(count[0]);
+        Serial.print("count[1]:\t");Serial.println(count[1]);
+        Serial.print("#Exit `TrialReward`:\t"); Serial.println(t);
+    }
     return response;
 }
 
