@@ -81,8 +81,8 @@ int t_rewardSTART = 4500;  // ms
 int t_rewardEND = 10000;   // ms
 int t_trialEND = 10000;    // ms
 
-char mode = 'c';
-char rewardCond = 'B'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+char mode = 'o';
+char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
 
 // stimulus parameters
@@ -126,7 +126,8 @@ void senseLick(bool sensor) {
         lickOn[sensor] = true;
     }
     else {
-        lickOn[sensor] = false;    
+        lickOn[sensor] = false;
+        lickCounted[sensor] = false;    
     }
     
     digitalWrite(lickRep[sensor], lickOn[sensor]); 
@@ -724,9 +725,3 @@ void loop () {
         delay(100);
     }
 }
-
-
-
-
-
-
