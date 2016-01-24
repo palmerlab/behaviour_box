@@ -13,12 +13,15 @@ String version = "#behaviourbox150120";
       
     DIGITAL   output            variable       
     --------- ----------------- ---------------
+    Current
     pin 2     recording trigger `recTrig`      
     pin 3     stimulus          `stimulusPin`  
     pin 8     speaker           `speakerPin`   
-    pin 7     vacuum tube valve `vacValve`     
     pin 10    left water valve  `waterValve[0]`
     pin 11    right water valve `waterValve[1]`
+    
+    TODO
+    pin 7     vacuum tube valve `vacValve`     
     pin 13    left  lick report `lickRep[0]`   
     pin 13    right lick report `lickRep[1]`   
     --------- ----------------- ---------------
