@@ -216,7 +216,8 @@ def bin_array(array, bin_size):
     
 def menu():
     """
-    a sort of REPL
+    Reads the characters in the buffer and modifies the program
+    parameters accordingly
     """
     c = "\x00"
     
@@ -419,9 +420,7 @@ def update_bbox(params, trial_df):
                     quit()
                 
     return trial_df
-        
-      
-        
+
 def create_datapath(DATADIR = "", date = today()):
     """
     
@@ -475,7 +474,6 @@ def manual_response_check(logfile):
 
     return [response], [response_time]    
  
-
 def update_progress(progress):
 
     """
@@ -543,6 +541,8 @@ def init_serialport(port):
     Open communications with the arduino;
     quits the program if no communications are 
     found on port.
+    
+
     """
     
     ser = serial.Serial()
@@ -553,7 +553,7 @@ def init_serialport(port):
     try: 
         ser.open()
         print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
-    except: 
+    except serial.serialutil.SerialException: 
         print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
         sys.exit(0)
     
@@ -565,15 +565,10 @@ MAIN FUNCTION HERE
 ---------------------------------------------------------------------
 """    
 
-
-#namespace.all?    
-
-
 color.init()
 
 datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
-
 
 #make a unique filename
 f = 0
@@ -626,6 +621,7 @@ try:
     #open a file to save data in
     with open(logfile, 'a') as log:
         
+    #def init_
         #IDLE while Arduino performs it's setup functions
         print "\nAWAITING DISPATCH: ",
         t = 0
