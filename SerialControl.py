@@ -536,13 +536,17 @@ def manual():
             rightmode = False
             return
                     
-def init_serialport(port):
+def init_serialport(port, logfile = None):
     """
     Open communications with the arduino;
     quits the program if no communications are 
     found on port.
     
-
+    If there are communications the script
+    waits 500 ms then reads all incoming
+    lines from the Serial port. These two
+    lines include the arduino code version 
+    and a string that says the arduino is online
     """
     
     ser = serial.Serial()
@@ -553,10 +557,27 @@ def init_serialport(port):
     try: 
         ser.open()
         print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
+        
     except serial.serialutil.SerialException: 
         print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
         sys.exit(0)
     
+    #IDLE while Arduino performs it's setup functions
+    print "\nAWAITING DISPATCH: ",
+    
+    t = 0
+    while not ser.inWaiting():
+        print "\rAWAITING DISPATCH: ", t, "\r",
+        t += 1
+    
+    print "\r         DISPATCH: ", t
+    
+    # Buffer for 500 ms to let Arduino finish it's setup
+    time.sleep(.5)
+    # Log the debug info for the setup
+    while ser.inWaiting(): 
+        Serial_monitor(logfile, True)
+
     return ser
     
 """
@@ -576,9 +597,6 @@ df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
 while os.path.isfile(df_file):
     f += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
-
-#open the communications line
-ser = init_serialport(port)
 
 copyfile('config.tab', '%s/%s_config_%s_%s.tab' %(datapath, ID, today(), timenow().replace(":","")))            
 params_i = unpack_table('config.tab')
@@ -620,22 +638,9 @@ comment = ""
 try:
     #open a file to save data in
     with open(logfile, 'a') as log:
-        
-    #def init_
-        #IDLE while Arduino performs it's setup functions
-        print "\nAWAITING DISPATCH: ",
-        t = 0
-        while ser.inWaiting() == False:
-            print "\rAWAITING DISPATCH: ", t, "\r",
-            t += 1
-        
-        print "\r         DISPATCH: ", t
-        
-        # Buffer for 500 ms to let arduino finish it's setup
-        time.sleep(.5)
-        # Log the debug info for the setup
-        while ser.inWaiting(): Serial_monitor(log, True)
-        
+        #open the communications line
+        ser = init_serialport(port, logfile = log)
+
         # loop for r repeats
         for r in xrange(repeats):
             
