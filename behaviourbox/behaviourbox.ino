@@ -15,12 +15,12 @@ String version = "#behaviourbox150120";
     --------- ----------------- ---------------
     pin 2     recording trigger `recTrig`      
     pin 3     stimulus          `stimulusPin`  
-    pin 8     speaker           `speakerPin`   
-    pin 7     vacuum tube valve `vacValve`     
+    pin 8     speaker           `speakerPin`   "The screen can produce sound too ...."
+    pin 7     vacuum tube valve `vacValve`     "discontinued"
     pin 10    left water valve  `waterValve[0]`
     pin 11    right water valve `waterValve[1]`
-    pin 13    left  lick report `lickRep[0]`   
-    pin 13    right lick report `lickRep[1]`   
+    pin 13    left  lick report `lickRep[0]`   "According to the code nothing much is being done with ..
+    pin 13    right lick report `lickRep[1]`   .. this pin, so testing on it"
     --------- ----------------- ---------------
               
     ANALOG    input                            
@@ -54,6 +54,20 @@ String version = "#behaviourbox150120";
 
 //lines preceded by `#` are for debug purposes
  */
+ 
+/*New Capacitive Sensor
+#include <SoftwareSerial.h>
+#include <CapacitiveSensor.h>
+
+
+const int TxPin = A0;
+SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
+
+CapacitiveSensor cs1 = CapacitiveSensor(0, 1);
+CapacitiveSensor cs2 = CapacitiveSensor(4, 5);
+CapacitiveSensor cs3 = CapacitiveSensor(8, 9);
+CapacitiveSensor cs4 = CapacitiveSensor(12, 13);
+*/
 
 // IO port settings:
 const byte recTrig = 2;    // digital pin 2 triggers ITC-18
@@ -436,6 +450,22 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     return response;
 }
 
+/*
+void setup()
+{
+  //double An = analogRead(A5);
+
+  pinMode(TxPin, OUTPUT);
+  digitalWrite(TxPin, HIGH);
+  pinMode(A5, OUTPUT);
+  pinMode(A1, OUTPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, OUTPUT);
+  pinMode(A4, OUTPUT);
+
+}
+*/
+
 /* ------------------------------
      THE MAIN MAIN FUNCTION
 --------------------------------- */ 
@@ -734,4 +764,77 @@ void loop () {
     if (lickOn[0] or lickOn[1]){
         delay(100);
     }
+    
+    /*
+    double v = rand() % 5000 / 1000.0;
+  double t = rand() % 5000 / 1000.0;
+  long t1 = cs1.capacitiveSensor(20);
+  long t2 = cs2.capacitiveSensor(20);
+  long t3 = cs3.capacitiveSensor(20);
+  long t4 = cs4.capacitiveSensor(20);
+  long ThresValue = 3;
+  long Thres = (ThresValue/6);
+  cs1.set_CS_AutocaL_Millis(Thres);
+  cs2.set_CS_AutocaL_Millis(Thres);
+  cs3.set_CS_AutocaL_Millis(Thres);
+  cs4.set_CS_AutocaL_Millis(Thres);
+  mySerial.begin(19200);
+  long start = millis();
+  mySerial.write(12);                 // Clear
+  delay(5);                           // Required delay
+  //mySerial.write(213);
+  mySerial.print("Vrp=");
+  mySerial.print(t1);
+  mySerial.print("\tVlp=");
+  mySerial.print(t2);
+  mySerial.write(13);
+  mySerial.print("Vrl=");
+  mySerial.print(t3);
+  mySerial.print("\tVll=");
+  mySerial.print(t4);
+
+  if ( t1 != 0 && t1 != -2)
+  {
+    digitalWrite(A5, HIGH);
+    //mySerial.write(223);
+    //delay(100);
+  }
+  else
+  {
+    digitalWrite(A5, LOW);
+  }
+  if ( t2 != 0 && t2 != -2)
+  {
+    digitalWrite(A4, HIGH);
+    //mySerial.write(223);
+    //delay(100);
+  }
+  else
+  {
+    digitalWrite(A4, LOW);
+  }
+  if ( t3 != 0 && t3 != -2)
+  {
+    digitalWrite(A3, HIGH);
+    //mySerial.write(223);
+    //delay(100);
+  }
+  else
+  {
+    digitalWrite(A3, LOW);
+  }
+  if ( t4 != 0 && t4 != -2)
+  {
+    digitalWrite(A2, HIGH);
+    //mySerial.write(223);
+    //delay(100);
+  }
+  else
+  {
+    digitalWrite(A2, LOW);
+  }
+  delay(55);
+}
+*/
+
 }
