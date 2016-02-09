@@ -248,8 +248,8 @@ void preTrial(bool verbose = true) {
         
         digitalWrite(vacValve, HIGH);
         
-        //TODO: define statusLED and plug in an LED to hardware
-        // LED to flash each second before the trial
+        //TODO: define statusLED and plug in an LED to hardware: Almost Done
+        // LED to flash each second before the trial: Might not be possible, can be done with different coloured number of LEDs
         if (t%1000 < 20){
             digitalWrite(statusLED, HIGH);
         } 
@@ -449,22 +449,6 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
     }
     return response;
 }
-
-/*
-void setup()
-{
-  //double An = analogRead(A5);
-
-  pinMode(TxPin, OUTPUT);
-  digitalWrite(TxPin, HIGH);
-  pinMode(A5, OUTPUT);
-  pinMode(A1, OUTPUT);
-  pinMode(A2, OUTPUT);
-  pinMode(A3, OUTPUT);
-  pinMode(A4, OUTPUT);
-
-}
-*/
 
 /* ------------------------------
      THE MAIN MAIN FUNCTION
@@ -737,6 +721,18 @@ void setup (){
     pinMode(speakerPin, OUTPUT);
     
     Serial.println("-- Status: Ready --");
+    
+    /*
+  //double An = analogRead(A5);
+
+  pinMode(TxPin, OUTPUT);
+  digitalWrite(TxPin, HIGH);
+  pinMode(A5, OUTPUT);
+  pinMode(A1, OUTPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A3, OUTPUT);
+  pinMode(A4, OUTPUT);
+*/
 }
 
 void loop () {
