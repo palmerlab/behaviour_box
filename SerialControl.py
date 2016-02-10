@@ -221,14 +221,14 @@ def menu():
     """
     c = "\x00"
     
-    global manfreq
-    global punish
-    global lickThres
-    global lcount
-    global mode
-    global leftmode
-    global rightmode
-    global comment
+    global manfreq ,
+            punish,
+            lickThres,
+            lcount,
+            mode,
+            leftmode,
+            rightmode,
+            comment,
     
     while True:
         while m.kbhit():
