@@ -115,7 +115,7 @@ p.add_argument("--verbose",
                 )
 
 p.add_argument('-lt', '--lickThres', 
-                default = 160, 
+                default = 0.75, 
                 type = int, 
                 help = 'set `lickThres` in arduino',
                 )
@@ -184,7 +184,7 @@ leftmode =  args.left
 rightmode = args.right
 
 #----- shared paramaters -----
-lickThres = args.lickThres
+lickThres = int((args.lickThres/5)*1024)
 mode = args.mode
 punish = args.punish
 lcount = args.lcount
@@ -218,7 +218,7 @@ def menu():
     """
     a sort of REPL
     """
-    c = "\x00"
+    c = "\r"
     
     global manfreq
     global punish
@@ -244,14 +244,12 @@ def menu():
                 if mode == "c": mode = "o"
                 elif mode == "o": mode = "c"
                 print "Training mode:\t%s" %mode
-                return
                 
             # Toggle manual
             elif c in ("M","m"): #m,Ctrl-m
                 manfreq = not manfreq
                 print "Manual mode:\t%s" %manfreq
                 log.write("Manual mode:\t%s\n" %manfreq)
-                return
             
             elif c in ("C","c"): #m,Ctrl-m
                 comment = raw_input("Comment: ")
@@ -262,26 +260,22 @@ def menu():
                 leftmode = True
                 rightmode = False
                 print "left mode:\t%s" %leftmode
-                return
             
             elif c in '\xe0M':
                 rightmode = True
                 leftmode = False
                 print "right mode:\t%s" %rightmode
-                return
             
             elif c in ('\xe0P', '\xe0H'):
                 leftmode = False
                 rightmode = False
                 print "random mode:\t", not (leftmode or rightmode)
-                return
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
                 punish = not punish
                 print "Punish for wrong lick:\t%s" %punish
                 log.write("Punish for wrong lick:\t%s\n" %punish)
-                return
                    
             # adjust minLickCount
             elif c in ("[", "{"):
@@ -664,9 +658,10 @@ try:
                     'comment' : comment,
                 }
                
-                #In triggered mode
-                while m.kbhit():
-                    print "\nChoose...\r",
+                
+                #checks the keys pressed during last iteration
+                #adjusts options accordingly
+                if m.kbhit():
                     menu()
 
                 if manfreq:
@@ -678,8 +673,10 @@ try:
                 if leftmode: 
                     trial_freq.sort()
                     trial_freq = trial_freq[::-1]
-                elif rightmode: trial_freq.sort()
-                
+                elif rightmode: 
+                    trial_freq.sort()
+                else: 
+                    shuffle(trial_freq)
                 
                 trial_df['comment'] = comment
                 
@@ -849,5 +846,39 @@ try:
                 trial_num += 1
             
 except KeyboardInterrupt:
+
+   
+    try:
+        print "attempting to create DataFrame"
+        trial_df = pd.DataFrame(trial_df, index=[trial_num])
+        
+        try: 
+            df = df.append(trial_df, ignore_index = True)
+        except NameError:
+            df = trial_df
+        
+        df['correct'] = df.response.str.isupper()
+        df['miss'] = df.response[df.rewardCond != 'N'] == '-'
+        df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
+        
+        hits = df.correct.cumsum()
+        hit_L = df.correct[df.response == 'L'].cumsum()
+        hit_R = df.correct[df.response == 'R'].cumsum()
+        
+        cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
+        
+        df['hits'] =  hits
+        df['hit_L'] = hit_R
+        df['hit_R'] = hit_L
+        
+        df['cumWater'] = cumWater               
+
+        df.to_csv(df_file)
+    except NameError:
+        print "unable to create trial_df does not exist"
+    except AttributeError:
+        df.to_csv(df_file)
+        print "saved df"
+
     print "Closing", port
     sys.exit(0)
