@@ -3,24 +3,24 @@ String version = "#behaviourbox150120";
 /*
     Author: Naoya Takahashi
         modified by Andrew Micallef
-      
-    This program delivers sensory stimulation and opens water 
-    valve when the animal touches the licking sensor within a 
-    certain time window.
-
+    
+    
     Setup connections:
     ------------------
       
     DIGITAL   output            variable       
     --------- ----------------- ---------------
+    Current
     pin 2     recording trigger `recTrig`      
     pin 3     stimulus          `stimulusPin`  
-    pin 8     speaker           `speakerPin`   "The screen can produce sound too ...."
-    pin 7     vacuum tube valve `vacValve`     "discontinued"
+    pin 8     speaker           `speakerPin`   
     pin 10    left water valve  `waterValve[0]`
     pin 11    right water valve `waterValve[1]`
-    pin 13    left  lick report `lickRep[0]`   "According to the code nothing much is being done with ..
-    pin 13    right lick report `lickRep[1]`   .. this pin, so testing on it"
+    
+    TODO
+    pin 7     vacuum tube valve `vacValve`     
+    pin 13    left  lick report `lickRep[0]`   
+    pin 13    right lick report `lickRep[1]`   
     --------- ----------------- ---------------
               
     ANALOG    input                            
@@ -28,48 +28,11 @@ String version = "#behaviourbox150120";
     A0        left  lick sensor `lickSens[0]`  
     A1        right lick sensor `lickSens[1]`  
     --------- ----------------- ---------------
-
-
-      
-    Start program:
-    --------------
-
-    Trial intervals will randomized between 'minITI' and 'maxITI'. 
-    During a trial, the animal has to wait a stimulation without 
-    licking (no-lick period, 'nolickPer').
-
-    If it licks during no-lick period, the time of stimulation 
-    will be postponed by giving a time out (randomized between 
-    'minTimeOut' and 'maxTimeOut').
-
-    When a stimulation is delivered (stimulus duration: 'stimDur'), 
-    the animal need to respond (touch the sensor) within a certain 
-    time window ('crPer') to get a water reward.
-
-    Delayed licking after the time window will not be rewarded. 
-    Opening duration of the water valve is defined by 'valveDur'.
-
-    A TTL trigger for recording will be delivered 
-    'baseLineTime' (1 s in default setting) before the stimulus.
-
-//lines preceded by `#` are for debug purposes
  */
- 
-/*New Capacitive Sensor
-#include <SoftwareSerial.h>
-#include <CapacitiveSensor.h>
 
-
-const int TxPin = A0;
-SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
-
-CapacitiveSensor cs1 = CapacitiveSensor(0, 1);
-CapacitiveSensor cs2 = CapacitiveSensor(4, 5);
-CapacitiveSensor cs3 = CapacitiveSensor(8, 9);
-CapacitiveSensor cs4 = CapacitiveSensor(12, 13);
-*/
-
-// IO port settings:
+/*------------------------
+     IO port settings:
+   ----------------------*/
 const byte recTrig = 2;    // digital pin 2 triggers ITC-18
 const byte stimulusPin = 3;    // digital pin 4 control whisker stimulation
 const byte speakerPin = 8;
@@ -82,7 +45,9 @@ const byte lickSens[] = {A0,A1}; // the piezo is connected to analog pin 0
 
 int lickThres = 450;
 
-// timing parameters
+/*-----------------------
+     timing parameters
+   ---------------------*/
 unsigned long t_init;
 
 int trial_delay = 500;
@@ -93,9 +58,9 @@ int stimDUR = 500;
 
 int t_rewardSTART = 4500;  // ms
 int t_rewardEND = 10000;   // ms
-int t_trialEND = 10000;    // ms
+int t_trialEND = 10000;    // ms //maximum of 32 000
 
-char mode = 'o';
+char mode = 'h'; //one of 'h'abituation, 'c'onditioning, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
 
@@ -104,6 +69,9 @@ unsigned long ON[] = {1, 1};
 unsigned long OFF[] = {30, 30};
 
 // audio
+
+// int toneGoodLeft = 4000; //Hz
+// int toneGoodRight = 8000; //Hz
 int toneGood = 2000; //Hz
 int toneBad = 500; //Hz
 int toneDur = 100; 
@@ -118,6 +86,178 @@ bool lickCounted[] = {false, false};
 bool stimTrial = true; //sets if there is a stimulus this run
 bool verbose = true;
 bool break_wrongChoice = false; // stop the trial if the animal makes a mistake during reward period
+bool do_habituation = true;
+
+//10 and 40 Hz!
+
+char left_response = 'L';
+bool left_port = 0;
+int left_OFF[][2] = {{100,  20},
+                  { 20, 100}};
+
+char right_response = 'R';
+bool right_port = 1;
+int right_OFF[][2] = {{100, 100},
+                   { 20,  20}};
+
+
+
+//prototypes
+
+char get_response();
+
+char Habituation();
+
+int t_now(unsigned long t_init);
+
+void senseLick(bool sensor);
+
+String getSerialInput();
+
+int getSepIndex(String input);
+
+void flutter(byte stim_pin, int on, int off);
+
+char ActiveDelay(int wait, 
+                bool break_on_lick = false, 
+                bool verbose = true);
+    
+int TrialStimulus(byte stimulusPin,
+                int stimDUR,
+                int ON = 5, // us time of ON pulse    ie FREQUENCY of flutter
+                int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
+                bool verbose = true);
+
+void preTrial(bool verbose = true); 
+
+char TrialReward(char mode, 
+                // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
+                int t_rewardEND,
+                char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
+                bool break_wrongChoice = false, // exits the function if the animal makes a bad decision
+                byte minlickCount = 1, 
+                byte waterVol = 10, // 10 ms gives ~ 5-8 uL
+                bool verbose = true);
+
+int runTrial( int mode,
+                int trial_delay,
+                int t_noLickPer,   // ms
+                int t_stimONSET[2], //time stim turns on
+                int stimDUR, // duration of stimuli
+                int t_rewardSTART, // ms
+                int t_rewardEND,   // ms
+                int t_trialEND,   // ms
+                char rewardCond,
+                byte waterVol,
+                bool verbose,
+                bool break_wrongChoice = false);                
+
+int UpdateGlobals(String input);
+
+char Habituation();
+
+
+
+
+
+
+void setup (){
+    // Open serial communications and wait for port to open:
+    Serial.begin(115200);
+    // This requires RX and TX channels (pins 0 and 1)
+    while (!Serial) {
+        ; // wait for serial port to connect. Needed for native USB port only
+    }
+    //Confirm connection and telegraph the code version
+    Serial.println("#Arduino online");
+    Serial.println("#behaviourbox");
+    Serial.println(version);
+    
+    // convert lickthreshold to V
+    Serial.print("#Lick Threshold:\t"); 
+    Serial.print((float(lickThres)/1024)*5); 
+    Serial.println(" V");
+    
+    randomSeed(analogRead(5));
+
+    pinMode(recTrig, OUTPUT); // declare the recTrig as as OUTPUT
+    pinMode(waterPort[0], OUTPUT); // declare the waterValve as as OUTPUT
+    pinMode(waterPort[1], OUTPUT); // declare the waterValve as as OUTPUT
+    pinMode(vacValve, OUTPUT); // declare the vacValve as as OUTPUT
+    pinMode(stimulusPin, OUTPUT); // declare the whiskStim as as OUTPUT
+    pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
+    pinMode(speakerPin, OUTPUT);
+    
+    Serial.println("-- Status: Ready --");
+}
+
+void loop () {
+    
+    t_init = millis();
+    
+    if (Serial.available()){
+        
+        String input = getSerialInput();
+        
+        if (input == "GO"){
+
+            runTrial(mode, 
+                    trial_delay, 
+                    t_noLickPer, 
+                    t_stimONSET,
+                    stimDUR, 
+                    t_rewardSTART, 
+                    t_rewardEND, 
+                    t_trialEND, 
+                    rewardCond, 
+                    waterVol, 
+                    verbose, 
+                    break_wrongChoice);
+                    
+            Serial.println("-- Status: Ready --");
+        }
+        
+        else { UpdateGlobals(input); }
+
+    }
+    
+    while (!Serial.available()
+            and do_habituation){
+        
+        Habituation();
+    }
+    
+    if (lickOn[0] or lickOn[1]){
+        delay(100);
+    }
+}
+
+
+
+//definitions
+
+
+char get_response(){
+    char response = 0;
+    
+    // Change the values of lickOn and lickOn 
+    senseLick(0);
+    senseLick(1);
+
+    if (lickOn[0]){
+        response = 'L';
+    }
+    else if (lickOn[1]){
+        response = 'R';
+    }
+    
+    // set the response to nothing if there was none
+    if (!response){
+        response = '-';
+    }
+    
+    return response;
+}
 
 int t_now(unsigned long t_init){
     // is less than 0 before the trial starts
@@ -132,11 +272,14 @@ void senseLick(bool sensor) {
     // 3. report if the state of lickOn has change
     
     if (analogRead(lickSens[sensor]) >= lickThres){
+        
         if (lickOn[sensor] == false) { 
             lickCounted[sensor] = true;
             // counted = true
         }
-        else { lickCounted[sensor] = false; }
+        else { 
+            lickCounted[sensor] = false; 
+        }
         lickOn[sensor] = true;
     }
     else {
@@ -149,24 +292,36 @@ void senseLick(bool sensor) {
 
 String getSerialInput(){
 
+    /*
+      This function reads the data from the serial 
+      connection and returns it as a string. 
+      
+      This is used later to update the values
+    */
     String readString;
     
     while (Serial.available()) { 
-        delay(3);  //delay to allow buffer to fill
-        char c = Serial.read();  //gets one byte from serial buffer
-        readString += c; //makes the string readString
+        //delay to allow buffer to fill
+        delay(3);  
+        //get one byte from serial buffer
+        char c = Serial.read();  
+        //make the string readString
+        readString += c; 
     }
     
     return readString;
 }
 
 int getSepIndex(String input) {
+    
     char c = 1;
     int i = 0;
    
     while (c != 0) {
         c = input[i];
-        if (c == ':'){ return i; }
+        if (c == ':'){ 
+            return i; 
+        }
         i ++;
     }
     return 0;
@@ -192,14 +347,17 @@ THE TRIAL STATES
 */
 
 char ActiveDelay(int wait, 
-    bool break_on_lick = false, 
-    bool verbose = true) {
+    bool break_on_lick, 
+    bool verbose) {
 
     int t = t_now(t_init);
     
-    char response = '-';
+    char response = 0;
     
-    if (verbose) {Serial.print("#Enter `ActiveDelay`:\t"); Serial.println(t);}
+    if (verbose) {
+        Serial.print("#Enter `ActiveDelay`:\t"); 
+        Serial.println(t);
+    }
     
     while (t < wait) {
         t = t_now(t_init);
@@ -208,36 +366,48 @@ char ActiveDelay(int wait,
         senseLick(0);
         senseLick(1);
 
-        if (lickOn[0] or lickOn[1]){
-            
-            if (lickCounted[0]) { 
-                response = 'L';
-            }
-            if (lickCounted[1]) { 
-                response = 'R';
-            }
-            
-            if (break_on_lick){
-                if (verbose) { Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t); }
-                return response;
-            }
+        if (lickOn[0]){
+            response = 'L';
         }
+        else if (lickOn[1]){
+            response = 'R';
+        }
+            
+        if (break_on_lick and response){
+            if (verbose) { 
+                Serial.print("#Exit `ActiveDelay`:\t"); 
+                Serial.println(t); 
+            }
+            return response;
+        }    
     }
     
-    if (verbose) {Serial.print("#Exit `ActiveDelay`:\t"); Serial.println(t);}
+    if (verbose) {
+        Serial.print("#Exit `ActiveDelay`:\t"); 
+        Serial.println(t);
+    }
+    
+    // set the response to nothing if there was none
+    if (!response){
+        response = '-';
+    }
+    
     return response;
 }
 
 //0 PRETRIAL
 
-void preTrial(bool verbose = true) {   
+void preTrial(bool verbose) {   
     /* while the trial has not started 
        1. update the time
        2. check for licks
        4. trigger the recording by putting recTrig -> HIGH
     */
     int t = t_now(t_init);
-    if (verbose) {Serial.print("#Enter `preTrial`:\t"); Serial.println(t);}
+    if (verbose) {
+        Serial.print("#Enter `preTrial`:\t"); 
+        Serial.println(t);
+    }
     
     while (t < 0){
         // 1. update time
@@ -267,25 +437,35 @@ void preTrial(bool verbose = true) {
     digitalWrite(recTrig, LOW); 
     digitalWrite(vacValve, LOW);
     
-    if (verbose) {Serial.print("#Exit `preTrial`:\t"); Serial.println(t);}
+    if (verbose) {
+        Serial.print("#Exit `preTrial`:\t"); 
+        Serial.println(t);
+    }
     
 } 
 
 int TrialStimulus(byte stimulusPin,
     int stimDUR,
-    int ON = 5, // us time of ON pulse    ie FREQUENCY of flutter
-    int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
-    bool verbose = true) {
+    int ON, // us time of ON pulse    ie FREQUENCY of flutter
+    int OFF, // us time of off pulse  ie FREQUENCY of flutter
+    bool verbose) {
     
     int t_local = millis();
     int t = t_now(t_local);
     
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
-        Serial.print("#Enter `TrialStimulus`:\t"); Serial.println(t_now(t_init));
-        Serial.print("#\tstimDUR:\t"); Serial.println(stimDUR);
-        Serial.print("#\tON:\t"); Serial.println(ON);
-        Serial.print("#\tOFF:\t"); Serial.println(OFF);
+        Serial.print("#Enter `TrialStimulus`:\t"); 
+        Serial.println(t_now(t_init));
+        
+        Serial.print("#\tstimDUR:\t"); 
+        Serial.println(stimDUR);
+        
+        Serial.print("#\tON:\t"); 
+        Serial.println(ON);
+        
+        Serial.print("#\tOFF:\t"); 
+        Serial.println(OFF);
     }
    
     while (t < stimDUR){
@@ -302,17 +482,21 @@ int TrialStimulus(byte stimulusPin,
     } digitalWrite(stimulusPin, LOW); //this is a safety catch
 
     
-    if (verbose) {Serial.print("#Exit `TrialStimulus`:\t"); Serial.println(t);}
+    if (verbose) {
+        Serial.print("#Exit `TrialStimulus`:\t"); 
+        Serial.println(t);
+    }
     return 1;
 }
 
-char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
+char TrialReward(char mode, 
+                // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
                 int t_rewardEND,
                 char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
-                bool break_wrongChoice = false, // exits the function if the animal makes a bad decision
-                byte minlickCount = 1, 
-                byte waterVol = 10, // 10 ms gives ~ 5-8 uL
-                bool verbose = true) {
+                bool break_wrongChoice, // exits the function if the animal makes a bad decision
+                byte minlickCount, 
+                byte waterVol, // 10 ms gives ~ 5-8 uL
+                bool verbose) {
     /* 
     returns a character: 
              'L' -- correct hit on left port
@@ -454,7 +638,7 @@ char TrialReward(char mode, // -'c'onditioning (guaranteed reward) -'o'perant (r
      THE MAIN MAIN FUNCTION
 --------------------------------- */ 
 
-int runTrial ( int mode,
+int runTrial( int mode,
     int trial_delay,
     int t_noLickPer,   // ms
     int t_stimONSET[2], //time stim turns on
@@ -465,7 +649,7 @@ int runTrial ( int mode,
     char rewardCond,
     byte waterVol,
     bool verbose,
-    bool break_wrongChoice = false) { 
+    bool break_wrongChoice) { 
     
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -500,14 +684,31 @@ int runTrial ( int mode,
     ActiveDelay(t_stimONSET[0], false, verbose);
     t = t_now(t_init);
     
-    if (ON[0]) {TrialStimulus(stimulusPin, stimDUR, ON[0], OFF[0], verbose);}
-    else {if (verbose){Serial.println("#skipping stim0");}}
+    if (ON[0]) {
+        TrialStimulus(stimulusPin, 
+                        stimDUR, 
+                        ON[0], 
+                        OFF[0], 
+                        verbose
+                    );
+    }
+    else if (verbose) {
+        Serial.println("#skipping stim0");
+    }
+        
     t = t_now(t_init);
     
     ActiveDelay(t_stimONSET[1], false, verbose);
     t = t_now(t_init);
     
-    if (ON[1]){ TrialStimulus(stimulusPin, stimDUR, ON[1], OFF[1], verbose);}
+    if (ON[1]){ 
+        TrialStimulus(stimulusPin, 
+                        stimDUR, 
+                        ON[1], 
+                        OFF[1], 
+                        verbose
+                    );
+    }
     else {if (verbose){Serial.println("#skipping stim1");}}
     t = t_now(t_init);
     
@@ -535,7 +736,12 @@ int runTrial ( int mode,
         response = ActiveDelay(t_trialEND, true, verbose);
     }
     
-    if (((response == rewardCond) or (rewardCond == 'B')) and (response != '-')) {
+    if ((response != '-')    
+            and (
+                (response == rewardCond) 
+                or (rewardCond == 'B')
+            )
+        ) {
             tone(speakerPin, toneGood, 50);
     }
     else {
@@ -695,142 +901,57 @@ int UpdateGlobals(String input) {
 }
 
 
-void setup (){
-    // Open serial communications and wait for port to open:
-    Serial.begin(115200);
-    // This requires RX and TX channels (pins 0 and 1)
-    while (!Serial) {
-        ; // wait for serial port to connect. Needed for native USB port only
-    }
-    //Confirm connection and telegraph the code version
-    Serial.println("#Arduino online");
-    Serial.println("#behaviourbox");
-    Serial.println(version);
+char Habituation(){
     
-    // convert lickthreshold to V
-    Serial.print("#Lick Threshold:\t"); Serial.print((float(lickThres)/1024)*5); Serial.println(" V");
+    bool rbit = random(0,2); // a random bit
+    bool port = 0;
+    int t_interStimdelay = t_stimONSET[1] - t_stimONSET[1];
+    int OFF[2] = {0,0};
     
-    randomSeed(analogRead(5));
 
-    pinMode(recTrig, OUTPUT); // declare the recTrig as as OUTPUT
-    pinMode(waterPort[0], OUTPUT); // declare the waterValve as as OUTPUT
-    pinMode(waterPort[1], OUTPUT); // declare the waterValve as as OUTPUT
-    pinMode(vacValve, OUTPUT); // declare the vacValve as as OUTPUT
-    pinMode(stimulusPin, OUTPUT); // declare the whiskStim as as OUTPUT
-    pinMode(lickRep[0], OUTPUT); // declare the licking as as OUTPUT
-    pinMode(speakerPin, OUTPUT);
+    char response = get_response();
     
-    Serial.println("-- Status: Ready --");
-    
-    /*
-  //double An = analogRead(A5);
-
-  pinMode(TxPin, OUTPUT);
-  digitalWrite(TxPin, HIGH);
-  pinMode(A5, OUTPUT);
-  pinMode(A1, OUTPUT);
-  pinMode(A2, OUTPUT);
-  pinMode(A3, OUTPUT);
-  pinMode(A4, OUTPUT);
-*/
-}
-
-void loop () {
-    
-    if (Serial.available()){
+    if (response != '-') {
         
-        String input = getSerialInput();
-        
-        if (input == "GO"){
-
-            runTrial(mode, trial_delay, t_noLickPer, t_stimONSET,
-                    stimDUR, t_rewardSTART, t_rewardEND, 
-                    t_trialEND, rewardCond, waterVol, verbose, break_wrongChoice);
-                    
-            Serial.println("-- Status: Ready --");
+        if (response == left_response) {
+            OFF[0] = left_OFF[rbit][0];
+            OFF[1] = left_OFF[rbit][1];
+            port = left_port;
         }
         
-        else { UpdateGlobals(input); }
+        else if (response == right_response){
+            OFF[0] = right_OFF[rbit][0];
+            OFF[1] = right_OFF[rbit][1];
+            port = right_port;
+        }
+        
+        digitalWrite(waterPort[port], HIGH);
+        delay(waterVol);
+        digitalWrite(waterPort[port], LOW);
+        
+        tone(speakerPin, toneGood, 50);
 
-    }
-
-    senseLick(0);
-    senseLick(1);
-    
-    if (lickOn[0] or lickOn[1]){
-        delay(100);
-    }
-    
-    /*
-    double v = rand() % 5000 / 1000.0;
-  double t = rand() % 5000 / 1000.0;
-  long t1 = cs1.capacitiveSensor(20);
-  long t2 = cs2.capacitiveSensor(20);
-  long t3 = cs3.capacitiveSensor(20);
-  long t4 = cs4.capacitiveSensor(20);
-  long ThresValue = 3;
-  long Thres = (ThresValue/6);
-  cs1.set_CS_AutocaL_Millis(Thres);
-  cs2.set_CS_AutocaL_Millis(Thres);
-  cs3.set_CS_AutocaL_Millis(Thres);
-  cs4.set_CS_AutocaL_Millis(Thres);
-  mySerial.begin(19200);
-  long start = millis();
-  mySerial.write(12);                 // Clear
-  delay(5);                           // Required delay
-  //mySerial.write(213);
-  mySerial.print("Vrp=");
-  mySerial.print(t1);
-  mySerial.print("\tVlp=");
-  mySerial.print(t2);
-  mySerial.write(13);
-  mySerial.print("Vrl=");
-  mySerial.print(t3);
-  mySerial.print("\tVll=");
-  mySerial.print(t4);
-
-  if ( t1 != 0 && t1 != -2)
-  {
-    digitalWrite(A5, HIGH);
-    //mySerial.write(223);
-    //delay(100);
-  }
-  else
-  {
-    digitalWrite(A5, LOW);
-  }
-  if ( t2 != 0 && t2 != -2)
-  {
-    digitalWrite(A4, HIGH);
-    //mySerial.write(223);
-    //delay(100);
-  }
-  else
-  {
-    digitalWrite(A4, LOW);
-  }
-  if ( t3 != 0 && t3 != -2)
-  {
-    digitalWrite(A3, HIGH);
-    //mySerial.write(223);
-    //delay(100);
-  }
-  else
-  {
-    digitalWrite(A3, LOW);
-  }
-  if ( t4 != 0 && t4 != -2)
-  {
-    digitalWrite(A2, HIGH);
-    //mySerial.write(223);
-    //delay(100);
-  }
-  else
-  {
-    digitalWrite(A2, LOW);
-  }
-  delay(55);
-}
-*/
-
+        TrialStimulus(stimulusPin,
+                        stimDUR,
+                        30,
+                        OFF[0]);
+        
+        delay(500);
+        
+        TrialStimulus(stimulusPin,
+                        stimDUR,
+                        30,
+                        OFF[1]);
+                    
+        if (ActiveDelay(500, true) == response){
+            digitalWrite(waterPort[port], HIGH);
+            delay(waterVol);
+            digitalWrite(waterPort[port], LOW);
+        }
+        
+        ActiveDelay(1000, false);
+      }
+      
+      
+  return response;        
 }
