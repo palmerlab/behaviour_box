@@ -1,7 +1,7 @@
 #include "SerialComs.h"
 #include "Timing.h"
 
-String version = "#behaviourbox150120";
+String version = "#behaviourbox160212";
 
 /*
     Author: Naoya Takahashi
@@ -59,13 +59,13 @@ const char lickSens[] = {A0,A1};
 
 unsigned long t_init;
 
-int t_noLickPer = 0;
-int trial_delay = 500; // ms
-int t_stimONSET[] = {5000,6000};
-int stimDUR = 500;
-int t_rewardSTART = 4500; // ms
-int t_rewardEND = 10000; // ms
-int t_trialEND = 10000; // ms //maximum of 32 000
+unsigned int t_noLickPer = 0;
+unsigned int trial_delay = 500; // ms
+unsigned int t_stimONSET[] = {5000,6000};
+unsigned int stimDUR = 500;
+unsigned int t_rewardSTART = 4500; // ms
+unsigned int t_rewardEND = 10000; // ms
+unsigned int t_trialEND = 10000; // ms //maximum of 62 000
 
 char mode = 'h'; //one of 'h'abituation, 'c'onditioning, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
@@ -73,9 +73,16 @@ char minlickCount = 5;
 
 // stimulus parameters
 // -------------------
+int ON = 20; //keep this constant for consistency sake
 
-unsigned long ON[] = {1, 1};
-unsigned long OFF[] = {30, 30};
+int left_OFF[][2] = {{100,  20},
+                     { 20, 100}};
+
+int right_OFF[][2] = {{100, 100},
+                      { 20,  20}};
+
+bool right_port = 1;
+bool left_port = 0;
 
 // audio
 // -----
@@ -98,19 +105,10 @@ char waterVol = 10; //uL per dispense
 int lickThres = 450;
 bool lickOn[] = {false, false};
 
-bool stimTrial = true; //sets if there is a stimulus this run
 bool verbose = true;
 bool break_wrongChoice = false; // stop the trial if the animal makes a mistake during reward period
 bool do_habituation = true;
 
-//10 and 40 Hz!
-bool left_port = 0;
-char left_OFF[][2] = {{100,  20},
-                      { 20, 100}};
-
-bool right_port = 1;
-char right_OFF[][2] = {{100, 100},
-                       { 20,  20}};
 
                    
 /* -------------------------------------------------------++
@@ -124,41 +122,17 @@ bool senseLick(bool sensor, bool* PreviousState);
 
 int UpdateGlobals(String input);
 
-void flutter(byte stim_pin, int on, int off);
+void flutter(int OFF);
 
-char ActiveDelay(int wait, 
-                bool break_on_lick = false, 
-                bool verbose = true);
+char ActiveDelay(unsigned int wait, bool break_on_lick = false);
     
-int TrialStimulus(byte stimulusPin,
-                int stimDUR,
-                int ON = 5, // us time of ON pulse    ie FREQUENCY of flutter
-                int OFF = 5, // us time of off pulse  ie FREQUENCY of flutter
-                bool verbose = true);
+int TrialStimulus(int OFF);
 
-void preTrial(bool verbose = true);
+void preTrial();
 
-char TrialReward(char mode, 
-                // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
-                int t_rewardEND,
-                char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
-                bool break_wrongChoice = false, // exits the function if the animal makes a bad decision
-                byte minlickCount = 1, 
-                byte waterVol = 10, // 10 ms gives ~ 5-8 uL
-                bool verbose = true);
+char TrialReward();
 
-int runTrial( int mode,
-                int trial_delay,
-                int t_noLickPer,   // ms
-                int t_stimONSET[2], //time stim turns on
-                int stimDUR, // duration of stimuli
-                int t_rewardSTART, // ms
-                int t_rewardEND,   // ms
-                int t_trialEND,   // ms
-                char rewardCond,
-                byte waterVol,
-                bool verbose,
-                bool break_wrongChoice = false);
+int runTrial();
 
 
 /* -------------------------------------------------------++
@@ -167,15 +141,15 @@ int runTrial( int mode,
 
 void setup (){
     // Open serial communications and wait for port to open:
-    Serial.begin(115200);
     // This requires RX and TX channels (pins 0 and 1)
+    // wait for serial port to connect. Needed for native USB port only
+    Serial.begin(115200);
     while (!Serial) {
         ;
-// wait for serial port to connect. Needed for native USB port only
     }
     //Confirm connection and telegraph the code version
+    
     Serial.println("#Arduino online");
-    Serial.println("#behaviourbox");
     Serial.println(version);
     
     randomSeed(analogRead(5));
@@ -201,18 +175,7 @@ void loop () {
         
         if (input == "GO"){
 
-            runTrial(mode, 
-                    trial_delay, 
-                    t_noLickPer, 
-                    t_stimONSET,
-                    stimDUR, 
-                    t_rewardSTART, 
-                    t_rewardEND, 
-                    t_trialEND, 
-                    rewardCond, 
-                    waterVol, 
-                    verbose, 
-                    break_wrongChoice);
+            runTrial();
                     
             Serial.println("-- Status: Ready --");
         }
@@ -223,7 +186,7 @@ void loop () {
     }
     
     while (!Serial.available()
-            and do_habituation){
+            and (mode == 'h')){
         
         Habituation();
     }
@@ -289,15 +252,13 @@ bool senseLick(bool sensor, bool* PreviousState) {
     return CallSpike
 }
 
-void flutter(byte stim_pin, int on, int off){
+void flutter(int OFF){
   
   digitalWrite(stim_pin, HIGH);
+  delay(ON);
   
-  delay(on);
-    
   digitalWrite(stim_pin, LOW);
-  
-  delay(off);
+  delay(OFF);
 }
 
 /*
@@ -306,40 +267,27 @@ THE TRIAL STATES
 ----------------
 */
 
-char ActiveDelay(int wait, 
-    bool break_on_lick, 
-    bool verbose) {
+char ActiveDelay(unsigned long wait, 
+                    bool break_on_lick) {
 
-    int t = t_now(t_init);
+    unsigned long t = t_now(t_init);
     
     char response = 0;
     
     if (verbose) {
         Serial.print("#Enter `ActiveDelay`:\t");
-
         Serial.println(t);
     }
     
     while (t < wait) {
         t = t_now(t_init);
         
-        // Change the values of lickOn and lickOn 
-        senseLick(0, &lickOn[0]);
-        senseLick(1, &lickOn[1]);
-
-        if (lickOn[0]){
-            response = 'L';
-        }
-        else if (lickOn[1]){
-            response = 'R';
-        }
+        response = get_response();
             
-        if (break_on_lick and response){
+        if (break_on_lick and (response != '-')){
             if (verbose) { 
                 Serial.print("#Exit `ActiveDelay`:\t");
-
                 Serial.println(t);
-
             }
             return response;
         }    
@@ -347,13 +295,7 @@ char ActiveDelay(int wait,
     
     if (verbose) {
         Serial.print("#Exit `ActiveDelay`:\t");
-
         Serial.println(t);
-    }
-    
-    // set the response to nothing if there was none
-    if (!response){
-        response = '-';
     }
     
     return response;
@@ -361,13 +303,14 @@ char ActiveDelay(int wait,
 
 //0 PRETRIAL
 
-void preTrial(bool verbose) {   
+void preTrial() {   
     /* while the trial has not started 
        1. update the time
        2. check for licks
        4. trigger the recording by putting recTrig -> HIGH
     */
-    int t = t_now(t_init);
+    long t = t_now(t_init);
+    
     if (verbose) {
         Serial.print("#Enter `preTrial`:\t");
 
@@ -407,11 +350,7 @@ void preTrial(bool verbose) {
     
 } 
 
-int TrialStimulus(byte stimulusPin,
-    int stimDUR,
-    int ON, // us time of ON pulse    ie FREQUENCY of flutter
-    int OFF, // us time of off pulse  ie FREQUENCY of flutter
-    bool verbose) {
+int TrialStimulus(int OFF) {
     
     int t_local = millis();
     int t = t_now(t_local);
@@ -425,9 +364,6 @@ int TrialStimulus(byte stimulusPin,
         Serial.print("#\tstimDUR:\t");
         Serial.println(stimDUR);
         
-        Serial.print("#\tON:\t");
-        Serial.println(ON);
-        
         Serial.print("#\tOFF:\t");
         Serial.println(OFF);
     }
@@ -437,32 +373,25 @@ int TrialStimulus(byte stimulusPin,
            1. update the time
            2. check for licks
         */
-        t = t_now(t_local);
         senseLick(0, &lickOn[0]);
         senseLick(1, &lickOn[1]);
-        
-        flutter(stimulusPin, ON, OFF);
 
-    } digitalWrite(stimulusPin, LOW);
-//this is a safety catch
+        flutter(OFF);
 
-    
+        t = t_now(t_local);
+
+    } 
+    digitalWrite(stimulusPin, LOW); //this is a safety catch
+
     if (verbose) {
+        
         Serial.print("#Exit `TrialStimulus`:\t");
-
         Serial.println(t);
     }
     return 1;
 }
 
-char TrialReward(char mode, 
-                // -'c'onditioning (guaranteed reward) -'o'perant (reward on lick)
-                int t_rewardEND,
-                char rewardCond, // 'L'eft, 'R'ight, 'B'oth, 'N'either
-                bool break_wrongChoice, // exits the function if the animal makes a bad decision
-                byte minlickCount, 
-                byte waterVol, // 10 ms gives ~ 5-8 uL
-                bool verbose) {
+char TrialReward() {
     /* 
     returns a character:
             ---- --------------------------------------
@@ -646,18 +575,7 @@ char TrialReward(char mode,
      THE MAIN MAIN FUNCTION
 --------------------------------- */ 
 
-int runTrial( int mode,
-    int trial_delay,
-    int t_noLickPer,   // ms
-    int t_stimONSET[2], //time stim turns on
-    int stimDUR, // duration of stimuli
-    int t_rewardSTART, // ms
-    int t_rewardEND,   // ms
-    int t_trialEND,   // ms
-    char rewardCond,
-    byte waterVol,
-    bool verbose,
-    bool break_wrongChoice) { 
+int runTrial() { 
     
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -667,14 +585,26 @@ int runTrial( int mode,
     /* t_init is initialised such that t_now
        returns 0 at the start of the trial, and 
        increases from there. */ 
-    int t;
+    unsigned long t;
     int response_time = 0;
+    char response = 0;
+    bool rbit = random(0,2);
+    int OFF[2] = {-1, -1};
+    
     
     // local time
     t_init = millis() + trial_delay;
     t = t_now(t_init);
-
-    char response = 0;
+    
+    // select the frequency pair to use
+    if (rewardCond == 'L') {
+        OFF[0] = left_off[rbit][0];
+        OFF[1] = left_off[rbit][1];
+    }
+    else if (rewardCond == 'R') {
+        OFF[0] = right_off[rbit][0];
+        OFF[1] = right_off[rbit][1];
+    }
     
     /*trial_phase0
     while the trial has not started 
@@ -686,43 +616,38 @@ int runTrial( int mode,
     preTrial(verbose);
     t = t_now(t_init);
       
-    ActiveDelay(t_noLickPer, false, verbose);
+    ActiveDelay(t_noLickPer, false);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET[0], false, verbose);
+    ActiveDelay(t_stimONSET[0], false);
     t = t_now(t_init);
     
-    if (ON[0]) {
-        TrialStimulus(stimulusPin, 
-                        stimDUR, 
-                        ON[0], 
-                        OFF[0], 
-                        verbose
-                    );
+    if (OFF[0] > 0) {
+        TrialStimulus(OFF[0]);
     }
     else if (verbose) {
         Serial.println("#skipping stim0");
     }
-        
+    
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET[1], false, verbose);
+    ActiveDelay(t_stimONSET[1], false);
     t = t_now(t_init);
     
-    if (ON[1]){ 
-        TrialStimulus(stimulusPin, 
-                        stimDUR, 
-                        ON[1], 
-                        OFF[1], 
-                        verbose
-                    );
+    if (OFF[1] > 0){ 
+        TrialStimulus(OFF[1]);
     }
-    else {if (verbose){Serial.println("#skipping stim1");}}
+    else {
+        if (verbose){
+            Serial.println("#skipping stim1");
+        }
+    }
+    
     t = t_now(t_init);
     
     
     // TODO include contingency to report on lick early without breaking?
-    ActiveDelay(t_rewardSTART, false, verbose);
+    ActiveDelay(t_rewardSTART, false);
     t = t_now(t_init);
     
     /* this is a little complicated:
@@ -736,15 +661,14 @@ int runTrial( int mode,
        3. Otherwise we wait until the trial period has ended
     */
     
-    response = TrialReward(mode, t_rewardEND, rewardCond, 
-                            break_wrongChoice, minlickCount, waterVol, verbose);
+    response = TrialReward();
 
     
     if (response) {
         response_time = t_now(t_init);
     }
     else {
-        response = ActiveDelay(t_trialEND, true, verbose);
+        response = ActiveDelay(t_trialEND, true);
     }
     
     if ((response != '-')    
@@ -767,7 +691,7 @@ int runTrial( int mode,
         }
     }
     
-    ActiveDelay(t_trialEND, false, verbose);
+    ActiveDelay(t_trialEND, false);
     
     Serial.print("response:\t");
     Serial.println(response);
@@ -881,103 +805,10 @@ int UpdateGlobals(String input) {
                 return 1;
             break;
             
-            case "trial_delay" :
-                trial_delay = variable_value.toInt();
-                Serial.print("trial_delay:\t");
-                Serial.println(trial_delay);
-                return 1;
-            break;
-            
-            case "t_noLickPer" :
-                t_noLickPer = variable_value.toInt();
-                Serial.print("t_noLickPer:\t");
-                Serial.println(t_noLickPer);
-                return 1;
-            break;
-            
-            case "t_stimONSET[0]" :
-                t_stimONSET[0] = variable_value.toInt();
-                Serial.print("t_stimONSET[0]:\t");
-                Serial.println(t_stimONSET[0]);
-                return 1;
-            break;
-            
-            case "t_stimONSET[1]" :
-                t_stimONSET[1] = variable_value.toInt();
-                Serial.print("t_stimONSET[1]:\t");
-                Serial.println(t_stimONSET[1]);   
-                return 1;
-            break;
-            
-            case "stimDUR" :
-                stimDUR = variable_value.toInt();
-                Serial.print("stimDUR:\t");
-                Serial.println(stimDUR);   
-                return 1;
-            break;
-            
-            case "t_rewardSTART" :
-                t_rewardSTART = variable_value.toInt();
-                Serial.print("t_rewardSTART:\t");
-                Serial.println(t_rewardSTART);   
-                return 1;
-            break;
-            
-            case "t_rewardEND" :
-                t_rewardEND = variable_value.toInt();
-                Serial.print("t_rewardEND:\t");
-                Serial.println(t_rewardEND);   
-                return 1;
-            break;
-            
-            case "t_trialEND" :
-                t_trialEND = variable_value.toInt();
-                Serial.print("t_trialEND:\t");
-                Serial.println(t_trialEND);
-                return 1;
-            break;
-            
-            case "waterVol" :
-                waterVol = byte(variable_value.toInt());
-                Serial.print("waterVol:\t");
-                Serial.println(waterVol);
-                return 1;
-            break;
-            
-            case "ON[0]" :
-                ON[0] = variable_value.toInt();
-                Serial.print("ON[0]:\t");
-                Serial.println(ON[0]);
-                return 1;
-            break;
-            
-            case "ON[1]" :
-                ON[1] = variable_value.toInt();
-                Serial.print("ON[1]:\t");
-                Serial.println(ON[1]);
-                return 1;
-            break;
-            
-            case "OFF[0]" :
-                OFF[0] = variable_value.toInt();
-                Serial.print("OFF[0]:\t");
-                Serial.println(OFF[0]);
-                return 1;
-            break;
-            
-            case "OFF[1]" :
-                OFF[1] = variable_value.toInt();
-                Serial.print("OFF[1]:\t");
-                Serial.println(OFF[1]);
-                return 1;
-            break;
-
-            
             case "mode" :
                 mode = variable_value[0];
                 Serial.print("mode:\t");
                 Serial.println(mode);
-                   
                 return 1;
             break;
             
@@ -985,15 +816,6 @@ int UpdateGlobals(String input) {
                 rewardCond = variable_value[0];
                 Serial.print("rewardCond:\t");
                 Serial.println(rewardCond);
-       
-                return 1;
-            break;
-            
-            case "verbose" :
-                verbose = variable_value.toInt();
-                Serial.print("verbose:\t");
-                Serial.println(verbose);
-                     
                 return 1;
             break;
           
@@ -1001,7 +823,6 @@ int UpdateGlobals(String input) {
                 break_wrongChoice = variable_value.toInt();
                 Serial.print("break_wrongChoice:\t");
                 Serial.println(break_wrongChoice);
-                     
                 return 1;
             break;
             
@@ -1009,7 +830,6 @@ int UpdateGlobals(String input) {
                 minlickCount = variable_value.toInt();
                 Serial.print("minlickCount:\t");
                 Serial.println(minlickCount);
-     
                 return 1;
             break;
             
