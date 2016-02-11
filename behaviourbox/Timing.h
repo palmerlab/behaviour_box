@@ -1,0 +1,7 @@
+int t_now(unsigned long t_init){
+    // The time since t_init:
+    //   + is less than 0 before the trial starts
+    //   + is greater than 0 after the start of trial
+
+    return (int) millis() - t_init;
+}
