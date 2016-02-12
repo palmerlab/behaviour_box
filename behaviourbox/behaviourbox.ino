@@ -1,6 +1,3 @@
-#include "SerialComs.h"
-#include "Timing.h"
-
 String version = "#behaviourbox160212";
 
 /*
@@ -61,7 +58,7 @@ unsigned long t_init;
 
 unsigned int t_noLickPer = 0;
 unsigned int trial_delay = 500; // ms
-unsigned int t_stimONSET[] = {5000,6000};
+unsigned int t_stimONSET[] = {4000,4550};
 unsigned int stimDUR = 500;
 unsigned int t_rewardSTART = 4500; // ms
 unsigned int t_rewardEND = 10000; // ms
@@ -73,13 +70,13 @@ char minlickCount = 5;
 
 // stimulus parameters
 // -------------------
-int ON = 20; //keep this constant for consistency sake
+int ON = 30; //keep this constant for consistency sake
 
-int left_OFF[][2] = {{100,  20},
-                     { 20, 100}};
+int left_OFF[][2] = {{0,  20},
+                     { 20, 0}};
 
-int right_OFF[][2] = {{100, 100},
-                      { 20,  20}};
+int right_OFF[][2] = {{20, 20},
+                      { 0,  0}};
 
 bool right_port = 1;
 bool left_port = 0;
@@ -124,7 +121,7 @@ int UpdateGlobals(String input);
 
 void flutter(int OFF);
 
-char ActiveDelay(unsigned int wait, bool break_on_lick = false);
+char ActiveDelay(unsigned long wait, bool break_on_lick = false);
     
 int TrialStimulus(int OFF);
 
@@ -134,7 +131,11 @@ char TrialReward();
 
 int runTrial();
 
+long t_now(unsigned long t_init);
 
+String getSerialInput();
+
+int getSepIndex(String input, char seperator);
 /* -------------------------------------------------------++
 ||                  END PROTOTYPES                        ||
 ++--------------------------------------------------------*/
@@ -159,7 +160,7 @@ void setup (){
     pinMode(waterPort[0], OUTPUT);
     pinMode(waterPort[1], OUTPUT);
     pinMode(stimulusPin, OUTPUT);
-    pinMode(lickRep[0], OUTPUT);
+    pinMode(lickRep, OUTPUT);
     pinMode(speakerPin, OUTPUT);
     
     Serial.println("-- Status: Ready --");
@@ -195,10 +196,6 @@ void loop () {
         delay(100);
     }
 }
-
-
-
-//definitions
 
 char get_response(){
     char response = 0;
@@ -245,30 +242,23 @@ bool senseLick(bool sensor, bool* PreviousState) {
         *PreviousState = true;
     }
     else {
-        *PreviousSate = false;
+        *PreviousState = false;
         CallSpike = false;
     }
     
-    return CallSpike
+    return CallSpike;
 }
 
 void flutter(int OFF){
   
-  digitalWrite(stim_pin, HIGH);
+  digitalWrite(stimulusPin, HIGH);
   delay(ON);
   
-  digitalWrite(stim_pin, LOW);
+  digitalWrite(stimulusPin, LOW);
   delay(OFF);
 }
 
-/*
------------------
-THE TRIAL STATES
-----------------
-*/
-
-char ActiveDelay(unsigned long wait, 
-                    bool break_on_lick) {
+char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
     unsigned long t = t_now(t_init);
     
@@ -300,8 +290,6 @@ char ActiveDelay(unsigned long wait,
     
     return response;
 }
-
-//0 PRETRIAL
 
 void preTrial() {   
     /* while the trial has not started 
@@ -571,10 +559,6 @@ char TrialReward() {
     return response;
 }
 
-/* ------------------------------
-     THE MAIN MAIN FUNCTION
---------------------------------- */ 
-
 int runTrial() { 
     
     // returns 0 if the stimulus was applied
@@ -598,12 +582,12 @@ int runTrial() {
     
     // select the frequency pair to use
     if (rewardCond == 'L') {
-        OFF[0] = left_off[rbit][0];
-        OFF[1] = left_off[rbit][1];
+        OFF[0] = left_OFF[rbit][0];
+        OFF[1] = left_OFF[rbit][1];
     }
     else if (rewardCond == 'R') {
-        OFF[0] = right_off[rbit][0];
-        OFF[1] = right_off[rbit][1];
+        OFF[0] = right_OFF[rbit][0];
+        OFF[1] = right_OFF[rbit][1];
     }
     
     /*trial_phase0
@@ -613,7 +597,7 @@ int runTrial() {
        3. trigger the recording by putting recTrig -> HIGH
     */
     
-    preTrial(verbose);
+    preTrial();
     t = t_now(t_init);
       
     ActiveDelay(t_noLickPer, false);
@@ -701,19 +685,14 @@ int runTrial() {
     return 0;
 }
 
-/* ------------------------------
-     END MAIN MAIN FUNCTION
---------------------------------- */ 
-
-
 char Habituation(){
     
     bool rbit = random(0,2); // a random bit
     bool port = 0;
-    int t_interStimdelay = (t_stimONSET[1] + stimuDur) 
-                                    - t_stimONSET[0];
+    int t_interStimdelay = t_stimONSET[1] 
+                            - (t_stimONSET[0] + stimDUR);
     int OFF[2] = {0,0};
-    
+    t_init = millis();
 
     char response = get_response();
     
@@ -737,34 +716,23 @@ char Habituation(){
         
         tone(speakerPin, toneGood, 50);
 
-        TrialStimulus(stimulusPin,
-                        stimDUR,
-                        30,
-                        OFF[0]);
+        TrialStimulus(OFF[0]);
         
-        delay(500);
+        delay(t_interStimdelay);
         
-        TrialStimulus(stimulusPin,
-                        stimDUR,
-                        30,
-                        OFF[1]);
+        TrialStimulus(OFF[1]);
                     
-        if (ActiveDelay(500, true) == response){
+        if (ActiveDelay(500u, true) == response){
             digitalWrite(waterPort[port], HIGH);
             delay(waterVol);
             digitalWrite(waterPort[port], LOW);
         }
         
-        ActiveDelay(1000, false);
+        ActiveDelay(3500u, false);
       }
 
   return response;    
 }
-
-/* ------------------------------
-     END OF THE MAP... here be monsters
---------------------------------- */ 
-
 
 int UpdateGlobals(String input) {
     /*
@@ -780,7 +748,7 @@ int UpdateGlobals(String input) {
     */
 
     // sep is the index of the ':' character
-    int sep = getSepIndex(input);
+    int sep = getSepIndex(input, ':');
 
     if (sep) {
         
@@ -794,46 +762,100 @@ int UpdateGlobals(String input) {
         
         // input before seperator?
         
-        switch (variable_name) :
-        
-            case "lickThres" :
+        if (variable_name == "lickThres") {
                 lickThres = variable_value.toInt();
                 Serial.print("lickThres:\t");
                 Serial.println(lickThres);
                 return 1;
-            break;
+        }
             
-            case "mode" :
+        else if (variable_name == "mode") {
                 mode = variable_value[0];
                 Serial.print("mode:\t");
                 Serial.println(mode);
                 return 1;
-            break;
+        }
             
-            case "rewardCond" :
+        else if (variable_name == "rewardCond") {
                 rewardCond = variable_value[0];
                 Serial.print("rewardCond:\t");
                 Serial.println(rewardCond);
                 return 1;
-            break;
+        }
           
-            case "break_wrongChoice" :
+        else if (variable_name == "break_wrongChoice") {
                 break_wrongChoice = variable_value.toInt();
                 Serial.print("break_wrongChoice:\t");
                 Serial.println(break_wrongChoice);
                 return 1;
-            break;
+        }
             
-            case "minlickCount" :
+        else if (variable_name == "minlickCount") {
                 minlickCount = variable_value.toInt();
                 Serial.print("minlickCount:\t");
                 Serial.println(minlickCount);
                 return 1;
-            break;
-            
-            default
-                return 0;
-            break;
+        }
    }
    return 0;
+}
+
+
+/*----------------------------------------------++
+||                  Serial Coms                 ||
+++----------------------------------------------*/
+
+String getSerialInput(){
+
+    /*
+      This function reads the data from the serial 
+      connection and returns it as a string. 
+      
+      This is used later to update the values
+    */
+    String readString;
+    
+    while (Serial.available()) { 
+        /* 1. delay to allow buffer to fill
+           2. get one byte from serial buffer
+           3. make the string readString 
+       */
+        
+        delay(3);  
+        char c = Serial.read();  
+        readString += c; 
+    }
+    
+    return readString;
+}
+
+int getSepIndex(String input, char seperator) {
+    /*
+      Returns the index of the seperator character
+      in a string.
+    */
+    
+    char c = 1;
+    int i = 0;
+   
+    while (c != 0) {
+        c = input[i];
+        if (c == seperator){ 
+            return i; 
+        }
+        i ++;
+    }
+    return 0;
+}
+
+/*----------------------------------------------++
+||                  Timing                      ||
+++----------------------------------------------*/
+
+long t_now(unsigned long t_init){
+    // The time since t_init:
+    //   + is less than 0 before the trial starts
+    //   + is greater than 0 after the start of trial
+
+    return (long) millis() - t_init;
 }
