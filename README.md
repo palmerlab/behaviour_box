@@ -1,40 +1,9 @@
-Sorry it's a mess,
+UPDATE:
 
-I'm a Neuroscientist not a software engineer
-
-This is code to run my experiments
-
+A massive overhaul has happened.
+A lot of this README is outdated as of now (behaviourbox160212)
 
 #SerialController.py
-
-```{text}
-usage: SerialControl.py [-h] [-v] [-p PORT] [-i ID] [-m MODE]
-                        [-f [FREQ [FREQ ...]]] [-r REPEATS]
-                        [--datapath DATAPATH] [--singlestim] [--manfreq]
-                        [--ITI ITI [ITI ...] | --triggered]
-
-This program controls the Arduino and reads from it too
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -v, --verbose         for debug, will print everything if enabled
-  -p PORT, --port PORT  port that the Arduino is connected to
-  -i ID, --ID ID        identifier for this animal/run
-  -m MODE, --mode MODE  the mode `c`onditioning or `o`perant, by default will
-                        look in the config table
-  -f [FREQ [FREQ ...]], --freq [FREQ [FREQ ...]]
-                        list of frequencies in Hz (separated by spaces)
-  -r REPEATS, --repeats REPEATS
-                        the number of times this block should repeat, by
-                        default this is 1
-  --datapath DATAPATH   path to save data to, by default is '.\YYMMDD'
-  --singlestim          For anaesthetised experiments, only run a single
-                        stimulus
-  --manfreq             choose left or right trial for each iteration, can be
-                        enabled mid run by hitting Ctrl-m
-  --ITI ITI [ITI ...]   an interval for randomising between trials
-  --triggered           waits for key press to initiate a trial
-```
 
 1. The program starts
 2. The program reads `config.tab` and `Frequencies.tab`,
@@ -93,11 +62,8 @@ Setup connections:
 | pin 2     | recording trigger | `recTrig`       |
 | pin 3     | stimulus          | `stimulusPin`   |
 | pin 8     | speaker           | `speakerPin`    |
-| pin 7     | vacuum tube valve | `vacValve`      |
 | pin 10    | left water valve  | `waterValve[0]` |
 | pin 11    | right water valve | `waterValve[1]` |
-| pin 13    | left  lick report | `lickRep[0]`    |
-| pin 13    | right lick report | `lickRep[1]`    |
 | --------- | ----------------- | --------------- |
 
 | ANALOG    | input             |                 |
@@ -204,10 +170,9 @@ byte[] lickSens = lickSens, byte[] lickRep = lickRep)`
    `variablename` will be updated to be equal to `value`
 
 
-`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false, 
-waterVol = 10, verbose = true)`
+`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false,` 
+`                    waterVol = 10, verbose = true)`
 : This fucntion returns a character corresponding to the lick status
-
     --- -------------------------------------
     'L' correct hit on left port             
                                              
