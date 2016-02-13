@@ -66,7 +66,7 @@ unsigned int t_trialEND = 10000; // ms //maximum of 62 000
 
 char mode = 'h'; //one of 'h'abituation, 'c'onditioning, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
-char minlickCount = 5;
+byte minlickCount = 5;
 
 // stimulus parameters
 // -------------------
@@ -590,12 +590,6 @@ int runTrial() {
         OFF[1] = right_OFF[rbit][1];
     }
     
-    Serial.print("OFF[0]:\t");
-    Serial.println(OFF[0]);
-    
-    Serial.print("OFF[1]:\t");
-    Serial.println(OFF[1]);
-    
     /*trial_phase0
     while the trial has not started 
        1. update the time
@@ -687,6 +681,13 @@ int runTrial() {
     Serial.println(response);
     Serial.print("response_time:\t");
     Serial.println(response_time);
+    
+    Serial.print("OFF[0]:\t");
+    Serial.println(OFF[0]);
+    
+    Serial.print("OFF[1]:\t");
+    Serial.println(OFF[1]);
+    
    
     return 0;
 }

@@ -74,7 +74,10 @@ def menu():
     Reads the characters in the buffer and modifies the program
     parameters accordingly
     """
+    
     c = "\x00"
+    if not m.kbhit():
+        return
     
     global punish
     global lickThres
@@ -170,7 +173,7 @@ def today():
     """provides today's date as a string in the form YYMMDD"""
     return datetime.date.today().strftime('%y%m%d')
 
-def Serial_monitor(logfile, show = True):
+def Serial_monitor(ser, logfile, show = True):
     
     line = ser.readline()
     
@@ -191,7 +194,7 @@ def Serial_monitor(logfile, show = True):
         
     return line
 
-def update_bbox(params, trial_df):
+def update_bbox(ser, params, trial_df):
     """
     Communicates the contents of the dict `params` through
     the serial communications port. 
@@ -204,7 +207,7 @@ def update_bbox(params, trial_df):
     
     for k in params.keys():
     
-        print fc.YELLOW, k, 
+        #print fc.YELLOW, k, 
         ser.writelines("%s:%s" %(k, params[k]))
         if verbose: print "%s:%s" %(k, params[k])
         
@@ -212,13 +215,14 @@ def update_bbox(params, trial_df):
         
         while ser.inWaiting():
 
-            line = Serial_monitor(log, False).strip()
+            line = Serial_monitor(ser, log, False).strip()
 
             if line[0] != "#" and line[0] != "-":
                 var, val = line.split(":\t")
                 trial_df[var] = num(val)
                 if var == k:
-                    print  fc.GREEN, "\r", var, val, Style.RESET_ALL , "\r",
+                    pass
+                    #print  fc.GREEN, "\r", var, val, Style.RESET_ALL , "\r"
                 else:
                     print  fc.RED, "\r", var, val, Style.RESET_ALL 
                     quit()
@@ -280,20 +284,19 @@ def init_serialport(port, logfile = None):
         sys.exit(0)
     
     #IDLE while Arduino performs it's setup functions
-    print "\nAWAITING DISPATCH: ",
-    
-    t = 0
+    print "AWAITING ARDUINO: "
+    _ = 0
     while not ser.inWaiting():
-        print "\rAWAITING DISPATCH: ", t, "\r",
-        t += 1
-    
-    print "\r         DISPATCH: ", t
+        if not _%10000:
+            print "-"*int(_/10000),"\r",
+        _ += 1
+    print "\nARDUINO ONLINE"
     
     # Buffer for 500 ms to let Arduino finish it's setup
     time.sleep(.5)
     # Log the debug info for the setup
     while ser.inWaiting(): 
-        Serial_monitor(logfile, True)
+        Serial_monitor(ser, logfile, True)
 
     return ser
     
@@ -325,17 +328,13 @@ try:
 
         # loop for r repeats
         for r in xrange(repeats):
-            
-            print colour("BLOCK:\t%02d" %r, 
-                fc.MAGENTA, style = Style.BRIGHT)
-            
+        
             # create an empty dictionary to store data in
             trial_df = {
                 'trial_num' : trial_num,
                 'WaterPort[0]': 0,
                 'WaterPort[1]': 0,
                 'ID' : ID,
-                'manfreq' : manfreq,
                 'weight' : weight,
                 'block' : r,
                 'comment' : comment,
@@ -344,8 +343,8 @@ try:
             
             #checks the keys pressed during last iteration
             #adjusts options accordingly
-            if m.kbhit():
-                menu()
+            
+            menu()
                 
             trial_df['comment'] = comment
             
@@ -362,9 +361,9 @@ try:
                         'minlickCount'      : lcount,
             }
             
-            trial_df = update_bbox(params, trial_df)
+            trial_df = update_bbox(ser, params, trial_df)
             
-            print colour("C:", params['rewardCond'], 
+            print colour("C: %s" %params['rewardCond'], 
                             fc.MAGENTA, style = Style.BRIGHT),
                               
             #print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
@@ -374,11 +373,11 @@ try:
             # Send the literal GO symbol
             ser.write("GO")
             
-            line = Serial_monitor(log, show = verbose).strip()
+            line = Serial_monitor(ser, log, show = verbose).strip()
             
             while line.strip() != "-- Status: Ready --":
                 
-                line = Serial_monitor(log, False).strip()
+                line = Serial_monitor(ser, log, False).strip()
                 if line:
                     if line[0] != "#" and line[0] != "-":
                         var, val = line.split(":\t")
@@ -387,6 +386,7 @@ try:
                         
             # partitions lick responses into three handy numbers each
 
+            menu()
             
             for k in trial_df.keys():
                 if type(trial_df[k]) == list: trial_df[k] = trial_df[k][0]
@@ -482,8 +482,8 @@ try:
                             fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
             
             comment = ""
-            trial_num += 1
-            
+            trial_num += 1            
+
             ITI = random.uniform(args.ITI[0], args.ITI[1])
             time.sleep(ITI)
         
