@@ -175,25 +175,24 @@ void loop () {
         String input = getSerialInput();
         
         if (input == "GO"){
-
             runTrial();
-                    
             Serial.println("-- Status: Ready --");
         }
-        
-        else { UpdateGlobals(input);
-}
-
+        else { 
+            UpdateGlobals(input);
+        }
     }
     
-    while (!Serial.available()
-            and (mode == 'h')){
-        
+    while (!Serial.available() and (mode == 'h')){
         Habituation();
     }
     
-    if (lickOn[0] or lickOn[1]){
+    while (!Serial.available() and (mode == 's')){
+        Serial.print(senseLick(0));
+        Serial.print(" ... ");
+        Serial.println(senseLick(1));
         delay(100);
+        
     }
 }
 
@@ -224,25 +223,22 @@ bool senseLick(bool sensor) {
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has change
     
-    bool CallSpike; // Who You Gonna Call?
-    
+    bool CallSpike = false; // Who You Gonna Call?
+
+    if (lickOn[sensor] == false) { 
+        CallSpike = true;
+        // counted = true
+    }
+ 
     if (analogRead(lickSens[sensor]) >= lickThres){
-        
-        if (lickOn[sensor] == false) { 
-            CallSpike = true;
-            // counted = true
-        }
-        else { 
-            CallSpike = false;
-        }
         lickOn[sensor] = true;
     }
     else {
         lickOn[sensor] = false;
-        CallSpike = false;
     }
     
-    return CallSpike;
+    // if the sensor was off, and now it is on, return 1
+    return (CallSpike and lickOn[sensor]);
 }
 
 void flutter(int OFF){
@@ -806,3 +802,6 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
+
+
