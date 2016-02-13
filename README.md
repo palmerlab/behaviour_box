@@ -116,8 +116,8 @@ do the following:
     unsigned long. It takes the value of `millis()` at the start of a run;
     which in turn is the number of milliseconds since the Arduino was turned on.
   
-`senseLickChange(bool sensor, bool* lickOn, bool* lickChange,
-byte[] lickSens = lickSens, byte[] lickRep = lickRep)`  
+`senseLickChange(bool sensor, bool* lickOn, bool* lickChange,`
+`                     byte[] lickSens = lickSens, byte[] lickRep = lickRep)`  
 : `sensor`
     is a Boolean, because I only have implemented two lick sensors, which can
     be 0 or 1, for the left and right sensors respectively. This function
@@ -171,20 +171,21 @@ byte[] lickSens = lickSens, byte[] lickRep = lickRep)`
 
 
 `TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false,` 
-`                    waterVol = 10, verbose = true)`
-: This fucntion returns a character corresponding to the lick status
-    --- -------------------------------------
-    'L' correct hit on left port             
-                                             
-    'R' correct hit on right port            
-                                             
-    'l' incorrect lick on left port          
-                                             
-    'r' incorrect lick on right port         
-                                             
-    '-' unknown; in conditioning this        
-        function exits before the animal has 
-        a chance to respond                  
-                                             
-    'M' No lick detected during reward period
-    --- -------------------------------------
+`                                         waterVol = 10, verbose = true)`
+: This function returns a character corresponding to the lick status
+    
+|--- | ------------------------------------- |
+|'L' | correct hit on left port              |
+|    |                                       |
+|'R' | correct hit on right port             |
+|    |                                       |
+|'l' | incorrect lick on left port           |
+|    |                                       |
+|'r' | incorrect lick on right port          |
+|    |                                       |
+|'-' | unknown; in conditioning this         |
+|    | function exits before the animal has  |
+|    | a chance to respond                   |
+|    |                                       |
+|'M' | No lick detected during reward period |
+|--- | ------------------------------------- |
