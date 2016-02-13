@@ -57,14 +57,14 @@ const char lickSens[] = {A0,A1};
 unsigned long t_init;
 
 unsigned int t_noLickPer = 0;
-unsigned int trial_delay = 500; // ms
-unsigned int t_stimONSET[] = {4000,4550};
+unsigned int trial_delay = 1000; // ms
+unsigned int t_stimONSET[] = {2000,2550};
 unsigned int stimDUR = 500;
-unsigned int t_rewardSTART = 4500; // ms
+unsigned int t_rewardSTART = 2500; // ms
 unsigned int t_rewardEND = 10000; // ms
 unsigned int t_trialEND = 10000; // ms //maximum of 62 000
 
-char mode = 'h'; //one of 'h'abituation, 'c'onditioning, 'o'perant
+char mode = '-'; //one of 'h'abituation, 'c'onditioning, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
 
@@ -606,7 +606,7 @@ int runTrial() {
     ActiveDelay(t_stimONSET[0], false);
     t = t_now(t_init);
     
-    if (OFF[0] > 0) {
+    if (OFF[0] >= 0) {
         TrialStimulus(OFF[0]);
     }
     else if (verbose) {
@@ -618,7 +618,7 @@ int runTrial() {
     ActiveDelay(t_stimONSET[1], false);
     t = t_now(t_init);
     
-    if (OFF[1] > 0){ 
+    if (OFF[1] >= 0){ 
         TrialStimulus(OFF[1]);
     }
     else {
