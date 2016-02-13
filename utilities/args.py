@@ -17,7 +17,7 @@ p.add_argument("-w", "--weight",
 p.add_argument("-m", 
                 "--mode", 
                 default = "o", 
-                help = "the mode `c`onditioning or `o`perant, "
+                help = "the mode `h`abituaton or `o`perant, "
                         "by default will look in the config table",
                 )
                 

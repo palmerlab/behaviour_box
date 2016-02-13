@@ -97,10 +97,9 @@ def menu():
                 return
             
             # Toggle condition
-            elif c in ("\t"):
-                if mode == "c": mode = "o"
-                elif mode == "o": mode = "h"
-                elif mode == "h": mode = "c"
+            elif c in ("\t"):               
+                if mode == "o": mode = "h"
+                elif mode == "h": mode = "o"
                 print "Training mode:\t%s" %mode
                 
             elif c in ("C","c"): #m,Ctrl-m

@@ -64,7 +64,7 @@ unsigned int t_rewardSTART = 2500; // ms
 unsigned int t_rewardEND = 10000; // ms
 unsigned int t_trialEND = 10000; // ms //maximum of 62 000
 
-char mode = '-'; //one of 'h'abituation, 'c'onditioning, 'o'perant
+char mode = '-'; //one of 'h'abituation, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
 
@@ -412,94 +412,39 @@ char TrialReward() {
         
         // response reports if there was a lick in the reward period
         
-        switch (rewardCond){
-            
-            case 'L':
-                RewardTest = (count[0] >= minlickCount) 
-                                or (mode == 'c');
+        if (rewardCond == 'L') {
+                RewardTest = (count[0] >= minlickCount)             
                 RewardPort = 0;
-            break;
+        }
                 
-            case 'R':
+        else if (rewardCond ==  'R') {
                 RewardTest = (count[1] >= minlickCount) 
-                                or (mode == 'c');
                 RewardPort = 1;
-            break;
-            
-            case 'B':
-                RewardTest = (count[0] >= minlickCount) 
-                                or (count[1] >= minlickCount) 
-                                or (mode == 'c');
-            break;
-            
-            case 'N':
-                if (verbose) { 
-                    Serial.print("count[0]:\t");
-                    Serial.println(count[0]);
-                    
-                    Serial.print("count[1]:\t");
-                    Serial.println(count[1]);
-                    
-                    Serial.print("#Exit `TrialReward`:\t");
-                    Serial.println(t);
-                }
-                return 0;
-            break;
-            
-            default:
-                Serial.print("ERROR: rewardCond not specified");
-                Serial.println(" requires 'L'eft, 'R'ight, 'B'oth, 'N'either");
-                return '!';
-            break;
         }
         
         if (RewardTest) {
             
-            if (rewardCond == 'B') { 
-                digitalWrite(waterPort[0], HIGH);
+            digitalWrite(waterPort[RewardPort], HIGH);
 
-                digitalWrite(waterPort[1], HIGH);
-                if (verbose) {
-                    Serial.println("WaterPort[0]:\t1\nWaterPort[1]:\t1");
-                }
+            if (verbose) { 
+                Serial.print("WaterPort[");
+
+                Serial.print(RewardPort);
+                Serial.print("]:\t");
+                Serial.println("1");               
             }
-            else { 
-                digitalWrite(waterPort[RewardPort], HIGH);
-
-                    if (verbose) { 
-                        Serial.print("WaterPort[");
-
-                        Serial.print(RewardPort);
-                        Serial.print("]:\t");
-                        Serial.println("1");               
-                    }
-                }
-            
+                        
             delay(waterVol);
 
-            digitalWrite(waterPort[0], LOW);
-            digitalWrite(waterPort[1], LOW);
-           
-            if (mode != 'c'){ 
-                if (lickOn[0]){ // hit left
-                    response = 'L';
-                } 
-                if (lickOn[1]){ // hit right
-                    response = 'R';
-                } 
-                if (rewardCond == 'B'){
-                    if (count[0] > count[1]) {
-                        response = 'L';
-                    }
-                    else if (count[0] < count[1]) { 
-                        response = 'R';
-                    }
-                    else { 
-                        response = 'B';
-                    }
-                }
-            }
-            
+            digitalWrite(waterPort[RewardPort], LOW);
+             
+            if (lickOn[0]){ // hit left
+                response = 'L';
+            } 
+            if (lickOn[1]){ // hit right
+                response = 'R';
+            } 
+        
             if (verbose) { 
                 Serial.print("count[0]:\t");
                 Serial.println(count[0]);
@@ -512,8 +457,7 @@ char TrialReward() {
             }
             return response;
         }
-        else if ((count[!RewardPort] >= minlickCount) 
-                    and (rewardCond != 'B')){
+        else if (count[!RewardPort] >= minlickCount){
                         
             // declare the fail condition??
             if (!response) {
