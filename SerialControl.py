@@ -1,23 +1,17 @@
 from __future__ import division
 
 import pandas as pd
-import csv
 import datetime
 import time
 import os
-from shutil import copyfile # for duplicating config!
 import sys
-import glob
 import serial
 
 import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
 import random
-import re
 
-from itertools import permutations, product
-            
 import colorama as color # makes things look nice
 from colorama import Fore as fc
 from colorama import Back as bc     
