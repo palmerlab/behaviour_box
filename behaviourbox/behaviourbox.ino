@@ -201,8 +201,8 @@ char get_response(){
     char response = 0;
     
     // Change the values of lickOn and lickOn 
-    senseLick(0, &lickOn[0]);
-    senseLick(1, &lickOn[1]);
+    senseLick(0);
+    senseLick(1);
 
     if (lickOn[0]){
         response = 'L';
@@ -219,11 +219,7 @@ char get_response(){
     return response;
 }
 
-bool senseLick(bool sensor, bool* PreviousState) {
-    // Update: PreviousState points to the variable that
-    //         holds the LickOn state. Dereferencing this
-    //         pointer in the function sets the state to
-    //         true or false based on the following logic:
+bool senseLick(bool sensor) {
     // 1. check to see if the lick sensor has moved
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has change
@@ -232,17 +228,17 @@ bool senseLick(bool sensor, bool* PreviousState) {
     
     if (analogRead(lickSens[sensor]) >= lickThres){
         
-        if (*PreviousState == false) { 
+        if (lickOn[sensor] == false) { 
             CallSpike = true;
             // counted = true
         }
         else { 
             CallSpike = false;
         }
-        *PreviousState = true;
+        lickOn[sensor] = true;
     }
     else {
-        *PreviousState = false;
+        lickOn[sensor] = false;
         CallSpike = false;
     }
     
@@ -310,8 +306,8 @@ void preTrial() {
         // 2. check for licks
         t = t_now(t_init);
         
-        senseLick(0, &lickOn[0]);
-        senseLick(1, &lickOn[1]);
+        senseLick(0);
+        senseLick(1);
         
         //TODO: define statusLED and plug in an LED to hardware: Almost Done
         // LED to flash each second before the trial: Might not be possible, can be done with different coloured number of LEDs
@@ -361,8 +357,8 @@ int TrialStimulus(int OFF) {
            1. update the time
            2. check for licks
         */
-        senseLick(0, &lickOn[0]);
-        senseLick(1, &lickOn[1]);
+        senseLick(0);
+        senseLick(1);
 
         flutter(OFF);
 
@@ -407,8 +403,8 @@ char TrialReward() {
         
         t = t_now(t_init);
         
-        count[0] = count[0] + senseLick(0, &lickOn[0]);
-        count[1] = count[1] + senseLick(1, &lickOn[1]);
+        count[0] = count[0] + senseLick(0);
+        count[1] = count[1] + senseLick(1);
         
         // response reports if there was a lick in the reward period
         
