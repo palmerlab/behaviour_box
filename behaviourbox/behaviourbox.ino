@@ -606,6 +606,12 @@ int runTrial() {
         OFF[1] = right_off[rbit][1];
     }
     
+    Serial.print("OFF[0]:\t");
+    Serial.println(OFF[0]);
+    
+    Serial.print("OFF[1]:\t");
+    Serial.println(OFF[1]);
+    
     /*trial_phase0
     while the trial has not started 
        1. update the time

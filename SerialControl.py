@@ -9,7 +9,7 @@ from shutil import copyfile # for duplicating config!
 import sys
 import glob
 import serial
-import argparse
+
 import msvcrt as m
 import numpy as np
 from numpy.random import shuffle
@@ -23,6 +23,8 @@ from colorama import Fore as fc
 from colorama import Back as bc     
 from colorama import Style
 
+from utilities.args import args
+from utilities.numerical import num, na_printr, unpack_table
 
 """
 1. The program starts
@@ -50,144 +52,21 @@ Arguments
 --------------------------------------------------------------------
 """
 
-p = argparse.ArgumentParser(description="This program controls the Arduino " 
-                                           "and reads from it too"
-                                            )
-
-p.add_argument("-i", "--ID", 
-                default = "", 
-                help = "identifier for this animal/run",
-                )
-
-p.add_argument("-w", "--weight", 
-                default = 0, 
-                help = "weight of the animal in grams",
-                )
-
-p.add_argument("-m", 
-                "--mode", 
-                default = "c", 
-                help = "the mode `c`onditioning or `o`perant, "
-                        "by default will look in the config table",
-                )
-                
-p.add_argument('-f', '--freq', 
-                nargs = '*', 
-                type = int, 
-                help = "list of frequencies in Hz (separated by spaces)",
-                )
-                
-p.add_argument('-r', '--repeats', 
-                default = 1000, 
-                type = int, 
-                help = "the number of times this block should repeat, " 
-                        "by default this is 1",
-                )
-                
-p.add_argument('-p', '--punish', 
-                action = 'store_true', 
-                help = "sets `break_wrongChoice` to True, " 
-                        "incorrect licks will end an operant "
-                        "trial early",
-                )
-
-p.add_argument("-N", '--trial_num', 
-                default = 0, 
-                type = int, 
-                help = 'trial number to start at',
-                )
-
-p.add_argument('--datapath', 
-                default = "C:/DATA/Andrew/wavesurfer", 
-                help = "path to save data to, " 
-                        "by default is "
-                        "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
-                )
-                
-p.add_argument("--port", 
-                default = "COM5", 
-                help = "port that the Arduino is connected to",
-                )
-                
-p.add_argument("--verbose", 
-                action = 'store_true', 
-                help = "for debug this will print everything if enabled",
-                )
-
-p.add_argument('-lt', '--lickThres', 
-                default = 0.75, 
-                type = int, 
-                help = 'set `lickThres` in arduino',
-                )
-                
-p.add_argument('-lc', '--lcount', 
-                default = 2, 
-                type = int, 
-                help = 'set `minlickCount` in arduino'
-                )
-
-runtype = p.add_mutually_exclusive_group()
-
-runtype.add_argument('--dualmethod', 
-                default = 'permutation', 
-                help = "either permutations or product; "
-                        "product will give 'B' conditions",
-                )
-                
-runtype.add_argument('--singlestim', 
-                action = 'store_true', 
-                help = "For anaesthetised experiments, "
-                        "only run a single stimulus",
-                )
-
-lickside = p.add_mutually_exclusive_group()
-
-lickside.add_argument("-L", 
-                "--left", 
-                action = 'store_true',
-                )
-                
-lickside.add_argument("-R", 
-                "--right", 
-                action = 'store_true',
-                )
-
-p.add_argument('--ITI', 
-                 nargs = 2, 
-                default = [2,5], 
-                type = float, 
-                help = "an interval for randomising between trials",
-                )
-                
-p.add_argument('--manfreq', 
-                action = 'store_true', 
-                help = "choose left or right trial for each iteration, "
-                        "can be enabled mid run by hitting 'm'. "
-                        "In this state the program waits for a key "
-                        "press before proceeding to the next trial.",
-                )
-
-args = p.parse_args()
 
 verbose = args.verbose # this will be a cmdline parameter
 port = args.port # a commandline parameter
 ID = args.ID
 repeats = args.repeats
 datapath = args.datapath
-singlestim = args.singlestim
-manfreq = args.manfreq
-dualmethod = args.dualmethod
 weight = args.weight
 trial_num = args.trial_num
-
-leftmode =  args.left
-rightmode = args.right
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
 mode = args.mode
 punish = args.punish
 lcount = args.lcount
+rewardCond =args.rewardCond
 
 
 """
@@ -196,38 +75,18 @@ END Arguments
 --------------------------------------------------------------------
 """
 
-
-
-
-
-def bin_array(array, bin_size):
-    """
-    returns a down sampled array using the mean to interpolate data
-    
-    Keyword arguments:
-    array    -- the array to be down sampled (an numpy.array)
-    bin_size -- the width of bins to generate the down 
-                sampled array (an integer > 1)
-    """
-    
-    pad_size = math.ceil((array.size/bin_size)*bin_size - array.size)
-    array_padded = np.append(array, np.zeroes(pad_size)*np.NaN)
-    return np.nanmean(array_padded.reshape(-1,bin_size), axis = 1)
-    
 def menu():
     """
     Reads the characters in the buffer and modifies the program
     parameters accordingly
     """
-    c = "\r"
+    c = "\x00"
     
-    global manfreq
     global punish
     global lickThres
     global lcount
     global mode
-    global leftmode
-    global rightmode
+    global rewardCond
     global comment
     
     while True:
@@ -243,34 +102,26 @@ def menu():
             # Toggle condition
             elif c in ("\t"):
                 if mode == "c": mode = "o"
-                elif mode == "o": mode = "c"
+                elif mode == "o": mode = "h"
+                elif mode == "h": mode = "c"
                 print "Training mode:\t%s" %mode
                 
-            # Toggle manual
-            elif c in ("M","m"): #m,Ctrl-m
-                manfreq = not manfreq
-                print "Manual mode:\t%s" %manfreq
-                log.write("Manual mode:\t%s\n" %manfreq)
-            
             elif c in ("C","c"): #m,Ctrl-m
                 comment = raw_input("Comment: ")
                 log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
                 
             elif c in '\xe0K':
-                leftmode = True
-                rightmode = False
-                print "left mode:\t%s" %leftmode
+                rewardCond = 'L'
+                print "rewardCond:\t%s" %rewardCond
             
             elif c in '\xe0M':
-                rightmode = True
-                leftmode = False
-                print "right mode:\t%s" %rightmode
+                rewardCond = 'R'
+                print "rewardCond:\t%s" %rewardCond
             
             elif c in ('\xe0P', '\xe0H'):
-                leftmode = False
-                rightmode = False
-                print "random mode:\t", not (leftmode or rightmode)
+                rewardCond = '-'
+                print "rewardCond:\t", rewardCond
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
@@ -303,40 +154,19 @@ def menu():
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
             else:
-                print "options: P M < > ? h [ ] \\ \\t"
+                print "-----------------------------"
+                print "options    :"
+                print "  ...   P  : Punish"
+                print "  ...   < >: lick threshold" 
+                print "  ...   ?  : show threshold" 
+                print "  ...   [ ]: lickcount"
+                print "  ...   \\  : show lickcount" 
+                print "  ...   tab: toggle mode"
+                print "-----------------------------"
         
-        
-def na_printr(s):
-    try: return "%3d" %s
-    except: return "%03s" %s
-        
-def num(s):
-    """ 
-    First attempts to convert string s to an integer. 
-    If that gives a ValueError then it attempts to return s 
-    as a float. Finally if s cannot be converted to a float or 
-    an int, the string is returned unchanged.
-    """
-    try:
-        return int(s)
-    except ValueError:
-        try: 
-            return float(s)
-        except ValueError:
-            return s
         
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
-
-def unpack_table(filename):
-
-    reader = csv.reader(open(filename, 'r'), delimiter = "\t")
-    d = {}
-    for row in reader:
-       k, v = row
-       d[k] = v
-    
-    return d
 
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
@@ -345,21 +175,6 @@ def timenow():
 def today():
     """provides today's date as a string in the form YYMMDD"""
     return datetime.date.today().strftime('%y%m%d')
-      
-def get_line(port, verbose):
-    
-    inline = port.readline()
-    
-    if inline: inline = inline.strip()
-    
-    if inline.startswith("#"):
-        inline = "#%s\t%s\t%s" %(timenow(), port, ID, inline)
-        if verbose: print colour(inline, fc.CYAN, style = Style.BRIGHT)
-    else: 
-        inline = "%s\t%s\t%s" %(timenow(), port, ID, inline)
-        print colour(inline, fc.YELLOW)
-    
-    return inline      
 
 def Serial_monitor(logfile, show = True):
     
@@ -389,7 +204,8 @@ def update_bbox(params, trial_df):
     
     data is sent in the form: `dict[key] = value`  --> `key:value`
     
-    TODO: make this more general by putting `ser` as a parameter
+    trail_df dictionary is updated to include the parameters 
+    received from the arduino
     """
     
     for k in params.keys():
@@ -442,93 +258,6 @@ def create_logfile(DATADIR = "", date = today()):
     print colour("./$datapath$/%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
     
     return logfile
-
-def manual_response_check(logfile):
-
-    response = None
-    response_time = None
-
-    if m.kbhit():
-        key = ord(m.getch())
-        response_time =  timenow()
-        if key == 224: #Special keys (arrows, f keys, ins, del, etc.)
-            key = ord(m.getch())
-            if key == 75: #Left arrow
-                response = "L"
-            elif key == 77: #Right arrow
-                response = "R"
-            else:
-                response = "-"
-
-        line = "%s\tManual declared response at:%s" %(timenow(), response)
-
-        print colour(line, fc.MAGENTA, style = Style.BRIGHT)
-
-        logfile.write(line+"\n")
-
-    return [response], [response_time]    
- 
-def update_progress(progress):
-
-    """
-    Prints a wicked progress bar to the screen, 
-    with the form
-    ` [######                                ] 030% `
-    """
-
-    line = '  %s  %3d%%\r' %((' '*50), progress) + \
-        '  %s]\r' %(' '*50) + \
-        ' [%s\r' %('#'*(progress/2))
-    
-    print line,
-    
-    if progress == 100: print ""            
-        
-def manual():
-    
-    """
-    Function to manually select a specific condition
-    given the keyboard input
-    
-    Requires freq to be a 2d array with 2 columns and N rows
-    ie freq.shape = (N, 2L)
-    """
-    
-    global leftmode
-    global rightmode
-    
-    # all the possible key values for 'L' and 'R' respectively
-    character = {
-        'L' : ['\x0c', 'l', 'L', '\xe0K'],
-        'R' : ['\x12', 'r', 'R', '\xe0M']
-    }
-    while True:
-        if m.kbhit():
-            c = m.getch()
-
-            # in the event that an arrow key was pressed
-            # check the buffer for the next character
-            if c == '\xe0': 
-                c = c + m.getch()
-
-            for k in character.keys():
-                if c in character[k]:
-                    print "manual %s trial\r" %k,
-                    
-                    if k == 'L':
-                        leftmode = True
-                        rightmode = False
-                        return
-                        
-                    elif k == 'R':
-                        rightmode = True
-                        leftmode = False
-                        return
-            
-            print "The next random frequency pair\r",
-            leftmode = False
-            rightmode = False
-            return
                     
 def init_serialport(port, logfile = None):
     """
@@ -586,46 +315,11 @@ datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
 
 #make a unique filename
-f = 0
-df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
+_ = 0
+df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 while os.path.isfile(df_file):
-    f += 1
-    df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), f)
-
-copyfile('config.tab', '%s/%s_config_%s_%s.tab' %(datapath, ID, today(), timenow().replace(":","")))            
-params_i = unpack_table('config.tab')
-params = dict(params_i) #create a copy of the original
-
-if args.freq: 
-    freq = args.freq
-else:
-    freq = np.loadtxt('frequencies.tab', skiprows = 1)
-
-#generate the frequency pairs
-if singlestim: 
-    freq = np.array([freq, np.zeros(len(freq))]).transpose()
-    
-else:
-    tmp_freq = []
-    
-    if (dualmethod in "permutations") and (dualmethod in "product"):
-        print color("Error: dualmethod needs to be either 'permutations' or 'product': got%s" %dualmethod, fc.RED, style = Style.BRIGHT)
-    
-    elif dualmethod in "permutations":
-        for f in permutations(freq, 2): 
-            tmp_freq.append(np.array(f))
-        freq = tmp_freq
-    elif dualmethod in "product":
-        for f in product(freq, freq): 
-            tmp_freq.append(np.array(f))
-        freq = tmp_freq
-    
-    elif dualmethod in "merge":
-        freq = np.array((freq, freq)).transpose()
-    
-    del tmp_freq
-
-freq = np.array(freq)
+    _ += 1
+    df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 
 comment = ""
 
@@ -640,212 +334,165 @@ try:
             
             print colour("BLOCK:\t%02d" %r, 
                 fc.MAGENTA, style = Style.BRIGHT)
-                
-            # shuffle the frequencies
-            shuffle(freq)
-                            
-            #This starts a loop that goes through 1 run per frequency combination
-            for t in xrange(len(freq)):
-                
-                # create an empty dictionary to store data in
-                trial_df = {
-                    'trial_num' : trial_num,
-                    'WaterPort[0]': 0,
-                    'WaterPort[1]': 0,
-                    'ID' : ID,
-                    'manfreq' : manfreq,
-                    'weight' : weight,
-                    'block' : r,
-                    'comment' : comment,
-                }
-               
-                
-                #checks the keys pressed during last iteration
-                #adjusts options accordingly
-                if m.kbhit():
-                    menu()
-
-                if manfreq:
-                    print "Choose condition\r",
-                    manual()
-                    
-                trial_freq = freq[t]
-                
-                if leftmode: 
-                    trial_freq.sort()
-                    trial_freq = trial_freq[::-1]
-                elif rightmode: 
-                    trial_freq.sort()
-                else: 
-                    shuffle(trial_freq)
-                
-                trial_df['comment'] = comment
-                
-                # convert the frequencies into an on off square pulse
-                for f in (0,1):
-                    trial_df['freq%d' %f] = [trial_freq[f]]
-                    # if the frequency is 0 make the on time = 0
-                    if trial_freq[f] == 0: 
-                        params['ON[%d]' %f] = 0
-                        params['OFF[%d]' %f] = 10 # ms
-                    # off period = (1000 ms / frequency Hz) - 5 ms ~ON period~
-                    else:
-                        ON = num(params_i['ON[%d]' %f])
-                        params['ON[%d]' %f] = ON
-                        OFF = (1000/trial_freq[f]) -  ON
-                        params['OFF[%d]' %f] =  OFF if OFF > 0 else 1 
-                
-                # Determine the reward condition
-                #     1. f0 > f1 :: lick left
-                #     2. f0 < f1 :: lick right
-                #     3. f0 == 0 OR f1 == 0, either port is valid
-                #     4. f0 == 0 AND f1 == 0, neither port is valid
-                
-                if trial_freq[0] and trial_freq[1]:
-                    if trial_freq[0] == trial_freq[1]: params['rewardCond'] = 'B'
-                    if trial_freq[0] > trial_freq[1]: params['rewardCond'] = 'L'
-                    if trial_freq[0] < trial_freq[1]: params['rewardCond'] = 'R'
-                
-                else:
-                    if trial_freq[0] or trial_freq[1]:params['rewardCond'] = 'B'
-                    else: params['rewardCond'] = 'N'
-                
-                
-                #THE HANDSHAKE
-                # send all current parameters to the arduino box to run the trial
-                
-                params['mode'] = mode
-                params['lickThres'] = lickThres
-                params['break_wrongChoice'] = num(punish)
-                params['minlickCount'] = lcount
-                
-                trial_df = update_bbox(params, trial_df)
-                
-                print colour("F:%3d %3d C: %s" \
-                                %(trial_freq[0], trial_freq[1], params['rewardCond']), 
-                                fc.MAGENTA, style = Style.BRIGHT),
-                
-                if manfreq == False:
-                    ITI = random.uniform(args.ITI[0], args.ITI[1])
-                    time.sleep(ITI)
-                                  
-                #print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
-                    
-                trial_df['time'] = timenow()
-                
-                # Send the literal GO symbol
-                ser.write("GO")
-                
-                line = Serial_monitor(log, show = verbose).strip()
-                
-                while line.strip() != "-- Status: Ready --":
-                    
-                    line = Serial_monitor(log, False).strip()
-                    if line:
-                        if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":\t")
-                            val = num(val)
-                            trial_df[var] = val
-                            
-                # partitions lick responses into three handy numbers each
-
-                
-                for k in trial_df.keys():
-                    if type(trial_df[k]) == list: trial_df[k] = trial_df[k][0]                
-               
-                """
-                #Save the data to a data frame / Save to a file
-                """
-                    
-                with open(df_file, 'w') as datafile:
-                    
-                    trial_df = pd.DataFrame(trial_df, index=[trial_num])
-                    
-                    try: 
-                        df = df.append(trial_df, ignore_index = True)
-                    except NameError:
-                        df = trial_df
-                    
-                    df['correct'] = df.response.str.isupper()
-                    df['miss'] = df.response[df.rewardCond != 'N'] == '-'
-                    df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
-                    
-                    hits = df.correct.cumsum()
-                    hit_L = df.correct[df.response == 'L'].cumsum()
-                    hit_R = df.correct[df.response == 'R'].cumsum()
-                    
-                    cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
-                    
-                    df['hits'] =  hits
-                    df['hit_L'] = hit_R
-                    df['hit_R'] = hit_L
-                    
-                    df['cumWater'] = cumWater               
-
-                    df.to_csv(datafile)
-                
-                #Print the important data and coloured code for hits / misses
-                
-                print Style.BRIGHT, '\r',
-                
-                
-                table = {
-                        'trial_num' : 't', 
-                        'mode': 'mode', 
-                        'rewardCond': 'rewCond', 
-                        'response': 'response', 
-                        'count[0]':'L', 
-                        'count[1]': 'R', 
-                        'WaterPort[0]': 'waterL', 
-                        'WaterPort[1]': 'waterR',
-                        'OFF[0]' : 'off0', 
-                        'OFF[1]': 'off1',
-                }
-                
-                for k in ('trial_num' , 'mode', 'rewardCond', 'response', 'count[0]', 'count[1]', 
-                                'WaterPort[0]', 'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
-                    
-                    if df.correct.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
-                    elif df.miss.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
-                    else:
-                        print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
-                print '\r', Style.RESET_ALL
-                
-                #calculate percentage success
-                
-                print "\r", 100 * " ", "\r                ", #clear the line 
-                
-                hits = df.correct.sum() / df.ID.count()
-                
-                if df.ID[df.rewardCond.isin(['L','B'])].count():
-                     hit_L = df.correct[df.response == 'L'].sum() / df.ID[df.rewardCond.isin(['L','B'])].count()
-                else: hit_L = float('nan')
-                
-                if df.ID[df.rewardCond.isin(['R','B'])].count():
-                     hit_R = df.correct[df.response == 'R'].sum() / df.ID[df.rewardCond.isin(['R','B'])].count()
-                else: hit_R = float('nan')
-                
-                if df.ID[df.rewardCond != 'N'].count():
-                    misses = (df.miss.sum() / df.ID[df.rewardCond != 'N'].count())*100
-                else: misses = float('nan')
-                
-                wrong = (df.wrong.sum() / df.ID.count())*100
-                
-                misses = na_printr(misses)
-                wrong = na_printr(wrong)
-                hits =  na_printr(hits*100)
-                hit_L = na_printr(hit_L*100)
-                hit_R = na_printr(hit_R*100)
-                cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
-                                
-                print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                                fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
-                
-                comment = ""
-                trial_num += 1
             
+            # create an empty dictionary to store data in
+            trial_df = {
+                'trial_num' : trial_num,
+                'WaterPort[0]': 0,
+                'WaterPort[1]': 0,
+                'ID' : ID,
+                'manfreq' : manfreq,
+                'weight' : weight,
+                'block' : r,
+                'comment' : comment,
+            }
+           
+            
+            #checks the keys pressed during last iteration
+            #adjusts options accordingly
+            if m.kbhit():
+                menu()
+                
+            trial_df['comment'] = comment
+            
+            if rewardCond not in ('L', 'R'):
+                rewardCond = ('L', 'R')[random.randint(0,1)]
+            
+            #THE HANDSHAKE
+            # send all current parameters to the arduino box to run the trial
+            params = {
+                        'rewardCond'        : rewardCond,
+                        'mode'              : mode,
+                        'lickThres'         : lickThres,
+                        'break_wrongChoice' : num(punish),
+                        'minlickCount'      : lcount,
+            }
+            
+            trial_df = update_bbox(params, trial_df)
+            
+            print colour("C:", params['rewardCond'], 
+                            fc.MAGENTA, style = Style.BRIGHT),
+                              
+            #print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
+                
+            trial_df['time'] = timenow()
+            
+            # Send the literal GO symbol
+            ser.write("GO")
+            
+            line = Serial_monitor(log, show = verbose).strip()
+            
+            while line.strip() != "-- Status: Ready --":
+                
+                line = Serial_monitor(log, False).strip()
+                if line:
+                    if line[0] != "#" and line[0] != "-":
+                        var, val = line.split(":\t")
+                        val = num(val)
+                        trial_df[var] = val
+                        
+            # partitions lick responses into three handy numbers each
+
+            
+            for k in trial_df.keys():
+                if type(trial_df[k]) == list: trial_df[k] = trial_df[k][0]
+           
+            """
+            #Save the data to a data frame / Save to a file
+            """
+                
+            with open(df_file, 'w') as datafile:
+                
+                trial_df = pd.DataFrame(trial_df, index=[trial_num])
+                
+                try: 
+                    df = df.append(trial_df, ignore_index = True)
+                except NameError:
+                    df = trial_df
+                
+                df['correct'] = df.response.str.isupper()
+                df['miss'] = df.response[df.rewardCond != 'N'] == '-'
+                df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
+                
+                hits = df.correct.cumsum()
+                hit_L = df.correct[df.response == 'L'].cumsum()
+                hit_R = df.correct[df.response == 'R'].cumsum()
+                
+                cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
+                
+                df['hits'] =  hits
+                df['hit_L'] = hit_R
+                df['hit_R'] = hit_L
+                
+                df['cumWater'] = cumWater               
+
+                df.to_csv(datafile)
+            
+            #Print the important data and coloured code for hits / misses
+            
+            print Style.BRIGHT, '\r',
+            
+            
+            table = {
+                    'trial_num' : 't', 
+                    'mode': 'mode', 
+                    'rewardCond': 'rewCond', 
+                    'response': 'response', 
+                    'count[0]':'L', 
+                    'count[1]': 'R', 
+                    'WaterPort[0]': 'waterL', 
+                    'WaterPort[1]': 'waterR',
+                    'OFF[0]' : 'off0', 
+                    'OFF[1]': 'off1',
+            }
+            
+            for k in ('trial_num' , 'mode', 'rewardCond', 'response', 'count[0]', 'count[1]', 
+                            'WaterPort[0]', 'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                
+                if df.correct.iloc[-1]:
+                    print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
+                elif df.miss.iloc[-1]:
+                    print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
+                else:
+                    print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
+            print '\r', Style.RESET_ALL
+            
+            #calculate percentage success
+            
+            print "\r", 100 * " ", "\r                ", #clear the line 
+            
+            hits = df.correct.sum() / df.ID.count()
+            
+            if df.ID[df.rewardCond.isin(['L','B'])].count():
+                 hit_L = df.correct[df.response == 'L'].sum() / df.ID[df.rewardCond.isin(['L','B'])].count()
+            else: hit_L = float('nan')
+            
+            if df.ID[df.rewardCond.isin(['R','B'])].count():
+                 hit_R = df.correct[df.response == 'R'].sum() / df.ID[df.rewardCond.isin(['R','B'])].count()
+            else: hit_R = float('nan')
+            
+            if df.ID[df.rewardCond != 'N'].count():
+                misses = (df.miss.sum() / df.ID[df.rewardCond != 'N'].count())*100
+            else: misses = float('nan')
+            
+            wrong = (df.wrong.sum() / df.ID.count())*100
+            
+            misses = na_printr(misses)
+            wrong = na_printr(wrong)
+            hits =  na_printr(hits*100)
+            hit_L = na_printr(hit_L*100)
+            hit_R = na_printr(hit_R*100)
+            cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
+                            
+            print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
+                            fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+            
+            comment = ""
+            trial_num += 1
+            
+            ITI = random.uniform(args.ITI[0], args.ITI[1])
+            time.sleep(ITI)
+        
 except KeyboardInterrupt:
 
    
