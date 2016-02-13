@@ -413,12 +413,12 @@ char TrialReward() {
         // response reports if there was a lick in the reward period
         
         if (rewardCond == 'L') {
-                RewardTest = (count[0] >= minlickCount)             
+                RewardTest = (count[0] >= minlickCount);            
                 RewardPort = 0;
         }
                 
         else if (rewardCond ==  'R') {
-                RewardTest = (count[1] >= minlickCount) 
+                RewardTest = (count[1] >= minlickCount); 
                 RewardPort = 1;
         }
         
