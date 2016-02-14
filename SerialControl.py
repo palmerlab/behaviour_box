@@ -12,6 +12,8 @@ import numpy as np
 from numpy.random import shuffle
 import random
 
+from itertools import product
+
 import colorama as color # makes things look nice
 from colorama import Fore as fc
 from colorama import Back as bc     
@@ -55,12 +57,14 @@ datapath = args.datapath
 weight = args.weight
 trial_num = args.trial_num
 
+leftmode =  args.left
+rightmode = args.right
+
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
 mode = args.mode
 punish = args.punish
 lcount = args.lcount
-rewardCond =args.rewardCond
 
 
 """
@@ -108,16 +112,22 @@ def menu():
                 print "Choose...\r",
                 
             elif c in '\xe0K':
-                rewardCond = 'L'
-                print "rewardCond:\t%s" %rewardCond
+                leftmode = True
+                rightmode = False
+                print "left mode:\t%s" %leftmode
+                return
             
             elif c in '\xe0M':
-                rewardCond = 'R'
-                print "rewardCond:\t%s" %rewardCond
+                rightmode = True
+                leftmode = False
+                print "right mode:\t%s" %rightmode
+                return
             
             elif c in ('\xe0P', '\xe0H'):
-                rewardCond = '-'
-                print "rewardCond:\t", rewardCond
+                leftmode = False
+                rightmode = False
+                print "random mode:\t", not (leftmode or rightmode)
+                return
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
@@ -159,8 +169,7 @@ def menu():
                 print "  ...   \\  : show lickcount" 
                 print "  ...   tab: toggle mode"
                 print "-----------------------------"
-        
-        
+                
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
@@ -301,7 +310,7 @@ def init_serialport(port, logfile = None):
     
 """
 ---------------------------------------------------------------------
-MAIN FUNCTION HERE
+                       MAIN FUNCTION HERE
 ---------------------------------------------------------------------
 """    
 
@@ -319,6 +328,10 @@ while os.path.isfile(df_file):
 
 comment = ""
 
+randomCond = [i for i in product(['L','L'], ['R', 'R'])]
+np.random.shuffle(np.array(randomCond))
+randomCond = randomCond.reshape(-1)
+
 try:
     #open a file to save data in
     with open(logfile, 'a') as log:
@@ -326,7 +339,7 @@ try:
         ser = init_serialport(port, logfile = log)
 
         # loop for r repeats
-        for r in xrange(repeats):
+        for r, rewardCond in enumerate(randomCond):
         
             # create an empty dictionary to store data in
             trial_df = {
@@ -338,18 +351,19 @@ try:
                 'block' : r,
                 'comment' : comment,
             }
-           
             
             #checks the keys pressed during last iteration
             #adjusts options accordingly
             
             menu()
+            
+            if leftmode:
+                rewardCond = 'L'
+            else if rightmode:
+                rewardCond = 'R'
                 
             trial_df['comment'] = comment
-            
-            if rewardCond not in ('L', 'R'):
-                rewardCond = ('L', 'R')[random.randint(0,1)]
-            
+                        
             #THE HANDSHAKE
             # send all current parameters to the arduino box to run the trial
             params = {
@@ -365,7 +379,6 @@ try:
             print colour("C: %s" %params['rewardCond'], 
                             fc.MAGENTA, style = Style.BRIGHT),
                               
-            #print colour("%s  GO!\r" %timenow(), fc.GREEN, style=Style.BRIGHT),
                 
             trial_df['time'] = timenow()
             
@@ -380,15 +393,15 @@ try:
                 if line:
                     if line[0] != "#" and line[0] != "-":
                         var, val = line.split(":\t")
-                        val = num(val)
-                        trial_df[var] = val
+                        trial_df[var] = num(val)
                         
             # partitions lick responses into three handy numbers each
 
             menu()
             
             for k in trial_df.keys():
-                if type(trial_df[k]) == list: trial_df[k] = trial_df[k][0]
+                if type(trial_df[k]) == list: 
+                    trial_df[k] = trial_df[k][0]
            
             """
             #Save the data to a data frame / Save to a file
