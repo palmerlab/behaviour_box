@@ -19,15 +19,7 @@ p.add_argument("-m",
                 default = "o", 
                 help = "the mode `h`abituaton or `o`perant, "
                         "by default will look in the config table",
-                )
-                
-p.add_argument("-r", 
-                "--rewardCond", 
-                default = '-', 
-                help = "can be 'L'eft or 'R'ight; a random condition "
-                        "is selected if left empty."
-                        " this value sets the port that will be rewarded",
-                )                
+                )           
                 
 p.add_argument('--repeats', 
                 default = 10, 
@@ -84,6 +76,18 @@ p.add_argument('--ITI',
                 default = [2,5], 
                 type = float, 
                 help = "an interval for randomising between trials",
+                )
+                
+lickside = p.add_mutually_exclusive_group()
+
+lickside.add_argument("-L", 
+                "--left", 
+                action = 'store_true',
+                )
+                
+lickside.add_argument("-R", 
+                "--right", 
+                action = 'store_true',
                 )
 
 args = p.parse_args()
