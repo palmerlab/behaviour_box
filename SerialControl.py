@@ -328,6 +328,8 @@ while os.path.isfile(df_file):
 
 comment = ""
 
+# making the random condition in this way means 
+# there are never more than 3 in a row
 randomCond = [i for i in product(['L','L'], ['R', 'R'])]
 np.random.shuffle(np.array(randomCond))
 randomCond = randomCond.reshape(-1)
