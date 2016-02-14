@@ -89,6 +89,8 @@ def menu():
     global mode
     global rewardCond
     global comment
+    global leftmode
+    global rightmode
     
     while True:
         while m.kbhit():
@@ -330,9 +332,9 @@ comment = ""
 
 # making the random condition in this way means 
 # there are never more than 3 in a row
-randomCond = [i for i in product(['L','L'], ['R', 'R'])]
-np.random.shuffle(np.array(randomCond))
-randomCond = randomCond.reshape(-1)
+randomCond = np.array([i for i in product(['L','R'], ['L', 'R'])])
+np.random.shuffle(randomCond)
+randomCond = np.array(randomCond).reshape(-1)
 
 try:
     #open a file to save data in
@@ -361,7 +363,7 @@ try:
             
             if leftmode:
                 rewardCond = 'L'
-            else if rightmode:
+            elif rightmode:
                 rewardCond = 'R'
                 
             trial_df['comment'] = comment

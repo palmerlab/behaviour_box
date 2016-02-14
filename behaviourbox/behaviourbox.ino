@@ -61,7 +61,7 @@ unsigned int trial_delay = 1000; // ms
 unsigned int t_stimONSET[] = {2000,2550};
 unsigned int stimDUR = 500;
 unsigned int t_rewardSTART = 2500; // ms
-unsigned int t_rewardEND = 10000; // ms
+unsigned int t_rewardEND = 5000; // ms
 unsigned int t_trialEND = 10000; // ms //maximum of 62 000
 
 char mode = '-'; //one of 'h'abituation, 'o'perant
@@ -72,10 +72,10 @@ byte minlickCount = 5;
 // -------------------
 int ON = 30; //keep this constant for consistency sake
 
-int left_OFF[][2] = {{0,  20},
-                     { 20, 0}};
+int left_OFF[][2] = {{0,  40},
+                     { 40, 0}};
 
-int right_OFF[][2] = {{20, 20},
+int right_OFF[][2] = {{40, 40},
                       { 0,  0}};
 
 bool right_port = 1;
@@ -802,6 +802,7 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
 
 
 
