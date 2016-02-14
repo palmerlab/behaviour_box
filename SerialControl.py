@@ -199,8 +199,9 @@ def Serial_monitor(ser, logfile, show = True):
             if line.startswith("port") == False:
                 print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
                 print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
-            
-        logfile.write(fmt_line + "\n")
+    
+        with open(logfile, 'a') as log:    
+            log.write(fmt_line + "\n")
         
     return line
 
@@ -338,12 +339,13 @@ randomCond = np.array(randomCond).reshape(-1)
 
 try:
     #open a file to save data in
-    with open(logfile, 'a') as log:
-        #open the communications line
-        ser = init_serialport(port, logfile = log)
-
-        # loop for r repeats
-        for r, rewardCond in enumerate(randomCond):
+    ser = init_serialport(port, logfile)
+    
+    # loop for r repeats
+    for r in xrange(repeats):
+        
+        # loop for number of trials in the list of random conditions
+        for trial_num, rewardCond in enumerate(randomCond):
         
             # create an empty dictionary to store data in
             trial_df = {
@@ -389,7 +391,7 @@ try:
             # Send the literal GO symbol
             ser.write("GO")
             
-            line = Serial_monitor(ser, log, show = verbose).strip()
+            line = Serial_monitor(ser, logfile, show = verbose).strip()
             
             while line.strip() != "-- Status: Ready --":
                 
@@ -505,7 +507,6 @@ try:
         
 except KeyboardInterrupt:
 
-   
     try:
         print "attempting to create DataFrame"
         trial_df = pd.DataFrame(trial_df, index=[trial_num])
