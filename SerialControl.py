@@ -110,7 +110,8 @@ def menu():
                 
             elif c in ("C","c"): #m,Ctrl-m
                 comment = raw_input("Comment: ")
-                log.write("Comment:\t%s\n" %comment)
+                with open(logfile, 'a') as log:
+                    log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
                 
             elif c in '\xe0K':
@@ -135,7 +136,8 @@ def menu():
             elif c in ("P", "p", "\x10"):
                 punish = not punish
                 print "Punish for wrong lick:\t%s" %punish
-                log.write("Punish for wrong lick:\t%s\n" %punish)
+                with open(logfile, 'a') as log:
+                    log.write("Punish for wrong lick:\t%s\n" %punish)
                    
             # adjust minLickCount
             elif c in ("[", "{"):
@@ -205,7 +207,7 @@ def Serial_monitor(ser, logfile, show = True):
         
     return line
 
-def update_bbox(ser, params, trial_df):
+def update_bbox(ser, params, trial_df, logfile):
     """
     Communicates the contents of the dict `params` through
     the serial communications port. 
@@ -226,7 +228,7 @@ def update_bbox(ser, params, trial_df):
         
         while ser.inWaiting():
 
-            line = Serial_monitor(ser, log, False).strip()
+            line = Serial_monitor(ser, logfile, False).strip()
 
             if line[0] != "#" and line[0] != "-":
                 var, val = line.split(":\t")
@@ -333,9 +335,6 @@ comment = ""
 
 # making the random condition in this way means 
 # there are never more than 3 in a row
-randomCond = np.array([i for i in product(['L','R'], ['L', 'R'])])
-np.random.shuffle(randomCond)
-randomCond = np.array(randomCond).reshape(-1)
 
 try:
     #open a file to save data in
@@ -343,6 +342,10 @@ try:
     
     # loop for r repeats
     for r in xrange(repeats):
+        
+        randomCond = np.array([i for i in product(['L','R'], ['L', 'R'])])
+        np.random.shuffle(randomCond)
+        randomCond = np.array(randomCond).reshape(-1)
         
         # loop for number of trials in the list of random conditions
         for trial_num, rewardCond in enumerate(randomCond):
@@ -380,7 +383,7 @@ try:
                         'minlickCount'      : lcount,
             }
             
-            trial_df = update_bbox(ser, params, trial_df)
+            trial_df = update_bbox(ser, params, trial_df, logfile)
             
             print colour("C: %s" %params['rewardCond'], 
                             fc.MAGENTA, style = Style.BRIGHT),
@@ -395,7 +398,7 @@ try:
             
             while line.strip() != "-- Status: Ready --":
                 
-                line = Serial_monitor(ser, log, False).strip()
+                line = Serial_monitor(ser, logfile, False).strip()
                 if line:
                     if line[0] != "#" and line[0] != "-":
                         var, val = line.split(":\t")
