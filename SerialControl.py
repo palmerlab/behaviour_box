@@ -443,10 +443,8 @@ try:
 
                 df.to_csv(datafile)
             
-            #Print the important data and coloured code for hits / misses
-            
-            print Style.BRIGHT, '\r',
-            
+            #Print the important data and coloured code for hits / misses  
+            print Style.BRIGHT, '\r', 
             
             table = {
                     'trial_num' : 't', 
@@ -476,21 +474,24 @@ try:
             
             print "\r", 100 * " ", "\r                ", #clear the line 
             
-            hits = df.correct.sum() / df.ID.count()
+            hits = df.correct.values[-10:].sum() / df.ID.values[-10:].size
             
             if df.ID[df.rewardCond.isin(['L','B'])].count():
-                 hit_L = df.correct[df.response == 'L'].sum() / df.ID[df.rewardCond.isin(['L','B'])].count()
+                 hit_L = ((df.response == 'L').values[-10:].sum() 
+                            / df.rewardCond.isin(['L','B']).values[-10:].sum())
             else: hit_L = float('nan')
             
             if df.ID[df.rewardCond.isin(['R','B'])].count():
-                 hit_R = df.correct[df.response == 'R'].sum() / df.ID[df.rewardCond.isin(['R','B'])].count()
+                 hit_R = ((df.response == 'R').values[-10:].sum() 
+                            / df.rewardCond.isin(['R','B']).values[-10:].sum())
             else: hit_R = float('nan')
             
             if df.ID[df.rewardCond != 'N'].count():
-                misses = (df.miss.sum() / df.ID[df.rewardCond != 'N'].count())*100
+                misses = (df.miss.values[-10:].sum() / 
+                            df.ID[df.rewardCond != 'N'].values[-10:].size)*100
             else: misses = float('nan')
             
-            wrong = (df.wrong.sum() / df.ID.count())*100
+            wrong = (df.wrong.values[-10:].sum() / df.ID.values[-10:].size)*100
             
             misses = na_printr(misses)
             wrong = na_printr(wrong)
@@ -504,9 +505,16 @@ try:
             
             comment = ""
             trial_num += 1            
-
+            
+            
             ITI = random.uniform(args.ITI[0], args.ITI[1])
+            print Style.BRIGHT, fc.GREEN,
+            if trial_df['response'].item() in ('l', 'r'): #this way I don't punish misses
+                #ITI = ITI + 3 + random.uniform(1,2)
+                print fc.CYAN,
+            print "\rwait %2.2g s" %ITI, Style.RESET_ALL,"\r",
             time.sleep(ITI)
+            print "             \r",
         
 except KeyboardInterrupt:
 

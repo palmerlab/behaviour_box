@@ -73,7 +73,7 @@ p.add_argument('-lc', '--lcount',
 
 p.add_argument('--ITI', 
                 nargs = 2, 
-                default = [2,5], 
+                default = [1,3], 
                 type = float, 
                 help = "an interval for randomising between trials",
                 )

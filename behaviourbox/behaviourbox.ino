@@ -60,9 +60,9 @@ unsigned int t_noLickPer = 0;
 unsigned int trial_delay = 1000; // ms
 unsigned int t_stimONSET[] = {2000,2550};
 unsigned int stimDUR = 500;
-unsigned int t_rewardSTART = 2500; // ms
+unsigned int t_rewardSTART = 3400; // ms
 unsigned int t_rewardEND = 5000; // ms
-unsigned int t_trialEND = 10000; // ms //maximum of 62 000
+unsigned int t_trialEND = 5000; // ms //maximum of 62 000
 
 char mode = '-'; //one of 'h'abituation, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
@@ -84,8 +84,8 @@ bool left_port = 0;
 // audio
 // -----
 
-// int toneGoodLeft = 4000; //Hz
-// int toneGoodRight = 8000; //Hz
+int toneGoodLeft = 4000; //Hz
+int toneGoodRight = 8000; //Hz
 int toneGood = 2000; //Hz
 int toneBad = 500; //Hz
 int toneDur = 100;
@@ -430,11 +430,13 @@ char TrialReward() {
 
             digitalWrite(waterPort[RewardPort], LOW);
              
-            if (lickOn[0]){ // hit left
+            if (lickOn[0] and !response){ // hit left
                 response = 'L';
+                tone(speakerPin, toneGoodLeft, 50);
             } 
-            if (lickOn[1]){ // hit right
+            if (lickOn[1] and !response){ // hit right
                 response = 'R';
+                tone(speakerPin, toneGoodRight, 50);
             } 
         
             if (verbose) { 
@@ -452,7 +454,10 @@ char TrialReward() {
         else if (count[!RewardPort] >= minlickCount){
                         
             // declare the fail condition??
+            
             if (!response) {
+                tone(speakerPin, toneBad, 50);
+                // TODO add random amount of time till trial end
                 if (lickOn[0]) {
                     response = 'l';
                 } //bad left 
@@ -591,16 +596,8 @@ int runTrial() {
         response = ActiveDelay(t_trialEND, true);
     }
     
-    if ((response != '-')    
-            and (
-                (response == rewardCond) 
-                or (rewardCond == 'B')
-            )
-        ) {
-            tone(speakerPin, toneGood, 50);
-    }
-    else {
-        
+    if (response != rewardCond) {
+
         if (response == 'L'){
             response = 'l';
             //tone(speakerPin, toneBad, 50);
