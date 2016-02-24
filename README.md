@@ -6,25 +6,15 @@ A lot of this README is outdated as of now (behaviourbox160212)
 #SerialController.py
 
 1. The program starts
-2. The program reads `config.tab` and `Frequencies.tab`,
-    
-    `config.tab` contains the details for a single run, 
-    each line in the format `variablename : value`
-    
-    `Frequencies.tab` contains the block of frequencies that will be shuffled, in Hz. 
-    The first line is a header with the title `frequency`, that gets ignored
-    
 2. The program opens communications with available serial port
     The program waits until it gets the arduino is active, and prints all output
     until the ready signal is transmitted. Which is `-- Status: Ready --`
     
 3. The program starts a block
-4. The program shuffles the stimuli (frequencies list)
-
-5. The program transmits the frequencies to the behaviour box,
-    The dict `params` holds all parameters for a single trial (from `config.tab`)
-    The condition values get updated; based on the frequencies being sent,
-    all contents of `params` are transmitted to the behaviour controller.
+5. The program transmits the dict `params`, which holds all parameters 
+    for a single trial. The condition values get updated; based on the
+    frequencies being sent, all contents of `params` are transmitted to
+    the behaviour controller.
     
 6. The program prints the frequencies and the condition to the screen and a
    random timeout is started.
@@ -78,14 +68,6 @@ Start program:
 --------------
 
 
-Working on
-:    I want the program to only report when the lickOn variable changes.
-    Ultimately I want to generate a raster plot, which requires the time
-    of each hit.
-
-    To do this I shall check the current LickOn value on senseLick. If
-    the value has changed then LickOn is updated. 
-
 The arduino program is a little complicated; but in principle a simple
 setup. The main method is `runTrial` which on initialisation:
 
@@ -96,9 +78,7 @@ setup. The main method is `runTrial` which on initialisation:
    so that if I decide the set a `noLickPer` time, I can have that come on a
    short time after the trigger. `ActiveDelay` has the condition `break_on_lick`
    as it's second argument. If `true` the program will exit the function before
-   it reaches the time that it is set to delay until. **TODO** make it so that if
-   `ActiveDelay` is broken the trial exits and prints `"#timeout initiated"` or
-    equivalent, for the SerialController to parse.
+   it reaches the time that it is set to delay until.
 3. Two stimuli are delivered, separated by an `ActiveDelay` method.
 4. After another `ActiveDelay` the program enters the `TrialReward` period, if
    `rewardCond` is not `'N'`, which stands for neither port giving water. During
@@ -116,8 +96,7 @@ do the following:
     unsigned long. It takes the value of `millis()` at the start of a run;
     which in turn is the number of milliseconds since the Arduino was turned on.
   
-`senseLickChange(bool sensor, bool* lickOn, bool* lickChange,`
-`                     byte[] lickSens = lickSens, byte[] lickRep = lickRep)`  
+`senseLickChange(bool sensor)`  
 : `sensor`
     is a Boolean, because I only have implemented two lick sensors, which can
     be 0 or 1, for the left and right sensors respectively. This function
@@ -141,7 +120,7 @@ do the following:
     (Possible source of bugs, it would be better to uses -1 and to check that
     the output is valid on call!)
 
-`flutter(stim_pin, on, off)`
+`flutter(off)`
 : This function runs single square pulse on `stim_pin` which is high
     for the duration `on`, defined in microseconds. The `off` value gives
     a delay in which the pin is in low state such that by stringing multiple 
@@ -170,8 +149,7 @@ do the following:
    `variablename` will be updated to be equal to `value`
 
 
-`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false,` 
-`                                         waterVol = 10, verbose = true)`
+`TrialReward()`
 : This function returns a character corresponding to the lick status
     
 |--- | ------------------------------------- |
