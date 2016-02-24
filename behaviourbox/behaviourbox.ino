@@ -261,6 +261,8 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
         Serial.println(t);
     }
     
+    response = get_response();
+    
     while (t < wait) {
         t = t_now(t_init);
         
@@ -458,11 +460,11 @@ char TrialReward() {
             if (!response) {
                 tone(speakerPin, toneBad, 150);
                 // TODO add random amount of time till trial end
-                if (lickOn[0]) {
-                    response = 'l';
-                } //bad left 
-                if (lickOn[1]) {
+                if (RewardPort == 0) {
                     response = 'r';
+                } //bad left 
+                if (RewardPort == 1) {
+                    response = 'l';
                 }  //bad right
             }
             if (break_wrongChoice){
@@ -546,8 +548,9 @@ int runTrial() {
     
     response = ActiveDelay(t_stimONSET[0], t_noLickPer);
     
-    if ((response != '-') and t_noLickPer){
-        
+    if (response != '-') {
+        tone(speakerPin, toneBad, 150);
+                
         if (response == 'L'){
             response = 'l';
         }
@@ -555,25 +558,24 @@ int runTrial() {
             response = 'r';
         }
         
-        tone(speakerPin, toneBad, 150);
-        
-        Serial.print("response:\t");
-        Serial.println(response);
-        Serial.print("response_time:\t");
-        Serial.println(t_now(t_init));
-        
-        Serial.println("count[0]:\tnan");
-        
-        
-        Serial.println("count[1]:\tnan");
-        
-        
-        Serial.println("OFF[0]:\tnan");
-        Serial.println("OFF[1]:\tnan");
-        
-        ActiveDelay(t_trialEND, false);
-        
-        return 0;
+        if (t_noLickPer){
+            
+            Serial.print("response:\t");
+            Serial.println(response);
+            Serial.print("response_time:\t");
+            Serial.println(t_now(t_init));
+            
+            Serial.println("count[0]:\tnan");
+            Serial.println("count[1]:\tnan");
+
+            Serial.println("OFF[0]:\tnan");
+            Serial.println("OFF[1]:\tnan");
+            
+            ActiveDelay(t_trialEND, false);
+            
+            return 0;
+        }
+
     }
     
     t = t_now(t_init);
