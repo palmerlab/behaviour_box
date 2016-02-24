@@ -456,7 +456,7 @@ char TrialReward() {
             // declare the fail condition??
             
             if (!response) {
-                tone(speakerPin, toneBad, 50);
+                tone(speakerPin, toneBad, 150);
                 // TODO add random amount of time till trial end
                 if (lickOn[0]) {
                     response = 'l';
@@ -466,7 +466,7 @@ char TrialReward() {
                 }  //bad right
             }
             if (break_wrongChoice){
-                tone(speakerPin, toneBad, 50);
+                tone(speakerPin, toneBad, 150);
                 if (verbose) { 
                     Serial.print("count[0]:\t");
                     Serial.println(count[0]);
@@ -544,7 +544,32 @@ int runTrial() {
     ActiveDelay(t_noLickPer, false);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET[0], false);
+    response = ActiveDelay(t_stimONSET[0], t_noLickPer);
+    
+    if (response and t_noLickPer){
+        
+        if (repsonse == 'L'){
+            response = 'l';
+        }
+        if (repsonse == 'R'){
+            response = 'r';
+        }
+        
+        tone(speakerPin, toneBad, 150);
+        
+        Serial.print("response:\t");
+        Serial.println(response);
+        Serial.print("response_time:\t");
+        Serial.println(t_now(t_init));
+        
+        Serial.println("OFF[0]:\t ");
+        Serial.println("OFF[1]:\t ");
+        
+        ActiveDelay(t_trialEND, false);
+        
+        return 0;
+    }
+    
     t = t_now(t_init);
     
     if (OFF[0] >= 0) {
@@ -600,11 +625,11 @@ int runTrial() {
 
         if (response == 'L'){
             response = 'l';
-            //tone(speakerPin, toneBad, 50);
+            //tone(speakerPin, toneBad, 150);
         }
         else if (response == 'R'){
             response = 'r';
-            //tone(speakerPin, toneBad, 50);
+            //tone(speakerPin, toneBad, 150);
         }
     }
     

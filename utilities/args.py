@@ -70,6 +70,20 @@ p.add_argument('-lc', '--lcount',
                 help = 'set `minlickCount` in arduino'
                 )
 
+p.add_argument('-lp', '--noLick', 
+                default = 1000, 
+                type = int, 
+                help = 'set `t_noLickPer` in arduino'
+                )
+
+p.add_argument('--trialDur', 
+                default = 10, 
+                type = int, 
+                help = 'set minimum trial duration'
+                )                
+
+                
+
 
 p.add_argument('--ITI', 
                 nargs = 2, 

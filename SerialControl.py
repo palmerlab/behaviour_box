@@ -56,6 +56,7 @@ repeats = args.repeats
 datapath = args.datapath
 weight = args.weight
 trial_num = args.trial_num
+trialDur = args.trialDur
 
 leftmode =  args.left
 rightmode = args.right
@@ -65,6 +66,7 @@ lickThres = int((args.lickThres/5)*1024)
 mode = args.mode
 punish = args.punish
 lcount = args.lcount
+noLick = args.noLick
 
 
 """
@@ -91,6 +93,7 @@ def menu():
     global comment
     global leftmode
     global rightmode
+    global noLick
     
     while True:
         while m.kbhit():
@@ -135,10 +138,12 @@ def menu():
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
                 punish = not punish
+                noLick = args.noLick if punish else 0
                 print "Punish for wrong lick:\t%s" %punish
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
-                   
+                return
+                
             # adjust minLickCount
             elif c in ("[", "{"):
                 lcount -= 1
@@ -262,7 +267,6 @@ def create_logfile(DATADIR = "", date = today()):
     """
     
     """
-
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
     print colour("Saving log in:\t", fc = fc.GREEN, style=Style.BRIGHT),
@@ -381,6 +385,7 @@ try:
                         'lickThres'         : lickThres,
                         'break_wrongChoice' : num(punish),
                         'minlickCount'      : lcount,
+                        't_noLickPer'       : noLick,
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)
@@ -393,19 +398,20 @@ try:
             
             # Send the literal GO symbol
             ser.write("GO")
+            start_time = time.time()
             
             line = Serial_monitor(ser, logfile, show = verbose).strip()
             
-            while line.strip() != "-- Status: Ready --":
-                
-                line = Serial_monitor(ser, logfile, False).strip()
-                if line:
-                    if line[0] != "#" and line[0] != "-":
-                        var, val = line.split(":\t")
-                        trial_df[var] = num(val)
-                        
-            # partitions lick responses into three handy numbers each
-
+            while (time.time()-start_time) < trialDur:
+                # keep running while the trial is a go
+                while line.strip() != "-- Status: Ready --":
+                    # keep running until arduino reports it has broken out of loop
+                    line = Serial_monitor(ser, logfile, False).strip()
+                    if line:
+                        if line[0] != "#" and line[0] != "-":
+                            var, val = line.split(":\t")
+                            trial_df[var] = num(val)
+                            
             menu()
             
             for k in trial_df.keys():
@@ -459,8 +465,9 @@ try:
                     'OFF[1]': 'off1',
             }
             
-            for k in ('trial_num' , 'mode', 'rewardCond', 'response', 'count[0]', 'count[1]', 
-                            'WaterPort[0]', 'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+            for k in ('trial_num' , 'mode', 'rewardCond', 'response', 
+                            'count[0]', 'count[1]', 'WaterPort[0]', 
+                            'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
                 
                 if df.correct.iloc[-1]:
                     print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
@@ -507,10 +514,10 @@ try:
             trial_num += 1            
             
             
-            ITI = random.uniform(args.ITI[0], args.ITI[1])
+            ITI = random.uniform(2, 3)
             print Style.BRIGHT, fc.GREEN,
-            if trial_df['response'].item() in ('l', 'r'): #this way I don't punish misses
-                #ITI = ITI + 3 + random.uniform(1,2)
+            if trial_df['response'].item() not in ('L', 'R'):
+                ITI = random.uniform(1,2)
                 print fc.CYAN,
             print "\rwait %2.2g s" %ITI, Style.RESET_ALL,"\r",
             time.sleep(ITI)
