@@ -78,9 +78,7 @@ setup. The main method is `runTrial` which on initialisation:
    so that if I decide the set a `noLickPer` time, I can have that come on a
    short time after the trigger. `ActiveDelay` has the condition `break_on_lick`
    as it's second argument. If `true` the program will exit the function before
-   it reaches the time that it is set to delay until. **TODO** make it so that if
-   `ActiveDelay` is broken the trial exits and prints `"#timeout initiated"` or
-    equivalent, for the SerialController to parse.
+   it reaches the time that it is set to delay until.
 3. Two stimuli are delivered, separated by an `ActiveDelay` method.
 4. After another `ActiveDelay` the program enters the `TrialReward` period, if
    `rewardCond` is not `'N'`, which stands for neither port giving water. During
