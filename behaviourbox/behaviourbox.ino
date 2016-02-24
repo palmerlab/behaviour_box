@@ -56,7 +56,7 @@ const char lickSens[] = {A0,A1};
 
 unsigned long t_init;
 
-unsigned int t_noLickPer = 0;
+unsigned int t_noLickPer = 1000;
 unsigned int trial_delay = 1000; // ms
 unsigned int t_stimONSET[] = {2000,2550};
 unsigned int stimDUR = 500;
@@ -546,12 +546,12 @@ int runTrial() {
     
     response = ActiveDelay(t_stimONSET[0], t_noLickPer);
     
-    if (response and t_noLickPer){
+    if ((response != '-') and t_noLickPer){
         
-        if (repsonse == 'L'){
+        if (response == 'L'){
             response = 'l';
         }
-        if (repsonse == 'R'){
+        if (response == 'R'){
             response = 'r';
         }
         
@@ -562,8 +562,14 @@ int runTrial() {
         Serial.print("response_time:\t");
         Serial.println(t_now(t_init));
         
-        Serial.println("OFF[0]:\t ");
-        Serial.println("OFF[1]:\t ");
+        Serial.println("count[0]:\tnan");
+        
+        
+        Serial.println("count[1]:\tnan");
+        
+        
+        Serial.println("OFF[0]:\tnan");
+        Serial.println("OFF[1]:\tnan");
         
         ActiveDelay(t_trialEND, false);
         
@@ -761,6 +767,14 @@ int UpdateGlobals(String input) {
                 Serial.println(minlickCount);
                 return 1;
         }
+        else if (variable_name == "t_noLickPer") {
+                t_noLickPer = variable_value.toInt();
+                Serial.print("t_noLickPer:\t");
+                Serial.println(t_noLickPer);
+                return 1;
+        }
+          
+        
    }
    return 0;
 }

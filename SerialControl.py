@@ -517,7 +517,7 @@ try:
             ITI = random.uniform(2, 3)
             print Style.BRIGHT, fc.GREEN,
             if trial_df['response'].item() not in ('L', 'R'):
-                ITI = random.uniform(1,2)
+                ITI = 0
                 print fc.CYAN,
             print "\rwait %2.2g s" %ITI, Style.RESET_ALL,"\r",
             time.sleep(ITI)
