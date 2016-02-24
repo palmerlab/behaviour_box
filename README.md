@@ -96,8 +96,7 @@ do the following:
     unsigned long. It takes the value of `millis()` at the start of a run;
     which in turn is the number of milliseconds since the Arduino was turned on.
   
-`senseLickChange(bool sensor, bool* lickOn, bool* lickChange,`
-`                     byte[] lickSens = lickSens, byte[] lickRep = lickRep)`  
+`senseLickChange(bool sensor)`  
 : `sensor`
     is a Boolean, because I only have implemented two lick sensors, which can
     be 0 or 1, for the left and right sensors respectively. This function
@@ -121,7 +120,7 @@ do the following:
     (Possible source of bugs, it would be better to uses -1 and to check that
     the output is valid on call!)
 
-`flutter(stim_pin, on, off)`
+`flutter(off)`
 : This function runs single square pulse on `stim_pin` which is high
     for the duration `on`, defined in microseconds. The `off` value gives
     a delay in which the pin is in low state such that by stringing multiple 
@@ -150,8 +149,7 @@ do the following:
    `variablename` will be updated to be equal to `value`
 
 
-`TrialReward(mode, t_rewardEND, rewardCond, break_wrongChoice = false,` 
-`                                         waterVol = 10, verbose = true)`
+`TrialReward()`
 : This function returns a character corresponding to the lick status
     
 |--- | ------------------------------------- |
