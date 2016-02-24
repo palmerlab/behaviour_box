@@ -68,14 +68,6 @@ Start program:
 --------------
 
 
-Working on
-:    I want the program to only report when the lickOn variable changes.
-    Ultimately I want to generate a raster plot, which requires the time
-    of each hit.
-
-    To do this I shall check the current LickOn value on senseLick. If
-    the value has changed then LickOn is updated. 
-
 The arduino program is a little complicated; but in principle a simple
 setup. The main method is `runTrial` which on initialisation:
 
