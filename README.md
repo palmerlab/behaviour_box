@@ -6,25 +6,15 @@ A lot of this README is outdated as of now (behaviourbox160212)
 #SerialController.py
 
 1. The program starts
-2. The program reads `config.tab` and `Frequencies.tab`,
-    
-    `config.tab` contains the details for a single run, 
-    each line in the format `variablename : value`
-    
-    `Frequencies.tab` contains the block of frequencies that will be shuffled, in Hz. 
-    The first line is a header with the title `frequency`, that gets ignored
-    
 2. The program opens communications with available serial port
     The program waits until it gets the arduino is active, and prints all output
     until the ready signal is transmitted. Which is `-- Status: Ready --`
     
 3. The program starts a block
-4. The program shuffles the stimuli (frequencies list)
-
-5. The program transmits the frequencies to the behaviour box,
-    The dict `params` holds all parameters for a single trial (from `config.tab`)
-    The condition values get updated; based on the frequencies being sent,
-    all contents of `params` are transmitted to the behaviour controller.
+5. The program transmits the dict `params`, which holds all parameters 
+    for a single trial. The condition values get updated; based on the
+    frequencies being sent, all contents of `params` are transmitted to
+    the behaviour controller.
     
 6. The program prints the frequencies and the condition to the screen and a
    random timeout is started.
