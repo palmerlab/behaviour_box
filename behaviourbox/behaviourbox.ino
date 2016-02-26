@@ -70,13 +70,13 @@ byte minlickCount = 5;
 
 // stimulus parameters
 // -------------------
-int ON = 30; //keep this constant for consistency sake
 
-int left_OFF[][2] = {{0,  40},
-                     { 40, 0}};
+int ON = 30;
+int left_OFF[][2] =  {{   0,  200},
+                      { 200,    0}};
 
-int right_OFF[][2] = {{40, 40},
-                      { 0,  0}};
+int right_OFF[][2] = {{ 200,  200},
+                      {   0,    0}};
 
 bool right_port = 1;
 bool left_port = 0;
@@ -111,6 +111,7 @@ bool do_habituation = true;
 /* -------------------------------------------------------++
 ||                  THE PROTOTYPES                        ||
 ++--------------------------------------------------------*/
+
 char get_response();
 
 char Habituation();
@@ -136,6 +137,7 @@ long t_now(unsigned long t_init);
 String getSerialInput();
 
 int getSepIndex(String input, char seperator);
+
 /* -------------------------------------------------------++
 ||                  END PROTOTYPES                        ||
 ++--------------------------------------------------------*/
@@ -177,6 +179,7 @@ void loop () {
         if (input == "GO"){
             runTrial();
             Serial.println("-- Status: Ready --");
+            digitalWrite(recTrig, LOW);
         }
         else { 
             UpdateGlobals(input);
@@ -261,8 +264,6 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
         Serial.println(t);
     }
     
-    response = get_response();
-    
     while (t < wait) {
         t = t_now(t_init);
         
@@ -306,9 +307,7 @@ void preTrial() {
         
         senseLick(0);
         senseLick(1);
-        
-        //TODO: define statusLED and plug in an LED to hardware: Almost Done
-        // LED to flash each second before the trial: Might not be possible, can be done with different coloured number of LEDs
+
         if (t%1000 < 20){
             digitalWrite(statusLED, HIGH);
         } 
@@ -323,7 +322,7 @@ void preTrial() {
         // loop to avoid artefacts in the recording
     }
     
-    digitalWrite(recTrig, LOW);
+    //digitalWrite(recTrig, LOW);
     
     if (verbose) {
         Serial.print("#Exit `preTrial`:\t");
@@ -460,11 +459,11 @@ char TrialReward() {
             if (!response) {
                 tone(speakerPin, toneBad, 150);
                 // TODO add random amount of time till trial end
-                if (RewardPort == 0) {
-                    response = 'r';
-                } //bad left 
-                if (RewardPort == 1) {
+                if (lickOn[0]) {
                     response = 'l';
+                } //bad left 
+                if (lickOn[1]) {
+                    response = 'r';
                 }  //bad right
             }
             if (break_wrongChoice){
@@ -548,9 +547,8 @@ int runTrial() {
     
     response = ActiveDelay(t_stimONSET[0], t_noLickPer);
     
-    if (response != '-') {
-        tone(speakerPin, toneBad, 150);
-                
+    if ((response != '-') and t_noLickPer){
+        
         if (response == 'L'){
             response = 'l';
         }
@@ -558,24 +556,21 @@ int runTrial() {
             response = 'r';
         }
         
-        if (t_noLickPer){
-            
-            Serial.print("response:\t");
-            Serial.println(response);
-            Serial.print("response_time:\t");
-            Serial.println(t_now(t_init));
-            
-            Serial.println("count[0]:\tnan");
-            Serial.println("count[1]:\tnan");
-
-            Serial.println("OFF[0]:\tnan");
-            Serial.println("OFF[1]:\tnan");
-            
-            ActiveDelay(t_trialEND, false);
-            
-            return 0;
-        }
-
+        tone(speakerPin, toneBad, 150);
+        
+        Serial.print("response:\t");
+        Serial.println(response);
+        Serial.print("response_time:\t");
+        Serial.println(t_now(t_init));
+        
+        Serial.println("count[0]:\tnan");
+        Serial.println("count[1]:\tnan");
+        Serial.println("OFF[0]:\tnan");
+        Serial.println("OFF[1]:\tnan");
+        
+        ActiveDelay(t_trialEND, false);
+        
+        return 0;
     }
     
     t = t_now(t_init);
@@ -602,8 +597,7 @@ int runTrial() {
     }
     
     t = t_now(t_init);
-    
-    
+
     // TODO include contingency to report on lick early without breaking?
     ActiveDelay(t_rewardSTART, false);
     t = t_now(t_init);
@@ -620,8 +614,7 @@ int runTrial() {
     */
     
     response = TrialReward();
-
-    
+  
     if (response) {
         response_time = t_now(t_init);
     }
@@ -638,6 +631,9 @@ int runTrial() {
         else if (response == 'R'){
             response = 'r';
             //tone(speakerPin, toneBad, 150);
+        }
+        else if (!rseponse){
+            response = '-';
         }
     }
     
@@ -775,8 +771,6 @@ int UpdateGlobals(String input) {
                 Serial.println(t_noLickPer);
                 return 1;
         }
-          
-        
    }
    return 0;
 }
@@ -840,7 +834,3 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
-
-
-
-
