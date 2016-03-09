@@ -98,17 +98,26 @@ def menu():
     while True:
         while m.kbhit():
             c = m.getch()
-            if c == '\xe0': c = c + m.getch()
+            if c == '\xe0': 
+                c = c + m.getch()
         
         #menu:::
+        """
+        TODO:
+        ? adjustable no lick period
+        ? adjustable delay to reward
+        ? imaging flag
+        """
         
             if c in ("\r"):
                 return
             
             # Toggle condition
             elif c in ("\t"):               
-                if mode == "o": mode = "h"
-                elif mode == "h": mode = "o"
+                if mode == "o": 
+                    mode = "h"
+                elif mode == "h": 
+                    mode = "o"
                 print "Training mode:\t%s" %mode
                 
             elif c in ("C","c"): #m,Ctrl-m
@@ -347,7 +356,7 @@ try:
     # loop for r repeats
     for r in xrange(repeats):
         
-        randomCond = np.array([i for i in product(['L','R'], ['L', 'R'])])
+        randomCond = np.array([i for i in product(['L','R', 'L'], ['R','L', 'R'])])
         np.random.shuffle(randomCond)
         randomCond = np.array(randomCond).reshape(-1)
         
@@ -418,6 +427,11 @@ try:
                 if type(trial_df[k]) == list: 
                     trial_df[k] = trial_df[k][0]
            
+           
+           
+            """
+            THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
+            """
             """
             #Save the data to a data frame / Save to a file
             """
@@ -481,7 +495,8 @@ try:
             
             print "\r", 100 * " ", "\r                ", #clear the line 
             
-            hits = df.correct.values[-10:].sum() / df.ID.values[-10:].size
+            hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
+                            / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
             
             if df.ID[df.rewardCond.isin(['L','B'])].count():
                  hit_L = ((df.response == 'L').values[-10:].sum() 
