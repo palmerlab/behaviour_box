@@ -97,6 +97,7 @@ def menu():
     global leftmode
     global rightmode
     global noLick
+    global trialDur
     
     while True:
         while m.kbhit():
@@ -155,6 +156,31 @@ def menu():
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
                 return
+            
+            # adjust the no lick period
+            elif c in (":", ";"):
+                noLick -= 10
+                print "noLick:\t%3d\r" %noLick,
+            
+            elif c in ("\'", "\""):
+                noLick += 10
+                print "noLick:\t%3d\r" %noLick,
+            
+            elif c in ("l", "L"):
+                print "noLick:\t%3d\r" %noLick,
+                
+            # adjust the trial duration
+            elif c in ("9", "("):
+                trialDur -= 1
+                print "trialDur:\t%3d\r" %trialDur,
+            
+            elif c in ("0", ")"):
+                trialDur += 1
+                print "trialDur:\t%3d\r" %trialDur,
+            
+            elif c in ("T", "t"):
+                print "TrialDur:\t%3d\r" %trialDur,
+                
                 
             # adjust minLickCount
             elif c in ("[", "{"):
@@ -180,16 +206,25 @@ def menu():
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
-            else:
+            elif c in ("h"):
                 print "-----------------------------"
                 print "options    :"
+                print "  ...   H  : This menu"
                 print "  ...   P  : Punish"
                 print "  ...   < >: lick threshold" 
                 print "  ...   ?  : show threshold" 
                 print "  ...   [ ]: lickcount"
                 print "  ...   \\  : show lickcount" 
                 print "  ...   tab: toggle mode"
+                print "  ...   : \": adjust noLick period"
+                print "  ...   L  : show noLick period"
+                print "  ...   ( ): adjust trial duration"
+                print "  ...   T  : show trial duration period"
                 print "-----------------------------"
+                
+            else:
+                print "--- PAUSED ---\r",
+                
                 
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
