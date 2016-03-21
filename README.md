@@ -1,7 +1,6 @@
-UPDATE:
+Recent Update:
 
-A massive overhaul has happened.
-A lot of this README is outdated as of now (behaviourbox160212)
+Adds auditory option and allows the frequencies / off times to be controlled online
 
 #SerialController.py
 
