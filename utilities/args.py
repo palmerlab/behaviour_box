@@ -58,6 +58,17 @@ p.add_argument("--verbose",
                 help = "for debug this will print everything if enabled",
                 )
 
+p.add_argument("-a", "--auditory", 
+                action = 'store_true', 
+                help = "switch to auditory stimulus instead of somatosensory",
+                )
+                
+p.add_argument("-rs", "--right_same", 
+                action = 'store_true', 
+                help = "define the right port as correct for same stimulus",
+                )
+
+                
 p.add_argument('-lt', '--lickThres', 
                 default = 0.75, 
                 type = int, 
@@ -80,10 +91,14 @@ p.add_argument('--trialDur',
                 default = 10, 
                 type = int, 
                 help = 'set minimum trial duration'
-                )                
+                )             
 
-                
-
+p.add_argument('--freq', 
+                nargs = 2, 
+                default = [0,200], 
+                type = int, 
+                help = "Frequencies or OFF time values to be passed to arduino as off_short and off_long",
+                )
 
 p.add_argument('--ITI', 
                 nargs = 2, 

@@ -57,6 +57,8 @@ datapath = args.datapath
 weight = args.weight
 trial_num = args.trial_num
 trialDur = args.trialDur
+auditory = args.auditory
+off_short, off_long = sorted(args.freq)
 
 leftmode =  args.left
 rightmode = args.right
@@ -67,6 +69,7 @@ mode = args.mode
 punish = args.punish
 lcount = args.lcount
 noLick = args.noLick
+right_same = args.right_same
 
 
 """
@@ -395,14 +398,17 @@ try:
                         'break_wrongChoice' : num(punish),
                         'minlickCount'      : lcount,
                         't_noLickPer'       : noLick,
+                        'auditory'          : auditory,
+                        'right_same'        : right_same,
+                        'off_short'         : off_short,
+                        'off_long'          : off_long,
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)
             
             print colour("C: %s" %params['rewardCond'], 
                             fc.MAGENTA, style = Style.BRIGHT),
-                              
-                
+
             trial_df['time'] = timenow()
             
             # Send the literal GO symbol

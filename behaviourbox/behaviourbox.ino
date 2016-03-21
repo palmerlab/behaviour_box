@@ -1,4 +1,4 @@
-String version = "#behaviourbox160212";
+String version = "#behaviourbox160321";
 
 /*
     Author: Naoya Takahashi
@@ -457,7 +457,7 @@ char TrialReward() {
         // response reports if there was a lick in the reward period
         
         if (rewardCond == 'L') {
-                RewardTest = (count[left] >= minlickCount);            
+                RewardTest = (count[left] >= minlickCount);
                 RewardPort = left;
         }
                 
