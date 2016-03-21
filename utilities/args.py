@@ -62,6 +62,11 @@ p.add_argument("-a", "--auditory",
                 action = 'store_true', 
                 help = "switch to auditory stimulus instead of somatosensory",
                 )
+
+p.add_argument("-b", "--blanks", 
+                action = 'store_true', 
+                help = "include no stim trials",
+                )
                 
 p.add_argument("-rs", "--right_same", 
                 action = 'store_true', 
