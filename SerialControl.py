@@ -59,6 +59,7 @@ trial_num = args.trial_num
 trialDur = args.trialDur
 auditory = args.auditory
 off_short, off_long = sorted(args.freq)
+blanks = args.blanks
 
 leftmode =  args.left
 rightmode = args.right
@@ -104,14 +105,6 @@ def menu():
             c = m.getch()
             if c == '\xe0': 
                 c = c + m.getch()
-        
-        #menu:::
-        """
-        TODO:
-        ? adjustable no lick period
-        ? adjustable delay to reward
-        ? imaging flag
-        """
         
             if c in ("\r"):
                 return
@@ -394,9 +387,16 @@ try:
     # loop for r repeats
     for r in xrange(repeats):
         
-        randomCond = np.array([i for i in product(['L','R', 'L'], ['R','L', 'R'])])
+        RC1 = ['L', 'R', 'L']
+        RC2 = ['R','L','R',]
+        if blanks:
+            RC1.insert(0, "-")
+        randomCond = [i for i in product(RC1, RC2)]
+        #randomCond.insert(0, ("-", "-"))
+        randomCond = np.array(randomCond)
         np.random.shuffle(randomCond)
         randomCond = np.array(randomCond).reshape(-1)
+        print colour("".join(randomCond), fc.CYAN)
         
         # loop for number of trials in the list of random conditions
         for trial_num, rewardCond in enumerate(randomCond):
@@ -417,9 +417,9 @@ try:
             
             menu()
             
-            if leftmode:
+            if leftmode and rewardCond!= '-':
                 rewardCond = 'L'
-            elif rightmode:
+            elif rightmode and rewardCond!= '-':
                 rewardCond = 'R'
                 
             trial_df['comment'] = comment
@@ -433,8 +433,8 @@ try:
                         'break_wrongChoice' : num(punish),
                         'minlickCount'      : lcount,
                         't_noLickPer'       : noLick,
-                        'auditory'          : auditory,
-                        'right_same'        : right_same,
+                        'auditory'          : int(auditory),
+                        'right_same'        : int(right_same),
                         'off_short'         : off_short,
                         'off_long'          : off_long,
             }

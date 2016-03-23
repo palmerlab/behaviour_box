@@ -267,10 +267,10 @@ void init_stim(){
     // stimulus intensities to the same or different
     // depending on the value of `right_same`
         
-    same_off[0][0] = off_short;
-    same_off[0][1] = off_short;
-    same_off[1][0] = off_long;
-    same_off[1][1] = off_long;    
+    same_OFF[0][0] = off_short;
+    same_OFF[0][1] = off_short;
+    same_OFF[1][0] = off_long;
+    same_OFF[1][1] = off_long;    
     
     diff_off[0][0] = off_short;
     diff_off[0][1] = off_long;
@@ -284,7 +284,7 @@ void init_stim(){
         same_off[0][0] = -1;
         same_off[1][0] = -1;
     }
-    
+
     if (right_same){
         memcpy(right_OFF, same_OFF, sizeof(right_OFF));
         memcpy(left_OFF, diff_OFF, sizeof(left_OFF));
@@ -379,14 +379,14 @@ int TrialStimulus(int value) {
     int t = t_now(t_local);
     
     // TODO this should be abstracted
-    if (auditory) {
+    /*if (auditory) {
         if (value == off_short){
-            value = 18000;
+            value = 20000;
         } 
         else if (value == off_long){
-            value = 9000;
+            value = 5000;
         } 
-    }
+    }*/
     
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
@@ -400,10 +400,15 @@ int TrialStimulus(int value) {
         Serial.print("#\tstimDUR:\t");
         Serial.println(stimDUR);
         
-        Serial.print("#\value:\t");
+        Serial.print("#\tvalue:\t");
         Serial.println(value);
     }
    
+   
+    if (auditory) {
+            tone(speakerPin, value, stimDUR - 10);
+        }
+        
     while (t < stimDUR){
         /* Run the buzzer while:
            1. update the time
@@ -422,8 +427,9 @@ int TrialStimulus(int value) {
         }
         
         t = t_now(t_local);
-
     } 
+    noTone(speakerPin);
+    
     digitalWrite(stimulusPin, LOW); //this is a safety catch
 
     if (verbose) {
@@ -680,7 +686,7 @@ int runTrial() {
             response = 'r';
             //tone(speakerPin, toneBad, 150);
         }
-        else if (!rseponse){
+        else if (!response){
             response = '-';
         }
     }
@@ -832,7 +838,7 @@ int UpdateGlobals(String input) {
                 return 1;
         }
         else if (variable_name == "off_long") {
-                off_long = bool(variable_value.toInt());
+                off_long = variable_value.toInt();
                 Serial.print("off_long:\t");
                 Serial.println(off_long);
                 return 1;
