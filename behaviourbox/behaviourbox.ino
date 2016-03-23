@@ -71,6 +71,7 @@ byte minlickCount = 5;
 // stimulus parameters
 // -------------------
 
+bool single_stim;
 bool right_same;
 
 int off_short = 0;
@@ -271,10 +272,18 @@ void init_stim(){
     same_off[1][0] = off_long;
     same_off[1][1] = off_long;    
     
-    dif_off[0][0] = off_short;
-    dif_off[0][1] = off_long;
-    dif_off[1][0] = off_long;
-    dif_off[1][1] = off_short;
+    diff_off[0][0] = off_short;
+    diff_off[0][1] = off_long;
+    diff_off[1][0] = off_long;
+    diff_off[1][1] = off_short;
+    
+    if (single_stim) {
+        diff_off[0][0] = -1;
+        diff_off[1][0] = -1;
+        
+        same_off[0][0] = -1;
+        same_off[1][0] = -1;
+    }
     
     if (right_same){
         memcpy(right_OFF, same_OFF, sizeof(right_OFF));
@@ -402,14 +411,16 @@ int TrialStimulus(int value) {
         */
         senseLick(left);
         senseLick(right);
-
-        if (auditory){
-            tone(speakerPin, value, stimDur);
+        
+        if (value >= -1){
+            if (auditory){
+                tone(speakerPin, value, stimDur);
+            }
+            else {
+                flutter(value);
+            }
         }
-        else {
-            flutter(value);
-        }
-
+        
         t = t_now(t_local);
 
     } 
@@ -626,27 +637,13 @@ int runTrial() {
     
     t = t_now(t_init);
     
-    if (OFF[0] >= 0) {
-        TrialStimulus(OFF[0]);
-    }
-    else if (verbose) {
-        Serial.println("#skipping stim0");
-    }
-    
+    TrialStimulus(OFF[0]);
     t = t_now(t_init);
     
     ActiveDelay(t_stimONSET[1], false);
     t = t_now(t_init);
     
-    if (OFF[1] >= 0){ 
-        TrialStimulus(OFF[1]);
-    }
-    else {
-        if (verbose){
-            Serial.println("#skipping stim1");
-        }
-    }
-    
+    TrialStimulus(OFF[1]);
     t = t_now(t_init);
 
     // TODO include contingency to report on lick early without breaking?
@@ -711,7 +708,7 @@ char Habituation(){
     bool port = 0;
     int t_interStimdelay = t_stimONSET[1] 
                             - (t_stimONSET[0] + stimDUR);
-    int OFF[2] = {0,0};
+    int intensity[2] = {0,0};
     t_init = millis();
 
     char response = get_response();
@@ -719,14 +716,14 @@ char Habituation(){
     if (response != '-') {
         
         if (response == 'L') {
-            OFF[0] = left_OFF[rbit][0];
-            OFF[1] = left_OFF[rbit][1];
+            intensity[0] = left_OFF[rbit][0];
+            intensity[1] = left_OFF[rbit][1];
             port = left;
         }
         
         else if (response == 'R'){
-            OFF[0] = right_OFF[rbit][0];
-            OFF[1] = right_OFF[rbit][1];
+            intensity[0] = right_OFF[rbit][0];
+            intensity[1] = right_OFF[rbit][1];
             port = right;
         }
         
@@ -736,11 +733,11 @@ char Habituation(){
         
         tone(speakerPin, toneGood, 50);
 
-        TrialStimulus(OFF[0]);
+        TrialStimulus(intensity[0]);
         
         delay(t_interStimdelay);
         
-        TrialStimulus(OFF[1]);
+        TrialStimulus(intensity[1]);
                     
         if (ActiveDelay(500u, true) == response){
             digitalWrite(waterPort[port], HIGH);
@@ -846,6 +843,13 @@ int UpdateGlobals(String input) {
                 Serial.println(auditory);
                 return 1;
         }
+        else if (variable_name == "single_stim") {
+                single_stim = bool(variable_value.toInt());
+                Serial.print("single_stim:\t");
+                Serial.println(single_stim);
+                return 1;
+        }
+        
    }
    return 0;
 }
