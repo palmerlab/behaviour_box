@@ -48,16 +48,15 @@ Arguments
 --------------------------------------------------------------------
 """
 
-
-verbose = args.verbose # this will be a cmdline parameter
-port = args.port # a commandline parameter
-ID = args.ID
-repeats = args.repeats
-datapath = args.datapath
-weight = args.weight
-trial_num = args.trial_num
-trialDur = args.trialDur
-auditory = args.auditory
+verbose = args.verbose                # this will be a command line parameter
+port = args.port                      # a command line parameter
+ID = args.ID                          # the identity number of the animal
+repeats = args.repeats                # number of repetitions
+datapath = args.datapath              # a custom location to save data
+weight = args.weight                  # the weight of the animal
+trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
+trialDur = args.trialDur              # nominally the time to idle before resetting
+auditory = argorys.auditory           # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
 blanks = args.blanks
 
@@ -68,10 +67,10 @@ rightmode = args.right
 lickThres = int((args.lickThres/5)*1024)
 mode = args.mode
 punish = args.punish
+timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
 right_same = args.right_same
-
 
 """
 --------------------------------------------------------------------
@@ -99,6 +98,7 @@ def menu():
     global rightmode
     global noLick
     global trialDur
+    global timeout
     
     while True:
         while m.kbhit():
@@ -173,7 +173,13 @@ def menu():
             
             elif c in ("T", "t"):
                 print "TrialDur:\t%3d\r" %trialDur,
-                
+
+            elif c in ("y", "Y"):
+                if timeout:
+                    timeout = 0
+                else:
+                    timeout = args.timeout
+                print "timeout:\t%3d\r" %timeout,
                 
             # adjust minLickCount
             elif c in ("[", "{"):
@@ -213,6 +219,7 @@ def menu():
                 print "  ...   L  : show noLick period"
                 print "  ...   ( ): adjust trial duration"
                 print "  ...   T  : show trial duration period"
+                print "  ...   Y  : toggle timeout"
                 print "-----------------------------"
                 
             else:
