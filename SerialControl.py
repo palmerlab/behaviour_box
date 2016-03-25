@@ -72,6 +72,7 @@ lcount = args.lcount
 noLick = args.noLick
 right_same = args.right_same
 single_stim = args.single
+t_rewardSTART = args.t_rewardSTART
 
 """
 --------------------------------------------------------------------
@@ -458,6 +459,7 @@ try:
                         'off_long'          : off_long,
                         'single_stim'       : int(single_stim), #Converts to binary
                         'timeout'           : timeout*1000,     #Converts back to millis
+                        't_rewardSTART'     : t_rewardSTART,
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)
