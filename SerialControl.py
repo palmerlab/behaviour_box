@@ -56,7 +56,7 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-auditory = argorys.auditory           # a binary, flags auditory (True) or somatosensory (False)
+auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
 blanks = args.blanks
 
@@ -387,13 +387,13 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame()
+df = pd.DataFrame({'time':[]})
 while os.path.isfile(df_file):
+    df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-    df.append(pd.read_csv(df_file, index_col = 0))
 
-df = df.dropna(subset = ['time'])
+    df = df.dropna(subset = ['time'])
 comment = ""
 
 # making the random condition in this way means 
@@ -468,17 +468,15 @@ try:
             trial_df['time'] = timenow()
             
             # Send the literal GO symbol
-            ser.write("GO")
             start_time = time.time()
             
+            ser.write("GO")
             line = Serial_monitor(ser, logfile, show = verbose).strip()
             
             if mode == 'h':
-                while (time.time()-start_time):
-                # keep running while the trial is a go
-                    while line.strip() != "-- Status: Ready --":
-                        # keep running until arduino reports it has broken out of loop
-                        line = Serial_monitor(ser, logfile, False).strip()                    
+                while line.strip() != "-- Status: Ready --":
+                    line = Serial_monitor(ser, logfile, False).strip()
+                    menu()
             else:
                 while (time.time()-start_time) < trialDur:
                     # keep running while the trial is a go
@@ -489,8 +487,6 @@ try:
                             if line[0] != "#" and line[0] != "-":
                                 var, val = line.split(":\t")
                                 trial_df[var] = num(val)
-                            
-            menu()
             
             for k in trial_df.keys():
                 if type(trial_df[k]) == list: 

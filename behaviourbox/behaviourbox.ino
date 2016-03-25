@@ -142,7 +142,7 @@ void preTrial();
 
 char TrialReward();
 
-int runTrial();
+char runTrial();
 
 long t_now(unsigned long t_init);
 
@@ -191,10 +191,17 @@ void loop () {
         init_stim();
         
         if (input == "GO"){
-            response = runTrial();
+            runTrial();
             
             digitalWrite(recTrig, LOW);
             Serial.println("-- Status: Ready --");
+            
+            digitalWrite(recTrig, HIGH);
+            delay(10);
+            digitalWrite(recTrig, LOW);
+            
+            digitalWrite(recTrig, HIGH);
+            digitalWrite(recTrig, LOW);
         }
         else { 
             UpdateGlobals(input);
@@ -336,19 +343,10 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
 char Timeout(unsigned long wait, int depth) {
     
     unsigned long t_init = millis();
-    unsigned long t = t_now(t_init());
-    
-    if (verbose) {
-        Serial.print("#");
-        for (int d = 0; d < depth; d++){
-            Serial.print("\t");
-        }
-        Serial.print("Enter `Timeout`:\t");
-        Serial.println(t);
-    }
+    unsigned long t = t_now(t_init);
     
     tone(speakerPin, toneBad, 150);
-    delay(100);                     // Delay prevents punishing continued licking
+    delay(500);                     // Delay prevents punishing continued licking
     
     while (t < wait) {
         t = t_now(t_init);
@@ -356,17 +354,8 @@ char Timeout(unsigned long wait, int depth) {
         if (get_response() != '-') {
             depth ++;
             depth = Timeout(wait, depth);
-            break
+            break;
         }
-    }
-    
-    if (verbose) {
-        Serial.print("#");
-        for (int d = 0; d < depth; d++){
-            Serial.print("\t");
-        }
-        Serial.print("Exit `Timeout`:\t");
-        Serial.println(t);
     }
     
     return depth;
@@ -408,7 +397,7 @@ void preTrial() {
         // loop to avoid artefacts in the recording
     }
     
-    //digitalWrite(recTrig, LOW);
+    digitalWrite(recTrig, LOW);
     
     if (verbose) {
         Serial.print("#Exit `preTrial`:\t");
@@ -574,7 +563,8 @@ char TrialReward() {
                 }  //bad right
                 
                 if (timeout) {
-                    Timeout(timeout);
+                    Serial.print("timeout:\t");
+                    Serial.println(Timeout(timeout));
                 }
                 else {
                     tone(speakerPin, toneBad, 150);
@@ -645,12 +635,6 @@ char runTrial() {
         OFF[0] = right_OFF[rbit][0];
         OFF[1] = right_OFF[rbit][1];
     }
-    
-    Serial.print("OFF[0]:\t");
-    Serial.println(OFF[0]);
-    
-    Serial.print("OFF[1]:\t");
-    Serial.println(OFF[1]);
     
     /*trial_phase0
     while the trial has not started 
@@ -749,6 +733,13 @@ char runTrial() {
     Serial.println(response);
     Serial.print("response_time:\t");
     Serial.println(response_time);
+    
+        
+    Serial.print("OFF[0]:\t");
+    Serial.println(OFF[0]);
+    
+    Serial.print("OFF[1]:\t");
+    Serial.println(OFF[1]);
     
     return response;
 }
@@ -900,10 +891,10 @@ int UpdateGlobals(String input) {
                 Serial.println(single_stim);
                 return 1;
         }
-        else if (variable_name == "punish") {
-                punish = bool(variable_value.toInt());
-                Serial.print("punish:\t");
-                Serial.println(punish);
+        else if (variable_name == "timeout") {
+                timeout = variable_value.toInt();
+                Serial.print("timeout:\t");
+                Serial.println(timeout);
                 return 1;
         }
         
@@ -970,6 +961,3 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
-
-
-

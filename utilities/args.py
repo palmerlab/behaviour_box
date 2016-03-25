@@ -85,7 +85,8 @@ p.add_argument('-td', '--trialDur',
                 )             
 
 p.add_argument('-to', '--timeout', 
-                default = 1.5,  
+                default = 1.5,
+                type = float,
                 help = 'set the timeout duration for incorrect licks'
                 )
 
