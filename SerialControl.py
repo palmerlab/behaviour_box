@@ -205,6 +205,7 @@ def menu():
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
             elif c in ("h"):
+                print color.Fore.LIGHTBLUE_EX, "\r",
                 print "-----------------------------"
                 print "options    :"
                 print "  ...   H  : This menu"
@@ -220,6 +221,7 @@ def menu():
                 print "  ...   T  : show trial duration period"
                 print "  ...   Y  : toggle timeout"
                 print "-----------------------------"
+                print color.Syle.RESET_ALL, '\r',
                 
             else:
                 print "SPACE or ENTER to unpause"
