@@ -114,8 +114,6 @@ bool lickOn[] = {false, false};
 bool verbose = true;
 bool break_wrongChoice = false; // stop if the animal makes a mistake
 
-
-
 /* -------------------------------------------------------++
 ||                  THE PROTOTYPES                        ||
 ++--------------------------------------------------------*/
@@ -134,7 +132,7 @@ void init_ports();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
-char Timeout(unsigned long wait, int depth = 0);
+int Timeout(unsigned long wait, int depth = 0);
     
 int TrialStimulus(int value);
 
@@ -195,13 +193,7 @@ void loop () {
             
             digitalWrite(recTrig, LOW);
             Serial.println("-- Status: Ready --");
-            
-            digitalWrite(recTrig, HIGH);
-            delay(10);
-            digitalWrite(recTrig, LOW);
-            
-            digitalWrite(recTrig, HIGH);
-            digitalWrite(recTrig, LOW);
+
         }
         else { 
             UpdateGlobals(input);
@@ -340,7 +332,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     return response;
 }
 
-char Timeout(unsigned long wait, int depth) {
+int Timeout(unsigned long wait, int depth) {
     
     unsigned long t_init = millis();
     unsigned long t = t_now(t_init);
@@ -484,6 +476,7 @@ char TrialReward() {
     bool RewardPort = 0;
     char response = 0;
     byte count[] = {0,0};
+    int N_to; //number of timeouts
     
     if (verbose) {
         Serial.print("#Enter `TrialReward`:\t");
@@ -562,16 +555,17 @@ char TrialReward() {
                     response = 'r';
                 }  //bad right
                 
-                if (timeout) {
-                    Serial.print("timeout:\t");
-                    Serial.println(Timeout(timeout));
-                }
-                else {
+                if (!timeout) {
                     tone(speakerPin, toneBad, 150);
                 }
                 
             }
             if (break_wrongChoice){
+                if (timeout) {
+                    N_to = Timeout(timeout); //count the number of timeouts                 
+                    Serial.print("N_timeouts:\t");
+                    Serial.println(N_to);
+                }
                 if (verbose) { 
                     Serial.print("count[0]:\t");
                     Serial.println(count[left]);
@@ -897,6 +891,13 @@ int UpdateGlobals(String input) {
                 Serial.println(timeout);
                 return 1;
         }
+        else if (variable_name == "t_rewardSTART") {
+                t_rewardSTART = variable_value.toInt();
+                Serial.print("t_rewardSTART:\t");
+                Serial.println(t_rewardSTART);
+                return 1;
+        }
+        
         
    }
    return 0;
@@ -961,3 +962,7 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
+
+
+

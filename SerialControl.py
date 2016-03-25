@@ -227,7 +227,7 @@ def menu():
                 print "  ...   L  : show noLick period"
                 print "  ...   ( ): adjust trial duration"
                 print "  ...   T  : show trial duration period"
-                print "  ...   Y  : toggle timeout"
+                print "  ...   Y  : toggle timeout (requires punish to take effect)"
                 print "-----------------------------"
                 print color.Syle.RESET_ALL, '\r',
                 
@@ -478,15 +478,16 @@ try:
                     line = Serial_monitor(ser, logfile, False).strip()
                     menu()
             else:
+                
+                while line.strip() != "-- Status: Ready --":
+                    # keep running until arduino reports it has broken out of loop
+                    line = Serial_monitor(ser, logfile, False).strip()
+                    if line:
+                        if line[0] != "#" and line[0] != "-":
+                            var, val = line.split(":\t")
+                            trial_df[var] = num(val)
                 while (time.time()-start_time) < trialDur:
-                    # keep running while the trial is a go
-                    while line.strip() != "-- Status: Ready --":
-                        # keep running until arduino reports it has broken out of loop
-                        line = Serial_monitor(ser, logfile, False).strip()
-                        if line:
-                            if line[0] != "#" and line[0] != "-":
-                                var, val = line.split(":\t")
-                                trial_df[var] = num(val)
+                    pass
             
             for k in trial_df.keys():
                 if type(trial_df[k]) == list: 
