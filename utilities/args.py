@@ -92,7 +92,7 @@ p.add_argument('-lp', '--noLick',
                 help = 'set `t_noLickPer` in arduino'
                 )
 
-p.add_argument('--trialDur', 
+p.add_argument('-td', '--trialDur', 
                 default = 10, 
                 type = int, 
                 help = 'set minimum trial duration'
