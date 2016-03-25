@@ -48,16 +48,15 @@ Arguments
 --------------------------------------------------------------------
 """
 
-
-verbose = args.verbose # this will be a cmdline parameter
-port = args.port # a commandline parameter
-ID = args.ID
-repeats = args.repeats
-datapath = args.datapath
-weight = args.weight
-trial_num = args.trial_num
-trialDur = args.trialDur
-auditory = args.auditory
+verbose = args.verbose                # this will be a command line parameter
+port = args.port                      # a command line parameter
+ID = args.ID                          # the identity number of the animal
+repeats = args.repeats                # number of repetitions
+datapath = args.datapath              # a custom location to save data
+weight = args.weight                  # the weight of the animal
+trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
+trialDur = args.trialDur              # nominally the time to idle before resetting
+auditory = argorys.auditory           # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
 blanks = args.blanks
 
@@ -68,11 +67,11 @@ rightmode = args.right
 lickThres = int((args.lickThres/5)*1024)
 mode = args.mode
 punish = args.punish
+timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
 right_same = args.right_same
 single_stim = args.single
-
 
 """
 --------------------------------------------------------------------
@@ -101,15 +100,20 @@ def menu():
     global noLick
     global trialDur
     global single_stim
+    global timeout
+    paused = True
+
     
-    while True:
+    while paused:
         while m.kbhit():
             c = m.getch()
             if c == '\xe0': 
                 c = c + m.getch()
-        
-            if c in ("\r"):
-                return
+            
+            print " "*10, "--- PAUSED ---", " "*40, "\r",
+            
+            if c in ("\r", " "):
+                paused = False
             
             # Toggle condition
             elif c in ("\t"):               
@@ -129,19 +133,16 @@ def menu():
                 leftmode = True
                 rightmode = False
                 print "left mode:\t%s" %leftmode
-                return
             
             elif c in '\xe0M':
                 rightmode = True
                 leftmode = False
                 print "right mode:\t%s" %rightmode
-                return
             
             elif c in ('\xe0P', '\xe0H'):
                 leftmode = False
                 rightmode = False
                 print "random mode:\t", not (leftmode or rightmode)
-                return
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
@@ -150,7 +151,6 @@ def menu():
                 print "Punish for wrong lick:\t%s" %punish
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
-                return
             
             # adjust the no lick period
             elif c in (":", ";"):
@@ -175,7 +175,13 @@ def menu():
             
             elif c in ("T", "t"):
                 print "TrialDur:\t%3d\r" %trialDur,
-                
+
+            elif c in ("y", "Y"):
+                if timeout:
+                    timeout = 0
+                else:
+                    timeout = args.timeout
+                print "timeout:\t%3d\r" %timeout,
                 
             # adjust minLickCount
             elif c in ("[", "{"):
@@ -206,6 +212,7 @@ def menu():
                 print "Single stim:\t", single_stim,
             
             elif c in ("h"):
+                print color.Fore.LIGHTBLUE_EX, "\r",
                 print "-----------------------------"
                 print "options    :"
                 print "  ...   H  : This menu"
@@ -220,10 +227,12 @@ def menu():
                 print "  ...   L  : show noLick period"
                 print "  ...   ( ): adjust trial duration"
                 print "  ...   T  : show trial duration period"
+                print "  ...   Y  : toggle timeout"
                 print "-----------------------------"
+                print color.Syle.RESET_ALL, '\r',
                 
             else:
-                print "--- PAUSED ---\r",
+                print "SPACE or ENTER to unpause"
                 
                 
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
@@ -378,10 +387,13 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
+df = pd.DataFrame()
 while os.path.isfile(df_file):
     _ += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
+    df.append(pd.read_csv(df_file, index_col = 0))
 
+df = df.dropna(subset = ['time'])
 comment = ""
 
 # making the random condition in this way means 
@@ -437,14 +449,15 @@ try:
                         'rewardCond'        : rewardCond,
                         'mode'              : mode,
                         'lickThres'         : lickThres,
-                        'break_wrongChoice' : num(punish),
+                        'break_wrongChoice' : int(punish),      #Converts to binary
                         'minlickCount'      : lcount,
                         't_noLickPer'       : noLick,
-                        'auditory'          : int(auditory),
-                        'right_same'        : int(right_same),
+                        'auditory'          : int(auditory),    #Converts to binary
+                        'right_same'        : int(right_same),  #Converts to binary
                         'off_short'         : off_short,
                         'off_long'          : off_long,
-                        'single_stim'       : int(single_stim),
+                        'single_stim'       : int(single_stim), #Converts to binary
+                        'timeout'           : timeout*1000,     #Converts back to millis
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)
@@ -501,7 +514,7 @@ try:
                 except NameError:
                     df = trial_df
                 
-                df['correct'] = df.response.str.isupper()
+                df['correct'] = df.response.isin(['L', 'R'])
                 df['miss'] = df.response[df.rewardCond != 'N'] == '-'
                 df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
                 
@@ -555,21 +568,21 @@ try:
                             / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
             
             if df.ID[df.rewardCond.isin(['L','B'])].count():
-                 hit_L = ((df.response == 'L').values[-10:].sum() 
-                            / df.rewardCond.isin(['L','B']).values[-10:].sum())
+                 hit_L = ((df.response == 'L').values.sum() 
+                            / df.rewardCond.isin(['L','B']).values.sum())
             else: hit_L = float('nan')
             
             if df.ID[df.rewardCond.isin(['R','B'])].count():
-                 hit_R = ((df.response == 'R').values[-10:].sum() 
-                            / df.rewardCond.isin(['R','B']).values[-10:].sum())
+                 hit_R = ((df.response == 'R').values.sum() 
+                            / df.rewardCond.isin(['R','B']).values.sum())
             else: hit_R = float('nan')
             
             if df.ID[df.rewardCond != 'N'].count():
-                misses = (df.miss.values[-10:].sum() / 
-                            df.ID[df.rewardCond != 'N'].values[-10:].size)*100
+                misses = (df.miss.values.sum() / 
+                            df.ID[df.rewardCond != 'N'].values.size)*100
             else: misses = float('nan')
             
-            wrong = (df.wrong.values[-10:].sum() / df.ID.values[-10:].size)*100
+            wrong = (df.wrong.values.sum() / df.ID.values.size)*100
             
             misses = na_printr(misses)
             wrong = na_printr(wrong)

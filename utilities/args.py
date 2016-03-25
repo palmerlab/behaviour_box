@@ -34,25 +34,6 @@ p.add_argument('-p', '--punish',
                         "incorrect licks will end an operant "
                         "trial early",
                 )
-
-p.add_argument("-N", '--trial_num', 
-                default = 0, 
-                type = int, 
-                help = 'trial number to start at',
-                )
-
-p.add_argument('--datapath', 
-                default = "C:/DATA/Andrew/wavesurfer", 
-                help = "path to save data to, " 
-                        "by default is "
-                        "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
-                )
-                
-p.add_argument("--port", 
-                default = "COM5", 
-                help = "port that the Arduino is connected to",
-                )
-                
 p.add_argument("--verbose", 
                 action = 'store_true', 
                 help = "for debug this will print everything if enabled",
@@ -91,23 +72,29 @@ p.add_argument('-lc', '--lcount',
                 help = 'set `minlickCount` in arduino'
                 )
 
-p.add_argument('-lp', '--noLick', 
+p.add_argument('-nlp', '--noLick', 
                 default = 1000, 
                 type = int, 
                 help = 'set `t_noLickPer` in arduino'
                 )
-
-p.add_argument('--trialDur', 
+                
+p.add_argument('-td', '--trialDur', 
                 default = 10, 
                 type = int, 
                 help = 'set minimum trial duration'
                 )             
 
+p.add_argument('-to', '--timeout', 
+                default = 1.5,  
+                help = 'set the timeout duration for incorrect licks'
+                )
+
 p.add_argument('--freq', 
                 nargs = 2, 
                 default = [0,200], 
                 type = int, 
-                help = "Frequencies or OFF time values to be passed to arduino as off_short and off_long",
+                help = "Frequencies or OFF time values to be passed to "
+                        "arduino as off_short and off_long",
                 )
 
 p.add_argument('--ITI', 
@@ -128,5 +115,24 @@ lickside.add_argument("-R",
                 "--right", 
                 action = 'store_true',
                 )
+
+p.add_argument("-N", '--trial_num', 
+                default = 0, 
+                type = int, 
+                help = 'trial number to start at',
+                )
+
+p.add_argument('--datapath', 
+                default = "C:/DATA/Andrew/wavesurfer", 
+                help = "path to save data to, " 
+                        "by default is "
+                        "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
+                )
+                
+p.add_argument("--port", 
+                default = "COM5", 
+                help = "port that the Arduino is connected to",
+                )
+                
 
 args = p.parse_args()
