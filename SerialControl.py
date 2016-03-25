@@ -99,15 +99,18 @@ def menu():
     global noLick
     global trialDur
     global timeout
+    paused = True
     
-    while True:
+    while paused:
         while m.kbhit():
             c = m.getch()
             if c == '\xe0': 
                 c = c + m.getch()
-        
-            if c in ("\r"):
-                return
+            
+            print " "*10, "--- PAUSED ---", " "*40, "\r",
+            
+            if c in ("\r", " "):
+                paused = False
             
             # Toggle condition
             elif c in ("\t"):               
@@ -127,19 +130,16 @@ def menu():
                 leftmode = True
                 rightmode = False
                 print "left mode:\t%s" %leftmode
-                return
             
             elif c in '\xe0M':
                 rightmode = True
                 leftmode = False
                 print "right mode:\t%s" %rightmode
-                return
             
             elif c in ('\xe0P', '\xe0H'):
                 leftmode = False
                 rightmode = False
                 print "random mode:\t", not (leftmode or rightmode)
-                return
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
@@ -148,7 +148,6 @@ def menu():
                 print "Punish for wrong lick:\t%s" %punish
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
-                return
             
             # adjust the no lick period
             elif c in (":", ";"):
@@ -223,7 +222,7 @@ def menu():
                 print "-----------------------------"
                 
             else:
-                print "--- PAUSED ---\r",
+                print "SPACE or ENTER to unpause"
                 
                 
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
