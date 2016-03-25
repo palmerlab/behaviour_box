@@ -86,23 +86,30 @@ p.add_argument('-lc', '--lcount',
                 help = 'set `minlickCount` in arduino'
                 )
 
-p.add_argument('-lp', '--noLick', 
+p.add_argument('-nlp', '--noLick', 
                 default = 1000, 
                 type = int, 
                 help = 'set `t_noLickPer` in arduino'
                 )
-
+                
 p.add_argument('-td', '--trialDur', 
                 default = 10, 
                 type = int, 
                 help = 'set minimum trial duration'
                 )             
 
+p.add_argument('-lp', '--timeout', 
+                default = 1000, 
+                type = int, 
+                help = 'set `t_noLickPer` in arduino'
+                )
+
 p.add_argument('--freq', 
                 nargs = 2, 
                 default = [0,200], 
                 type = int, 
-                help = "Frequencies or OFF time values to be passed to arduino as off_short and off_long",
+                help = "Frequencies or OFF time values to be passed to "
+                        "arduino as off_short and off_long",
                 )
 
 p.add_argument('--ITI', 
