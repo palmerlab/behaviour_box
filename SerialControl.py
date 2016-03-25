@@ -548,21 +548,21 @@ try:
                             / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
             
             if df.ID[df.rewardCond.isin(['L','B'])].count():
-                 hit_L = ((df.response == 'L').values[-10:].sum() 
-                            / df.rewardCond.isin(['L','B']).values[-10:].sum())
+                 hit_L = ((df.response == 'L').values.sum() 
+                            / df.rewardCond.isin(['L','B']).values.sum())
             else: hit_L = float('nan')
             
             if df.ID[df.rewardCond.isin(['R','B'])].count():
-                 hit_R = ((df.response == 'R').values[-10:].sum() 
-                            / df.rewardCond.isin(['R','B']).values[-10:].sum())
+                 hit_R = ((df.response == 'R').values.sum() 
+                            / df.rewardCond.isin(['R','B']).values.sum())
             else: hit_R = float('nan')
             
             if df.ID[df.rewardCond != 'N'].count():
-                misses = (df.miss.values[-10:].sum() / 
-                            df.ID[df.rewardCond != 'N'].values[-10:].size)*100
+                misses = (df.miss.values.sum() / 
+                            df.ID[df.rewardCond != 'N'].values.size)*100
             else: misses = float('nan')
             
-            wrong = (df.wrong.values[-10:].sum() / df.ID.values[-10:].size)*100
+            wrong = (df.wrong.values.sum() / df.ID.values.size)*100
             
             misses = na_printr(misses)
             wrong = na_printr(wrong)
