@@ -437,13 +437,14 @@ try:
                         'rewardCond'        : rewardCond,
                         'mode'              : mode,
                         'lickThres'         : lickThres,
-                        'break_wrongChoice' : num(punish),
+                        'break_wrongChoice' : int(punish),      #Converts to binary
                         'minlickCount'      : lcount,
                         't_noLickPer'       : noLick,
-                        'auditory'          : int(auditory),
-                        'right_same'        : int(right_same),
+                        'auditory'          : int(auditory),    #Converts to binary
+                        'right_same'        : int(right_same),  #Converts to binary
                         'off_short'         : off_short,
                         'off_long'          : off_long,
+                        'timeout'           : timeout*1000,     #Converts back to millis
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)

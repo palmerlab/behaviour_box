@@ -63,6 +63,7 @@ unsigned int stimDUR = 500;
 unsigned int t_rewardSTART = 3400; // ms
 unsigned int t_rewardEND = 5000; // ms
 unsigned int t_trialEND = 5000; // ms //maximum of 62 000
+unsigned int timeout = 0;
 
 char mode = '-'; //one of 'h'abituation, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
@@ -112,7 +113,8 @@ bool lickOn[] = {false, false};
 
 bool verbose = true;
 bool break_wrongChoice = false; // stop if the animal makes a mistake
-bool do_habituation = true;
+
+
 
 /* -------------------------------------------------------++
 ||                  THE PROTOTYPES                        ||
@@ -131,6 +133,8 @@ void flutter(int OFF);
 void init_ports();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
+
+char Timeout(unsigned long wait, int depth = 0);
     
 int TrialStimulus(int value);
 
@@ -187,9 +191,10 @@ void loop () {
         init_stim();
         
         if (input == "GO"){
-            runTrial();
-            Serial.println("-- Status: Ready --");
+            response = runTrial();
+            
             digitalWrite(recTrig, LOW);
+            Serial.println("-- Status: Ready --");
         }
         else { 
             UpdateGlobals(input);
@@ -326,6 +331,45 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     }
     
     return response;
+}
+
+char Timeout(unsigned long wait, int depth) {
+    
+    unsigned long t_init = millis();
+    unsigned long t = t_now(t_init());
+    
+    if (verbose) {
+        Serial.print("#");
+        for (int d = 0; d < depth; d++){
+            Serial.print("\t");
+        }
+        Serial.print("Enter `Timeout`:\t");
+        Serial.println(t);
+    }
+    
+    tone(speakerPin, toneBad, 150);
+    delay(100);                     // Delay prevents punishing continued licking
+    
+    while (t < wait) {
+        t = t_now(t_init);
+                   
+        if (get_response() != '-') {
+            depth ++;
+            depth = Timeout(wait, depth);
+            break
+        }
+    }
+    
+    if (verbose) {
+        Serial.print("#");
+        for (int d = 0; d < depth; d++){
+            Serial.print("\t");
+        }
+        Serial.print("Exit `Timeout`:\t");
+        Serial.println(t);
+    }
+    
+    return depth;
 }
 
 void preTrial() {   
@@ -484,7 +528,9 @@ char TrialReward() {
         }
         
         if (RewardTest) {
-            
+        
+        /* This next block opens the water port on the 
+            correct side and returns the response */
             digitalWrite(waterPort[RewardPort], HIGH);
 
             if (verbose) { 
@@ -525,7 +571,7 @@ char TrialReward() {
             // declare the fail condition??
             
             if (!response) {
-                tone(speakerPin, toneBad, 150);
+                
                 // TODO add random amount of time till trial end
                 if (lickOn[left]) {
                     response = 'l';
@@ -533,9 +579,16 @@ char TrialReward() {
                 if (lickOn[right]) {
                     response = 'r';
                 }  //bad right
+                
+                if (timeout) {
+                    Timeout(timeout);
+                }
+                else {
+                    tone(speakerPin, toneBad, 150);
+                }
+                
             }
             if (break_wrongChoice){
-                tone(speakerPin, toneBad, 150);
                 if (verbose) { 
                     Serial.print("count[0]:\t");
                     Serial.println(count[left]);
@@ -569,7 +622,7 @@ char TrialReward() {
     return response;
 }
 
-int runTrial() { 
+char runTrial() { 
     
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -599,6 +652,12 @@ int runTrial() {
         OFF[0] = right_OFF[rbit][0];
         OFF[1] = right_OFF[rbit][1];
     }
+    
+    Serial.print("OFF[0]:\t");
+    Serial.println(OFF[0]);
+    
+    Serial.print("OFF[1]:\t");
+    Serial.println(OFF[1]);
     
     /*trial_phase0
     while the trial has not started 
@@ -638,7 +697,7 @@ int runTrial() {
         
         ActiveDelay(t_trialEND, false);
         
-        return 0;
+        return response;
     }
     
     t = t_now(t_init);
@@ -698,14 +757,7 @@ int runTrial() {
     Serial.print("response_time:\t");
     Serial.println(response_time);
     
-    Serial.print("OFF[0]:\t");
-    Serial.println(OFF[0]);
-    
-    Serial.print("OFF[1]:\t");
-    Serial.println(OFF[1]);
-    
-   
-    return 0;
+    return response;
 }
 
 char Habituation(){
@@ -853,6 +905,12 @@ int UpdateGlobals(String input) {
                 single_stim = bool(variable_value.toInt());
                 Serial.print("single_stim:\t");
                 Serial.println(single_stim);
+                return 1;
+        }
+        else if (variable_name == "punish") {
+                punish = bool(variable_value.toInt());
+                Serial.print("punish:\t");
+                Serial.println(punish);
                 return 1;
         }
         
