@@ -72,6 +72,11 @@ p.add_argument("-rs", "--right_same",
                 action = 'store_true', 
                 help = "define the right port as correct for same stimulus",
                 )
+                
+p.add_argument("-s", "--single", 
+                action = 'store_true', 
+                help = "use this flag for a single stimulus only",
+                )
 
                 
 p.add_argument('-lt', '--lickThres', 

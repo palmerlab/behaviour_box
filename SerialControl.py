@@ -71,6 +71,7 @@ punish = args.punish
 lcount = args.lcount
 noLick = args.noLick
 right_same = args.right_same
+single_stim = args.single
 
 
 """
@@ -99,6 +100,7 @@ def menu():
     global rightmode
     global noLick
     global trialDur
+    global single_stim
     
     while True:
         while m.kbhit():
@@ -199,11 +201,16 @@ def menu():
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
+            elif c in ('s', 'S'):
+                single_stim = not single_stim
+                print "Single stim:\t", single_stim,
+            
             elif c in ("h"):
                 print "-----------------------------"
                 print "options    :"
                 print "  ...   H  : This menu"
                 print "  ...   P  : Punish"
+                print "  ...   S  : toggle single stimulus"
                 print "  ...   < >: lick threshold" 
                 print "  ...   ?  : show threshold" 
                 print "  ...   [ ]: lickcount"
@@ -437,6 +444,7 @@ try:
                         'right_same'        : int(right_same),
                         'off_short'         : off_short,
                         'off_long'          : off_long,
+                        'single_stim'       : int(single_stim),
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)
@@ -452,15 +460,22 @@ try:
             
             line = Serial_monitor(ser, logfile, show = verbose).strip()
             
-            while (time.time()-start_time) < trialDur:
+            if mode == 'h':
+                while (time.time()-start_time):
                 # keep running while the trial is a go
-                while line.strip() != "-- Status: Ready --":
-                    # keep running until arduino reports it has broken out of loop
-                    line = Serial_monitor(ser, logfile, False).strip()
-                    if line:
-                        if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":\t")
-                            trial_df[var] = num(val)
+                    while line.strip() != "-- Status: Ready --":
+                        # keep running until arduino reports it has broken out of loop
+                        line = Serial_monitor(ser, logfile, False).strip()                    
+            else:
+                while (time.time()-start_time) < trialDur:
+                    # keep running while the trial is a go
+                    while line.strip() != "-- Status: Ready --":
+                        # keep running until arduino reports it has broken out of loop
+                        line = Serial_monitor(ser, logfile, False).strip()
+                        if line:
+                            if line[0] != "#" and line[0] != "-":
+                                var, val = line.split(":\t")
+                                trial_df[var] = num(val)
                             
             menu()
             

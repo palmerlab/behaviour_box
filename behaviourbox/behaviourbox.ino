@@ -1,4 +1,4 @@
-String version = "#behaviourbox160321";
+String version = "#behaviourbox160323";
 
 /*
     Author: Naoya Takahashi
@@ -75,7 +75,7 @@ bool single_stim;
 bool right_same;
 
 int off_short = 0;
-int off_long = 200;
+int off_long = 40;
 
 int ON = 30;
 int diff_OFF[][2] =  {{off_short, off_long},
@@ -272,17 +272,17 @@ void init_stim(){
     same_OFF[1][0] = off_long;
     same_OFF[1][1] = off_long;    
     
-    diff_off[0][0] = off_short;
-    diff_off[0][1] = off_long;
-    diff_off[1][0] = off_long;
-    diff_off[1][1] = off_short;
+    diff_OFF[0][0] = off_short;
+    diff_OFF[0][1] = off_long;
+    diff_OFF[1][0] = off_long;
+    diff_OFF[1][1] = off_short;
     
     if (single_stim) {
-        diff_off[0][0] = -1;
-        diff_off[1][0] = -1;
+        diff_OFF[0][0] = -1;
+        diff_OFF[1][0] = -1;
         
-        same_off[0][0] = -1;
-        same_off[1][0] = -1;
+        same_OFF[0][0] = -1;
+        same_OFF[1][0] = -1;
     }
 
     if (right_same){
@@ -404,10 +404,9 @@ int TrialStimulus(int value) {
         Serial.println(value);
     }
    
-   
-    if (auditory) {
-            tone(speakerPin, value, stimDUR - 10);
-        }
+    if (auditory and (value > 0)) {
+        tone(speakerPin, value, stimDUR - 10);
+    }
         
     while (t < stimDUR){
         /* Run the buzzer while:
@@ -417,18 +416,12 @@ int TrialStimulus(int value) {
         senseLick(left);
         senseLick(right);
         
-        if (value >= -1){
-            if (auditory){
-                tone(speakerPin, value, stimDur);
-            }
-            else {
-                flutter(value);
-            }
+        if ((value >= 0) and (not auditory)){
+            flutter(value);
         }
         
         t = t_now(t_local);
-    } 
-    noTone(speakerPin);
+    }
     
     digitalWrite(stimulusPin, LOW); //this is a safety catch
 
@@ -919,3 +912,6 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
+
+
