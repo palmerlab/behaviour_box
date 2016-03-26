@@ -84,6 +84,13 @@ p.add_argument('-td', '--trialDur',
                 help = 'set minimum trial duration'
                 )             
 
+p.add_argument('-rd', '--t_rewardSTART', 
+                default = 3000, 
+                type = int, 
+                help = 'set start time of reward epoch'
+)
+
+                
 p.add_argument('-to', '--timeout', 
                 default = 1.5,
                 type = float,
