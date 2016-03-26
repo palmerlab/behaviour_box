@@ -59,6 +59,7 @@ trialDur = args.trialDur              # nominally the time to idle before resett
 auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
 blanks = args.blanks
+ITI = args.ITI
 
 leftmode =  args.left
 rightmode = args.right
@@ -597,13 +598,13 @@ try:
             trial_num += 1            
             
             
-            ITI = random.uniform(2, 3)
+            wait = random.uniform(0,3)
             print Style.BRIGHT, fc.GREEN,
-            if trial_df['response'].item() not in ('L', 'R'):
-                ITI = 0
+            if trial_df['response'].item() not in ('L', 'R', '-'):
+                wait = random.uniform(*ITI)
                 print fc.CYAN,
-            print "\rwait %2.2g s" %ITI, Style.RESET_ALL,"\r",
-            time.sleep(ITI)
+            print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
+            time.sleep(wait)
             print "             \r",
         
 except KeyboardInterrupt:
