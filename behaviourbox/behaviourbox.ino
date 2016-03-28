@@ -337,11 +337,12 @@ int Timeout(unsigned long wait, int depth) {
     unsigned long t_init = millis();
     unsigned long t = t_now(t_init);
     
-    tone(speakerPin, toneBad, 150);
-    delay(500);                     // Delay prevents punishing continued licking
+    
+   //delay(500);                     // Delay prevents punishing continued licking
     
     while (t < wait) {
         t = t_now(t_init);
+        tone(speakerPin, toneBad, 150);
                    
         if (get_response() != '-') {
             depth ++;
@@ -547,6 +548,8 @@ char TrialReward() {
             
             if (!response) {
                 
+                tone(speakerPin, toneBad, 150);
+                
                 // TODO add random amount of time till trial end
                 if (lickOn[left]) {
                     response = 'l';
@@ -554,10 +557,6 @@ char TrialReward() {
                 if (lickOn[right]) {
                     response = 'r';
                 }  //bad right
-                
-                if (!timeout) {
-                    tone(speakerPin, toneBad, 150);
-                }
                 
             }
             if (break_wrongChoice){
