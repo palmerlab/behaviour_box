@@ -391,7 +391,7 @@ _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 df = pd.DataFrame({'time':[]})
 while os.path.isfile(df_file):
-    df.append(pd.read_csv(df_file, index_col = 0))
+    df = df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 
