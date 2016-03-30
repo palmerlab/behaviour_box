@@ -334,7 +334,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
 int Timeout(unsigned long wait, int depth) {
     
-    unsigned long t_init = millis();
+    t_init += wait;
     unsigned long t = t_now(t_init);
     
     
@@ -701,9 +701,6 @@ char runTrial() {
     if (response) {
         response_time = t_now(t_init);
     }
-    else {
-        response = ActiveDelay(t_trialEND, true);
-    }
     
     if (response != rewardCond) {
 
@@ -720,7 +717,7 @@ char runTrial() {
         }
     }
     
-    ActiveDelay(t_trialEND, false);
+    //ActiveDelay(t_trialEND, false);
     
     Serial.print("response:\t");
     Serial.println(response);

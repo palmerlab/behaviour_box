@@ -391,11 +391,12 @@ _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 df = pd.DataFrame({'time':[]})
 while os.path.isfile(df_file):
-    df = df.append(pd.read_csv(df_file, index_col = 0))
+    #df = df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 
-    df = df.dropna(subset = ['time'])
+df = df.dropna(subset = ['time'])
+df = df.drop_duplicates('time')
 comment = ""
 
 # making the random condition in this way means 
@@ -598,7 +599,7 @@ try:
             trial_num += 1            
             
             
-            wait = random.uniform(0,3)
+            wait = 0
             print Style.BRIGHT, fc.GREEN,
             if trial_df['response'].item() not in ('L', 'R', '-'):
                 wait = random.uniform(*ITI)
