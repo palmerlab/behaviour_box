@@ -599,7 +599,7 @@ try:
             trial_num += 1            
             
             
-            wait = random.uniform(0,3)
+            wait = 0
             print Style.BRIGHT, fc.GREEN,
             if trial_df['response'].item() not in ('L', 'R', '-'):
                 wait = random.uniform(*ITI)
