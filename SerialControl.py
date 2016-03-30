@@ -231,7 +231,7 @@ def menu():
                 print "  ...   T  : show trial duration period"
                 print "  ...   Y  : toggle timeout (requires punish to take effect)"
                 print "-----------------------------"
-                print color.Syle.RESET_ALL, '\r',
+                print color.Style.RESET_ALL, '\r',
                 
             else:
                 print "SPACE or ENTER to unpause"
@@ -287,7 +287,7 @@ def update_bbox(ser, params, trial_df, logfile):
         ser.writelines("%s:%s" %(k, params[k]))
         if verbose: print "%s:%s" %(k, params[k])
         
-        time.sleep(0.2)
+        time.sleep(0.3)
         
         while ser.inWaiting():
 
@@ -395,7 +395,8 @@ while os.path.isfile(df_file):
     _ += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 
-    df = df.dropna(subset = ['time'])
+df = df.dropna(subset = ['time'])
+df = df.drop_duplicates('time')
 comment = ""
 
 # making the random condition in this way means 
@@ -413,7 +414,7 @@ try:
         if blanks:
             RC1.insert(0, "-")
         randomCond = [i for i in product(RC1, RC2)]
-        #randomCond.insert(0, ("-", "-"))
+
         randomCond = np.array(randomCond)
         np.random.shuffle(randomCond)
         randomCond = np.array(randomCond).reshape(-1)
@@ -489,8 +490,6 @@ try:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
                             trial_df[var] = num(val)
-                while (time.time()-start_time) < trialDur:
-                    pass
             
             for k in trial_df.keys():
                 if type(trial_df[k]) == list: 
@@ -547,19 +546,20 @@ try:
                     'OFF[0]' : 'off0', 
                     'OFF[1]': 'off1',
             }
-            
-            for k in ('trial_num' , 'mode', 'rewardCond', 'response', 
-                            'count[0]', 'count[1]', 'WaterPort[0]', 
-                            'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
-                
-                if df.correct.iloc[-1]:
-                    print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
-                elif df.miss.iloc[-1]:
-                    print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
-                else:
-                    print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
-            print '\r', Style.RESET_ALL
-            
+            try:
+                for k in ('trial_num', 'rewardCond', 'response', 
+                                'count[0]', 'count[1]', 'WaterPort[0]', 
+                                'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                    
+                    if df.correct.iloc[-1]:
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
+                    elif df.miss.iloc[-1]:
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
+                    else:
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
+                print '\r', Style.RESET_ALL
+            except:
+                pass
             #calculate percentage success
             
             print "\r", 100 * " ", "\r                ", #clear the line 
@@ -582,7 +582,7 @@ try:
                             df.ID[df.rewardCond != 'N'].values.size)*100
             else: misses = float('nan')
             
-            wrong = (df.wrong.values.sum() / df.ID.values.size)*100
+            wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
             
             misses = na_printr(misses)
             wrong = na_printr(wrong)
@@ -598,7 +598,7 @@ try:
             trial_num += 1            
             
             
-            wait = random.uniform(0,3)
+            wait = 0
             print Style.BRIGHT, fc.GREEN,
             if trial_df['response'].item() not in ('L', 'R', '-'):
                 wait = random.uniform(*ITI)

@@ -57,10 +57,10 @@ const char lickSens[] = {A0,A1};
 unsigned long t_init;
 
 unsigned int t_noLickPer = 1000;
-unsigned int trial_delay = 1000; // ms
-unsigned int t_stimONSET[] = {2000,2550};
+unsigned int trial_delay = 500; // ms
+unsigned int t_stimONSET[] = {1000,1550};
 unsigned int stimDUR = 500;
-unsigned int t_rewardSTART = 3400; // ms
+unsigned int t_rewardSTART = 2400; // ms
 unsigned int t_rewardEND = 5000; // ms
 unsigned int t_trialEND = 5000; // ms //maximum of 62 000
 unsigned int timeout = 0;
@@ -334,7 +334,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
 int Timeout(unsigned long wait, int depth) {
     
-    unsigned long t_init = millis();
+    t_init += wait;
     unsigned long t = t_now(t_init);
     
     
@@ -701,9 +701,6 @@ char runTrial() {
     if (response) {
         response_time = t_now(t_init);
     }
-    else {
-        response = ActiveDelay(t_trialEND, true);
-    }
     
     if (response != rewardCond) {
 
@@ -720,7 +717,7 @@ char runTrial() {
         }
     }
     
-    ActiveDelay(t_trialEND, false);
+    //ActiveDelay(t_trialEND, false);
     
     Serial.print("response:\t");
     Serial.println(response);
@@ -961,7 +958,3 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
-
-
-
-
