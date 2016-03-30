@@ -546,19 +546,20 @@ try:
                     'OFF[0]' : 'off0', 
                     'OFF[1]': 'off1',
             }
-            
-            for k in ('trial_num' , 'mode', 'rewardCond', 'response', 
-                            'count[0]', 'count[1]', 'WaterPort[0]', 
-                            'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
-                
-                if df.correct.iloc[-1]:
-                    print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
-                elif df.miss.iloc[-1]:
-                    print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
-                else:
-                    print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
-            print '\r', Style.RESET_ALL
-            
+            try:
+                for k in ('trial_num', 'rewardCond', 'response', 
+                                'count[0]', 'count[1]', 'WaterPort[0]', 
+                                'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                    
+                    if df.correct.iloc[-1]:
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
+                    elif df.miss.iloc[-1]:
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
+                    else:
+                        print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
+                print '\r', Style.RESET_ALL
+            except:
+                pass
             #calculate percentage success
             
             print "\r", 100 * " ", "\r                ", #clear the line 
@@ -581,7 +582,7 @@ try:
                             df.ID[df.rewardCond != 'N'].values.size)*100
             else: misses = float('nan')
             
-            wrong = (df.wrong.values.sum() / df.ID.values.size)*100
+            wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
             
             misses = na_printr(misses)
             wrong = na_printr(wrong)
