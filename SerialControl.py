@@ -56,9 +56,10 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-auditory = argorys.auditory           # a binary, flags auditory (True) or somatosensory (False)
+auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
 blanks = args.blanks
+ITI = args.ITI
 
 leftmode =  args.left
 rightmode = args.right
@@ -71,6 +72,8 @@ timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
 right_same = args.right_same
+single_stim = args.single
+t_rewardSTART = args.t_rewardSTART
 
 """
 --------------------------------------------------------------------
@@ -98,8 +101,10 @@ def menu():
     global rightmode
     global noLick
     global trialDur
+    global single_stim
     global timeout
     paused = True
+
     
     while paused:
         while m.kbhit():
@@ -204,12 +209,17 @@ def menu():
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
+            elif c in ('s', 'S'):
+                single_stim = not single_stim
+                print "Single stim:\t", single_stim,
+            
             elif c in ("h"):
                 print color.Fore.LIGHTBLUE_EX, "\r",
                 print "-----------------------------"
                 print "options    :"
                 print "  ...   H  : This menu"
                 print "  ...   P  : Punish"
+                print "  ...   S  : toggle single stimulus"
                 print "  ...   < >: lick threshold" 
                 print "  ...   ?  : show threshold" 
                 print "  ...   [ ]: lickcount"
@@ -219,7 +229,7 @@ def menu():
                 print "  ...   L  : show noLick period"
                 print "  ...   ( ): adjust trial duration"
                 print "  ...   T  : show trial duration period"
-                print "  ...   Y  : toggle timeout"
+                print "  ...   Y  : toggle timeout (requires punish to take effect)"
                 print "-----------------------------"
                 print color.Syle.RESET_ALL, '\r',
                 
@@ -379,10 +389,13 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
+df = pd.DataFrame({'time':[]})
 while os.path.isfile(df_file):
+    df = df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
     df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 
+    df = df.dropna(subset = ['time'])
 comment = ""
 
 # making the random condition in this way means 
@@ -445,7 +458,9 @@ try:
                         'right_same'        : int(right_same),  #Converts to binary
                         'off_short'         : off_short,
                         'off_long'          : off_long,
+                        'single_stim'       : int(single_stim), #Converts to binary
                         'timeout'           : timeout*1000,     #Converts back to millis
+                        't_rewardSTART'     : t_rewardSTART,
             }
             
             trial_df = update_bbox(ser, params, trial_df, logfile)
@@ -456,13 +471,17 @@ try:
             trial_df['time'] = timenow()
             
             # Send the literal GO symbol
-            ser.write("GO")
             start_time = time.time()
             
+            ser.write("GO")
             line = Serial_monitor(ser, logfile, show = verbose).strip()
             
-            while (time.time()-start_time) < trialDur:
-                # keep running while the trial is a go
+            if mode == 'h':
+                while line.strip() != "-- Status: Ready --":
+                    line = Serial_monitor(ser, logfile, False).strip()
+                    menu()
+            else:
+                
                 while line.strip() != "-- Status: Ready --":
                     # keep running until arduino reports it has broken out of loop
                     line = Serial_monitor(ser, logfile, False).strip()
@@ -470,8 +489,8 @@ try:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
                             trial_df[var] = num(val)
-                            
-            menu()
+                while (time.time()-start_time) < trialDur:
+                    pass
             
             for k in trial_df.keys():
                 if type(trial_df[k]) == list: 
@@ -495,7 +514,7 @@ try:
                 except NameError:
                     df = trial_df
                 
-                df['correct'] = df.response.str.isupper()
+                df['correct'] = df.response.isin(['L', 'R'])
                 df['miss'] = df.response[df.rewardCond != 'N'] == '-'
                 df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
                 
@@ -579,13 +598,13 @@ try:
             trial_num += 1            
             
             
-            ITI = random.uniform(2, 3)
+            wait = random.uniform(0,3)
             print Style.BRIGHT, fc.GREEN,
-            if trial_df['response'].item() not in ('L', 'R'):
-                ITI = 0
+            if trial_df['response'].item() not in ('L', 'R', '-'):
+                wait = random.uniform(*ITI)
                 print fc.CYAN,
-            print "\rwait %2.2g s" %ITI, Style.RESET_ALL,"\r",
-            time.sleep(ITI)
+            print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
+            time.sleep(wait)
             print "             \r",
         
 except KeyboardInterrupt:

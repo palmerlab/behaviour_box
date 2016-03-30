@@ -53,6 +53,11 @@ p.add_argument("-rs", "--right_same",
                 action = 'store_true', 
                 help = "define the right port as correct for same stimulus",
                 )
+                
+p.add_argument("-s", "--single", 
+                action = 'store_true', 
+                help = "use this flag for a single stimulus only",
+                )
 
                 
 p.add_argument('-lt', '--lickThres', 
@@ -79,8 +84,16 @@ p.add_argument('-td', '--trialDur',
                 help = 'set minimum trial duration'
                 )             
 
+p.add_argument('-rd', '--t_rewardSTART', 
+                default = 3000, 
+                type = int, 
+                help = 'set start time of reward epoch'
+)
+
+                
 p.add_argument('-to', '--timeout', 
-                default = 1.5,  
+                default = 1.5,
+                type = float,
                 help = 'set the timeout duration for incorrect licks'
                 )
 
