@@ -60,8 +60,8 @@ unsigned int t_noLickPer = 1000;
 unsigned int trial_delay = 500; // ms
 unsigned int t_stimONSET[] = {1000,1550};
 unsigned int stimDUR = 500;
-unsigned int t_rewardSTART = 2400; // ms
-unsigned int t_rewardEND = 5000; // ms
+unsigned int t_rewardSTART = 2100; // ms
+unsigned int t_rewardEND = 3000; // ms
 unsigned int t_trialEND = 5000; // ms //maximum of 62 000
 unsigned int timeout = 0;
 
