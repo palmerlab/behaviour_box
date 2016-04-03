@@ -105,7 +105,6 @@ def menu():
     global timeout
     paused = True
 
-    
     while paused:
         while m.kbhit():
             c = m.getch()

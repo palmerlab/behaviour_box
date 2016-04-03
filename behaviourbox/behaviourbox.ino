@@ -334,9 +334,8 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
 int Timeout(unsigned long wait, int depth) {
     
-    t_init += wait;
+    unsigned long t_init = millis();
     unsigned long t = t_now(t_init);
-    
     
    //delay(500);                     // Delay prevents punishing continued licking
     
@@ -345,9 +344,11 @@ int Timeout(unsigned long wait, int depth) {
         tone(speakerPin, toneBad, 150);
                    
         if (get_response() != '-') {
-            depth ++;
-            depth = Timeout(wait, depth);
-            break;
+            if (depth < 10) {
+                depth ++;
+                depth = Timeout(wait, depth);
+                break;
+            }
         }
     }
     
@@ -364,7 +365,6 @@ void preTrial() {
     
     if (verbose) {
         Serial.print("#Enter `preTrial`:\t");
-
         Serial.println(t);
     }
     
@@ -379,13 +379,14 @@ void preTrial() {
         if (t%1000 < 20){
             digitalWrite(statusLED, HIGH);
         } 
-        else {digitalWrite(statusLED, LOW);}
+        else {
+            digitalWrite(statusLED, LOW);
+        }
         
         // 3. trigger the recording
         if (t > -10){
             digitalWrite(recTrig, HIGH);
         }
-        
         // note, recTrig is switched off immediately after the
         // loop to avoid artefacts in the recording
     }
@@ -445,14 +446,12 @@ int TrialStimulus(int value) {
         if ((value >= 0) and (not auditory)){
             flutter(value);
         }
-        
         t = t_now(t_local);
     }
     
     digitalWrite(stimulusPin, LOW); //this is a safety catch
 
     if (verbose) {
-        
         Serial.print("#Exit `TrialStimulus`:\t");
         Serial.println(t);
     }
@@ -497,15 +496,13 @@ char TrialReward() {
                 RewardTest = (count[left] >= minlickCount);
                 RewardPort = left;
         }
-                
         else if (rewardCond ==  'R') {
                 RewardTest = (count[right] >= minlickCount); 
                 RewardPort = right;
         }
         
         if (RewardTest) {
-        
-        /* This next block opens the water port on the 
+            /* This next block opens the water port on the 
             correct side and returns the response */
             digitalWrite(waterPort[RewardPort], HIGH);
 
@@ -518,7 +515,6 @@ char TrialReward() {
             }
                         
             delay(waterVol);
-
             digitalWrite(waterPort[RewardPort], LOW);
              
             if (lickOn[left] and !response){ // hit left
@@ -613,7 +609,6 @@ char runTrial() {
     char response = 0;
     bool rbit = random(0,2);
     int OFF[2] = {-1, -1};
-    
     
     // local time
     t_init = millis() + trial_delay;
@@ -723,7 +718,6 @@ char runTrial() {
     Serial.println(response);
     Serial.print("response_time:\t");
     Serial.println(response_time);
-    
         
     Serial.print("OFF[0]:\t");
     Serial.println(OFF[0]);
@@ -752,7 +746,6 @@ char Habituation(){
             intensity[1] = left_OFF[rbit][1];
             port = left;
         }
-        
         else if (response == 'R'){
             intensity[0] = right_OFF[rbit][0];
             intensity[1] = right_OFF[rbit][1];
