@@ -459,7 +459,7 @@ try:
                         'off_short'         : off_short,
                         'off_long'          : off_long,
                         'single_stim'       : int(single_stim), #Converts to binary
-                        'timeout'           : timeout*1000,     #Converts back to millis
+                        'timeout'           : int(timeout*1000),     #Converts back to millis
                         't_rewardSTART'     : t_rewardSTART,
             }
             
