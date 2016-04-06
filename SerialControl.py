@@ -489,12 +489,10 @@ try:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
                             trial_df[var] = num(val)
-            
+                     
             for k in trial_df.keys():
                 if type(trial_df[k]) == list: 
                     trial_df[k] = trial_df[k][0]
-           
-           
            
             """
             THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
@@ -595,6 +593,12 @@ try:
             
             comment = ""
             trial_num += 1            
+            
+            # creates a set trial time if a duration has been flagged
+            dur = time.time() - start
+            if trialDur:
+                while dur < trialDur:
+                    dur = time.time() - start
             
             
             wait = 0
