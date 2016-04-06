@@ -79,7 +79,8 @@ p.add_argument('-nlp', '--noLick',
                 )
                 
 p.add_argument('-td', '--trialDur', 
-                default = 0, 
+                default = 0,
+                type = float,
                 help = 'set minimum trial duration'
                 )             
 
