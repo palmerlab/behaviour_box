@@ -87,7 +87,7 @@ p.add_argument('-rd', '--t_rewardSTART',
                 default = 3000, 
                 type = int, 
                 help = 'set start time of reward epoch'
-)
+                )
 
                 
 p.add_argument('-to', '--timeout', 
