@@ -50,7 +50,6 @@ const char waterPort[] = {10,11};
 const char lickRep = 13;
 const char lickSens[] = {A0,A1};
 
-
 // timing parameters
 // -----------------
 
@@ -62,7 +61,6 @@ unsigned int t_stimONSET[] = {1000,1550};
 unsigned int stimDUR = 500;
 unsigned int t_rewardSTART = 2100; // ms
 unsigned int t_rewardEND = 3000; // ms
-unsigned int t_trialEND = 5000; // ms //maximum of 62 000
 unsigned int timeout = 0;
 
 char mode = '-'; //one of 'h'abituation, 'o'perant
@@ -337,7 +335,7 @@ int Timeout(unsigned long wait, int depth) {
     unsigned long t_init = millis();
     unsigned long t = t_now(t_init);
     
-   //delay(500);                     // Delay prevents punishing continued licking
+   //delay(500); // Delay prevents punishing continued licking
     
     while (t < wait) {
         t = t_now(t_init);
@@ -647,21 +645,19 @@ char runTrial() {
         if (response == 'R'){
             response = 'r';
         }
-        
+
         tone(speakerPin, toneBad, 150);
-        
+
         Serial.print("response:\t");
         Serial.println(response);
         Serial.print("response_time:\t");
         Serial.println(t_now(t_init));
-        
+
         Serial.println("count[0]:\tnan");
         Serial.println("count[1]:\tnan");
         Serial.println("OFF[0]:\tnan");
         Serial.println("OFF[1]:\tnan");
-        
-        ActiveDelay(t_trialEND, false);
-        
+
         return response;
     }
     
