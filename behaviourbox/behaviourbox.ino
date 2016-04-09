@@ -515,6 +515,12 @@ char TrialReward() {
             delay(waterVol);
             digitalWrite(waterPort[RewardPort], LOW);
              
+            // pause for 1.5s to allow for drinking
+            ActiveDelay(t + 1500, false);
+            
+            /* set the response to be returned based on
+               the value received,
+               also play the associated reward tone */
             if (lickOn[left] and !response){ // hit left
                 response = 'L';
                 tone(speakerPin, toneGoodLeft, 50);
@@ -707,8 +713,6 @@ char runTrial() {
             response = '-';
         }
     }
-    
-    //ActiveDelay(t_trialEND, false);
     
     Serial.print("response:\t");
     Serial.println(response);
