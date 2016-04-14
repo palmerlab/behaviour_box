@@ -142,6 +142,8 @@ char runTrial();
 
 long t_now(unsigned long t_init);
 
+void printCounts(byte[2] count);
+
 String getSerialInput();
 
 int getSepIndex(String input, char seperator);
@@ -521,6 +523,7 @@ char TrialReward() {
             /* set the response to be returned based on
                the value received,
                also play the associated reward tone */
+               
             if (lickOn[left] and !response){ // hit left
                 response = 'L';
                 tone(speakerPin, toneGoodLeft, 50);
@@ -529,6 +532,8 @@ char TrialReward() {
                 response = 'R';
                 tone(speakerPin, toneGoodRight, 50);
             } 
+        
+
         
             if (verbose) { 
                 Serial.print("count[0]:\t");
@@ -776,6 +781,32 @@ char Habituation(){
   return response;    
 }
 
+
+/*----------------------------------------------++
+||                Utility                       ||
+++----------------------------------------------*/
+
+
+void printCounts(byte count[2]) {
+    
+    Serial.print("count[0]:\t");
+    if (count[0] != -1) {
+        Serial.println(count[0]);
+    }
+    else {
+        Serial.println('nan');
+    }
+ 
+ Serial.print("count[1]:\t");
+    if (count[1] != -1) {
+        Serial.println(count[1]);
+    }
+    else {
+        Serial.println('nan');
+    }            
+}
+
+
 int UpdateGlobals(String input) {
     /*
     This is a big ugly function which compares the
@@ -892,7 +923,6 @@ int UpdateGlobals(String input) {
    return 0;
 }
 
-
 /*----------------------------------------------++
 ||                  Serial Coms                 ||
 ++----------------------------------------------*/
@@ -939,6 +969,9 @@ int getSepIndex(String input, char seperator) {
     }
     return 0;
 }
+
+
+
 
 /*----------------------------------------------++
 ||                  Timing                      ||
