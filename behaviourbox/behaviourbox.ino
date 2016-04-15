@@ -406,15 +406,7 @@ int TrialStimulus(int value) {
     int t = t_now(t_local);
     
     // TODO this should be abstracted
-    /*if (auditory) {
-        if (value == off_short){
-            value = 20000;
-        } 
-        else if (value == off_long){
-            value = 5000;
-        } 
-    }*/
-    
+
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t");
@@ -776,7 +768,21 @@ char Habituation(){
         }
         
         ActiveDelay(3500u, false);
-      }
+    
+        /* Output should allow me to make the following table:
+        
+            stim0   stim1   response
+        
+        */
+        Serial.print("OFF[0]:\t");
+        Serial.println(intensity[0]);
+        
+        Serial.print("OFF[1]:\t");
+        Serial.println(intensity[1]);
+        
+        Serial.print("response:\t");
+        Serial.println(response);
+    }
 
   return response;    
 }
