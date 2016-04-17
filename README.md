@@ -1,3 +1,13 @@
+4:35 PM 17/04/2016
+origin/refactor_serial
+-- Goal: setup a habituation / trial run switch
+
+origin/upper_lim
+-- Goal: implement an upper limit on the number of contiguous successful
+trials on the same side (Conrad uses 10)s
+
+
+
 Recent Update:
 
 Adds auditory option and allows the frequencies / off times to be controlled online
@@ -30,10 +40,6 @@ Adds auditory option and allows the frequencies / off times to be controlled onl
 TODO:
 
 9. The program calculates d\`|any_stimuls; d\`|rising; d\`|falling
-
-
-
-
 
 
 
