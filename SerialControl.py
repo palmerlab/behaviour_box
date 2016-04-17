@@ -532,17 +532,18 @@ try:
             print Style.BRIGHT, '\r', 
             
             table = {
-                    'trial_num' : 't', 
-                    'mode': 'mode', 
-                    'rewardCond': 'rewCond', 
-                    'response': 'response', 
-                    'count[0]':'L', 
-                    'count[1]': 'R', 
-                    'WaterPort[0]': 'waterL', 
-                    'WaterPort[1]': 'waterR',
-                    'OFF[0]' : 'off0', 
-                    'OFF[1]': 'off1',
+                        'trial_num'         : 't', 
+                        'mode'              : 'mode', 
+                        'rewardCond'        : 'rewCond', 
+                        'response'          : 'response', 
+                        'count[0]'          : 'L', 
+                        'count[1]'          : 'R', 
+                        'WaterPort[0]'      : 'waterL', 
+                        'WaterPort[1]'      : 'waterR',
+                        'OFF[0]'            : 'off0', 
+                        'OFF[1]'            : 'off1',
             }
+
             try:
                 for k in ('trial_num', 'rewardCond', 'response', 
                                 'count[0]', 'count[1]', 'WaterPort[0]', 
@@ -575,8 +576,8 @@ try:
             else: hit_R = float('nan')
             
             if df.ID[df.rewardCond != 'N'].count():
-                misses = (df.miss.values.sum() / 
-                            df.ID[df.rewardCond != 'N'].values.size)*100
+                misses = (df.miss.values.sum()  
+                            / df.ID[df.rewardCond != 'N'].values.size)*100
             else: misses = float('nan')
             
             wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
