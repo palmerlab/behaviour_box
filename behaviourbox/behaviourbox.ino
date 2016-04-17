@@ -50,7 +50,6 @@ const char waterPort[] = {10,11};
 const char lickRep = 13;
 const char lickSens[] = {A0,A1};
 
-
 // timing parameters
 // -----------------
 
@@ -62,7 +61,6 @@ unsigned int t_stimONSET[] = {1000,1550};
 unsigned int stimDUR = 500;
 unsigned int t_rewardSTART = 2100; // ms
 unsigned int t_rewardEND = 3000; // ms
-unsigned int t_trialEND = 5000; // ms //maximum of 62 000
 unsigned int timeout = 0;
 
 char mode = '-'; //one of 'h'abituation, 'o'perant
@@ -143,6 +141,8 @@ char TrialReward();
 char runTrial();
 
 long t_now(unsigned long t_init);
+
+void printCounts(byte[2] count);
 
 String getSerialInput();
 
@@ -337,7 +337,7 @@ int Timeout(unsigned long wait, int depth) {
     unsigned long t_init = millis();
     unsigned long t = t_now(t_init);
     
-   //delay(500);                     // Delay prevents punishing continued licking
+   //delay(500); // Delay prevents punishing continued licking
     
     while (t < wait) {
         t = t_now(t_init);
@@ -406,15 +406,7 @@ int TrialStimulus(int value) {
     int t = t_now(t_local);
     
     // TODO this should be abstracted
-    /*if (auditory) {
-        if (value == off_short){
-            value = 20000;
-        } 
-        else if (value == off_long){
-            value = 5000;
-        } 
-    }*/
-    
+
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t");
@@ -517,6 +509,13 @@ char TrialReward() {
             delay(waterVol);
             digitalWrite(waterPort[RewardPort], LOW);
              
+            // pause for 1.5s to allow for drinking
+            ActiveDelay(t + 1500, false);
+            
+            /* set the response to be returned based on
+               the value received,
+               also play the associated reward tone */
+               
             if (lickOn[left] and !response){ // hit left
                 response = 'L';
                 tone(speakerPin, toneGoodLeft, 50);
@@ -525,6 +524,8 @@ char TrialReward() {
                 response = 'R';
                 tone(speakerPin, toneGoodRight, 50);
             } 
+        
+
         
             if (verbose) { 
                 Serial.print("count[0]:\t");
@@ -647,21 +648,19 @@ char runTrial() {
         if (response == 'R'){
             response = 'r';
         }
-        
+
         tone(speakerPin, toneBad, 150);
-        
+
         Serial.print("response:\t");
         Serial.println(response);
         Serial.print("response_time:\t");
         Serial.println(t_now(t_init));
-        
+
         Serial.println("count[0]:\tnan");
         Serial.println("count[1]:\tnan");
         Serial.println("OFF[0]:\tnan");
         Serial.println("OFF[1]:\tnan");
-        
-        ActiveDelay(t_trialEND, false);
-        
+
         return response;
     }
     
@@ -711,8 +710,6 @@ char runTrial() {
             response = '-';
         }
     }
-    
-    //ActiveDelay(t_trialEND, false);
     
     Serial.print("response:\t");
     Serial.println(response);
@@ -771,10 +768,52 @@ char Habituation(){
         }
         
         ActiveDelay(3500u, false);
-      }
+    
+        /* Output should allow me to make the following table:
+        
+            stim0   stim1   response
+        
+        */
+        Serial.print("OFF[0]:\t");
+        Serial.println(intensity[0]);
+        
+        Serial.print("OFF[1]:\t");
+        Serial.println(intensity[1]);
+        
+        Serial.print("response:\t");
+        Serial.println(response);
+        
+        Serial.println("-- Status: Ready --");
+    }
 
   return response;    
 }
+
+
+/*----------------------------------------------++
+||                Utility                       ||
+++----------------------------------------------*/
+
+
+void printCounts(byte count[2]) {
+    
+    Serial.print("count[0]:\t");
+    if (count[0] != -1) {
+        Serial.println(count[0]);
+    }
+    else {
+        Serial.println('nan');
+    }
+ 
+ Serial.print("count[1]:\t");
+    if (count[1] != -1) {
+        Serial.println(count[1]);
+    }
+    else {
+        Serial.println('nan');
+    }            
+}
+
 
 int UpdateGlobals(String input) {
     /*
@@ -892,7 +931,6 @@ int UpdateGlobals(String input) {
    return 0;
 }
 
-
 /*----------------------------------------------++
 ||                  Serial Coms                 ||
 ++----------------------------------------------*/
@@ -939,6 +977,9 @@ int getSepIndex(String input, char seperator) {
     }
     return 0;
 }
+
+
+
 
 /*----------------------------------------------++
 ||                  Timing                      ||

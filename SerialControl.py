@@ -532,17 +532,18 @@ try:
             print Style.BRIGHT, '\r', 
             
             table = {
-                    'trial_num' : 't', 
-                    'mode': 'mode', 
-                    'rewardCond': 'rewCond', 
-                    'response': 'response', 
-                    'count[0]':'L', 
-                    'count[1]': 'R', 
-                    'WaterPort[0]': 'waterL', 
-                    'WaterPort[1]': 'waterR',
-                    'OFF[0]' : 'off0', 
-                    'OFF[1]': 'off1',
+                        'trial_num'         : 't', 
+                        'mode'              : 'mode', 
+                        'rewardCond'        : 'rewCond', 
+                        'response'          : 'response', 
+                        'count[0]'          : 'L', 
+                        'count[1]'          : 'R', 
+                        'WaterPort[0]'      : 'waterL', 
+                        'WaterPort[1]'      : 'waterR',
+                        'OFF[0]'            : 'off0', 
+                        'OFF[1]'            : 'off1',
             }
+
             try:
                 for k in ('trial_num', 'rewardCond', 'response', 
                                 'count[0]', 'count[1]', 'WaterPort[0]', 
@@ -575,8 +576,8 @@ try:
             else: hit_R = float('nan')
             
             if df.ID[df.rewardCond != 'N'].count():
-                misses = (df.miss.values.sum() / 
-                            df.ID[df.rewardCond != 'N'].values.size)*100
+                misses = (df.miss.values.sum()  
+                            / df.ID[df.rewardCond != 'N'].values.size)*100
             else: misses = float('nan')
             
             wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
@@ -588,8 +589,15 @@ try:
             hit_R = na_printr(hit_R*100)
             cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                             
-            print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                            fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+            print colour("hits:%03s%%  " %hits
+                         "misses:%0s%%  " %misses
+                         "wrong:%03s%%  " %wrong
+                         "R:%03s%%  " %hit_R
+                         "L:%03s%%  " %hit_L
+                         "Count:%4d  " %df.ID.count()
+                         "Water:%3d" %cumWater
+                         "           ",
+                         fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
             
             comment = ""
             trial_num += 1            
