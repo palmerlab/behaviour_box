@@ -408,10 +408,16 @@ try:
     # loop for r repeats
     for r in xrange(repeats):
         
+        # TODO:
+        # replace with weighted random
+        # get cumulative success for left and right
+        # 
+        # The trial randomisation.
         RC1 = ['L', 'R', 'L']
         RC2 = ['R', 'L', 'R']
         if blanks:
             RC1.insert(0, "-")
+            
         randomCond = [i for i in product(RC1, RC2)]
 
         randomCond = np.array(randomCond)
@@ -424,13 +430,13 @@ try:
         
             # create an empty dictionary to store data in
             trial_df = {
-                'trial_num' : trial_num,
-                'WaterPort[0]': 0,
-                'WaterPort[1]': 0,
-                'ID' : ID,
-                'weight' : weight,
-                'block' : r,
-                'comment' : comment,
+                'trial_num'     : trial_num,
+                'WaterPort[0]'  : 0,
+                'WaterPort[1]'  : 0,
+                'ID'            : ID,
+                'weight'        : weight,
+                'block'         : r,
+                'comment'       : comment,
             }
             
             #checks the keys pressed during last iteration
@@ -438,9 +444,13 @@ try:
             
             menu()
             
-            if leftmode and rewardCond!= '-':
+            # apply the over-ride to the reward condition
+            # if the over-ride has been specified
+            if rewardCond == '-':
+                pass
+            elif leftmode:
                 rewardCond = 'L'
-            elif rightmode and rewardCond!= '-':
+            elif rightmode:
                 rewardCond = 'R'
                 
             trial_df['comment'] = comment
