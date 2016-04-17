@@ -409,7 +409,7 @@ try:
     for r in xrange(repeats):
         
         RC1 = ['L', 'R', 'L']
-        RC2 = ['R','L','R',]
+        RC2 = ['R', 'L', 'R']
         if blanks:
             RC1.insert(0, "-")
         randomCond = [i for i in product(RC1, RC2)]
