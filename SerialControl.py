@@ -588,8 +588,15 @@ try:
             hit_R = na_printr(hit_R*100)
             cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                             
-            print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                            fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+            print colour("hits:%03s%%  " %hits
+                         "misses:%0s%%  " %misses
+                         "wrong:%03s%%  " %wrong
+                         "R:%03s%%  " %hit_R
+                         "L:%03s%%  " %hit_L
+                         "Count:%4d  " %df.ID.count()
+                         "Water:%3d" %cumWater
+                         "           ",
+                         fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
             
             comment = ""
             trial_num += 1            
