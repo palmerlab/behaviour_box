@@ -782,6 +782,8 @@ char Habituation(){
         
         Serial.print("response:\t");
         Serial.println(response);
+        
+        Serial.println("-- Status: Ready --");
     }
 
   return response;    
