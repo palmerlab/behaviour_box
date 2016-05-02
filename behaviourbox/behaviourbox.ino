@@ -130,6 +130,8 @@ void init_ports();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
+void deliver_reward(bool port, char waterVol);
+
 int Timeout(unsigned long wait, int depth = 0);
     
 int TrialStimulus(int value);
@@ -330,6 +332,15 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     }
     
     return response;
+}
+
+void deliver_reward(bool port, char waterVol) {
+    /* Open the water port on `port` for a 
+        duration defined by waterVol */
+    
+    digitalWrite(waterPort[port], HIGH);
+    delay(waterVol);
+    digitalWrite(waterPort[port], LOW);
 }
 
 int Timeout(unsigned long wait, int depth) {
@@ -725,6 +736,10 @@ char runTrial() {
     return response;
 }
 
+// Globals to count number of continuous left and rights
+char reward_count[] = {0, 0};
+
+
 char Habituation(){
     
     bool rbit = random(0,2); // a random bit
@@ -733,26 +748,34 @@ char Habituation(){
                             - (t_stimONSET[0] + stimDUR);
     int intensity[2] = {0,0};
     t_init = millis();
-
+    
+    // Check the lick sensor
     char response = get_response();
     
     if (response != '-') {
         
-        if (response == 'L') {
+        // Determine the appropriate stimulus
+        if ((response == 'L') and (reward_count[left] =< 10)){
             intensity[0] = left_OFF[rbit][0];
             intensity[1] = left_OFF[rbit][1];
             port = left;
+            reward_count[left] += 1;
+            reward_count[right] = 0; 
         }
-        else if (response == 'R'){
+        else if ((response == 'R') and (reward_count[right] =< 10)){
             intensity[0] = right_OFF[rbit][0];
             intensity[1] = right_OFF[rbit][1];
             port = right;
+            reward_count[right] += 1;
+            reward_count[left] = 0;
+        }
+        else {
+            // 
+            intensity[0] = -1;
+            intensity[1] = -1;          
         }
         
-        digitalWrite(waterPort[port], HIGH);
-        delay(waterVol);
-        digitalWrite(waterPort[port], LOW);
-        
+        deliver_reward(port, waterVol);
         tone(speakerPin, toneGood, 50);
 
         TrialStimulus(intensity[0]);
