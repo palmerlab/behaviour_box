@@ -406,95 +406,86 @@ try:
     #open a file to save data in
     ser = init_serialport(port, logfile)
     
-    # loop for r repeats
-    for r in xrange(repeats):
+    if mode == 'o':
         
-        # TODO:
-        # replace with weighted random
-        # get cumulative success for left and right
-        # 
-        # The trial randomisation.
-        RC1 = ['L', 'R', 'L']
-        RC2 = ['R', 'L', 'R']
-        if blanks:
-            RC1.insert(0, "-")
+        # loop for r repeats
+        for r in xrange(repeats):
             
-        randomCond = [i for i in product(RC1, RC2)]
-
-        randomCond = np.array(randomCond)
-        np.random.shuffle(randomCond)
-        randomCond = np.array(randomCond).reshape(-1)
-        print colour("".join(randomCond), fc.CYAN)
-        
-        # loop for number of trials in the list of random conditions
-        for trial_num, rewardCond in enumerate(randomCond):
-        
-            # create an empty dictionary to store data in
-            trial_df = {
-                'trial_num'     : trial_num,
-                'WaterPort[0]'  : 0,
-                'WaterPort[1]'  : 0,
-                'ID'            : ID,
-                'weight'        : weight,
-                'block'         : r,
-                'comment'       : comment,
-            }
-            
-            #checks the keys pressed during last iteration
-            #adjusts options accordingly
-            
-            menu()
-            
-            # apply the over-ride to the reward condition
-            # if the over-ride has been specified
-            if rewardCond == '-':
-                pass
-            elif leftmode:
-                rewardCond = 'L'
-            elif rightmode:
-                rewardCond = 'R'
+            # TODO:
+            # replace with weighted random
+            # get cumulative success for left and right
+            # 
+            # The trial randomisation.
+            RC1 = ['L', 'R', 'L']
+            RC2 = ['R', 'L', 'R']
+            if blanks:
+                RC1.insert(0, "-")
                 
-            trial_df['comment'] = comment
-                        
-            #THE HANDSHAKE
-            # send all current parameters to the arduino box to run the trial
-            params = {
-                        'rewardCond'        : rewardCond,
-                        'mode'              : mode,
-                        'lickThres'         : lickThres,
-                        'break_wrongChoice' : int(punish),      #Converts to binary
-                        'minlickCount'      : lcount,
-                        't_noLickPer'       : noLick,
-                        'auditory'          : int(auditory),    #Converts to binary
-                        'right_same'        : int(right_same),  #Converts to binary
-                        'off_short'         : off_short,
-                        'off_long'          : off_long,
-                        'single_stim'       : int(single_stim), #Converts to binary
-                        'timeout'           : int(timeout*1000),     #Converts back to millis
-                        't_rewardSTART'     : t_rewardSTART,
-            }
-            
-            trial_df = update_bbox(ser, params, trial_df, logfile)
-            
-            print colour("C: %s" %params['rewardCond'], 
-                            fc.MAGENTA, style = Style.BRIGHT),
+            randomCond = [i for i in product(RC1, RC2)]
 
-            trial_df['time'] = timenow()
+            randomCond = np.array(randomCond)
+            np.random.shuffle(randomCond)
+            randomCond = np.array(randomCond).reshape(-1)
+            print colour("".join(randomCond), fc.CYAN)
             
-            # Send the literal GO symbol
-            start_time = time.time()
+            # loop for number of trials in the list of random conditions
+            for trial_num, rewardCond in enumerate(randomCond):
             
-                        
-            if mode == 'h':
-                line = Serial_monitor(ser, logfile, show = verbose).strip()
-                while line.strip() != "-- Status: Ready --":
-                    line = Serial_monitor(ser, logfile, False).strip()
-                    if line:
-                        if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":\t")
-                            trial_df[var] = num(val)
-                    menu()
-            else:
+                # create an empty dictionary to store data in
+                trial_df = {
+                    'trial_num'     : trial_num,
+                    'WaterPort[0]'  : 0,
+                    'WaterPort[1]'  : 0,
+                    'ID'            : ID,
+                    'weight'        : weight,
+                    'block'         : r,
+                    'comment'       : comment,
+                }
+                
+                #checks the keys pressed during last iteration
+                #adjusts options accordingly
+                
+                menu()
+                
+                # apply the over-ride to the reward condition
+                # if the over-ride has been specified
+                if rewardCond == '-':
+                    pass
+                elif leftmode:
+                    rewardCond = 'L'
+                elif rightmode:
+                    rewardCond = 'R'
+                    
+                trial_df['comment'] = comment
+                            
+                #THE HANDSHAKE
+                # send all current parameters to the arduino box to run the trial
+                params = {
+                            'rewardCond'        : rewardCond,
+                            'mode'              : mode,
+                            'lickThres'         : lickThres,
+                            'break_wrongChoice' : int(punish),      #Converts to binary
+                            'minlickCount'      : lcount,
+                            't_noLickPer'       : noLick,
+                            'auditory'          : int(auditory),    #Converts to binary
+                            'right_same'        : int(right_same),  #Converts to binary
+                            'off_short'         : off_short,
+                            'off_long'          : off_long,
+                            'single_stim'       : int(single_stim), #Converts to binary
+                            'timeout'           : int(timeout*1000),     #Converts back to millis
+                            't_rewardSTART'     : t_rewardSTART,
+                }
+                
+                trial_df = update_bbox(ser, params, trial_df, logfile)
+                
+                print colour("C: %s" %params['rewardCond'], 
+                                fc.MAGENTA, style = Style.BRIGHT),
+
+                trial_df['time'] = timenow()
+                
+                # Send the literal GO symbol
+                start_time = time.time()
+            
                 ser.write("GO")
                 line = Serial_monitor(ser, logfile, show = verbose).strip()
                 
@@ -505,73 +496,110 @@ try:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
                             trial_df[var] = num(val)
-                     
-            for k in trial_df.keys():
-                if type(trial_df[k]) == list: 
-                    trial_df[k] = trial_df[k][0]
-           
-            """
-            THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
-            """
-            """
-            #Save the data to a data frame / Save to a file
-            """
-                
-            with open(df_file, 'w') as datafile:
-                
-                trial_df = pd.DataFrame(trial_df, index=[trial_num])
-                
-                try: 
-                    df = df.append(trial_df, ignore_index = True)
-                except NameError:
-                    df = trial_df
-                
-                df['correct'] = df.response.isin(['L', 'R'])
-                df['miss'] = df.response[df.rewardCond != 'N'] == '-'
-                df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
-                
-                hits = df.correct.cumsum()
-                hit_L = df.correct[df.response == 'L'].cumsum()
-                hit_R = df.correct[df.response == 'R'].cumsum()
-                
-                cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
-                
-                df['hits'] =  hits
-                df['hit_L'] = hit_R
-                df['hit_R'] = hit_L
-                
-                df['cumWater'] = cumWater               
-
-                df.to_csv(datafile)
-            
-            #Print the important data and coloured code for hits / misses  
-            print Style.BRIGHT, '\r', 
-            
-            table = {
-                        'trial_num'    : 't', 
-                        'mode'         : 'mode', 
-                        'rewardCond'   : 'rewCond', 
-                        'response'     : 'response', 
-                        'count[0]'     : 'L', 
-                        'count[1]'     : 'R', 
-                        'WaterPort[0]' : 'waterL', 
-                        'WaterPort[1]' : 'waterR',
-                        'OFF[0]'       : 'off0', 
-                        'OFF[1]'       : 'off1',
-            }
-
-            try:
-                for k in ('trial_num', 'rewardCond', 'response', 
-                                'count[0]', 'count[1]', 'WaterPort[0]', 
-                                'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                         
+                for k in trial_df.keys():
+                    if type(trial_df[k]) == list: 
+                        trial_df[k] = trial_df[k][0]
+               
+                """
+                THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
+                """
+                """
+                #Save the data to a data frame / Save to a file
+                """
                     
-                    if df.correct.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
-                    elif df.miss.iloc[-1]:
-                        print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
-                    else:
-                        print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
-                print '\r', Style.RESET_ALL
+                with open(df_file, 'w') as datafile:
+                    
+                    trial_df = pd.DataFrame(trial_df, index=[trial_num])
+                    
+                    try: 
+                        df = df.append(trial_df, ignore_index = True)
+                    except NameError:
+                        df = trial_df
+                    
+                    df['correct'] = df.response.isin(['L', 'R'])
+                    df['miss'] = df.response[df.rewardCond != 'N'] == '-'
+                    df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
+                    
+                    hits = df.correct.cumsum()
+                    hit_L = df.correct[df.response == 'L'].cumsum()
+                    hit_R = df.correct[df.response == 'R'].cumsum()
+                    
+                    cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
+                    
+                    df['hits'] =  hits
+                    df['hit_L'] = hit_R
+                    df['hit_R'] = hit_L
+                    
+                    df['cumWater'] = cumWater               
+
+                    df.to_csv(datafile)
+                
+                #Print the important data and coloured code for hits / misses  
+                print Style.BRIGHT, '\r', 
+                
+                table = {
+                            'trial_num'    : 't', 
+                            'mode'         : 'mode', 
+                            'rewardCond'   : 'rewCond', 
+                            'response'     : 'response', 
+                            'count[0]'     : 'L', 
+                            'count[1]'     : 'R', 
+                            'WaterPort[0]' : 'waterL', 
+                            'WaterPort[1]' : 'waterR',
+                            'OFF[0]'       : 'off0', 
+                            'OFF[1]'       : 'off1',
+                }
+
+                try:
+                    for k in ('trial_num', 'rewardCond', 'response', 
+                                    'count[0]', 'count[1]', 'WaterPort[0]', 
+                                    'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                        
+                        if df.correct.iloc[-1]:
+                            print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
+                        elif df.miss.iloc[-1]:
+                            print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
+                        else:
+                            print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
+                    print '\r', Style.RESET_ALL
+                    #calculate percentage success
+                    
+                    print "\r", 100 * " ", "\r                ", #clear the line 
+                    
+                    hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
+                                    / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
+                    
+                    if df.ID[df.rewardCond.isin(['L','B'])].count():
+                         hit_L = ((df.response == 'L').values.sum() 
+                                    / df.rewardCond.isin(['L','B']).values.sum())
+                    else: hit_L = float('nan')
+                    
+                    if df.ID[df.rewardCond.isin(['R','B'])].count():
+                         hit_R = ((df.response == 'R').values.sum() 
+                                    / df.rewardCond.isin(['R','B']).values.sum())
+                    else: hit_R = float('nan')
+                    
+                    if df.ID[df.rewardCond != 'N'].count():
+                        misses = (df.miss.values.sum() / 
+                                    df.ID[df.rewardCond != 'N'].values.size)*100
+                    else: misses = float('nan')
+                    
+                    wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
+                    
+                    misses = na_printr(misses)
+                    wrong = na_printr(wrong)
+                    hits =  na_printr(hits*100)
+                    hit_L = na_printr(hit_L*100)
+                    hit_R = na_printr(hit_R*100)
+                    cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
+                                    
+                    print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
+                                    fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+                    
+                except:
+                    pass
+
                 #calculate percentage success
                 
                 print "\r", 100 * " ", "\r                ", #clear the line 
@@ -590,8 +618,8 @@ try:
                 else: hit_R = float('nan')
                 
                 if df.ID[df.rewardCond != 'N'].count():
-                    misses = (df.miss.values.sum() / 
-                                df.ID[df.rewardCond != 'N'].values.size)*100
+                    misses = (df.miss.values.sum()  
+                                / df.ID[df.rewardCond != 'N'].values.size)*100
                 else: misses = float('nan')
                 
                 wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
@@ -603,75 +631,89 @@ try:
                 hit_R = na_printr(hit_R*100)
                 cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                                 
-                print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                                fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+                print colour("hits:%03s%%  " 
+                             "misses:%0s%%  " 
+                             "wrong:%03s%%  " 
+                             "R:%03s%%  " 
+                             "L:%03s%%  " 
+                             "Count:%4d  " 
+                             "Water:%3d" 
+                             "           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
+                             fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                 
-            except:
-                pass
 
-            #calculate percentage success
-            
-            print "\r", 100 * " ", "\r                ", #clear the line 
-            
-            hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
-                            / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
-            
-            if df.ID[df.rewardCond.isin(['L','B'])].count():
-                 hit_L = ((df.response == 'L').values.sum() 
-                            / df.rewardCond.isin(['L','B']).values.sum())
-            else: hit_L = float('nan')
-            
-            if df.ID[df.rewardCond.isin(['R','B'])].count():
-                 hit_R = ((df.response == 'R').values.sum() 
-                            / df.rewardCond.isin(['R','B']).values.sum())
-            else: hit_R = float('nan')
-            
-            if df.ID[df.rewardCond != 'N'].count():
-                misses = (df.miss.values.sum()  
-                            / df.ID[df.rewardCond != 'N'].values.size)*100
-            else: misses = float('nan')
-            
-            wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
-            
-            misses = na_printr(misses)
-            wrong = na_printr(wrong)
-            hits =  na_printr(hits*100)
-            hit_L = na_printr(hit_L*100)
-            hit_R = na_printr(hit_R*100)
-            cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
-                            
-            print colour("hits:%03s%%  " 
-                         "misses:%0s%%  " 
-                         "wrong:%03s%%  " 
-                         "R:%03s%%  " 
-                         "L:%03s%%  " 
-                         "Count:%4d  " 
-                         "Water:%3d" 
-                         "           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                         fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
-            
+                comment = ""
+                trial_num += 1            
+                
+                # creates a set trial time if a duration has been flagged
+                dur = time.time() - start_time
+                if trialDur:
+                    print '\r',
+                    while dur < trialDur:
 
-            comment = ""
-            trial_num += 1            
-            
-            # creates a set trial time if a duration has been flagged
-            dur = time.time() - start_time
-            if trialDur:
-                print '\r',
-                while dur < trialDur:
+                        dur = time.time() - start
+                        
 
-                    dur = time.time() - start
-                    
-
-            wait = 0
-            print Style.BRIGHT, fc.GREEN,
-            if trial_df['response'].item() not in ('L', 'R', '-'):
-                wait = random.uniform(*ITI)
-                print fc.CYAN,
-            print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
-            time.sleep(wait)
-            print "             \r",
+                wait = 0
+                print Style.BRIGHT, fc.GREEN,
+                if trial_df['response'].item() not in ('L', 'R', '-'):
+                    wait = random.uniform(*ITI)
+                    print fc.CYAN,
+                print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
+                time.sleep(wait)
+                print "             \r",
+    
+    #HABITUATION
+    elif mode == 'h':
+    
+        #THE HANDSHAKE
+        # send all current parameters to the arduino box to run the trial
+        params = {
+                    'mode'          : mode,
+                    'lickThres'     : lickThres,
+                    'auditory'      : int(auditory),    #Converts to binary
+                    'right_same'    : int(right_same),  #Converts to binary
+                    'off_short'     : off_short,
+                    'off_long'      : off_long,
+                    'single_stim'   : int(single_stim), #Converts to binary
+                    't_rewardSTART' : t_rewardSTART,
+        }
         
+        trial_df = update_bbox(ser, params, trial_df, logfile)
+        
+        print colour("trial count L count R"
+                     "----- ------- -------", fc.MAGENTA)
+        
+        while mode == 'h':
+
+            line = Serial_monitor(ser, logfile, show = verbose).strip()
+            
+            while line.strip() != "-- Status: Ready --":
+                line = Serial_monitor(ser, logfile, False).strip()
+                if line:
+                    if line[0] != "#" and line[0] != "-":
+                        var, val = line.split(":\t")
+                        trial_df[var] = num(val)
+                menu()
+            
+            with open(df_file, 'w') as datafile:
+                
+                trial_df = pd.DataFrame(trial_df, index=[trial_num])
+                
+                try: 
+                    df = df.append(trial_df, ignore_index = True)
+                except NameError:
+                    df = trial_df
+                    
+                df.to_csv(datafile)
+            
+            #Count percent L v R
+            hab_df = df[df.mode == 'h']
+            count_right = hab_df.response == 'R').sum()
+            count_left = hab_df.response == 'L').sum()
+            
+            print colour("%4d %7d %7d" %(len(hab_df), count_left, count_right), fc.GREEN)
+
 except KeyboardInterrupt:
 
     try:
