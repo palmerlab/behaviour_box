@@ -426,10 +426,13 @@ def habituation_run():
             
             #Count percent L v R
             hab_df = df[df['mode'] == 'h']
-            count_right = int((hab_df.response == 'R').values[:-1])
-            count_left = int((hab_df.response == 'L').values[:-1])
-            
-            print colour("%4d %7d %7d " %(len(hab_df), count_left, count_right), fc.GREEN, style = Style.BRIGHT)
+            count_right = (hab_df.response == 'R').values[-1]
+            count_left = (hab_df.response == 'L').values[-1]
+            if hab_df.response.values[-1] == 'R':
+                color = fc.CYAN
+            elif hab_df.response.values[-1] == 'L':
+                color = fc.RED
+            print colour("%4d %7d %7d " %(len(hab_df), count_left, count_right), color, style = Style.BRIGHT)
     
 """
 ---------------------------------------------------------------------
