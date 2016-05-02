@@ -484,14 +484,19 @@ try:
             # Send the literal GO symbol
             start_time = time.time()
             
-            ser.write("GO")
-            line = Serial_monitor(ser, logfile, show = verbose).strip()
-            
+                        
             if mode == 'h':
+                line = Serial_monitor(ser, logfile, show = verbose).strip()
                 while line.strip() != "-- Status: Ready --":
                     line = Serial_monitor(ser, logfile, False).strip()
+                    if line:
+                        if line[0] != "#" and line[0] != "-":
+                            var, val = line.split(":\t")
+                            trial_df[var] = num(val)
                     menu()
             else:
+                ser.write("GO")
+                line = Serial_monitor(ser, logfile, show = verbose).strip()
                 
                 while line.strip() != "-- Status: Ready --":
                     # keep running until arduino reports it has broken out of loop
@@ -635,14 +640,14 @@ try:
             hit_R = na_printr(hit_R*100)
             cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                             
-            print colour("hits:%03s%%  " %hits
-                         "misses:%0s%%  " %misses
-                         "wrong:%03s%%  " %wrong
-                         "R:%03s%%  " %hit_R
-                         "L:%03s%%  " %hit_L
-                         "Count:%4d  " %df.ID.count()
-                         "Water:%3d" %cumWater
-                         "           ",
+            print colour("hits:%03s%%  " 
+                         "misses:%0s%%  " 
+                         "wrong:%03s%%  " 
+                         "R:%03s%%  " 
+                         "L:%03s%%  " 
+                         "Count:%4d  " 
+                         "Water:%3d" 
+                         "           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
                          fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
             
 

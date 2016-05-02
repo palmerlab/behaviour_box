@@ -1,4 +1,4 @@
-String version = "#behaviourbox160506";
+String version = "#behaviourbox160502";
 
 /*
     Author: Naoya Takahashi
@@ -147,7 +147,7 @@ char runTrial();
 
 long t_now(unsigned long t_init);
 
-void printCounts(byte[2] count);
+void printCounts(byte count[2]);
 
 String getSerialInput();
 
@@ -754,14 +754,14 @@ char Habituation(){
     if (response != '-') {
         
         // Determine the appropriate stimulus
-        if ((response == 'L') and (reward_count[left] =< 10)){
+        if ((response == 'L') and (reward_count[left] <= 10)){
             intensity[0] = left_OFF[rbit][0];
             intensity[1] = left_OFF[rbit][1];
             port = left;
             reward_count[left] += 1;
             reward_count[right] = 0; 
         }
-        else if ((response == 'R') and (reward_count[right] =< 10)){
+        else if ((response == 'R') and (reward_count[right] <= 10)){
             intensity[0] = right_OFF[rbit][0];
             intensity[1] = right_OFF[rbit][1];
             port = right;
@@ -770,7 +770,7 @@ char Habituation(){
         }
         
         // only activate if less than 10 in a row on this port
-        if (reward_count[port] =< 10) {
+        if (reward_count[port] <= 10) {
             
             // stim0, stim1, reward...
             TrialStimulus(intensity[0]);            
