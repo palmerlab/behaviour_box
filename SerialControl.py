@@ -567,8 +567,43 @@ try:
                     else:
                         print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
                 print '\r', Style.RESET_ALL
+                #calculate percentage success
+                
+                print "\r", 100 * " ", "\r                ", #clear the line 
+                
+                hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
+                                / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
+                
+                if df.ID[df.rewardCond.isin(['L','B'])].count():
+                     hit_L = ((df.response == 'L').values.sum() 
+                                / df.rewardCond.isin(['L','B']).values.sum())
+                else: hit_L = float('nan')
+                
+                if df.ID[df.rewardCond.isin(['R','B'])].count():
+                     hit_R = ((df.response == 'R').values.sum() 
+                                / df.rewardCond.isin(['R','B']).values.sum())
+                else: hit_R = float('nan')
+                
+                if df.ID[df.rewardCond != 'N'].count():
+                    misses = (df.miss.values.sum() / 
+                                df.ID[df.rewardCond != 'N'].values.size)*100
+                else: misses = float('nan')
+                
+                wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
+                
+                misses = na_printr(misses)
+                wrong = na_printr(wrong)
+                hits =  na_printr(hits*100)
+                hit_L = na_printr(hit_L*100)
+                hit_R = na_printr(hit_R*100)
+                cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
+                                
+                print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
+                                fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+                
             except:
                 pass
+
             #calculate percentage success
             
             print "\r", 100 * " ", "\r                ", #clear the line 
@@ -610,15 +645,19 @@ try:
                          "           ",
                          fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
             
+
             comment = ""
             trial_num += 1            
             
             # creates a set trial time if a duration has been flagged
-            dur = time.time() - start
+            dur = time.time() - start_time
             if trialDur:
+                print '\r',
                 while dur < trialDur:
+
                     dur = time.time() - start
                     
+
             wait = 0
             print Style.BRIGHT, fc.GREEN,
             if trial_df['response'].item() not in ('L', 'R', '-'):

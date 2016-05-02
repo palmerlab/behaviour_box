@@ -1,4 +1,4 @@
-String version = "#behaviourbox160323";
+String version = "#behaviourbox160506";
 
 /*
     Author: Naoya Takahashi
@@ -57,7 +57,7 @@ unsigned long t_init;
 
 unsigned int t_noLickPer = 1000;
 unsigned int trial_delay = 500; // ms
-unsigned int t_stimONSET[] = {1000,1550};
+unsigned int t_stimONSET[] = {2000,2550};
 unsigned int stimDUR = 500;
 unsigned int t_rewardSTART = 2100; // ms
 unsigned int t_rewardEND = 3000; // ms
