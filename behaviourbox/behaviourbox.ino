@@ -759,7 +759,12 @@ char Habituation(){
             intensity[1] = left_OFF[rbit][1];
             port = left;
             reward_count[left] += 1;
-            reward_count[right] = 0; 
+            reward_count[right] = 0;
+            
+            // prevents rollover
+            if (reward_count[left] > 10) {
+                reward_count[left] = 10;
+            }
         }
         else if (response == 'R') {
             intensity[0] = right_OFF[rbit][0];
@@ -767,6 +772,11 @@ char Habituation(){
             port = right;
             reward_count[right] += 1;
             reward_count[left] = 0;
+            
+            // prevents rollover
+            if (reward_count[right] > 10) {
+                reward_count[right] = 10;
+            }
         }
         
         // only activate if less than 10 in a row on this port
@@ -1002,3 +1012,4 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
