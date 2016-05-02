@@ -234,8 +234,7 @@ def menu():
                 
             else:
                 print "SPACE or ENTER to unpause"
-                
-                
+                                
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
@@ -309,8 +308,10 @@ def create_datapath(DATADIR = "", date = today()):
     
     """
     
-    if not DATADIR: DATADIR = os.path.join(os.getcwd(), date)
-    else: DATADIR = os.path.join(DATADIR, date)
+    if not DATADIR: 
+        DATADIR = os.path.join(os.getcwd(), date)
+    else: 
+        DATADIR = os.path.join(DATADIR, date)
     
     if not os.path.isdir(DATADIR):
         os.makedirs((DATADIR))
@@ -542,16 +543,16 @@ try:
             print Style.BRIGHT, '\r', 
             
             table = {
-                        'trial_num'         : 't', 
-                        'mode'              : 'mode', 
-                        'rewardCond'        : 'rewCond', 
-                        'response'          : 'response', 
-                        'count[0]'          : 'L', 
-                        'count[1]'          : 'R', 
-                        'WaterPort[0]'      : 'waterL', 
-                        'WaterPort[1]'      : 'waterR',
-                        'OFF[0]'            : 'off0', 
-                        'OFF[1]'            : 'off1',
+                        'trial_num'    : 't', 
+                        'mode'         : 'mode', 
+                        'rewardCond'   : 'rewCond', 
+                        'response'     : 'response', 
+                        'count[0]'     : 'L', 
+                        'count[1]'     : 'R', 
+                        'WaterPort[0]' : 'waterL', 
+                        'WaterPort[1]' : 'waterR',
+                        'OFF[0]'       : 'off0', 
+                        'OFF[1]'       : 'off1',
             }
 
             try:
@@ -617,8 +618,7 @@ try:
             if trialDur:
                 while dur < trialDur:
                     dur = time.time() - start
-            
-            
+                    
             wait = 0
             print Style.BRIGHT, fc.GREEN,
             if trial_df['response'].item() not in ('L', 'R', '-'):
