@@ -374,6 +374,56 @@ def init_serialport(port, logfile = None):
         Serial_monitor(ser, logfile, True)
 
     return ser
+
+
+def habituation_run():
+    #THE HANDSHAKE
+    # send all current parameters to the arduino box to run the trial
+    params = {
+                'mode'          : mode,
+                'lickThres'     : lickThres,
+                'auditory'      : int(auditory),    #Converts to binary
+                'right_same'    : int(right_same),  #Converts to binary
+                'off_short'     : off_short,
+                'off_long'      : off_long,
+                'single_stim'   : int(single_stim), #Converts to binary
+                't_rewardSTART' : t_rewardSTART,
+    }
+    
+    trial_df = update_bbox(ser, params, trial_df, logfile)
+    
+    print colour("trial count L count R"
+                 "----- ------- -------", fc.MAGENTA)
+    
+    while mode == 'h':
+
+        line = Serial_monitor(ser, logfile, show = verbose).strip()
+        
+        while line.strip() != "-- Status: Ready --":
+            line = Serial_monitor(ser, logfile, False).strip()
+            if line:
+                if line[0] != "#" and line[0] != "-":
+                    var, val = line.split(":\t")
+                    trial_df[var] = num(val)
+            menu()
+        
+        with open(df_file, 'w') as datafile:
+            
+            trial_df = pd.DataFrame(trial_df, index=[trial_num])
+            
+            try: 
+                df = df.append(trial_df, ignore_index = True)
+            except NameError:
+                df = trial_df
+                
+            df.to_csv(datafile)
+        
+        #Count percent L v R
+        hab_df = df[df.mode == 'h']
+        count_right = hab_df.response == 'R').sum()
+        count_left = hab_df.response == 'L').sum()
+        
+        print colour("%4d %7d %7d" %(len(hab_df), count_left, count_right), fc.GREEN)
     
 """
 ---------------------------------------------------------------------
@@ -665,54 +715,7 @@ try:
     
     #HABITUATION
     elif mode == 'h':
-    
-        #THE HANDSHAKE
-        # send all current parameters to the arduino box to run the trial
-        params = {
-                    'mode'          : mode,
-                    'lickThres'     : lickThres,
-                    'auditory'      : int(auditory),    #Converts to binary
-                    'right_same'    : int(right_same),  #Converts to binary
-                    'off_short'     : off_short,
-                    'off_long'      : off_long,
-                    'single_stim'   : int(single_stim), #Converts to binary
-                    't_rewardSTART' : t_rewardSTART,
-        }
-        
-        trial_df = update_bbox(ser, params, trial_df, logfile)
-        
-        print colour("trial count L count R"
-                     "----- ------- -------", fc.MAGENTA)
-        
-        while mode == 'h':
-
-            line = Serial_monitor(ser, logfile, show = verbose).strip()
-            
-            while line.strip() != "-- Status: Ready --":
-                line = Serial_monitor(ser, logfile, False).strip()
-                if line:
-                    if line[0] != "#" and line[0] != "-":
-                        var, val = line.split(":\t")
-                        trial_df[var] = num(val)
-                menu()
-            
-            with open(df_file, 'w') as datafile:
-                
-                trial_df = pd.DataFrame(trial_df, index=[trial_num])
-                
-                try: 
-                    df = df.append(trial_df, ignore_index = True)
-                except NameError:
-                    df = trial_df
-                    
-                df.to_csv(datafile)
-            
-            #Count percent L v R
-            hab_df = df[df.mode == 'h']
-            count_right = hab_df.response == 'R').sum()
-            count_left = hab_df.response == 'L').sum()
-            
-            print colour("%4d %7d %7d" %(len(hab_df), count_left, count_right), fc.GREEN)
+        habituation_run()
 
 except KeyboardInterrupt:
 
