@@ -67,6 +67,9 @@ char mode = '-'; //one of 'h'abituation, 'o'perant
 char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
 
+// Globals to count number of continuous left and rights
+char reward_count[] = {0, 0};
+
 // stimulus parameters
 // -------------------
 
@@ -736,10 +739,6 @@ char runTrial() {
     return response;
 }
 
-// Globals to count number of continuous left and rights
-char reward_count[] = {0, 0};
-
-
 char Habituation(){
     
     bool rbit = random(0,2); // a random bit
@@ -769,44 +768,33 @@ char Habituation(){
             reward_count[right] += 1;
             reward_count[left] = 0;
         }
-        else {
-            // 
-            intensity[0] = -1;
-            intensity[1] = -1;          
-        }
         
-        deliver_reward(port, waterVol);
-        tone(speakerPin, toneGood, 50);
-
-        TrialStimulus(intensity[0]);
-        
-        delay(t_interStimdelay);
-        
-        TrialStimulus(intensity[1]);
+        // only activate if less than 10 in a row on this port
+        if (reward_count[port] =< 10) {
+            
+            // stim0, stim1, reward...
+            TrialStimulus(intensity[0]);            
+            delay(t_interStimdelay);
+            TrialStimulus(intensity[1]);
+            deliver_reward(port, waterVol);
                     
-        if (ActiveDelay(500u, true) == response){
-            digitalWrite(waterPort[port], HIGH);
-            delay(waterVol);
-            digitalWrite(waterPort[port], LOW);
+            ActiveDelay(3500u, false);
+        
+            /* Output should allow me to make the following table:
+                stim0   stim1   response
+                ------- ------- --------
+            */
+            Serial.print("OFF[0]:\t");
+            Serial.println(intensity[0]);
+            
+            Serial.print("OFF[1]:\t");
+            Serial.println(intensity[1]);
+            
+            Serial.print("response:\t");
+            Serial.println(response);
+            
+            Serial.println("-- Status: Ready --");
         }
-        
-        ActiveDelay(3500u, false);
-    
-        /* Output should allow me to make the following table:
-        
-            stim0   stim1   response
-        
-        */
-        Serial.print("OFF[0]:\t");
-        Serial.println(intensity[0]);
-        
-        Serial.print("OFF[1]:\t");
-        Serial.println(intensity[1]);
-        
-        Serial.print("response:\t");
-        Serial.println(response);
-        
-        Serial.println("-- Status: Ready --");
     }
 
   return response;    
@@ -982,9 +970,9 @@ String getSerialInput(){
     return readString;
 }
 
-int getSepIndex(String input, char seperator) {
+int getSepIndex(String input, char separator) {
     /*
-      Returns the index of the seperator character
+      Returns the index of the separator character
       in a string.
     */
     
@@ -993,7 +981,7 @@ int getSepIndex(String input, char seperator) {
    
     while (c != 0) {
         c = input[i];
-        if (c == seperator){ 
+        if (c == separator){ 
             return i; 
         }
         i ++;
