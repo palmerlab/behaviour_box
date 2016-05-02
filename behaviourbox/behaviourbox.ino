@@ -759,9 +759,12 @@ char Habituation(){
             intensity[1] = left_OFF[rbit][1];
             port = left;
             reward_count[left] += 1;
-            reward_count[right] = 0;
+            reward_count[right] -= 1;
             
             // prevents rollover
+            if (reward_count[left] == 255) {
+                reward_count[left] = 0;
+            }
             if (reward_count[left] > 10) {
                 reward_count[left] = 10;
             }
@@ -771,16 +774,20 @@ char Habituation(){
             intensity[1] = right_OFF[rbit][1];
             port = right;
             reward_count[right] += 1;
-            reward_count[left] = 0;
+            reward_count[left] -= 1;
             
             // prevents rollover
+            if (reward_count[right] == 255) {
+                reward_count[right] = 0;
+            }
+            
             if (reward_count[right] > 10) {
                 reward_count[right] = 10;
             }
         }
         
         // only activate if less than 10 in a row on this port
-        if (reward_count[port] <= 10) {
+        if (reward_count[port] < 10) {
             
             // stim0, stim1, reward...
             TrialStimulus(intensity[0]);            
@@ -801,6 +808,8 @@ char Habituation(){
             Serial.println(intensity[1]);
             Serial.print("response:\t");
             Serial.println(response);
+            Serial.print("reward_count:\t");
+            Serial.println(int(reward_count[port]));
         }
 
         Serial.println("-- Status: Ready --");

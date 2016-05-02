@@ -390,13 +390,14 @@ def habituation_run():
                 't_rewardSTART' : t_rewardSTART,
     }
     
-    trial_df = update_bbox(ser, params, logfile)
+    params = update_bbox(ser, params, logfile)
     
     print colour("trial count L count R\n"
                  "----- ------- -------", fc.MAGENTA, style = Style.BRIGHT)
     
     while mode == 'h':
-
+        
+        trial_df = {}
         line = Serial_monitor(ser, logfile, show = verbose).strip()
         
         while line.strip() != "-- Status: Ready --":
@@ -410,6 +411,9 @@ def habituation_run():
         if 'response'  in trial_df.keys():
         
             with open(df_file, 'w') as datafile:
+                
+                for k, v in params.iteritems():
+                    trial_df[k] = v
                 
                 trial_df = pd.DataFrame(trial_df, index=[trial_num])
                 
