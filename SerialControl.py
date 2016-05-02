@@ -268,7 +268,7 @@ def Serial_monitor(ser, logfile, show = True):
         
     return line
 
-def update_bbox(ser, params, trial_df, logfile):
+def update_bbox(ser, params, logfile, trial_df = {}):
     """
     Communicates the contents of the dict `params` through
     the serial communications port. 
@@ -390,10 +390,10 @@ def habituation_run():
                 't_rewardSTART' : t_rewardSTART,
     }
     
-    trial_df = update_bbox(ser, params, trial_df, logfile)
+    trial_df = update_bbox(ser, params, logfile)
     
-    print colour("trial count L count R"
-                 "----- ------- -------", fc.MAGENTA)
+    print colour("trial count L count R\n"
+                 "----- ------- -------", fc.MAGENTA, style = Style.BRIGHT)
     
     while mode == 'h':
 
@@ -407,23 +407,25 @@ def habituation_run():
                     trial_df[var] = num(val)
             menu()
         
-        with open(df_file, 'w') as datafile:
-            
-            trial_df = pd.DataFrame(trial_df, index=[trial_num])
-            
-            try: 
-                df = df.append(trial_df, ignore_index = True)
-            except NameError:
-                df = trial_df
+        if 'response'  in trial_df.keys():
+        
+            with open(df_file, 'w') as datafile:
                 
-            df.to_csv(datafile)
-        
-        #Count percent L v R
-        hab_df = df[df.mode == 'h']
-        count_right = hab_df.response == 'R').sum()
-        count_left = hab_df.response == 'L').sum()
-        
-        print colour("%4d %7d %7d" %(len(hab_df), count_left, count_right), fc.GREEN)
+                trial_df = pd.DataFrame(trial_df, index=[trial_num])
+                
+                try: 
+                    df = df.append(trial_df, ignore_index = True)
+                except NameError:
+                    df = trial_df
+                    
+                df.to_csv(datafile)
+            
+            #Count percent L v R
+            hab_df = df[df['mode'] == 'h']
+            count_right = (hab_df.response == 'R').sum()
+            count_left = (hab_df.response == 'L').sum()
+            
+            print colour("%4d %7d %7d " %(len(hab_df), count_left, count_right), fc.GREEN, style = Style.BRIGHT)
     
 """
 ---------------------------------------------------------------------
@@ -526,7 +528,7 @@ try:
                             't_rewardSTART'     : t_rewardSTART,
                 }
                 
-                trial_df = update_bbox(ser, params, trial_df, logfile)
+                trial_df = update_bbox(ser, params, logfile, trial_df)
                 
                 print colour("C: %s" %params['rewardCond'], 
                                 fc.MAGENTA, style = Style.BRIGHT),
