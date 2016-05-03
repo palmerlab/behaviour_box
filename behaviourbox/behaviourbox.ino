@@ -754,7 +754,7 @@ char Habituation(){
     if (response != '-') {
         
         // Determine the appropriate stimulus
-        if (response == 'L'){
+        if (response == 'L') {
             intensity[0] = left_OFF[rbit][0];
             intensity[1] = left_OFF[rbit][1];
             port = left;
@@ -768,14 +768,7 @@ char Habituation(){
             reward_count[right] = (reward_count[right] < 10) ? += 1 : 10 ;
             reward_count[left] = reward_count[left] ? -= 1 : 0;
         }
-        
-        if (reward_count[left] > 10) {
-            reward_count[left] = 10;
-        }
-        
-        if (reward_count[right] > 10) {
-            reward_count[right] = 10;
-        }
+
         
         // only activate if less than 10 in a row on this port
         if (reward_count[port] < 10) {
@@ -797,12 +790,13 @@ char Habituation(){
             
             Serial.print("OFF[1]:\t");
             Serial.println(intensity[1]);
-            
             Serial.print("response:\t");
             Serial.println(response);
-            
-            Serial.println("-- Status: Ready --");
+            Serial.print("reward_count:\t");
+            Serial.println(int(reward_count[port]));
         }
+
+        Serial.println("-- Status: Ready --");
     }
 
   return response;    
@@ -1011,3 +1005,4 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
