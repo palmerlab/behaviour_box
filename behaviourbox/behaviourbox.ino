@@ -754,14 +754,14 @@ char Habituation(){
     if (response != '-') {
         
         // Determine the appropriate stimulus
-        if ((response == 'L') and (reward_count[left] <= 10)){
+        if (response == 'L'){
             intensity[0] = left_OFF[rbit][0];
             intensity[1] = left_OFF[rbit][1];
             port = left;
             reward_count[left] += 1;
             reward_count[right] = 0; 
         }
-        else if ((response == 'R') and (reward_count[right] <= 10)){
+        else if (response == 'R'){
             intensity[0] = right_OFF[rbit][0];
             intensity[1] = right_OFF[rbit][1];
             port = right;
