@@ -759,18 +759,26 @@ char Habituation(){
             intensity[1] = left_OFF[rbit][1];
             port = left;
             reward_count[left] += 1;
-            reward_count[right] = 0; 
+            reward_count[right] -= 1; 
         }
         else if (response == 'R'){
             intensity[0] = right_OFF[rbit][0];
             intensity[1] = right_OFF[rbit][1];
             port = right;
-            reward_count[right] += 1;
-            reward_count[left] = 0;
+            reward_count[right] = (reward_count[right] < 10) ? += 1 : 10 ;
+            reward_count[left] = reward_count[left] ? -= 1 : 0;
+        }
+        
+        if (reward_count[left] > 10) {
+            reward_count[left] = 10;
+        }
+        
+        if (reward_count[right] > 10) {
+            reward_count[right] = 10;
         }
         
         // only activate if less than 10 in a row on this port
-        if (reward_count[port] <= 10) {
+        if (reward_count[port] < 10) {
             
             // stim0, stim1, reward...
             TrialStimulus(intensity[0]);            
