@@ -753,18 +753,30 @@ char Habituation(){
     
     if (response != '-') {
         
-        // Determine the appropriate stimulus
+        /* 
+        1. Determine the appropriate stimulus
+        2. set active port 
+        3. counts number of sequential licks
+            - Uses the C ternary operator, which has the form:
+              `A = boolean ? assignment if true : assignment if false;`
+              the active port count gets incremented to a maximum of ten,
+              while the non-active port count gets decremented to a minimum
+              of zero. This is an important caveat as the counts are 
+              made with unsigned variables, meaning that one less than zero
+              is actually 255!              
+        */
         if (response == 'L') {
             intensity[0] = left_OFF[rbit][0];
             intensity[1] = left_OFF[rbit][1];
             port = left;
-            reward_count[left] += 1;
-            reward_count[right] -= 1; 
+            reward_count[left] = (reward_count[left] < 10) ? += 1 : 10 ;
+            reward_count[right] = reward_count[right] ? -= 1 : 0;
         }
         else if (response == 'R'){
             intensity[0] = right_OFF[rbit][0];
             intensity[1] = right_OFF[rbit][1];
             port = right;
+            
             reward_count[right] = (reward_count[right] < 10) ? += 1 : 10 ;
             reward_count[left] = reward_count[left] ? -= 1 : 0;
         }
