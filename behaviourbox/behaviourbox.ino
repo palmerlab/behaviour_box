@@ -523,18 +523,16 @@ char TrialReward() {
             delay(waterVol);
             digitalWrite(waterPort[RewardPort], LOW);
              
-            // pause for 1.5s to allow for drinking
-            ActiveDelay(t + 1500, false);
             
             /* set the response to be returned based on
                the value received,
                also play the associated reward tone */
                
-            if (lickOn[left] and !response){ // hit left
+            if (rewardCond == 'L'){ // hit left
                 response = 'L';
                 tone(speakerPin, toneGoodLeft, 50);
             } 
-            if (lickOn[right] and !response){ // hit right
+            if (rewardCond == 'R'){ // hit right
                 response = 'R';
                 tone(speakerPin, toneGoodRight, 50);
             } 
@@ -549,6 +547,10 @@ char TrialReward() {
                 Serial.print("#Exit `TrialReward`:\t");
                 Serial.println(t);
             }
+            
+            // pause for 1.5s to allow for drinking
+            ActiveDelay(t + 1500, false);
+            
             return response;
         }
         else if (count[!RewardPort] >= minlickCount){
@@ -1021,5 +1023,6 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
 
 

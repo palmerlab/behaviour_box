@@ -216,10 +216,10 @@ def menu():
                 print "Single stim:\t", single_stim,
             
             elif c in ('b', 'B'):
-                bias_correction = not bias_correction
-                print "Bias Correction:\t%s" %bias_correction
+                bias_correction = not bias_correct
+                print "Bias Correct:\t%s" %bias_correct, "%R|%L:", pc_R, "|", pc_L
                 with open(logfile, 'a') as log:
-                    log.write("bias_correction:\t%s\n" %bias_correction)
+                    log.write("bias_correct:\t%s\n" %bias_correct)
             
             elif c in ("h"):
                 print color.Fore.LIGHTBLUE_EX, "\r",
@@ -461,7 +461,7 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[]})
+df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': []})
 while os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
@@ -492,33 +492,25 @@ try:
             pc_L = 50
             pc_R = 50
             
-            if bias_correct and len(df[df['mode'] == 'o']) > 1:
-                response_hist = df.response.str.upper()
+            if bias_correct and len(df) > 1:
+                response_hist = df.response.str.upper().dropna().values[-15:]
                 response_hist = response_hist[response_hist != '-']
                 N = len(response_hist)
                 
                 if N:
                     left_licks = (response_hist == 'L').sum()
                     right_licks = (response_hist == 'R').sum()
-                        
-                        
-                    if not left_licks:
-                        pc_L = 80
-                        pc_R = 20
-                    elif not right_licks:
-                        pc_R = 80
-                        pc_L = 20
-                    else:
-                        pc_R = right_licks / N * 100
-                        pc_L = left_licks / N * 100
-                    
+                                      
+                    pc_R = right_licks / N * 100
+                    pc_L = left_licks / N * 100
+                
                     pc_L = 100 - int(round(pc_L))
                     pc_R = 100 - int(round(pc_R))
 
 
             pc_B = 10 * blanks
             pc_L = int(pc_L - pc_B / 2)
-            pc_R = int(pc_L - pc_B / 2)
+            pc_R = int(pc_R - pc_B / 2)
 
             choice_set = ''.join(('L' * pc_L,
                                  'R' * pc_R, 
@@ -526,11 +518,11 @@ try:
                                 ))
             randomCond = random.choice(choice_set)
             try: #the first time through the comparison fails because the df is empty
-                df[df['mode' == 'o']]
-                if (df.rewardCond.values[-3:] == 'L').all():
-                    randomCond = 'R'
-                elif (df.rewardCond.values[-3:] == 'R').all():
-                    randomCond = 'L'
+                if not bias_correct:                    
+                    if (df.rewardCond.values[-3:] == 'L').all():
+                        randomCond = 'R'
+                    elif (df.rewardCond.values[-3:] == 'R').all():
+                        randomCond = 'L'
             except:
                 pass
             print colour("".join(randomCond), fc.CYAN),
@@ -710,48 +702,6 @@ try:
                 except:
                     pass
 
-                #calculate percentage success
-                
-                print "\r", 100 * " ", "\r                ", #clear the line 
-                
-                hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
-                                / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
-                
-                if df.ID[df.rewardCond.isin(['L','B'])].count():
-                     hit_L = ((df.response == 'L').values.sum() 
-                                / df.rewardCond.isin(['L','B']).values.sum())
-                else: hit_L = float('nan')
-                
-                if df.ID[df.rewardCond.isin(['R','B'])].count():
-                     hit_R = ((df.response == 'R').values.sum() 
-                                / df.rewardCond.isin(['R','B']).values.sum())
-                else: hit_R = float('nan')
-                
-                if df.ID[df.rewardCond != 'N'].count():
-                    misses = (df.miss.values.sum()  
-                                / df.ID[df.rewardCond != 'N'].values.size)*100
-                else: misses = float('nan')
-                
-                wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
-                
-                misses = na_printr(misses)
-                wrong = na_printr(wrong)
-                hits =  na_printr(hits*100)
-                hit_L = na_printr(hit_L*100)
-                hit_R = na_printr(hit_R*100)
-                cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
-                                
-                print colour("hits:%03s%%  " 
-                             "misses:%0s%%  " 
-                             "wrong:%03s%%  " 
-                             "R:%03s%%  " 
-                             "L:%03s%%  " 
-                             "Count:%4d  " 
-                             "Water:%3d" 
-                             "           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                             fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
-                
-
                 comment = ""
                 trial_num += 1            
                 
@@ -770,7 +720,7 @@ try:
                     wait = random.uniform(*ITI)
                     print fc.CYAN,
                 if bias_correct:
-                    print colour(''.join((" "*11, "B C\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
+                    print colour(''.join((" "*10,"BC: ", str(pc_R),"R",str(pc_L),"L\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
