@@ -949,7 +949,7 @@ int UpdateGlobals(String input) {
                 return 1;
         }
         else if (variable_name == "t_rewardEND") {
-                t_rewardSTART = variable_value.toInt();
+                t_rewardEND = variable_value.toInt();
                 Serial.print("t_rewardEND:\t");
                 Serial.println(t_rewardEND);
                 return 1;
@@ -1021,4 +1021,5 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
+
 
