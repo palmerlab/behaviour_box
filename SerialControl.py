@@ -604,7 +604,6 @@ try:
                     if line:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
-                            print var, val
                             trial_df[var] = num(val)
                          
                 for k in trial_df.keys():
