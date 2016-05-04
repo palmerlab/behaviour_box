@@ -538,9 +538,7 @@ char TrialReward() {
                 response = 'R';
                 tone(speakerPin, toneGoodRight, 50);
             } 
-        
-
-        
+               
             if (verbose) { 
                 Serial.print("count[0]:\t");
                 Serial.println(count[left]);
@@ -769,7 +767,7 @@ char Habituation(){
             intensity[0] = left_OFF[rbit][0];
             intensity[1] = left_OFF[rbit][1];
             port = left;
-            reward_count[left] = (reward_count[left] < 10) ? reward_count[left] += 1 : 10 ;
+            reward_count[left] = (reward_count[left] < 10) ? reward_count[left] += 1 : 10;
             reward_count[right] = reward_count[right] ? reward_count[right] -= 1 : 0;
         }
         else if (response == 'R'){
@@ -777,7 +775,7 @@ char Habituation(){
             intensity[1] = right_OFF[rbit][1];
             port = right;
             
-            reward_count[right] = (reward_count[right] < 10) ? reward_count[right] += 1 : 10 ;
+            reward_count[right] = (reward_count[right] < 10) ? reward_count[right] += 1 : 10;
             reward_count[left] = reward_count[left] ? reward_count[left] -= 1 : 0;
         }
 
@@ -948,6 +946,12 @@ int UpdateGlobals(String input) {
                 t_rewardSTART = variable_value.toInt();
                 Serial.print("t_rewardSTART:\t");
                 Serial.println(t_rewardSTART);
+                return 1;
+        }
+        else if (variable_name == "t_rewardEND") {
+                t_rewardSTART = variable_value.toInt();
+                Serial.print("t_rewardEND:\t");
+                Serial.println(t_rewardEND);
                 return 1;
         }
         

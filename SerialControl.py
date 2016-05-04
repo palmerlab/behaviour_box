@@ -75,6 +75,7 @@ noLick = args.noLick
 right_same = args.right_same
 single_stim = args.single
 t_rewardSTART = args.t_rewardSTART
+t_rewardEND = args.t_rewardEND
 
 """
 --------------------------------------------------------------------
@@ -460,7 +461,7 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame({'time':[], 'rewardCond':[]})
+df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[]})
 while os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
@@ -487,38 +488,52 @@ try:
             # get cumulative success for left and right
             # 
             # The trial randomisation.
+
+            pc_L = 50
+            pc_R = 50
             
-            if bias_correct and len(df[df['mode' == 'o']) > 1:
+            if bias_correct and len(df[df['mode'] == 'o']) > 1:
                 response_hist = df.response.str.upper()
+                response_hist = response_hist[response_hist != '-']
                 N = len(response_hist)
                 
-                pc_L = (response_hist == 'L').sum() / N * 100
-                pc_R = (response_hist == 'R').sum() / N * 100
-                
-                pc_L = int(round(pc_L))
-                pc_R = int(round(pc_R))
-            else:
-                pc_L = 50
-                pc_R = 50
+                if N:
+                    left_licks = (response_hist == 'L').sum()
+                    right_licks = (response_hist == 'R').sum()
+                        
+                        
+                    if not left_licks:
+                        pc_L = 80
+                        pc_R = 20
+                    elif not right_licks:
+                        pc_R = 80
+                        pc_L = 20
+                    else:
+                        pc_R = right_licks / N * 100
+                        pc_L = left_licks / N * 100
+                    
+                    pc_L = 100 - int(round(pc_L))
+                    pc_R = 100 - int(round(pc_R))
+
 
             pc_B = 10 * blanks
-            pc_L = pc_L - pc_B / 2
-            pc_R = pc_L - pc_B / 2
+            pc_L = int(pc_L - pc_B / 2)
+            pc_R = int(pc_L - pc_B / 2)
 
-            choice_set = ''.join('L' * pc_L,
+            choice_set = ''.join(('L' * pc_L,
                                  'R' * pc_R, 
                                  '-' * pc_B,
-                                )
+                                ))
             randomCond = random.choice(choice_set)
-            
-            if (df.rewardCond.values[-3:] == 'L').all() 
-                        and len(df[df['mode' == 'o']) > 1:
-                randomCond = 'R'
-            elif (df.rewardCond.values[-3:] == 'R').all()
-                        and len(df[df['mode' == 'o']) > 1:
-                randomCond = 'L'
-            
-            print colour("".join(randomCond), fc.CYAN)
+            try: #the first time through the comparison fails because the df is empty
+                df[df['mode' == 'o']]
+                if (df.rewardCond.values[-3:] == 'L').all():
+                    randomCond = 'R'
+                elif (df.rewardCond.values[-3:] == 'R').all():
+                    randomCond = 'L'
+            except:
+                pass
+            print colour("".join(randomCond), fc.CYAN),
             
             # loop for number of trials in the list of random conditions
             for trial_num, rewardCond in enumerate(randomCond):
@@ -532,7 +547,7 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
-                    'bias_correction': bias_correction,
+                    'bias_correct': bias_correct,
                 }
                 
                 #checks the keys pressed during last iteration
@@ -567,6 +582,7 @@ try:
                             'single_stim'       : int(single_stim), #Converts to binary
                             'timeout'           : int(timeout*1000),     #Converts back to millis
                             't_rewardSTART'     : t_rewardSTART,
+                            't_rewardEND'     : t_rewardEND,
                 }
                 
                 trial_df = update_bbox(ser, params, logfile, trial_df)
@@ -588,6 +604,7 @@ try:
                     if line:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
+                            print var, val
                             trial_df[var] = num(val)
                          
                 for k in trial_df.keys():
@@ -744,7 +761,7 @@ try:
                     print '\r',
                     while dur < trialDur:
 
-                        dur = time.time() - start
+                        dur = time.time() - start_time
                         
 
                 wait = 0
@@ -752,8 +769,8 @@ try:
                 if trial_df['response'].item() not in ('L', 'R', '-'):
                     wait = random.uniform(*ITI)
                     print fc.CYAN,
-                if bias_correction:
-                    print colour(''.join(" "*12, "BIAS CORRECTION ENABLED", fc = fc.RED, bc = bc.YELLOW, style = Style.BRIGHT)
+                if bias_correct:
+                    print colour(''.join((" "*11, "B C\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
