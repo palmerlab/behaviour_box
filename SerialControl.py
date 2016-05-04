@@ -451,7 +451,7 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame({'time':[]})
+df = pd.DataFrame({'time':[], 'rewardCond':[]})
 while os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
     _ += 1
@@ -478,16 +478,37 @@ try:
             # get cumulative success for left and right
             # 
             # The trial randomisation.
-            RC1 = ['L', 'R', 'L']
-            RC2 = ['R', 'L', 'R']
-            if blanks:
-                RC1.insert(0, "-")
+            
+            if bias_correct and len(df[df['mode' == 'o']) > 1:
+                response_hist = df.response.str.upper()
+                N = len(response_hist)
                 
-            randomCond = [i for i in product(RC1, RC2)]
+                pc_L = (response_hist == 'L').sum() / N * 100
+                pc_R = (response_hist == 'R').sum() / N * 100
+                
+                pc_L = int(round(pc_L))
+                pc_R = int(round(pc_R))
+            else:
+                pc_L = 50
+                pc_R = 50
 
-            randomCond = np.array(randomCond)
-            np.random.shuffle(randomCond)
-            randomCond = np.array(randomCond).reshape(-1)
+            pc_B = 10 * blanks
+            pc_L = pc_L - pc_B / 2
+            pc_R = pc_L - pc_B / 2
+
+            choice_set = ''.join('L' * pc_L,
+                                 'R' * pc_R, 
+                                 '-' * pc_B,
+                                )
+            randomCond = random.choice(choice_set)
+            
+            if (df.rewardCond.values[-3:] == 'L').all() 
+                        and len(df[df['mode' == 'o']) > 1:
+                randomCond = 'R'
+            elif (df.rewardCond.values[-3:] == 'R').all()
+                        and len(df[df['mode' == 'o']) > 1:
+                randomCond = 'L'
+            
             print colour("".join(randomCond), fc.CYAN)
             
             # loop for number of trials in the list of random conditions
