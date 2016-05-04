@@ -44,6 +44,11 @@ p.add_argument("-a", "--auditory",
                 help = "switch to auditory stimulus instead of somatosensory",
                 )
 
+p.add_argument("-bc", "--bias_correct", 
+                action = 'store_true', 
+                help = "turn on the bias correction for the random number generator",
+                )
+                
 p.add_argument("-b", "--blanks", 
                 action = 'store_true', 
                 help = "include no stim trials",

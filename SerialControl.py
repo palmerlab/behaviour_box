@@ -59,6 +59,7 @@ trialDur = args.trialDur              # nominally the time to idle before resett
 auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
 blanks = args.blanks
+bias_correct = args.bias_correct
 ITI = args.ITI
 
 leftmode =  args.left
@@ -103,6 +104,7 @@ def menu():
     global trialDur
     global single_stim
     global timeout
+    global bias_correct
     paused = True
 
     while paused:
@@ -111,7 +113,7 @@ def menu():
             if c == '\xe0': 
                 c = c + m.getch()
             
-            print " "*10, "--- PAUSED ---", " "*40, "\r",
+            print "PAUSE", " "*100, "\r",
             
             if c in ("\r", " "):
                 paused = False
@@ -212,6 +214,12 @@ def menu():
                 single_stim = not single_stim
                 print "Single stim:\t", single_stim,
             
+            elif c in ('b', 'B'):
+                bias_correction = not bias_correction
+                print "Bias Correction:\t%s" %bias_correction
+                with open(logfile, 'a') as log:
+                    log.write("bias_correction:\t%s\n" %bias_correction)
+            
             elif c in ("h"):
                 print color.Fore.LIGHTBLUE_EX, "\r",
                 print "-----------------------------"
@@ -229,6 +237,7 @@ def menu():
                 print "  ...   ( ): adjust trial duration"
                 print "  ...   T  : show trial duration period"
                 print "  ...   Y  : toggle timeout (requires punish to take effect)"
+                print "  ...   B  : toggle bias correction"
                 print "-----------------------------"
                 print color.Style.RESET_ALL, '\r',
                 
@@ -516,13 +525,14 @@ try:
             
                 # create an empty dictionary to store data in
                 trial_df = {
-                    'trial_num'     : trial_num,
-                    'WaterPort[0]'  : 0,
-                    'WaterPort[1]'  : 0,
-                    'ID'            : ID,
-                    'weight'        : weight,
-                    'block'         : r,
-                    'comment'       : comment,
+                    'trial_num'      : trial_num,
+                    'WaterPort[0]'   : 0,
+                    'WaterPort[1]'   : 0,
+                    'ID'             : ID,
+                    'weight'         : weight,
+                    'block'          : r,
+                    'comment'        : comment,
+                    'bias_correction': bias_correction,
                 }
                 
                 #checks the keys pressed during last iteration
@@ -742,6 +752,8 @@ try:
                 if trial_df['response'].item() not in ('L', 'R', '-'):
                     wait = random.uniform(*ITI)
                     print fc.CYAN,
+                if bias_correction:
+                    print colour(''.join(" "*12, "BIAS CORRECTION ENABLED", fc = fc.RED, bc = bc.YELLOW, style = Style.BRIGHT)
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
