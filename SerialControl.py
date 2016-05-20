@@ -216,7 +216,7 @@ def menu():
                 print "Single stim:\t", single_stim,
             
             elif c in ('b', 'B'):
-                bias_correction = not bias_correct
+                bias_correct = not bias_correct
                 print "Bias Correct:\t%s" %bias_correct, "%R|%L:", pc_R, "|", pc_L
                 with open(logfile, 'a') as log:
                     log.write("bias_correct:\t%s\n" %bias_correct)
