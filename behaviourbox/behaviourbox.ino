@@ -68,7 +68,7 @@ char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick 
 byte minlickCount = 5;
 
 // Globals to count number of continuous left and rights
-char reward_count[] = {0, 0};
+byte reward_count[] = {0, 0};
 
 // stimulus parameters
 // -------------------
