@@ -633,7 +633,8 @@ try:
                     df['hit_L'] = hit_R
                     df['hit_R'] = hit_L
                     
-                    df['cumWater'] = cumWater               
+                    df['cumWater'] = cumWater
+                    df['trial_num'] = df.shape[0]
 
                     df.to_csv(datafile)
                 
@@ -720,7 +721,7 @@ try:
                     wait = random.uniform(*ITI)
                     print fc.CYAN,
                 if bias_correct:
-                    print colour(''.join((" "*10,"BC: ", str(pc_R),"R",str(pc_L),"L\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
+                    print colour(''.join(('\r'," "*10,"BC: ", str(pc_R),"R",str(pc_L),"L\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
