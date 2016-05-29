@@ -523,17 +523,19 @@ char TrialReward() {
             delay(waterVol);
             digitalWrite(waterPort[RewardPort], LOW);
              
-            
             /* set the response to be returned based on
-               the value received,
-               also play the associated reward tone */
+               the value received. The response is queried first,
+               making sure that a response hasn't been set. If
+               a response has already been recorded, the first
+               response stands as the one reported.
+               Also play the associated reward tone */
                
             if (rewardCond == 'L'){ // hit left
-                response = 'L';
+                response = !response? 'L': response;
                 tone(speakerPin, toneGoodLeft, 50);
             } 
             if (rewardCond == 'R'){ // hit right
-                response = 'R';
+                response = !response? 'R': response;
                 tone(speakerPin, toneGoodRight, 50);
             } 
                
@@ -557,19 +559,17 @@ char TrialReward() {
                         
             // declare the fail condition??
             
-            if (!response) {
-                
-                tone(speakerPin, toneBad, 150);
-                
-                // TODO add random amount of time till trial end
-                if (lickOn[left]) {
-                    response = 'l';
-                } //bad left 
-                if (lickOn[right]) {
-                    response = 'r';
-                }  //bad right
-                
+            if (RewardPort == left){
+                response = 'r'; // bad right
             }
+            else if (RewardPort == right){
+                response = 'l'; // bad left
+            }
+            
+            if (!response) {
+                tone(speakerPin, toneBad, 150);
+            }
+            
             if (break_wrongChoice){
                 if (timeout) {
                     N_to = Timeout(timeout); //count the number of timeouts                 
