@@ -67,7 +67,7 @@ p.add_argument("-s", "--single",
                 
 p.add_argument('-lt', '--lickThres', 
                 default = 0.75, 
-                type = int, 
+                type = float, 
                 help = 'set `lickThres` in arduino',
                 )
                 
