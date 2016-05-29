@@ -1,4 +1,4 @@
-String version = "#behaviourbox160504";
+String version = "#behaviourbox160529";
 
 /*
     Author: Naoya Takahashi
@@ -83,8 +83,8 @@ int ON = 30;
 int diff_OFF[][2] =  {{off_short, off_long},
                       { off_long, off_short}};
 
-int same_OFF[][2] = {{off_long, off_long},
-                      { off_short, off_short}};
+int same_OFF[][2] = {{ off_long, off_long},
+                     {off_short, off_short}};
 
 bool right = 1;
 bool left = 0;
