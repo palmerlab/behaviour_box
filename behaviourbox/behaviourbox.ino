@@ -352,11 +352,11 @@ int Timeout(unsigned long wait, int depth) {
     unsigned long t = t_now(t_init);
     
    //delay(500); // Delay prevents punishing continued licking
+    tone(speakerPin, toneBad, 150);
     
     while (t < wait) {
         t = t_now(t_init);
-        tone(speakerPin, toneBad, 150);
-                   
+        
         if (get_response() != '-') {
             if (depth < 10) {
                 depth ++;
