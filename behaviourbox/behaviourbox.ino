@@ -955,8 +955,12 @@ int UpdateGlobals(String input) {
                 Serial.println(t_rewardEND);
                 return 1;
         }
-        
-        
+        else if (variable_name == "waterVol") {
+                waterVol = variable_value.toInt();
+                Serial.print("waterVol:\t");
+                Serial.println(waterVol);
+                return 1;
+        }        
    }
    return 0;
 }
