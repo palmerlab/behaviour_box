@@ -106,7 +106,6 @@ int toneDur = 100;
 
 // Global value to keep track of the total water consumed
 // this really shouldn't get much higher than 100. 
-char waterCount = 0;
 char waterVol = 10; //uL per dispense
 
 int lickThres = 450;
