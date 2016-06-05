@@ -493,7 +493,7 @@ try:
             pc_R = 50
             
             if bias_correct and len(df) > 1:
-                response_hist = df.response.str.upper().dropna().values[-15:]
+                response_hist = df.response.str.upper().dropna().values[-25:]
                 response_hist = response_hist[response_hist != '-']
                 N = len(response_hist)
                 
