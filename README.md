@@ -143,25 +143,26 @@ do the following:
 
 `TrialReward()`
 : This function returns a character corresponding to the lick status
+    
     - 'L'
-        : correct hit on left port              
+    : correct hit on left port              
                                                
     - 'R'
-        : correct hit on right port             
+    : correct hit on right port             
                                                
     - 'l'
-        :incorrect lick on left port           
+    : incorrect lick on left port           
                                                
     - 'r' 
-        :incorrect lick on right port          
+    : incorrect lick on right port          
                                                
     - '-' 
-        :unknown; in conditioning this         
+    : unknown; in conditioning this         
          function exits before the animal has  
          a chance to respond                   
                                                
     - 'M'
-        : No lick detected during reward period 
+    : No lick detected during reward period 
 
     
     
