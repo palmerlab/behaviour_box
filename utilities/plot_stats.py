@@ -8,7 +8,7 @@ import time
 import sys
 
 #sys.path.append('D:/GoogleDrive/02 PROTOCOLS/Python')
-from utilitybelt.numerical import downsample
+from numerical import downsample
 
 from bokeh.io import hplot, output_notebook, gridplot
 from bokeh.client import push_session
