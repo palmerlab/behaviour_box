@@ -1,3 +1,12 @@
+Andrew's Behaviour Box
+=======================
+
+This is the collection of files I use to run my behavioural experiments.
+
+
+
+
+
 4:35 PM 17/04/2016
 origin/refactor_serial
 -- Goal: setup a habituation / trial run switch
@@ -156,6 +165,7 @@ do the following:
 
 `TrialReward()`
 : This function returns a character corresponding to the lick status
+    
     
 |--- | ------------------------------------- |
 |'L' | correct hit on left port              |
