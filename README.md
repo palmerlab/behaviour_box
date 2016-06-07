@@ -4,23 +4,6 @@ Andrew's Behaviour Box
 This is the collection of files I use to run my behavioural experiments.
 
 
-
-
-
-4:35 PM 17/04/2016
-origin/refactor_serial
--- Goal: setup a habituation / trial run switch
-
-origin/upper_lim
--- Goal: implement an upper limit on the number of contiguous successful
-trials on the same side (Conrad uses 10)s
-
-
-
-Recent Update:
-
-Adds auditory option and allows the frequencies / off times to be controlled online
-
 #SerialController.py
 
 1. The program starts
@@ -45,11 +28,6 @@ Adds auditory option and allows the frequencies / off times to be controlled onl
 
 8. The program repeats sending mode flags until all stimuli combinations have
    been run through.
-   
-TODO:
-
-9. The program calculates d\`|any_stimuls; d\`|rising; d\`|falling
-
 
 
 # Behaviour_box.ino
@@ -182,3 +160,5 @@ do the following:
 |    |                                       |
 |'M' | No lick detected during reward period |
 |--- | ------------------------------------- |
+
+Table: possible response values
