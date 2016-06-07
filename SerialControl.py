@@ -291,11 +291,11 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     
     for k in params.keys():
     
-        #print fc.YELLOW, k, 
+        print fc.YELLOW, k[:5], 
         ser.writelines("%s:%s" %(k, params[k]))
         if verbose: print "%s:%s" %(k, params[k])
         
-        time.sleep(0.3)
+        time.sleep(0.1)
         
         while ser.inWaiting():
 
@@ -305,10 +305,10 @@ def update_bbox(ser, params, logfile, trial_df = {}):
                 var, val = line.split(":\t")
                 trial_df[var] = num(val)
                 if var == k:
-                    pass
-                    #print  fc.GREEN, "\r", var, val, Style.RESET_ALL , "\r"
+                    #pass
+                    print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
                 else:
-                    print  fc.RED, "\r", var, val, Style.RESET_ALL 
+                    print  fc.RED, "\r", var[:5], val, Style.RESET_ALL ,
                     quit()
                 
     return trial_df
@@ -493,7 +493,7 @@ try:
             pc_R = 50
             
             if bias_correct and len(df) > 1:
-                response_hist = df.response.str.upper().dropna().values[-15:]
+                response_hist = df.response.str.upper().dropna().values[-25:]
                 response_hist = response_hist[response_hist != '-']
                 N = len(response_hist)
                 
@@ -596,7 +596,7 @@ try:
                     if line:
                         if line[0] != "#" and line[0] != "-":
                             var, val = line.split(":\t")
-                            #print var, val
+                            #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
                             trial_df[var] = num(val)
                          
                 for k in trial_df.keys():
