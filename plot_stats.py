@@ -24,8 +24,8 @@ usage = '''bokeh serve
 
 left_line = {
     'line_color' : 'red',
-    'line_dash' : [4,2],
-    'line_width' : 3.5,
+    #'line_dash' : [4,2],
+    'line_width' : 2,
     }
 left_marker = {
     'fill_color' : 'red',
@@ -36,8 +36,8 @@ left_marker = {
     
 right_line = {
     'line_color' : 'blue',
-    'line_dash' : [4,2],
-    'line_width' : 3.5,
+    #'line_dash' : [4,2],
+    'line_width' : 2,
     }
 
 right_marker = {
@@ -46,14 +46,14 @@ right_marker = {
     }
     
 total_line = {
-    'line_color' : 'purple',
+    'line_color' : 'ForestGreen',
     #'line_dash' : [4,2],
     'line_width' : 5,
     }
 
 total_marker = {
-    'fill_color' : 'purple',
-    'size' : 10,
+    'fill_color' : 'ForestGreen',
+    'size' : 25,
     }
 # --------------------------------------------------------
 
@@ -70,7 +70,7 @@ df_summary = pd.DataFrame([])
 # ## 1. Read the data
 
 ID = sys.argv[1]
-bin = sys.argv[2]
+bin = int(sys.argv[2])
 
 DATAPATH = '/'.join(('C:/DATA/Andrew/wavesurfer', today()))
 
@@ -92,8 +92,8 @@ def read_data(df = pd.DataFrame([])):
                                    names = df.columns, 
                                    skiprows = last_line))
         
-        if df['Unnamed: 0'].values[-1] == last_line:
-            return df
+        if df['Unnamed: 0'].values[-1] < last_line + bin:
+            return df, False
 
     if 'time' in df.columns:
         df = df.drop_duplicates(subset  = 'time')
@@ -105,7 +105,7 @@ def read_data(df = pd.DataFrame([])):
     df.index = df.trial_num
     df['reward'] = df['WaterPort[0]'] + df['WaterPort[1]']
     
-    return df
+    return df, True
 
 def update():
     global df
@@ -125,7 +125,13 @@ def update():
         #time.sleep(bin)
         return
     
-    df = read_data(df)
+    df, changed = read_data(df)
+    
+    if not changed:
+        return
+    
+    if df.shape()[0] % bin:
+        return
     
     df_raw = df.copy()
 
@@ -138,7 +144,7 @@ def update():
     df = df[response]
     df = df[df.minlickCount > 0]
 
-   reward = df.reward.astype(bool).values
+    reward = df.reward.astype(bool).values
     reward_L = (df.rewardCond == 'L').values
     reward_R = (df.rewardCond == 'R').values
     response_L = (df.response.str.upper() == 'L').values
@@ -258,8 +264,9 @@ p4.renderers.extend([u_chanceline, z_line, l_chanceline])
 p = gridplot([[p2, p3],
              [p1, p4]])
              
-             
-df = read_data(df)
+ 
+
+df, changed = read_data(df)
 
 df_raw = df.copy()
 
@@ -321,31 +328,31 @@ p1_resp = {
                             line_dash = [4,4]
                         ),
                         
-        'marker' : p1.circle(p1_X, p1_Y, 
+        'marker' : p1.circle(total_trials[::bin], total_responses[::bin], 
                             fill_color = 'red', 
                         ),
         }    
 
 
 p2_frac = {
-        'tot' : p2.line(trials, frac, **total_line,),
-        'L'   : p2.line(trials, frac_L, **left_line,),
-        'R'   : p2.line(trials, frac_R, **right_line, ),
+        'tot' : p2.line(trials, frac, **total_line),
+        'L'   : p2.line(trials, frac_L, **left_line),
+        'R'   : p2.line(trials, frac_R, **right_line),
                         
-        'marker' :  p2.line(trials_bin, frac[::bin],   **total_marker),
-        'Lm'     :  p2.line(trials_bin, frac_L[::bin],  **left_marker,),
-        'Rm'     :  p2.line(trials_bin, frac_R[::bin], **right_marker,),
+        'marker' :  p2.circle(trials_bin, frac[::bin],   **total_marker),
+        'Lm'     :  p2.circle(trials_bin, frac_L[::bin],  **left_marker),
+        'Rm'     :  p2.circle(trials_bin, frac_R[::bin], **right_marker),
         
     }            
     
 p3_cor = { 
         'tot': p3.line(trials, p_correct, **total_line),
-        'L'  : p3.line(trials, p_correct_L, **left_line,),
-        'R'  : p3.line(trials, p_correct_R, **right_line,),
+        'L'  : p3.line(trials, p_correct_L, **left_line),
+        'R'  : p3.line(trials, p_correct_R, **right_line),
         
-        'marker' :  p3.line(trials_bin, p_correct[::bin],   **total_marker),
-        'Lm'     :  p3.line(trials_bin, p_correct_L[::bin],  **left_marker,),
-        'Rm'     :  p3.line(trials_bin, p_correct_R[::bin], **right_marker,),
+        'marker' :  p3.circle(trials_bin, p_correct[::bin],   **total_marker),
+        'Lm'     :  p3.circle(trials_bin, p_correct_L[::bin],  **left_marker),
+        'Rm'     :  p3.circle(trials_bin, p_correct_R[::bin], **right_marker),
     }
     
 p4_delta = {
