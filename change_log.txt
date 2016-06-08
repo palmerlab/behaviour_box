@@ -1,3 +1,93 @@
+commit 5da73c7a39359b4d8b7f5226b8096657e4f56e1d
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 15:21:41 2016 +1000
+
+    prevent runs of more than 5 on any side
+
+commit d625f9f137cb86e9096ac2177b3b81015734de36
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 14:44:45 2016 +1000
+
+    Makes update bbox more pythonic
+
+commit f39761bd0585621661bd463104a6d52f1eb90363
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 14:40:36 2016 +1000
+
+    stylistic modifications
+
+commit b8ebd725067b5f389f7cef79c3611cca8fc1a8a5
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 13:32:59 2016 +1000
+
+    brings plot stats in line with previous script
+
+commit dda60eccd85f8b6a13a9708722c9496548501e44
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 12:43:37 2016 +1000
+
+    Revises plot_stats
+
+commit b9cba7133c8810dbe2db64838c13b567d78ab4e0
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 12:30:14 2016 +1000
+
+    Major revisions incomplete
+
+commit b535add2d6880535275cdd638de7c10c0b08ea2a
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 12:04:53 2016 +1000
+
+    Formatting and automates set datapath
+
+commit b7da6a69784e87ec5d82b8598539271bc7f923f7
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 11:58:37 2016 +1000
+
+    Begins to convert plot_stats
+
+commit 992b985166be0b2a9df3051c091b81d84dc88142
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 11:50:55 2016 +1000
+
+    Replaces downsample with rolling mean
+
+commit ce00661d81389e28ce96dcd2939faccab91983af
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 11:42:18 2016 +1000
+
+    Moves plot stats to the base dir
+
+commit 5e9933c150dc4fee3021535fdb3b2d76357fe3b1
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 11:41:37 2016 +1000
+
+    Moves plot stats to the base dir
+
+commit 99a70fc292f03b4f756a20acf5d41834b7039545
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Tue Jun 7 12:16:12 2016 +1000
+
+    Minor edits to readme
+
+commit 44c6595193cf425e087536ddbfea7083d964c99f
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Tue Jun 7 12:15:15 2016 +1000
+
+    Minor edits to readme
+
+commit 16a6ae153dfba54da8f7d54d8d2e6a2b5810163f
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Tue Jun 7 12:12:31 2016 +1000
+
+    Minor edits to readme
+
+commit 040233aa61ef6c330378cf05a28d7f5daf981f93
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Tue Jun 7 12:11:04 2016 +1000
+
+    Adds a change log :)
+
 commit d15b1358e35c269e2b786e144221cb81b864e9cb
 Author: amicallef <amicallef@student.unimelb.edu.au>
 Date:   Tue Jun 7 12:09:15 2016 +1000
