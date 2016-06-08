@@ -19,6 +19,45 @@ usage = '''bokeh serve
            plot_stats.py ID DATAPATH
 '''
 
+#STYLING -------------------------------------------------
+# wining, living it up in the city,
+
+left_line = {
+    'line_color' : 'red',
+    'line_dash' : [4,2],
+    'line_width' : 3.5,
+    }
+left_marker = {
+    'fill_color' : 'red',
+    'size' : 5,
+    }
+    
+    
+    
+right_line = {
+    'line_color' : 'blue',
+    'line_dash' : [4,2],
+    'line_width' : 3.5,
+    }
+
+right_marker = {
+    'fill_color' : 'blue',
+    'size' : 5,
+    }
+    
+total_line = {
+    'line_color' : 'purple',
+    #'line_dash' : [4,2],
+    'line_width' : 5,
+    }
+
+total_marker = {
+    'fill_color' : 'purple',
+    'size' : 10,
+    }
+# --------------------------------------------------------
+
+
 def today():
     import datetime
     """provides today's date as a string in the form YYMMDD"""
@@ -256,14 +295,11 @@ correct = (df.rewardCond == df.response).values
 wrong = (df.rewardCond != df.response).values
 
 total_trials = np.arange(df_raw.shape[0])
+
 total_responses = (df_raw.response == '-').values
-
-total_trials = np.arange(0,total_trials.shape[0], bin) 
-
 total_responses = pd.rolling_mean(total_responses, bin)
 
 trials = np.arange(df.shape[0])
-trials = downsample(trials, bin, np.nanmax)
 
 trials_L = pd.rolling_sum(reward_L, bin)
 trials_R = pd.rolling_sum(reward_R, bin)
@@ -276,7 +312,7 @@ frac = N_rewards / bin
 frac_L = N_rewards_L / trials_L
 frac_R = N_rewards_R / trials_R
 
-p_correct = pd.rolling_sum(correct, bin) / bin
+p_correct = pd.rolling_mean(correct, bin)
 p_correct_L = pd.rolling_sum(correct & response_L, bin) / trials_L
 p_correct_R = pd.rolling_sum(correct & response_R, bin) / trials_R
 
@@ -284,40 +320,58 @@ delta = (( pd.rolling_sum(response_R, bin)
          - pd.rolling_sum(response_L, bin)) / bin)
 
 
+trials_bin = trials[::bin]
          
 
 
-         
-         
 #Initialisation of the lines ---------------------------------------
 
 
+p1_X = total_trials[::bin]
+p1_Y = total_responses[::bin]
+
+
+
+p2_Y = frac
+p3_Y = p_correct
+
+
 p1_resp = {
-        'line' : p1.line(total_trials[::bin], total_responses, 
+        'line' : p1.line(p1_X, p1_Y, 
                             line_color = 'red', 
                             line_dash = [4,4]
                         ),
+                        
+        'marker' : p1.circle(p1_X, p1_Y, 
+                            fill_color = 'red', 
+                        ),
         }    
 
+
 p2_frac = {
-        'tot' : p2.line(trials[::bin], frac, **total_line,),
-        'L' : p2.line(trials[::bin], frac_L, **left_line,),
-        'R' : p2.line(trials[::bin], frac_R, **right_line, ),
+        'tot' : p2.line(trials, p2_Y, **total_line,),
+        'L'   : p2.line(trials, frac_L, **left_line,),
+        'R'   : p2.line(trials, frac_R, **right_line, ),
                         
-        'Lmean' : p2.line(trials, frac_L,
-                            **left_line
-                            )
+        'marker' :  p2.line(trials_bin, p_2Y[::10],   **total_marker),
+        'Lm'     :  p2.line(trials_bin, frac_L[::10],  **left_marker,),
+        'Rm'     :  p2.line(trials_bin, frac_R[::10], **right_marker,),
+        
     }            
     
 p3_cor = { 
-        'tot': p3.line(trials[::bin], p_correct, **total_line),
-        'L' : p3.line(trials[::bin], p_correct_L, **left_line,),
-        'R' : p3.line(trials[::bin], p_correct_R, **right_line,),
+        'tot': p3.line(trials, p_correct, **total_line),
+        'L'  : p3.line(trials, p_correct_L, **left_line,),
+        'R'  : p3.line(trials, p_correct_R, **right_line,),
+        
+        'marker' :  p3.line(trials_bin, p_correct[::10],   **total_marker),
+        'Lm'     :  p3.line(trials_bin, p_correct_L[::10],  **left_marker,),
+        'Rm'     :  p3.line(trials_bin, p_correct_R[::10], **right_marker,),
     }
     
 p4_delta = {
-        'marker' : p4.circle(trials[::bin], delta, size = 4),
-        'line' : p4.line(trials[::bin], delta),
+        'marker' : p4.circle(trials[::bin], delta[::10], size = 10),
+        'line'   : p4.line(trials, delta),
     }         
          
          
