@@ -7,8 +7,6 @@ import time
 
 import sys
 
-#sys.path.append('D:/GoogleDrive/02 PROTOCOLS/Python')
-from numerical import downsample
 
 from bokeh.io import hplot, output_notebook, gridplot
 from bokeh.client import push_session
@@ -17,7 +15,6 @@ from bokeh.plotting import figure, curdoc, show
 from bokeh.models import Span
 from bokeh.charts import Bar
 
-output_notebook()
 usage = '''bokeh serve
            plot_stats.py ID DATAPATH
 '''
@@ -110,29 +107,29 @@ def update():
 
     total_trials = np.arange(0,total_trials.shape[0], 10) 
 
-    total_responses = downsample(total_responses, 10, np.nansum)/10
+    total_responses = pd.rolling_mean(total_responses, 10, )/10
 
 
     trials = np.arange(df.shape[0])
-    trials = downsample(trials, 10, np.nanmax)
+    trials = pd.rolling_mean(trials, 10, )
 
-    trials_L = downsample(reward_L, 10, np.nansum)
-    trials_R = downsample(reward_R, 10, np.nansum)
+    trials_L = pd.rolling_mean(reward_L, 10, )
+    trials_R = pd.rolling_mean(reward_R, 10, )
 
-    N_rewards = downsample(reward, 10, np.nansum)
-    N_rewards_L = downsample(reward & reward_L, 10, np.nansum)
-    N_rewards_R = downsample(reward & reward_R, 10, np.nansum)
+    N_rewards = pd.rolling_mean(reward, 10, )
+    N_rewards_L = pd.rolling_mean(reward & reward_L, 10, )
+    N_rewards_R = pd.rolling_mean(reward & reward_R, 10, )
 
     frac = N_rewards / 10
     frac_L = N_rewards_L / trials_L
     frac_R = N_rewards_R / trials_R
 
-    p_correct = downsample(correct, 10, np.nansum) / 10
-    p_correct_L = downsample(correct & response_L, 10, np.nansum) / trials_L
-    p_correct_R = downsample(correct & response_R, 10, np.nansum) / trials_R
+    p_correct = pd.rolling_mean(correct, 10, ) / 10
+    p_correct_L = pd.rolling_mean(correct & response_L, 10, ) / trials_L
+    p_correct_R = pd.rolling_mean(correct & response_R, 10, ) / trials_R
 
-    delta = (( downsample(response_R, 10, np.nansum) 
-             - downsample(response_L, 10, np.nansum)) / 10)
+    delta = (( pd.rolling_mean(response_R, 10, ) 
+             - pd.rolling_mean(response_L, 10, )) / 10)
 
 
     p1_responses.data_source.data = {'x' : total_trials,
@@ -256,29 +253,29 @@ if first_loop:
 
     total_trials = np.arange(0,total_trials.shape[0], 10) 
 
-    total_responses = downsample(total_responses, 10, np.nansum)/10
+    total_responses = pd.rolling_mean(total_responses, 10, )/10
 
 
     trials = np.arange(df.shape[0])
-    trials = downsample(trials, 10, np.nanmax)
+    trials = pd.rolling_mean(trials, 10, )
 
-    trials_L = downsample(reward_L, 10, np.nansum)
-    trials_R = downsample(reward_R, 10, np.nansum)
+    trials_L = pd.rolling_mean(reward_L, 10, )
+    trials_R = pd.rolling_mean(reward_R, 10, )
 
-    N_rewards = downsample(reward, 10, np.nansum)
-    N_rewards_L = downsample(reward & reward_L, 10, np.nansum)
-    N_rewards_R = downsample(reward & reward_R, 10, np.nansum)
+    N_rewards = pd.rolling_mean(reward, 10, )
+    N_rewards_L = pd.rolling_mean(reward & reward_L, 10, )
+    N_rewards_R = pd.rolling_mean(reward & reward_R, 10, )
 
     frac = N_rewards / 10
     frac_L = N_rewards_L / trials_L
     frac_R = N_rewards_R / trials_R
 
-    p_correct = downsample(correct, 10, np.nansum) / 10
-    p_correct_L = downsample(correct & response_L, 10, np.nansum) / trials_L
-    p_correct_R = downsample(correct & response_R, 10, np.nansum) / trials_R
+    p_correct = pd.rolling_mean(correct, 10, ) / 10
+    p_correct_L = pd.rolling_mean(correct & response_L, 10, ) / trials_L
+    p_correct_R = pd.rolling_mean(correct & response_R, 10, ) / trials_R
 
-    delta = (( downsample(response_R, 10, np.nansum) 
-             - downsample(response_L, 10, np.nansum)) / 10)
+    delta = (( pd.rolling_mean(response_R, 10, ) 
+             - pd.rolling_mean(response_L, 10, )) / 10)
 
     if first_loop:
     
