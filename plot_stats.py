@@ -24,11 +24,12 @@ usage = '''bokeh serve
 
 left_line = {
     'line_color' : 'red',
-    #'line_dash' : [4,2],
-    'line_width' : 2,
+    'line_dash' : [4,4],
+    'line_width' : 1,
     }
 left_marker = {
     'fill_color' : 'red',
+    'line_color' : 'red',
     'size' : 5,
     }
     
@@ -36,24 +37,27 @@ left_marker = {
     
 right_line = {
     'line_color' : 'blue',
-    #'line_dash' : [4,2],
-    'line_width' : 2,
+    'line_dash' : [4,4],
+    'line_width' : 1,
     }
 
 right_marker = {
     'fill_color' : 'blue',
+    'line_color' : 'blue',
     'size' : 5,
     }
     
 total_line = {
-    'line_color' : 'ForestGreen',
+    'line_color' : 'black',
     #'line_dash' : [4,2],
-    'line_width' : 5,
+    'line_width' : 7,
     }
 
 total_marker = {
-    'fill_color' : 'ForestGreen',
-    'size' : 25,
+    'fill_color' : 'white',
+    'line_color' : 'black',
+    'line_width' : 4,
+    'size' : 10,
     }
 # --------------------------------------------------------
 
@@ -78,60 +82,62 @@ infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH)
                     if ID in f 
                     if f.endswith('.csv')][-1]
 
-first_loop = True
+#first_loop = True
 last_mod = time.ctime(os.path.getmtime(infile))
 
 def read_data(df = pd.DataFrame([])):   
-    
-    if df.empty:
-        df = pd.read_csv(infile)
-        print df.columns
-    else:
-        last_line = df['Unnamed: 0'].values[-1]
-        df = df.append(pd.read_csv(infile, 
-                                   names = df.columns, 
-                                   skiprows = last_line))
+    try:
+        if df.empty:
+            df = pd.read_csv(infile)
+        else:
+            last_line = df['Unnamed: 0'].values[-1]
+            df = df.append(pd.read_csv(infile, 
+                                       names = df.columns, 
+                                       skiprows = last_line))
+            
+            if df['Unnamed: 0'].values[-1] == last_line:
+                return df, False
+
+        if 'time' in df.columns:
+            df = df.drop_duplicates(subset  = 'time')
+
+        if 'OFF[0]' in df.columns:
+            df = df.dropna(subset = ['OFF[0]'])
+
+        df['trial_num'] = np.arange(0, df.shape[0])
+        df.index = df.trial_num
+        df['reward'] = df['WaterPort[0]'] + df['WaterPort[1]']
         
-        if df['Unnamed: 0'].values[-1] < last_line + bin:
-            return df, False
-
-    if 'time' in df.columns:
-        df = df.drop_duplicates(subset  = 'time')
-
-    if 'OFF[0]' in df.columns:
-        df = df.dropna(subset = ['OFF[0]'])
-
-    df['trial_num'] = np.arange(0, df.shape[0])
-    df.index = df.trial_num
-    df['reward'] = df['WaterPort[0]'] + df['WaterPort[1]']
-    
-    return df, True
+        return df, True
+    except:
+        return df, False
 
 def update():
     global df
     global last_mod
-    global first_loop
+    #global first_loop
     
     
     
     mod_time = time.ctime(os.path.getmtime(infile))
     
-    if  (mod_time > last_mod) or first_loop:
+    if  (mod_time > last_mod):
         last_mod = mod_time
         
-        print mod_time
+        print mod_time, '\r',
     else:
-        print last_mod, '\r',
-        #time.sleep(bin)
+        #print last_mod, '\r',
+        time.sleep(1)
         return
+    
     
     df, changed = read_data(df)
     
     if not changed:
         return
     
-    if df.shape()[0] % bin:
-        return
+    #if df.shape()[0] % bin:
+    #    return
     
     df_raw = df.copy()
 
@@ -192,7 +198,7 @@ def update():
                                     }
     
     
-    p2_frac['tot'].data_source.data = {'x' : trials, 'y' : frac}
+    p2_frac['tot'].data_source.data = {'x' : trials_bin, 'y' : frac[::bin]}
     p2_frac['L'  ].data_source.data = {'x' : trials, 'y' : frac_L}
     p2_frac['R'  ].data_source.data = {'x' : trials, 'y' : frac_R}
 
@@ -201,7 +207,7 @@ def update():
     p2_frac['Rm'  ].data_source.data = {'x' : trials_bin, 'y' : frac_R[::bin]}
     
     
-    p3_cor['tot'].data_source.data = {'x': trials, 'y': p_correct}
+    p3_cor['tot'].data_source.data = {'x': trials_bin, 'y': p_correct[::bin]}
     p3_cor['L'  ].data_source.data = {'x': trials, 'y': p_correct_L}
     p3_cor['R'  ].data_source.data = {'x': trials, 'y': p_correct_R}
     
@@ -330,12 +336,14 @@ p1_resp = {
                         
         'marker' : p1.circle(total_trials[::bin], total_responses[::bin], 
                             fill_color = 'red', 
+                            line_color = 'red', 
+                            size = 10,
                         ),
         }    
 
 
 p2_frac = {
-        'tot' : p2.line(trials, frac, **total_line),
+        'tot' : p2.line(trials_bin, frac[::bin], **total_line),
         'L'   : p2.line(trials, frac_L, **left_line),
         'R'   : p2.line(trials, frac_R, **right_line),
                         
@@ -346,7 +354,7 @@ p2_frac = {
     }            
     
 p3_cor = { 
-        'tot': p3.line(trials, p_correct, **total_line),
+        'tot': p3.line(trials_bin, p_correct[::bin], **total_line),
         'L'  : p3.line(trials, p_correct_L, **left_line),
         'R'  : p3.line(trials, p_correct_R, **right_line),
         
@@ -365,7 +373,7 @@ p4.text(1, 0.5, text = ['Right'], text_color = 'blue')
 p4.text(1, -0.5, text = ['Left'], text_color = 'Red')
 
 
-first_loop = False
+#first_loop = False
 
 #-----------------------------------------------------------------#
 
