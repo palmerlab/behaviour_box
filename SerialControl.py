@@ -526,22 +526,23 @@ try:
            
             # Mechanism to prevent more than 5 correct in a row.
             # a softer bias correct mechanism
-            if (df.response[df.response.str.isupper()][-5:] == 'R').all() or requires_L:
-                randomCond = 'L'
-                
-                if not requires_L:
-                    requires_L = 3
-                else:
-                    requires_L -= 1
+            if not df.empty:
+                if (df.response[df.response.str.isupper()].values[-5:] == 'R').all() or requires_L:
+                    randomCond = 'L'
                     
-                
-            if (df.response[df.response.str.isupper()][-5:] == 'L').all() or requires_R:
-                randomCond = 'R'
-                
-                if not requires_R:
-                    requires_R = 3
-                else:
-                    requires_R -= 1
+                    if not requires_L:
+                        requires_L = 4
+                    else:
+                        requires_L -= 1
+                        
+                    
+                if (df.response[df.response.str.isupper()].values[-5:] == 'L').all() or requires_R:
+                    randomCond = 'R'
+                    
+                    if not requires_R:
+                        requires_R = 4
+                    else:
+                        requires_R -= 1
              
             
             print colour("".join(randomCond), fc.CYAN),
