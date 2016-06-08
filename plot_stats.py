@@ -19,10 +19,10 @@ usage = '''bokeh serve
            plot_stats.py ID DATAPATH
 '''
 
-
-
-
-
+def today():
+    import datetime
+    """provides today's date as a string in the form YYMMDD"""
+    return datetime.date.today().strftime('%y%m%d')
 
 df = pd.DataFrame([])
 df_summary = pd.DataFrame([])
@@ -31,7 +31,10 @@ df_summary = pd.DataFrame([])
 # ## 1. Read the data
 
 ID = sys.argv[1]
-DATAPATH = sys.argv[2]
+bin = sys.argv[2]
+
+DATAPATH = '/'.join(('C:/DATA/Andrew/wavesurfer', today()))
+
 infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH) 
                     if ID in f 
                     if f.endswith('.csv')][-1]
@@ -80,7 +83,7 @@ def update():
         print mod_time
     else:
         print last_mod, '\r',
-        time.sleep(10)
+        #time.sleep(bin)
         return
     
     df = read_data(df)
@@ -110,31 +113,31 @@ def update():
     total_trials = np.arange(df_raw.shape[0])
     total_responses = (df_raw.response == '-').values
 
-    total_trials = np.arange(0,total_trials.shape[0], 10) 
+    total_trials = np.arange(0,total_trials.shape[0], bin) 
 
-    total_responses = pd.rolling_mean(total_responses, 10, )
+    total_responses = pd.rolling_mean(total_responses, bin)
 
 
     trials = np.arange(df.shape[0])
-    trials = downsample(trials, 10, np.nanmax)
+    trials = downsample(trials, bin, np.nanmax)
 
-    trials_L = pd.rolling_sum(reward_L, 10, )
-    trials_R = pd.rolling_sum(reward_R, 10, )
+    trials_L = pd.rolling_sum(reward_L, bin)
+    trials_R = pd.rolling_sum(reward_R, bin)
 
-    N_rewards = pd.rolling_sum(reward, 10, )
-    N_rewards_L = pd.rolling_sum(reward & reward_L, 10, )
-    N_rewards_R = pd.rolling_sum(reward & reward_R, 10, )
+    N_rewards = pd.rolling_sum(reward, bin)
+    N_rewards_L = pd.rolling_sum(reward & reward_L, bin)
+    N_rewards_R = pd.rolling_sum(reward & reward_R, bin)
 
-    frac = N_rewards / 10
+    frac = N_rewards / bin
     frac_L = N_rewards_L / trials_L
     frac_R = N_rewards_R / trials_R
 
-    p_correct = pd.rolling_sum(correct, 10, ) / 10
-    p_correct_L = pd.rolling_sum(correct & response_L, 10, ) / trials_L
-    p_correct_R = pd.rolling_sum(correct & response_R, 10, ) / trials_R
+    p_correct = pd.rolling_sum(correct, bin) / bin
+    p_correct_L = pd.rolling_sum(correct & response_L, bin) / trials_L
+    p_correct_R = pd.rolling_sum(correct & response_R, bin) / trials_R
 
-    delta = (( pd.rolling_sum(response_R, 10, ) 
-             - pd.rolling_sum(response_L, 10, )) / 10)
+    delta = (( pd.rolling_sum(response_R, bin) 
+             - pd.rolling_sum(response_L, bin)) / bin)
 
 
     p1_responses.data_source.data = {'x' : total_trials,
@@ -255,30 +258,30 @@ wrong = (df.rewardCond != df.response).values
 total_trials = np.arange(df_raw.shape[0])
 total_responses = (df_raw.response == '-').values
 
-total_trials = np.arange(0,total_trials.shape[0], 10) 
+total_trials = np.arange(0,total_trials.shape[0], bin) 
 
-total_responses = pd.rolling_mean(total_responses, 10, )
+total_responses = pd.rolling_mean(total_responses, bin)
 
 trials = np.arange(df.shape[0])
-trials = downsample(trials, 10, np.nanmax)
+trials = downsample(trials, bin, np.nanmax)
 
-trials_L = pd.rolling_sum(reward_L, 10, )
-trials_R = pd.rolling_sum(reward_R, 10, )
+trials_L = pd.rolling_sum(reward_L, bin)
+trials_R = pd.rolling_sum(reward_R, bin)
 
-N_rewards = pd.rolling_sum(reward, 10, )
-N_rewards_L = pd.rolling_sum(reward & reward_L, 10, )
-N_rewards_R = pd.rolling_sum(reward & reward_R, 10, )
+N_rewards = pd.rolling_sum(reward, bin)
+N_rewards_L = pd.rolling_sum(reward & reward_L, bin)
+N_rewards_R = pd.rolling_sum(reward & reward_R, bin)
 
-frac = N_rewards / 10
+frac = N_rewards / bin
 frac_L = N_rewards_L / trials_L
 frac_R = N_rewards_R / trials_R
 
-p_correct = pd.rolling_sum(correct, 10, ) / 10
-p_correct_L = pd.rolling_sum(correct & response_L, 10, ) / trials_L
-p_correct_R = pd.rolling_sum(correct & response_R, 10, ) / trials_R
+p_correct = pd.rolling_sum(correct, bin) / bin
+p_correct_L = pd.rolling_sum(correct & response_L, bin) / trials_L
+p_correct_R = pd.rolling_sum(correct & response_R, bin) / trials_R
 
-delta = (( pd.rolling_sum(response_R, 10, ) 
-         - pd.rolling_sum(response_L, 10, )) / 10)
+delta = (( pd.rolling_sum(response_R, bin) 
+         - pd.rolling_sum(response_L, bin)) / bin)
 
 
          
@@ -290,16 +293,16 @@ delta = (( pd.rolling_sum(response_R, 10, )
 
 
 p1_resp = {
-        'line' : p1.line(total_trials[::10], total_responses, 
+        'line' : p1.line(total_trials[::bin], total_responses, 
                             line_color = 'red', 
                             line_dash = [4,4]
                         ),
         }    
 
 p2_frac = {
-        'tot' : p2.line(trials[::10], frac, **total_line,),
-        'L' : p2.line(trials[::10], frac_L, **left_line,),
-        'R' : p2.line(trials[::10], frac_R, **right_line, ),
+        'tot' : p2.line(trials[::bin], frac, **total_line,),
+        'L' : p2.line(trials[::bin], frac_L, **left_line,),
+        'R' : p2.line(trials[::bin], frac_R, **right_line, ),
                         
         'Lmean' : p2.line(trials, frac_L,
                             **left_line
@@ -307,14 +310,14 @@ p2_frac = {
     }            
     
 p3_cor = { 
-        'tot': p3.line(trials[::10], p_correct, **total_line),
-        'L' : p3.line(trials[::10], p_correct_L, **left_line,),
-        'R' : p3.line(trials[::10], p_correct_R, **right_line,),
+        'tot': p3.line(trials[::bin], p_correct, **total_line),
+        'L' : p3.line(trials[::bin], p_correct_L, **left_line,),
+        'R' : p3.line(trials[::bin], p_correct_R, **right_line,),
     }
     
 p4_delta = {
-        'marker' : p4.circle(trials[::10], delta, size = 4),
-        'line' : p4.line(trials[::10], delta),
+        'marker' : p4.circle(trials[::bin], delta, size = 4),
+        'line' : p4.line(trials[::bin], delta),
     }         
          
          
