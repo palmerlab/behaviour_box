@@ -471,6 +471,9 @@ df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
 
+requires_L = 0
+requires_R = 0
+
 # making the random condition in this way means 
 # there are never more than 3 in a row
 
@@ -482,12 +485,6 @@ try:
         
         # loop for r repeats
         for r in xrange(repeats):
-            
-            # TODO:
-            # replace with weighted random
-            # get cumulative success for left and right
-            # 
-            # The trial randomisation.
 
             pc_L = 50
             pc_R = 50
@@ -517,6 +514,7 @@ try:
                                  '-' * pc_B,
                                 ))
             randomCond = random.choice(choice_set)
+            
             try: #the first time through the comparison fails because the df is empty
                 if not bias_correct:                    
                     if (df.rewardCond.values[-3:] == 'L').all():
@@ -525,6 +523,27 @@ try:
                         randomCond = 'L'
             except:
                 pass
+           
+            # Mechanism to prevent more than 5 correct in a row.
+            # a softer bias correct mechanism
+            if (df.response[df.response.str.isupper()][-5:] == 'R').all() or requires_L:
+                randomCond = 'L'
+                
+                if not requires_L:
+                    requires_L = 3
+                else:
+                    requires_L -= 1
+                    
+                
+            if (df.response[df.response.str.isupper()][-5:] == 'L').all() or requires_R:
+                randomCond = 'R'
+                
+                if not requires_R:
+                    requires_R = 3
+                else:
+                    requires_R -= 1
+             
+            
             print colour("".join(randomCond), fc.CYAN),
             
             # loop for number of trials in the list of random conditions
