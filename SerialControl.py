@@ -289,11 +289,11 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     received from the arduino
     """
     
-    for k in params.keys():
+    for name, param in params.iteritems():
     
-        print fc.YELLOW, k[:5], 
-        ser.writelines("%s:%s" %(k, params[k]))
-        if verbose: print "%s:%s" %(k, params[k])
+        print fc.YELLOW, name[:5], 
+        ser.writelines("%s:%s" %(name, param))
+        if verbose: print "%s:%s" %(name, param)
         
         time.sleep(0.1)
         
@@ -304,7 +304,7 @@ def update_bbox(ser, params, logfile, trial_df = {}):
             if line[0] != "#" and line[0] != "-":
                 var, val = line.split(":\t")
                 trial_df[var] = num(val)
-                if var == k:
+                if var == name:
                     #pass
                     print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
                 else:
