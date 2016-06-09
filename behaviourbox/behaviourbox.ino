@@ -1,4 +1,4 @@
-String version = "#behaviourbox160529";
+String version = "#behaviourbox160609";
 
 /*
     Author: Naoya Takahashi
@@ -663,7 +663,7 @@ char runTrial() {
             response = 'r';
         }
 
-        tone(speakerPin, toneBad, 150);
+        //tone(speakerPin, toneBad, 150);
 
         Serial.print("response:\t");
         Serial.println(response);

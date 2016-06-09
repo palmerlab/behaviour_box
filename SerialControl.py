@@ -151,7 +151,7 @@ def menu():
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
                 punish = not punish
-                noLick = args.noLick if punish else 0
+                #noLick = args.noLick if punish else 0
                 print "Punish for wrong lick:\t%s" %punish
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
@@ -527,23 +527,28 @@ try:
             # Mechanism to prevent more than 5 correct in a row.
             # a softer bias correct mechanism
             if not df.empty:
-                if (df.response[df.response.str.isupper()].values[-5:] == 'R').all() or requires_L:
+
+                if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'R').all() or requires_L:
                     randomCond = 'L'
                     
                     if not requires_L:
                         requires_L = 4
                     else:
-                        requires_L -= 1
+                        if df['WaterPort[0]'].astype(bool).values[-1]:
+                            requires_L -= 1
                         
                     
-                if (df.response[df.response.str.isupper()].values[-5:] == 'L').all() or requires_R:
+                if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'L').all() or requires_R:
                     randomCond = 'R'
                     
                     if not requires_R:
                         requires_R = 4
                     else:
-                        requires_R -= 1
-             
+                        if df['WaterPort[1]'].astype(bool).values[-1]:
+                            requires_R -= 1
+                        
+                            
+       
             
             print colour("".join(randomCond), fc.CYAN),
             
@@ -675,50 +680,51 @@ try:
                 }
 
                 try:
-                    for k in ('trial_num', 'rewardCond', 'response', 
-                                    'count[0]', 'count[1]', 'WaterPort[0]', 
-                                    'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                    if not pd.isnull(df['OFF[0]'].iloc[-1]):
+                        for k in ('trial_num', 'rewardCond', 'response', 
+                                        'count[0]', 'count[1]', 'WaterPort[0]', 
+                                        'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                            
+                            if df.correct.iloc[-1]:
+                                print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
+                            elif df.miss.iloc[-1]:
+                                print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
+                            else:
+                                print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
+                        print '\r', Style.RESET_ALL
+                        #calculate percentage success
                         
-                        if df.correct.iloc[-1]:
-                            print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
-                        elif df.miss.iloc[-1]:
-                            print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
-                        else:
-                            print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
-                    print '\r', Style.RESET_ALL
-                    #calculate percentage success
-                    
-                    print "\r", 100 * " ", "\r                ", #clear the line 
-                    
-                    hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
-                                    / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
-                    
-                    if df.ID[df.rewardCond.isin(['L','B'])].count():
-                         hit_L = ((df.response == 'L').values.sum() 
-                                    / df.rewardCond.isin(['L','B']).values.sum())
-                    else: hit_L = float('nan')
-                    
-                    if df.ID[df.rewardCond.isin(['R','B'])].count():
-                         hit_R = ((df.response == 'R').values.sum() 
-                                    / df.rewardCond.isin(['R','B']).values.sum())
-                    else: hit_R = float('nan')
-                    
-                    if df.ID[df.rewardCond != 'N'].count():
-                        misses = (df.miss.values.sum() / 
-                                    df.ID[df.rewardCond != 'N'].values.size)*100
-                    else: misses = float('nan')
-                    
-                    wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
-                    
-                    misses = na_printr(misses)
-                    wrong = na_printr(wrong)
-                    hits =  na_printr(hits*100)
-                    hit_L = na_printr(hit_L*100)
-                    hit_R = na_printr(hit_R*100)
-                    cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
-                                    
-                    print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.ID.count(), cumWater),
-                                    fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
+                        print "\r", 100 * " ", "\r                ", #clear the line 
+                        
+                        hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
+                                        / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
+                        
+                        if df.ID[df.rewardCond.isin(['L','B'])].count():
+                             hit_L = ((df.response == 'L').values.sum() 
+                                        / df.rewardCond.isin(['L','B']).values.sum())
+                        else: hit_L = float('nan')
+                        
+                        if df.ID[df.rewardCond.isin(['R','B'])].count():
+                             hit_R = ((df.response == 'R').values.sum() 
+                                        / df.rewardCond.isin(['R','B']).values.sum())
+                        else: hit_R = float('nan')
+                        
+                        if df.ID[df.rewardCond != 'N'].count():
+                            misses = (df.miss.values.sum() / 
+                                        df.ID[df.rewardCond != 'N'].values.size)*100
+                        else: misses = float('nan')
+                        
+                        wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
+                        
+                        misses = na_printr(misses)
+                        wrong = na_printr(wrong)
+                        hits =  na_printr(hits*100)
+                        hit_L = na_printr(hit_L*100)
+                        hit_R = na_printr(hit_R*100)
+                        cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
+                                        
+                        print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.dropna(subset=["OFF[0]", 'response']).ID.count(), cumWater),
+                                        fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                     
                 except:
                     pass
@@ -728,10 +734,10 @@ try:
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
-                if trialDur:
+                if trialDur and not pd.isnull(df['OFF[0]'].iloc[-1]): #allows fall though for a non trial
+                    #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
                     print '\r',
                     while dur < trialDur:
-
                         dur = time.time() - start_time
                         
 
