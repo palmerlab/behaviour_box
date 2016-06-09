@@ -6,13 +6,15 @@ origin/upper_lim
 -- Goal: implement an upper limit on the number of contiguous successful
 trials on the same side (Conrad uses 10)s
 
-
+![Flow of the behavioural paradigm](.\Flow_diagram_160509.svg)
 
 Recent Update:
 
 Adds auditory option and allows the frequencies / off times to be controlled online
 
-#SerialController.py
+
+
+# SerialController.py
 
 1. The program starts
 2. The program opens communications with available serial port
