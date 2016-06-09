@@ -81,11 +81,15 @@ DATAPATH = '/'.join(('C:/DATA/Andrew/wavesurfer', today()))
 infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH) 
                     if ID in f 
                     if f.endswith('.csv')][-1]
-
+                    
 #first_loop = True
 last_mod = time.ctime(os.path.getmtime(infile))
 
 def read_data(df = pd.DataFrame([])):   
+    
+    
+
+    
     try:
         if df.empty:
             df = pd.read_csv(infile)
@@ -113,11 +117,15 @@ def read_data(df = pd.DataFrame([])):
         return df, False
 
 def update():
-    global df
+    global df_raw
     global last_mod
+    global infile
     #global first_loop
     
-    
+    infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH) 
+                    if ID in f 
+                    if f.endswith('.csv')][-1]
+                    
     
     mod_time = time.ctime(os.path.getmtime(infile))
     
@@ -131,7 +139,7 @@ def update():
         return
     
     
-    df, changed = read_data(df)
+    df_raw, changed = read_data(df_raw)
     
     if not changed:
         return
@@ -139,7 +147,7 @@ def update():
     #if df.shape()[0] % bin:
     #    return
     
-    df_raw = df.copy()
+    df = df_raw.copy()
 
     # Given the animal did respond:
     # One of the ports will have recorded a count,
