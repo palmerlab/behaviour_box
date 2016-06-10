@@ -462,11 +462,9 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': []})
-while os.path.isfile(df_file):
+if os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
-    _ += 1
-    df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-
+   
 df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
@@ -515,18 +513,16 @@ try:
                                 ))
             randomCond = random.choice(choice_set)
             
-            try: #the first time through the comparison fails because the df is empty
-                if not bias_correct:                    
-                    if (df.rewardCond.values[-3:] == 'L').all():
-                        randomCond = 'R'
-                    elif (df.rewardCond.values[-3:] == 'R').all():
-                        randomCond = 'L'
-            except:
-                pass
+            if not bias_correct and df.shape[0] > 3:                    
+                if (df.rewardCond.values[-3:] == 'L').all():
+                    randomCond = 'R'
+                elif (df.rewardCond.values[-3:] == 'R').all():
+                    randomCond = 'L'
+       
            
             # Mechanism to prevent more than 5 correct in a row.
             # a softer bias correct mechanism
-            if not df.empty:
+            if df.shape[0] > 5:
 
                 if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'R').all() or requires_L:
                     randomCond = 'L'
