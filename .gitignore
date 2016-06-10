@@ -1,3 +1,4 @@
-README.htm
+*.html
 *.tab
 *.pyc
+*.css
