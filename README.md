@@ -1,8 +1,10 @@
-4:35 PM 17/04/2016
-origin/refactor_serial
--- Goal: setup a habituation / trial run switch
+Andrew's Behaviour Box
+=======================
 
-![Flow of the behavioural paradigm](.\Flow_diagram_160509.svg)
+This is the collection of files I use to run my behavioural experiments.
+It runs a routine described by the following diagram
+
+![Flow of the behavioural paradigm](.\Flow_diagram.svg)
 
 Recent Update:
 
@@ -11,6 +13,7 @@ Adds auditory option and allows the frequencies / off times to be controlled onl
 
 
 # SerialController.py
+
 
 1. The program starts
 2. The program opens communications with available serial port
@@ -34,7 +37,7 @@ Adds auditory option and allows the frequencies / off times to be controlled onl
 
 8. The program repeats sending mode flags until all stimuli combinations have
    been run through.
-   
+
 
 
 # Behaviour_box.ino
@@ -162,18 +165,25 @@ do the following:
 `TrialReward()`
 : This function returns a character corresponding to the lick status
     
-|--- | ------------------------------------- |
-|'L' | correct hit on left port              |
-|    |                                       |
-|'R' | correct hit on right port             |
-|    |                                       |
-|'l' | incorrect lick on left port           |
-|    |                                       |
-|'r' | incorrect lick on right port          |
-|    |                                       |
-|'-' | unknown; in conditioning this         |
-|    | function exits before the animal has  |
-|    | a chance to respond                   |
-|    |                                       |
-|'M' | No lick detected during reward period |
-|--- | ------------------------------------- |
+    - 'L'
+    : correct hit on left port              
+                                               
+    - 'R'
+    : correct hit on right port             
+                                               
+    - 'l'
+    : incorrect lick on left port           
+                                               
+    - 'r' 
+    : incorrect lick on right port          
+                                               
+    - '-' 
+    : unknown; in conditioning this         
+         function exits before the animal has  
+         a chance to respond                   
+                                               
+    - 'M'
+    : No lick detected during reward period 
+
+    
+    
