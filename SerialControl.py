@@ -526,22 +526,30 @@ try:
 
                 if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'R').all() or requires_L:
                     randomCond = 'L'
-                    
+                    print  "\t\trequires_L: ", requires_L,
                     if not requires_L:
-                        requires_L = 4
+                        requires_L = 3
+                        requires_R = 0
                     else:
                         if df['WaterPort[0]'].astype(bool).values[-1]:
                             requires_L -= 1
-                        
+                    if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'L').sum() > 2:
+                        requires_L = 0
+                        requires_R = 0
                     
                 if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'L').all() or requires_R:
                     randomCond = 'R'
-                    
+                    print  "\t\trequires_R: " , requires_R,
                     if not requires_R:
-                        requires_R = 4
+                        requires_R = 3
+                        requires_L = 0
                     else:
                         if df['WaterPort[1]'].astype(bool).values[-1]:
                             requires_R -= 1
+                        
+                    if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'R').sum() > 2:
+                        requires_R = 0
+                        requires_L = 0
                         
                             
        
