@@ -1,3 +1,57 @@
+commit a468a63900d866ec4e03c620d8a13e31715d6f69
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 12:11:07 2016 +1000
+
+    ignores the htm file
+
+commit 64b923a4e029859a4d9eef1ea03d67eceeb7ced9
+Merge: 751bc89 27b1197
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 11:56:02 2016 +1000
+
+    Merged
+
+commit 751bc892470d6716c543e3c599cdc684c4f9d44e
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 10:05:35 2016 +1000
+
+    discusses habituation mode
+
+commit 8f9f93f2203fc2f09c5282dd92050b9d9114f38d
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 09:59:04 2016 +1000
+
+    Updates Readme with a usefull figure
+    
+    Figure originally from Flow_diagram_160509.svg which is in the
+    presentation repository
+
+commit 27b1197d728612628386e966536f40d68e53ff3c
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Thu Jun 9 18:42:23 2016 +1000
+
+    Fixes no responses not being plotted after first loop
+
+commit f2a7c405f8278ad81a3532cbe560a7d584d28cff
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Thu Jun 9 18:40:40 2016 +1000
+
+    Makes no lick break silently and does not count in stats
+    	modified:   SerialControl.py
+    	modified:   behaviourbox/behaviourbox.ino
+
+commit f993674ec0a71fce041fd5bd046f9aa5aabf2447
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 15:58:59 2016 +1000
+
+    Forces at least three succesful trials on non-biased side after a run of 5 on a biased port
+
+commit 29c65645c77bba65e01687bb11cd18a1bb021e55
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Wed Jun 8 15:24:11 2016 +1000
+
+    Update change log
+
 commit 5da73c7a39359b4d8b7f5226b8096657e4f56e1d
 Author: amicallef <amicallef@student.unimelb.edu.au>
 Date:   Wed Jun 8 15:21:41 2016 +1000
@@ -106,6 +160,13 @@ Date:   Tue Jun 7 12:07:32 2016 +1000
 
     Adds a descriptive header
 
+commit b85fa925f213fce6d9c518e59c9324fe6dabc078
+Merge: 8785d72 4be45a0
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Tue Jun 7 12:01:54 2016 +1000
+
+    Merge branch 'master' of https://bitbucket.org/andrew_henry_micallef/behaviour_box
+
 commit 4be45a0fcf089f486bde7c4b7c2708b63ce19791
 Author: andrew <amicallef@student.unimelb.edu.au>
 Date:   Tue Jun 7 11:59:43 2016 +1000
@@ -130,6 +191,24 @@ Author: andrew <amicallef@student.unimelb.edu.au>
 Date:   Sun Jun 5 17:58:58 2016 +1000
 
     Adds a bokeh app for plotting online stats
+
+commit 8785d72452d2bd601f4e467b2a050f5654bc15bd
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 3 12:26:09 2016 +1000
+
+    Makes waterVol accessable from serialcom
+
+commit 2beaa4139aff9104c586f090415f97246126b586
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 3 12:23:23 2016 +1000
+
+    Removes unnecessary variables
+
+commit e3152b84e2f56825ffdc27661c3dc650a44badb3
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 3 12:21:56 2016 +1000
+
+    Removed bloat
 
 commit 17200bea95fb12071a2c64c6716fa9e51392156d
 Author: andrew <amicallef@student.unimelb.edu.au>
