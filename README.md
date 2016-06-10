@@ -60,7 +60,7 @@ usage: SerialControl.py [-h] [-i ID] [-w WEIGHT] [-m MODE] [--repeats REPEATS]
 Optional Arguments:
 -------------------
 
-```{.bat}
+```
   -h, --help            show this help message and exit
   -i ID, --ID ID        identifier for this animal/run
   -w WEIGHT, --weight WEIGHT
@@ -104,6 +104,9 @@ Optional Arguments:
   --port PORT           port that the Arduino is connected to
 
 ```
+
+See Also [list of rejected arguments](http://xkcd.com/1692/)
+
 
 
 Interactive Options
