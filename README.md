@@ -2,10 +2,6 @@
 origin/refactor_serial
 -- Goal: setup a habituation / trial run switch
 
-origin/upper_lim
--- Goal: implement an upper limit on the number of contiguous successful
-trials on the same side (Conrad uses 10)s
-
 ![Flow of the behavioural paradigm](.\Flow_diagram_160509.svg)
 
 Recent Update:
@@ -39,10 +35,6 @@ Adds auditory option and allows the frequencies / off times to be controlled onl
 8. The program repeats sending mode flags until all stimuli combinations have
    been run through.
    
-TODO:
-
-9. The program calculates d\`|any_stimuls; d\`|rising; d\`|falling
-
 
 
 # Behaviour_box.ino
@@ -93,7 +85,18 @@ setup. The main method is `runTrial` which on initialisation:
    immediately from the associated port.
 5. The program delays again, and then exits the `runTrial` function. Resulting in
    the program sending the ready string to the Serial controller.
-   
+
+Now also includes a mode switch. Using `<tab>` you can switch between
+operant and habituation modes. In habituation the animal is delivered
+a pair of randomly selected stimuli, which match the reward condition
+when it licks the water ports. Following the stimulus delivery a reward
+is dispensed on the port that the animal licked. 
+In this mode an  upper limit on the number of contiguous successful
+trials on the same side is used (Thanks @Conrad Lee). A counter
+keeps track of the number of licks, and if the counter reaches 10
+the associated port becomes inactive. Licking the other port subtracts
+1 from the counter. In this way the animal must balance it's attention on
+both ports.
    
 In addition to the basic functionality the program also features modules that
 do the following:
