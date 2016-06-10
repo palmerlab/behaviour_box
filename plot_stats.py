@@ -24,27 +24,27 @@ usage = '''bokeh serve
 
 left_line = {
     'line_color' : 'red',
-    'line_dash' : [4,4],
-    'line_width' : 1,
+    'line_dash' : [4,2],
+    'line_width' : 3,
     }
 left_marker = {
-    'fill_color' : 'red',
+    'fill_color' : 'orange',
     'line_color' : 'red',
-    'size' : 5,
+    'size' : 10,
     }
     
     
     
 right_line = {
     'line_color' : 'blue',
-    'line_dash' : [4,4],
-    'line_width' : 1,
+    'line_dash' : [4,2],
+    'line_width' : 3,
     }
 
 right_marker = {
-    'fill_color' : 'blue',
+    'fill_color' : 'dodgerblue',
     'line_color' : 'blue',
-    'size' : 5,
+    'size' : 10,
     }
     
 total_line = {
@@ -56,8 +56,8 @@ total_line = {
 total_marker = {
     'fill_color' : 'white',
     'line_color' : 'black',
-    'line_width' : 4,
-    'size' : 10,
+    'line_width' : 7,
+    'size' : 20,
     }
 # --------------------------------------------------------
 
@@ -75,8 +75,10 @@ df_summary = pd.DataFrame([])
 
 ID = sys.argv[1]
 bin = int(sys.argv[2])
-
-DATAPATH = '/'.join(('C:/DATA/Andrew/wavesurfer', today()))
+if len(sys.argv) == 4:
+    DATAPATH = sys.argv[3]
+else:
+    DATAPATH = '/'.join(('C:/DATA/Andrew/wavesurfer', today()))
 
 infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH) 
                     if ID in f 
@@ -351,24 +353,24 @@ p1_resp = {
 
 
 p2_frac = {
-        'tot' : p2.line(trials_bin, frac[::bin], **total_line),
         'L'   : p2.line(trials, frac_L, **left_line),
         'R'   : p2.line(trials, frac_R, **right_line),
+        'tot' : p2.line(trials_bin, frac[::bin], **total_line),
                         
-        'marker' :  p2.circle(trials_bin, frac[::bin],   **total_marker),
         'Lm'     :  p2.circle(trials_bin, frac_L[::bin],  **left_marker),
         'Rm'     :  p2.circle(trials_bin, frac_R[::bin], **right_marker),
+        'marker' :  p2.circle(trials_bin, frac[::bin],   **total_marker),
         
     }            
     
 p3_cor = { 
-        'tot': p3.line(trials_bin, p_correct[::bin], **total_line),
         'L'  : p3.line(trials, p_correct_L, **left_line),
         'R'  : p3.line(trials, p_correct_R, **right_line),
+        'tot': p3.line(trials_bin, p_correct[::bin], **total_line),
         
-        'marker' :  p3.circle(trials_bin, p_correct[::bin],   **total_marker),
         'Lm'     :  p3.circle(trials_bin, p_correct_L[::bin],  **left_marker),
         'Rm'     :  p3.circle(trials_bin, p_correct_R[::bin], **right_marker),
+        'marker' :  p3.circle(trials_bin, p_correct[::bin],   **total_marker),
     }
     
 p4_delta = {
