@@ -443,11 +443,7 @@ int TrialStimulus(int value) {
     while (t < stimDUR){
         /* Run the buzzer while:
            1. update the time
-           2. check for licks
         */
-        senseLick(left);
-        senseLick(right);
-        
         if ((value >= 0) and (not auditory)){
             flutter(value);
         }
