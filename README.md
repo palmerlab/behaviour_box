@@ -167,8 +167,8 @@ certain time window.
 
 ### Requirements
 
-* Arduino uno Rev3
-    :
+* [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+    :   Connects to the main computer via USB serial
 
 * stimulus
     :   The stimulus needs to take 3.3V digital signal, and be driven
@@ -471,4 +471,4 @@ plot_stats.py
 
 
 References
-==========    
+==========
