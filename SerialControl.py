@@ -57,7 +57,6 @@ weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
 auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
-off_short, off_long = sorted(args.freq)
 dur_short, dur_long = sorted(args.dur)
 blanks = args.blanks
 bias_correct = args.bias_correct
@@ -395,10 +394,9 @@ def habituation_run():
                 'lickThres'     : lickThres,
                 'auditory'      : int(auditory),    #Converts to binary
                 'right_same'    : int(right_same),  #Converts to binary
-                'off_short'     : off_short,
-                'off_long'      : off_long,
+                'dur_short'     : dur_short,
+                'dur_long'      : dur_long,
                 'single_stim'   : int(single_stim), #Converts to binary
-                't_rewardSTART' : t_rewardSTART,
     }
     
     params = update_bbox(ser, params, logfile)
@@ -410,6 +408,8 @@ def habituation_run():
         
         trial_df = {}
         line = Serial_monitor(ser, logfile, show = verbose).strip()
+
+        trial_df['time'] = timenow()
         
         while line.strip() != "-- Status: Ready --":
             line = Serial_monitor(ser, logfile, False).strip()
@@ -418,6 +418,7 @@ def habituation_run():
                     var, val = line.split(":\t")
                     trial_df[var] = num(val)
             menu()
+        
         
         if 'response'  in trial_df.keys():
         
@@ -599,8 +600,8 @@ try:
                             't_noLickPer'       : noLick,
                             'auditory'          : int(auditory),    #Converts to binary
                             'right_same'        : int(right_same),  #Converts to binary
-                            'off_short'         : off_short,
-                            'off_long'          : off_long,
+                            'dur_short'         : dur_short,
+                            'dur_long'          : dur_long,
                             'single_stim'       : int(single_stim), #Converts to binary
                             'timeout'           : int(timeout*1000),     #Converts back to millis
                             't_rewardSTART'     : t_rewardSTART,
@@ -680,15 +681,15 @@ try:
                             'count[1]'     : 'R', 
                             'WaterPort[0]' : 'waterL', 
                             'WaterPort[1]' : 'waterR',
-                            'OFF[0]'       : 'off0', 
-                            'OFF[1]'       : 'off1',
+                            'DUR[0]'       : 'DUR0', 
+                            'DUR[1]'       : 'DUR1',
                 }
 
                 try:
-                    if not pd.isnull(df['OFF[0]'].iloc[-1]):
+                    if not pd.isnull(df['DUR[0]'].iloc[-1]):
                         for k in ('trial_num', 'rewardCond', 'response', 
                                         'count[0]', 'count[1]', 'WaterPort[0]', 
-                                        'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                                        'WaterPort[1]', 'DUR[0]', 'DUR[1]',):
                             
                             if df.correct.iloc[-1]:
                                 print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
@@ -701,8 +702,8 @@ try:
                         
                         print "\r", 100 * " ", "\r                ", #clear the line 
                         
-                        hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
-                                        / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
+                        hits = (df.dropna(subset=["DUR[0]", "DUR[1]"]).correct.sum() 
+                                        / df.dropna(subset=["DUR[0]", "DUR[1]"]).ID.size)
                         
                         if df.ID[df.rewardCond.isin(['L','B'])].count():
                              hit_L = ((df.response == 'L').values.sum() 
@@ -728,7 +729,7 @@ try:
                         hit_R = na_printr(hit_R*100)
                         cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
                                         
-                        print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.dropna(subset=["OFF[0]", 'response']).ID.count(), cumWater),
+                        print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.dropna(subset=["DUR[0]", 'response']).ID.count(), cumWater),
                                         fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
                     
                 except:
@@ -739,8 +740,8 @@ try:
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
-                if trialDur and not pd.isnull(df['OFF[0]'].iloc[-1]): #allows fall though for a non trial
-                    #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
+                if trialDur and not pd.isnull(df['DUR[0]'].iloc[-1]): #allows fall though for a non trial
+                    #print np.isnan(df['DUR[0]'].iloc[-1]).all(),
                     print '\r',
                     while dur < trialDur:
                         dur = time.time() - start_time
