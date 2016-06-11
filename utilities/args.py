@@ -100,7 +100,6 @@ p.add_argument('-rend', '--t_rewardEND',
                 type = int, 
                 help = 'set end time of reward epoch'
                 )
-
                 
 p.add_argument('-to', '--timeout', 
                 default = 1.5,
@@ -114,6 +113,14 @@ p.add_argument('--freq',
                 type = int, 
                 help = "Frequencies or OFF time values to be passed to "
                         "arduino as off_short and off_long",
+                )
+
+p.add_argument('--dur', 
+                nargs = 2, 
+                default = [100,500], 
+                type = int, 
+                help = "Durations or to be passed to "
+                        "arduino as DUR_short and DUR_long",
                 )
 
 p.add_argument('--ITI', 

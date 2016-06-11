@@ -58,6 +58,7 @@ trial_num = args.trial_num            # deprecated; for use if this continues a 
 trialDur = args.trialDur              # nominally the time to idle before resetting
 auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
 off_short, off_long = sorted(args.freq)
+dur_short, dur_long = sorted(args.dur)
 blanks = args.blanks
 bias_correct = args.bias_correct
 ITI = args.ITI
