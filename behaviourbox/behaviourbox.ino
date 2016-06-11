@@ -136,7 +136,7 @@ void deliver_reward(bool port, char waterVol);
 
 int Timeout(unsigned long wait, int depth = 0);
     
-int TrialStimulus(int value);
+int TrialStimulus(int intensity, int duration);
 
 void preTrial();
 
@@ -410,10 +410,9 @@ void preTrial() {
         Serial.print("#Exit `preTrial`:\t");
         Serial.println(t);
     }
-    
 } 
 
-int TrialStimulus(int value) {
+int TrialStimulus(int intensity, int duration) {
     
     int t_local = millis();
     int t = t_now(t_local);
@@ -429,23 +428,23 @@ int TrialStimulus(int value) {
         Serial.print("#\tauditory:\t");
         Serial.println(auditory);
         
-        Serial.print("#\tstimDUR:\t");
-        Serial.println(stimDUR);
+        Serial.print("#\tintensity:\t");
+        Serial.println(intensity);
         
-        Serial.print("#\tvalue:\t");
-        Serial.println(value);
+        Serial.print("#\tintensity:\t");
+        Serial.println(intensity);
     }
    
-    if (auditory and (value > 0)) {
-        tone(speakerPin, value, stimDUR - 10);
+    if (auditory and (intensity > 0)) {
+        tone(speakerPin, intensity, intensity - 10);
     }
         
-    while (t < stimDUR){
+    while (t < intensity){
         /* Run the buzzer while:
            1. update the time
         */
-        if ((value >= 0) and (not auditory)){
-            flutter(value);
+        if ((intensity >= 0) and (not auditory)){
+            flutter(intensity);
         }
         t = t_now(t_local);
     }
