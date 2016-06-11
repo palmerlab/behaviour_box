@@ -11,7 +11,7 @@ It runs a routine described by the following diagram
 Operant Mode
 ------------
 
-![Flow of the behavioural paradigm](.\Flow_diagram.svg)
+![Flow of the behavioural paradigm](.\documentation\Flow_diagram.svg)
 
 
 The operant mode features the following conditions:
