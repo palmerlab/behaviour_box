@@ -739,7 +739,7 @@ char Habituation(){
     bool port = 0;
     int t_interStimdelay = t_stimONSET[1] 
                             - (t_stimONSET[0] + stimDUR);
-    int intensity[2] = {0,0};
+    int duration[2] = {0,0};
     t_init = millis();
     
     // Check the lick sensor
@@ -760,15 +760,15 @@ char Habituation(){
               is actually 255!              
         */
         if (response == 'L') {
-            intensity[0] = left_DUR[rbit][0];
-            intensity[1] = left_DUR[rbit][1];
+            duration[0] = left_DUR[rbit][0];
+            duration[1] = left_DUR[rbit][1];
             port = left;
             reward_count[left] = (reward_count[left] < 10) ? reward_count[left] += 1 : 10;
             reward_count[right] = reward_count[right] ? reward_count[right] -= 1 : 0;
         }
         else if (response == 'R'){
-            intensity[0] = right_DUR[rbit][0];
-            intensity[1] = right_DUR[rbit][1];
+            duration[0] = right_DUR[rbit][0];
+            duration[1] = right_DUR[rbit][1];
             port = right;
             
             reward_count[right] = (reward_count[right] < 10) ? reward_count[right] += 1 : 10;
@@ -780,9 +780,9 @@ char Habituation(){
         if (reward_count[port] < 10) {
             
             // stim0, stim1, reward...
-            TrialStimulus(intensity[0]);            
+            TrialStimulus(0, duration[0]);            
             delay(t_interStimdelay);
-            TrialStimulus(intensity[1]);
+            TrialStimulus(0, duration[1]);
             deliver_reward(port, waterVol);
                     
             ActiveDelay(3500u, false);
@@ -792,10 +792,10 @@ char Habituation(){
                 ------- ------- --------
             */
             Serial.print("DUR[0]:\t");
-            Serial.println(intensity[0]);
+            Serial.println(duration[0]);
             
             Serial.print("DUR[1]:\t");
-            Serial.println(intensity[1]);
+            Serial.println(duration[1]);
             Serial.print("response:\t");
             Serial.println(response);
             Serial.print("reward_count:\t");
