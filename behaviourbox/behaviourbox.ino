@@ -902,18 +902,6 @@ int UpdateGlobals(String input) {
                 Serial.println(right_same);
                 return 1;
         }
-        else if (variable_name == "DUR_short") {
-                DUR_short = variable_value.toInt();
-                Serial.print("DUR_short:\t");
-                Serial.println(DUR_short);
-                return 1;
-        }
-        else if (variable_name == "DUR_long") {
-                DUR_long = variable_value.toInt();
-                Serial.print("DUR_long:\t");
-                Serial.println(DUR_long);
-                return 1;
-        }
         else if (variable_name == "auditory") {
                 auditory = bool(variable_value.toInt());
                 Serial.print("auditory:\t");
@@ -948,6 +936,24 @@ int UpdateGlobals(String input) {
                 waterVol = variable_value.toInt();
                 Serial.print("waterVol:\t");
                 Serial.println(waterVol);
+                return 1;
+        }
+        else if (variable_name == "DUR_short") {
+                DUR_short = variable_value.toInt();
+                Serial.print("DUR_short:\t");
+                Serial.println(DUR_short);
+                return 1;
+        }
+        else if (variable_name == "DUR_long") {
+                DUR_long = variable_value.toInt();
+                Serial.print("DUR_long:\t");
+                Serial.println(DUR_long);
+                return 1;
+        }
+        else if (variable_name == "OFF") {
+                OFF = variable_value.toInt();
+                Serial.print("OFF:\t");
+                Serial.println(OFF);
                 return 1;
         }
    }
