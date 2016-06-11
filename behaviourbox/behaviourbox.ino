@@ -76,10 +76,11 @@ byte reward_count[] = {0, 0};
 bool single_stim;
 bool right_same;
 
-int DUR_short = 0;
-int DUR_long = 40;
+int DUR_short = 100;
+int DUR_long = 500;
 
 int ON = 30;
+int OFF = 5;
 int diff_DUR[][2] =  {{DUR_short, DUR_long},
                       { DUR_long, DUR_short}};
 
@@ -807,11 +808,9 @@ char Habituation(){
   return response;    
 }
 
-
 /*----------------------------------------------++
 ||                Utility                       ||
 ++----------------------------------------------*/
-
 
 void printCounts(byte count[2]) {
     
@@ -867,28 +866,24 @@ int UpdateGlobals(String input) {
                 Serial.println(lickThres);
                 return 1;
         }
-            
         else if (variable_name == "mode") {
                 mode = variable_value[0];
                 Serial.print("mode:\t");
                 Serial.println(mode);
                 return 1;
         }
-            
         else if (variable_name == "rewardCond") {
                 rewardCond = variable_value[0];
                 Serial.print("rewardCond:\t");
                 Serial.println(rewardCond);
                 return 1;
         }
-          
         else if (variable_name == "break_wrongChoice") {
                 break_wrongChoice = bool(variable_value.toInt());
                 Serial.print("break_wrongChoice:\t");
                 Serial.println(break_wrongChoice);
                 return 1;
         }
-            
         else if (variable_name == "minlickCount") {
                 minlickCount = variable_value.toInt();
                 Serial.print("minlickCount:\t");
@@ -954,7 +949,7 @@ int UpdateGlobals(String input) {
                 Serial.print("waterVol:\t");
                 Serial.println(waterVol);
                 return 1;
-        }        
+        }
    }
    return 0;
 }
@@ -1005,9 +1000,6 @@ int getSepIndex(String input, char separator) {
     }
     return 0;
 }
-
-
-
 
 /*----------------------------------------------++
 ||                  Timing                      ||
