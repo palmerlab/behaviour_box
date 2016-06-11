@@ -438,15 +438,14 @@ int TrialStimulus(int intensity, int duration) {
     if (auditory and (intensity > 0)) {
         tone(speakerPin, intensity, intensity - 10);
     }
-        
-    while (t < intensity){
-        /* Run the buzzer while:
-           1. update the time
-        */
-        if ((intensity >= 0) and (not auditory)){
+    
+    // Run the buzzer if this is not an auditory trial
+    // update the time after each square pulse
+    if ((intensity >= 0) and (not auditory)){
+        while (t < intensity){
             flutter(intensity);
+            t = t_now(t_local);
         }
-        t = t_now(t_local);
     }
     
     digitalWrite(stimulusPin, LOW); //this is a safety catch
