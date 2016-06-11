@@ -460,14 +460,14 @@ int TrialStimulus(int intensity, int duration) {
 char TrialReward() {
     /* 
     returns a character:
-            ---- --------------------------------------
-             'L' correct hit on left port
-             'R' correct hit on right port
-             'l' incorrect lick on left port
-             'r' incorrect lick on right port
-             '-' unknown
-             'M' No lick detected during reward period
-            ---- --------------------------------------  
+    ---- --------------------------------------
+     'L' correct hit on left port
+     'R' correct hit on right port
+     'l' incorrect lick on left port
+     'r' incorrect lick on right port
+     '-' unknown
+     'M' No lick detected during reward period
+    ---- --------------------------------------  
     */
                 
     int t = t_now(t_init);
