@@ -76,20 +76,20 @@ byte reward_count[] = {0, 0};
 bool single_stim;
 bool right_same;
 
-int off_short = 0;
-int off_long = 40;
+int DUR_short = 0;
+int DUR_long = 40;
 
 int ON = 30;
-int diff_OFF[][2] =  {{off_short, off_long},
-                      { off_long, off_short}};
+int diff_DUR[][2] =  {{DUR_short, DUR_long},
+                      { DUR_long, DUR_short}};
 
-int same_OFF[][2] = {{ off_long, off_long},
-                     {off_short, off_short}};
+int same_DUR[][2] = {{ DUR_long, DUR_long},
+                     {DUR_short, DUR_short}};
 
 bool right = 1;
 bool left = 0;
-int right_OFF[2][2];
-int left_OFF[2][2];
+int right_DUR[2][2];
+int left_DUR[2][2];
 
 // audio
 // -----
@@ -275,31 +275,31 @@ void init_stim(){
     // stimulus intensities to the same or different
     // depending on the value of `right_same`
         
-    same_OFF[0][0] = off_short;
-    same_OFF[0][1] = off_short;
-    same_OFF[1][0] = off_long;
-    same_OFF[1][1] = off_long;    
+    same_DUR[0][0] = DUR_short;
+    same_DUR[0][1] = DUR_short;
+    same_DUR[1][0] = DUR_long;
+    same_DUR[1][1] = DUR_long;    
     
-    diff_OFF[0][0] = off_short;
-    diff_OFF[0][1] = off_long;
-    diff_OFF[1][0] = off_long;
-    diff_OFF[1][1] = off_short;
+    diff_DUR[0][0] = DUR_short;
+    diff_DUR[0][1] = DUR_long;
+    diff_DUR[1][0] = DUR_long;
+    diff_DUR[1][1] = DUR_short;
     
     if (single_stim) {
-        diff_OFF[0][0] = -1;
-        diff_OFF[1][0] = -1;
+        diff_DUR[0][0] = -1;
+        diff_DUR[1][0] = -1;
         
-        same_OFF[0][0] = -1;
-        same_OFF[1][0] = -1;
+        same_DUR[0][0] = -1;
+        same_DUR[1][0] = -1;
     }
 
     if (right_same){
-        memcpy(right_OFF, same_OFF, sizeof(right_OFF));
-        memcpy(left_OFF, diff_OFF, sizeof(left_OFF));
+        memcpy(right_DUR, same_DUR, sizeof(right_DUR));
+        memcpy(left_DUR, diff_DUR, sizeof(left_DUR));
     }
     else {
-        memcpy(right_OFF, diff_OFF, sizeof(right_OFF));
-        memcpy(left_OFF, same_OFF, sizeof(left_OFF));
+        memcpy(right_DUR, diff_DUR, sizeof(right_DUR));
+        memcpy(left_DUR, same_DUR, sizeof(left_DUR));
     }
 }
 
@@ -417,7 +417,7 @@ int TrialStimulus(int intensity, int duration) {
     int t_local = millis();
     int t = t_now(t_local);
     
-    // TODO this should be abstracted
+    // TODO this still feels inelegant
 
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
@@ -431,18 +431,18 @@ int TrialStimulus(int intensity, int duration) {
         Serial.print("#\tintensity:\t");
         Serial.println(intensity);
         
-        Serial.print("#\tintensity:\t");
-        Serial.println(intensity);
+        Serial.print("#\tduration:\t");
+        Serial.println(duration);
     }
    
     if (auditory and (intensity > 0)) {
-        tone(speakerPin, intensity, intensity - 10);
+        tone(speakerPin, intensity, duration - 10);
     }
     
     // Run the buzzer if this is not an auditory trial
     // update the time after each square pulse
     if ((intensity >= 0) and (not auditory)){
-        while (t < intensity){
+        while (t < duration){
             flutter(intensity);
             t = t_now(t_local);
         }
@@ -616,7 +616,7 @@ char runTrial() {
     int response_time = 0;
     char response = 0;
     bool rbit = random(0,2);
-    int OFF[2] = {-1, -1};
+    int DUR[2] = {-1, -1};
     
     // local time
     t_init = millis() + trial_delay;
@@ -624,12 +624,12 @@ char runTrial() {
     
     // select the frequency pair to use
     if (rewardCond == 'L') {
-        OFF[0] = left_OFF[rbit][0];
-        OFF[1] = left_OFF[rbit][1];
+        DUR[0] = left_DUR[rbit][0];
+        DUR[1] = left_DUR[rbit][1];
     }
     else if (rewardCond == 'R') {
-        OFF[0] = right_OFF[rbit][0];
-        OFF[1] = right_OFF[rbit][1];
+        DUR[0] = right_DUR[rbit][0];
+        DUR[1] = right_DUR[rbit][1];
     }
     
     /*trial_phase0
@@ -665,21 +665,21 @@ char runTrial() {
 
         Serial.println("count[0]:\tnan");
         Serial.println("count[1]:\tnan");
-        Serial.println("OFF[0]:\tnan");
-        Serial.println("OFF[1]:\tnan");
+        Serial.println("DUR[0]:\tnan");
+        Serial.println("DUR[1]:\tnan");
 
         return response;
     }
     
     t = t_now(t_init);
     
-    TrialStimulus(OFF[0]);
+    TrialStimulus(0, DUR[0]); // lock the intensity at highest
     t = t_now(t_init);
     
     ActiveDelay(t_stimONSET[1], false);
     t = t_now(t_init);
     
-    TrialStimulus(OFF[1]);
+    TrialStimulus(0, DUR[1]); // lock the intensity at highest
     t = t_now(t_init);
 
     // TODO include contingency to report on lick early without breaking?
@@ -723,11 +723,11 @@ char runTrial() {
     Serial.print("response_time:\t");
     Serial.println(response_time);
         
-    Serial.print("OFF[0]:\t");
-    Serial.println(OFF[0]);
+    Serial.print("DUR[0]:\t");
+    Serial.println(DUR[0]);
     
-    Serial.print("OFF[1]:\t");
-    Serial.println(OFF[1]);
+    Serial.print("DUR[1]:\t");
+    Serial.println(DUR[1]);
     
     return response;
 }
@@ -759,15 +759,15 @@ char Habituation(){
               is actually 255!              
         */
         if (response == 'L') {
-            intensity[0] = left_OFF[rbit][0];
-            intensity[1] = left_OFF[rbit][1];
+            intensity[0] = left_DUR[rbit][0];
+            intensity[1] = left_DUR[rbit][1];
             port = left;
             reward_count[left] = (reward_count[left] < 10) ? reward_count[left] += 1 : 10;
             reward_count[right] = reward_count[right] ? reward_count[right] -= 1 : 0;
         }
         else if (response == 'R'){
-            intensity[0] = right_OFF[rbit][0];
-            intensity[1] = right_OFF[rbit][1];
+            intensity[0] = right_DUR[rbit][0];
+            intensity[1] = right_DUR[rbit][1];
             port = right;
             
             reward_count[right] = (reward_count[right] < 10) ? reward_count[right] += 1 : 10;
@@ -790,10 +790,10 @@ char Habituation(){
                 stim0   stim1   response
                 ------- ------- --------
             */
-            Serial.print("OFF[0]:\t");
+            Serial.print("DUR[0]:\t");
             Serial.println(intensity[0]);
             
-            Serial.print("OFF[1]:\t");
+            Serial.print("DUR[1]:\t");
             Serial.println(intensity[1]);
             Serial.print("response:\t");
             Serial.println(response);
@@ -907,16 +907,16 @@ int UpdateGlobals(String input) {
                 Serial.println(right_same);
                 return 1;
         }
-        else if (variable_name == "off_short") {
-                off_short = variable_value.toInt();
-                Serial.print("off_short:\t");
-                Serial.println(off_short);
+        else if (variable_name == "DUR_short") {
+                DUR_short = variable_value.toInt();
+                Serial.print("DUR_short:\t");
+                Serial.println(DUR_short);
                 return 1;
         }
-        else if (variable_name == "off_long") {
-                off_long = variable_value.toInt();
-                Serial.print("off_long:\t");
-                Serial.println(off_long);
+        else if (variable_name == "DUR_long") {
+                DUR_long = variable_value.toInt();
+                Serial.print("DUR_long:\t");
+                Serial.println(DUR_long);
                 return 1;
         }
         else if (variable_name == "auditory") {
