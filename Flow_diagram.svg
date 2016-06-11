@@ -10,13 +10,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="823.43652"
-   height="696.36102"
-   viewBox="0 0 823.43651 696.36101"
+   width="828.62225"
+   height="701.66895"
+   viewBox="0 0 828.62224 701.66892"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="Flow_diagram_160509.svg">
+   sodipodi:docname="Flow_diagram.svg">
   <style
      id="style3">
     
@@ -103,9 +103,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.0191445"
-     inkscape:cx="430.37974"
-     inkscape:cy="299.28634"
+     inkscape:zoom="2.882576"
+     inkscape:cx="155.69209"
+     inkscape:cy="645.59673"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -127,7 +127,8 @@
      units="px"
      borderlayer="false"
      inkscape:snap-object-midpoints="true"
-     inkscape:snap-nodes="true" />
+     inkscape:snap-nodes="true"
+     inkscape:snap-page="false" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -144,7 +145,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(68.431759,267.93066)">
+     transform="translate(65.931759,274.48861)">
     <rect
        class="Node_box right"
        x="552.87354"
@@ -255,7 +256,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path3963"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 53.237759,-81.792387 -5.632322,5.644525 1.408081,-5.644525 -1.408081,-5.644533 z"
@@ -270,7 +272,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path3967"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 53.237759,256.87919 -5.63232,5.64453 1.40808,-5.64453 -1.40808,-5.64452 z"
@@ -301,7 +304,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path3979"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 169.90726,-81.792387 -5.63233,5.644525 1.40808,-5.644525 -1.40808,-5.644533 z"
@@ -332,7 +336,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path3991"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 286.57681,-81.792387 -5.63232,5.644525 1.40808,-5.644525 -1.40808,-5.644533 z"
@@ -390,7 +395,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4095"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 169.90726,256.87919 -5.63233,5.64453 1.40808,-5.64453 -1.40808,-5.64452 z"
@@ -421,7 +427,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4107"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 286.57681,256.87919 -5.63232,5.64453 1.40808,-5.64453 -1.40808,-5.64452 z"
@@ -516,13 +523,13 @@
        xml:space="preserve"
        class="labels"
        x="-4.812758"
-       y="-255.64647"
+       y="-262.57721"
        id="text3624"
-       transform="scale(0.9989183,1.0010829)"><tspan
+       transform="scale(0.99891829,1.0010829)"><tspan
          sodipodi:role="line"
          id="tspan3626"
          x="-4.812758"
-         y="-255.64647">Axis not to scale</tspan></text>
+         y="-262.57721">Time axis not to scale</tspan></text>
     <path
        sodipodi:nodetypes="ccc"
        inkscape:connector-curvature="0"
@@ -539,14 +546,16 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4127"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        class="left  pointer line"
        id="path3479"
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 634.13991,-37.44251 16.09234,0 0,72.572481 -10.96693,0"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        class="left  pointer line"
        sodipodi:nodetypes="cccc"
@@ -554,14 +563,16 @@
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 553.67817,35.129971 -16.7642,0 0,-72.572481 11.63879,0"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        class="left  pointer line"
        id="path3485"
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 650.23225,-5.1880744 14.99003,0"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        class="head left  pointer"
        id="path3487"
@@ -584,7 +595,8 @@
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 551.97239,-37.442506 -5.63232,5.644524 1.40808,-5.644524 -1.40808,-5.644525 z"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        sodipodi:nodetypes="ccc"
        inkscape:connector-curvature="0"
@@ -592,7 +604,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4003"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 436.20407,-162.42849 -5.63233,5.64454 1.40808,-5.64454 -1.40808,-5.64452 z"
@@ -624,7 +637,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4011"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 436.20407,-1.1562946 -5.63233,5.6445247 1.40808,-5.6445247 -1.40808,-5.6445328 z"
@@ -639,14 +653,16 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4023"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 551.97239,-162.42849 -5.63232,5.64454 1.40808,-5.64454 -1.40808,-5.64452 z"
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4025"
-       class="left  pointer head" />
+       class="left  pointer head"
+       style="stroke-miterlimit:10" />
     <rect
        class="Node_box left"
        x="436.20407"
@@ -669,7 +685,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4047"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 669.54303,-81.792387 -5.63232,5.644525 1.40808,-5.644525 -1.40808,-5.644533 z"
@@ -710,7 +727,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4071"
-       class="left  pointer line" />
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 669.54303,-162.42849 -5.63232,5.64454 1.40808,-5.64454 -1.40808,-5.64452 z"
@@ -757,14 +775,16 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4139"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 551.97239,176.24311 -5.63232,5.64452 1.40808,-5.64452 -1.40808,-5.64454 z"
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4141"
-       class="head right pointer" />
+       class="head right pointer"
+       style="stroke-miterlimit:10" />
     <rect
        class="Node_box right"
        x="436.20407"
@@ -803,7 +823,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4163"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 669.54303,256.87919 -5.63232,5.64453 1.40808,-5.64453 -1.40808,-5.64452 z"
@@ -828,7 +849,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path4175"
-       class="right pointer line" />
+       class="right pointer line"
+       style="stroke-miterlimit:10" />
     <path
        inkscape:connector-curvature="0"
        d="m 669.54303,176.24311 -5.63232,5.64452 1.40808,-5.64452 -1.40808,-5.64454 z"
@@ -846,19 +868,19 @@
        transform="scale(0.99891828,1.0010829)"><tspan
          sodipodi:role="line"
          id="tspan3436"
-         x="595.34583"
+         x="593.17297"
          y="156.53951">Dispense </tspan><tspan
          sodipodi:role="line"
-         x="595.34583"
-         y="172.16451"
+         x="593.17297"
+         y="171.53951"
          id="tspan3490">Water </tspan><tspan
          sodipodi:role="line"
-         x="595.34583"
-         y="187.78951"
+         x="593.17297"
+         y="186.53951"
          id="tspan3438">~ 10 ul </tspan><tspan
          sodipodi:role="line"
          x="593.17297"
-         y="203.41451"
+         y="201.53951"
          id="tspan3492">(+ 1.5 s)</tspan></text>
     <path
        sodipodi:nodetypes="cccc"
@@ -867,21 +889,24 @@
        stroke-miterlimit="10"
        d="m 517.4704,-5.1880602 19.44357,0 0,-32.2544448 11.63879,0"
        inkscape:connector-curvature="0"
-       class="left pointer line" />
+       class="left pointer line"
+       style="stroke-miterlimit:10" />
     <path
        id="path4153"
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 552.77701,301.22904 -5.63233,5.64453 1.40808,-5.64453 -1.40808,-5.64451 z"
        inkscape:connector-curvature="0"
-       class="pointer head right" />
+       class="pointer head right"
+       style="stroke-miterlimit:10" />
     <path
        class="right pointer line"
        id="path4187"
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 634.13991,301.22904 16.09234,0 0,72.5725 -10.96693,0"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        id="path4189"
        pointer-events="none"
@@ -897,14 +922,16 @@
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 553.67817,373.80154 -16.7642,0 0,-72.5725 11.63879,0"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        d="m 634.13991,301.22904 16.09235,0"
        stroke-miterlimit="10"
        pointer-events="none"
-       id="path3424" />
+       id="path3424"
+       style="stroke-miterlimit:10" />
     <path
        class="right pointer line"
        inkscape:connector-curvature="0"
@@ -912,7 +939,8 @@
        stroke-miterlimit="10"
        pointer-events="none"
        id="path3426"
-       sodipodi:nodetypes="cccc" />
+       sodipodi:nodetypes="cccc"
+       style="stroke-miterlimit:10" />
     <path
        class="pointer head right"
        inkscape:connector-curvature="0"
@@ -927,14 +955,16 @@
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 650.23225,333.48348 14.99003,0"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
     <path
        id="path3483"
        pointer-events="none"
        stroke-miterlimit="10"
        d="m 634.13991,-12.882746 16.09235,0"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       style="stroke-miterlimit:10" />
     <text
        xml:space="preserve"
        class="labels"
@@ -944,11 +974,11 @@
        transform="scale(0.99891828,1.0010829)"><tspan
          sodipodi:role="line"
          id="tspan3524"
-         x="596.23865"
+         x="594.0658"
          y="298.62595">Time out </tspan><tspan
          sodipodi:role="line"
          x="594.0658"
-         y="314.25095"
+         y="313.62595"
          id="tspan3526">(+ 2-5 s)</tspan></text>
     <rect
        class="Node_box left"
@@ -978,7 +1008,7 @@
          id="tspan3481"
          sodipodi:role="line">Check for</tspan><tspan
          id="tspan3483"
-         y="385.28656"
+         y="384.66156"
          x="594.51685"
          sodipodi:role="line">Lick</tspan></text>
     <text
@@ -994,7 +1024,7 @@
          y="32.031258">Check for</tspan><tspan
          sodipodi:role="line"
          x="594.53101"
-         y="47.656258"
+         y="47.031258"
          id="tspan3489">Lick</tspan></text>
     <text
        xml:space="preserve"
@@ -1005,11 +1035,11 @@
        transform="scale(0.99891828,1.0010829)"><tspan
          sodipodi:role="line"
          id="tspan3486"
-         x="596.64648"
+         x="594.47363"
          y="-44.884239">Time out </tspan><tspan
          sodipodi:role="line"
          x="594.47363"
-         y="-29.259239"
+         y="-29.884239"
          id="tspan3488">(+ 2-5 s)</tspan></text>
     <text
        transform="scale(0.99891828,1.0010829)"
@@ -1019,19 +1049,19 @@
        class="labels"
        xml:space="preserve"><tspan
          y="-181.76572"
-         x="595.34583"
+         x="593.17297"
          id="tspan3496"
          sodipodi:role="line">Dispense </tspan><tspan
          id="tspan3499"
-         y="-166.14072"
-         x="595.34583"
+         y="-166.76572"
+         x="593.17297"
          sodipodi:role="line">Water </tspan><tspan
          id="tspan3501"
-         y="-150.51572"
-         x="595.34583"
+         y="-151.76572"
+         x="593.17297"
          sodipodi:role="line">~ 10 ul </tspan><tspan
          id="tspan3503"
-         y="-134.89072"
+         y="-136.76572"
          x="593.17297"
          sodipodi:role="line">(+ 1.5 s)</tspan></text>
     <g
@@ -1108,5 +1138,49 @@
        ry="10"
        pointer-events="none"
        id="rect4131" />
+    <text
+       transform="scale(0.99891828,1.0010829)"
+       id="text3477"
+       y="-204.86234"
+       x="565.3689"
+       class="labels"
+       xml:space="preserve"><tspan
+         y="-204.86234"
+         x="565.3689"
+         id="tspan3479"
+         sodipodi:role="line">5 - 10 s</tspan></text>
+    <text
+       transform="scale(0.99891828,1.0010829)"
+       id="text3506"
+       y="-245.75366"
+       x="345.6127"
+       class="labels"
+       xml:space="preserve"><tspan
+         y="-245.75366"
+         x="345.6127"
+         id="tspan3508"
+         sodipodi:role="line">response period</tspan></text>
+    <text
+       transform="scale(0.99891829,1.0010829)"
+       xml:space="preserve"
+       class="labels"
+       x="-5.0222812"
+       y="-245.75366"
+       id="text3510"><tspan
+         sodipodi:role="line"
+         id="tspan3512"
+         x="-5.0222812"
+         y="-245.75366">Pretrial</tspan></text>
+    <text
+       xml:space="preserve"
+       class="labels"
+       x="565.3689"
+       y="-245.75366"
+       id="text3514"
+       transform="scale(0.99891828,1.0010829)"><tspan
+         sodipodi:role="line"
+         id="tspan3516"
+         x="565.3689"
+         y="-245.75366">Inter trial interval</tspan></text>
   </g>
 </svg>
