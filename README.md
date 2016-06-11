@@ -92,8 +92,8 @@ Optional Arguments:
                         set end time of reward epoch
   -to TIMEOUT, --timeout TIMEOUT
                         set the timeout duration for incorrect licks
-  --freq FREQ FREQ      Frequencies or OFF time values to be passed to arduino
-                        as off_short and off_long
+  --dur DUR DUR         Durations or to be passed to arduino as DUR_short and
+                        DUR_long
   --ITI ITI ITI         an interval for randomising between trials
   -L, --left
   -R, --right
@@ -102,7 +102,6 @@ Optional Arguments:
   --datapath DATAPATH   path to save data to, by default is
                         'C:/DATA/Andrew/wavesurfer/%YY%MM%DD'
   --port PORT           port that the Arduino is connected to
-
 ```
 
 See Also [list of rejected arguments](http://xkcd.com/1692/)

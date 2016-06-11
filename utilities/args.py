@@ -82,7 +82,7 @@ kwargs = {
                     'type' : int, 
                     'help' : 'set `t_noLickPer` in arduino'
                     },
-                    
+
     ('-td', '--trialDur', ) : {
                     'default' : 0,
                     'type' : float,
@@ -107,14 +107,6 @@ kwargs = {
                     'help' : 'set the timeout duration for incorrect licks'
                     },
 
-    ('--freq', ) : {
-                    'nargs' : 2, 
-                    'default' : [0,200], 
-                    'type' : int, 
-                    'help' : "Frequencies or OFF time values to be passed to "
-                            "arduino as off_short and off_long",
-                    },
-
     ('--dur', ) : {
                     'nargs' : 2, 
                     'default' : [100,500], 
@@ -129,8 +121,6 @@ kwargs = {
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
                     },
-                    
-
 
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
