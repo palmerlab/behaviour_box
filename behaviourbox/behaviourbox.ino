@@ -79,8 +79,6 @@ bool right_same;
 int DUR_short = 100;
 int DUR_long = 500;
 
-int ON = 30;
-int OFF = 5;
 int diff_DUR[][2] =  {{DUR_short, DUR_long},
                       { DUR_long, DUR_short}};
 
@@ -89,6 +87,7 @@ int same_DUR[][2] = {{ DUR_long, DUR_long},
 
 bool right = 1;
 bool left = 0;
+
 int right_DUR[2][2];
 int left_DUR[2][2];
 
@@ -105,8 +104,10 @@ int toneDur = 100;
 // Reward
 // ------
 
-// Global value to keep track of the total water consumed
-// this really shouldn't get much higher than 100. 
+
+// Global value to count the licks
+byte count[] = {0,0};
+
 char waterVol = 10; //uL per dispense
 
 int lickThres = 450;
@@ -127,8 +128,6 @@ bool senseLick(bool sensor, bool* PreviousState);
 
 int UpdateGlobals(String input);
 
-void flutter(int OFF);
-
 void init_ports();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
@@ -137,7 +136,7 @@ void deliver_reward(bool port, char waterVol);
 
 int Timeout(unsigned long wait, int depth = 0);
     
-int TrialStimulus(int intensity, int duration);
+int TrialStimulus(int duration);
 
 void preTrial();
 
@@ -260,15 +259,6 @@ bool senseLick(bool sensor) {
     
     // if the sensor was off, and now it is on, return 1
     return (CallSpike and lickOn[sensor]);
-}
-
-void flutter(int OFF){
-  
-  digitalWrite(stimulusPin, HIGH);
-  delay(ON);
-  
-  digitalWrite(stimulusPin, LOW);
-  delay(OFF);
 }
 
 void init_stim(){
@@ -413,10 +403,13 @@ void preTrial() {
     }
 } 
 
-int TrialStimulus(int intensity, int duration) {
+int TrialStimulus(int duration) {
     
     int t_local = millis();
     int t = t_now(t_local);
+    // reset the lick counter
+    count[0] = 0;
+    count[1] = 0; 
     
     // TODO this still feels inelegant
 
@@ -429,9 +422,6 @@ int TrialStimulus(int intensity, int duration) {
         Serial.print("#\tauditory:\t");
         Serial.println(auditory);
         
-        Serial.print("#\tintensity:\t");
-        Serial.println(intensity);
-        
         Serial.print("#\tduration:\t");
         Serial.println(duration);
     }
@@ -443,10 +433,14 @@ int TrialStimulus(int intensity, int duration) {
     // Run the buzzer if this is not an auditory trial
     // update the time after each square pulse
     if ((intensity >= 0) and (not auditory)){
+        digitalWrite(stimulusPin, HIGH);
         while (t < duration){
-            flutter(intensity);
             t = t_now(t_local);
+            
+            count[left] = count[left] + senseLick(left);
+            count[right] = count[right] + senseLick(right);
         }
+        digitalWrite(stimulusPin, HIGH);
     }
     
     digitalWrite(stimulusPin, LOW); //this is a safety catch
@@ -488,9 +482,9 @@ char TrialReward() {
         
         t = t_now(t_init);
         
+    
         count[left] = count[left] + senseLick(left);
         count[right] = count[right] + senseLick(right);
-        
         // response reports if there was a lick in the reward period
         
         if (rewardCond == 'L') {
@@ -509,7 +503,6 @@ char TrialReward() {
 
             if (verbose) { 
                 Serial.print("WaterPort[");
-
                 Serial.print(RewardPort);
                 Serial.print("]:\t");
                 Serial.println("1");               
@@ -535,6 +528,7 @@ char TrialReward() {
             } 
                
             if (verbose) { 
+
                 Serial.print("count[0]:\t");
                 Serial.println(count[left]);
                 
@@ -675,13 +669,21 @@ char runTrial() {
     
     t = t_now(t_init);
     
-    TrialStimulus(0, DUR[0]); // lock the intensity at highest
+    TrialStimulus(DUR[0]); // lock the intensity at highest
+        Serial.print("stim0_count[0]:\t");
+        Serial.println(count[0]);
+        Serial.print("stim0_count[1]:\t");
+        Serial.println(count[1]);
     t = t_now(t_init);
     
     ActiveDelay(t_stimONSET[1], false);
     t = t_now(t_init);
     
-    TrialStimulus(0, DUR[1]); // lock the intensity at highest
+    TrialStimulus(DUR[1]); // lock the intensity at highest
+        Serial.print("stim1_count[0]:\t");
+        Serial.println(count[1]);
+        Serial.print("stim1_count[1]:\t");
+        Serial.println(count[1]);
     t = t_now(t_init);
 
     // TODO include contingency to report on lick early without breaking?
@@ -781,9 +783,9 @@ char Habituation(){
         if (reward_count[port] < 10) {
             
             // stim0, stim1, reward...
-            TrialStimulus(0, duration[0]);            
+            TrialStimulus(duration[0]);            
             delay(t_interStimdelay);
-            TrialStimulus(0, duration[1]);
+            TrialStimulus(duration[1]);
             deliver_reward(port, waterVol);
                     
             ActiveDelay(3500u, false);

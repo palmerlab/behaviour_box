@@ -14,6 +14,9 @@ SerialControl.py
               
 behaviourbox.ino
 
-    TODO: include contingency to report on lick early without breaking?
+    [DONE]: include contingency to report on lick early without breaking?
             - ie monitor licks during the stimulus period and report this value
+        TODO: Allow early licks to deliver a reward if correct.
+            - Requires monitoring of first lick or some such thing
+            
     TODO: make verbosity a scale instead of Boolean
