@@ -5,13 +5,24 @@ link-citations: true
 Andrew's Behaviour Box
 =======================
 
+Version 2.0 Duration Discrimination
+-----------------------------------
+
+
 This is the collection of files I use to run my behavioural experiments.
+Due to continued poor performance I have updated the system to now implement
+a stimulus duration discrimination task. As before the animal is to report
+if the stimulus is the same or different. The key difference to the
+previous version is that the stimulus intensity is locked to it's highest
+value and the animal simply needs to tell me the difference in the durations.
+
+
 It runs a routine described by the following diagram
 
 Operant Mode
 ------------
 
-![Flow of the behavioural paradigm](.\documentation\Flow_diagram.svg)
+![Flow of the behavioural paradigm](./documentation/Flow_diagram.svg)
 
 
 The operant mode features the following conditions:
