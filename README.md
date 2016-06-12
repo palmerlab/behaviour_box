@@ -5,8 +5,14 @@ link-citations: true
 Andrew's Behaviour Box
 =======================
 
+Version 1.0: Frequency Discrimination
+--------------------------------------
+
 This is the collection of files I use to run my behavioural experiments.
-It runs a routine described by the following diagram
+
+This branch record the state of the first fairly stable version.
+It implements a frequency discrimination task, described by the 
+following diagram.
 
 Operant Mode
 ------------
