@@ -47,10 +47,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </head>
 <body>
 <h1 id="andrews-behaviour-box">Andrew's Behaviour Box</h1>
-<p>This is the collection of files I use to run my behavioural experiments. It runs a routine described by the following diagram</p>
+<h2 id="version-2.0-duration-discrimination">Version 2.0 Duration Discrimination</h2>
+<p>This is the collection of files I use to run my behavioural experiments. Due to continued poor performance I have updated the system to now implement a stimulus duration discrimination task. As before the animal is to report if the stimulus is the same or different. The key difference to the previous version is that the stimulus intensity is locked to it's highest value and the animal simply needs to tell me the difference in the durations.</p>
+<p>It runs a routine described by the following diagram</p>
 <h2 id="operant-mode">Operant Mode</h2>
 <div class="figure">
-<img src=".\Flow_diagram.svg" alt="Flow of the behavioural paradigm" />
+<img src=".\documentation\Flow_diagram.svg" alt="Flow of the behavioural paradigm" />
 <p class="caption">Flow of the behavioural paradigm</p>
 </div>
 <p>The operant mode features the following conditions:</p>
@@ -66,7 +68,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <pre><code>usage: SerialControl.py [-h] [-i ID] [-w WEIGHT] [-m MODE] [--repeats REPEATS]
                         [-p] [--verbose] [-a] [-bc] [-b] [-rs] [-s]
                         [-lt LICKTHRES] [-lc LCOUNT] [-nlp NOLICK]
-                        [-td TRIALDUR] [-rd T_REWARDSTART] [-rend T_REWARDEND]
+                        [-td TRIALDUR] [-rd t_rDELAY] [-rend T_REWARDEND]
                         [-to TIMEOUT] [--freq FREQ FREQ] [--ITI ITI ITI]
                         [-L | -R] [-N TRIAL_NUM] [--datapath DATAPATH]
                         [--port PORT]</code></pre>
@@ -105,14 +107,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                         set `t_noLickPer` in arduino
   -td TRIALDUR, --trialDur TRIALDUR
                         set minimum trial duration
-  -rd T_REWARDSTART, --t_rewardSTART T_REWARDSTART
+  -rd t_rDELAY, --t_rDELAY t_rDELAY
                         set start time of reward epoch
   -rend T_REWARDEND, --t_rewardEND T_REWARDEND
                         set end time of reward epoch
   -to TIMEOUT, --timeout TIMEOUT
                         set the timeout duration for incorrect licks
-  --freq FREQ FREQ      Frequencies or OFF time values to be passed to arduino
-                        as off_short and off_long
+  --dur DUR DUR         Durations or to be passed to arduino as DUR_short and
+                        DUR_long
   --ITI ITI ITI         an interval for randomising between trials
   -L, --left
   -R, --right
@@ -120,8 +122,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                         trial number to start at
   --datapath DATAPATH   path to save data to, by default is
                         &#39;C:/DATA/Andrew/wavesurfer/%YY%MM%DD&#39;
-  --port PORT           port that the Arduino is connected to
-</code></pre>
+  --port PORT           port that the Arduino is connected to</code></pre>
 <p>See Also <a href="http://xkcd.com/1692/">list of rejected arguments</a></p>
 <h2 id="interactive-options">Interactive Options</h2>
 <table>
@@ -207,7 +208,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>This program delivers sensory stimulation and opens water valve when the animal touches the licking sensor within a certain time window.</p>
 <h3 id="requirements">Requirements</h3>
 <ul>
-<li><p>Arduino uno Rev3 :</p></li>
+<li><dl>
+<dt><a href="https://www.arduino.cc/en/Main/ArduinoBoardUno">Arduino uno Rev3</a></dt>
+<dd>Connects to the main computer via USB serial
+</dd>
+</dl></li>
 <li><dl>
 <dt>stimulus</dt>
 <dd>The stimulus needs to take 3.3V digital signal, and be driven by a square wave.
@@ -456,10 +461,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                 Serial.println(timeout);
                 <span class="kw">return</span> <span class="dv">1</span>;
         }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rewardSTART&quot;</span>) {
-                t_rewardSTART = variable_value.toInt();
-                Serial.print(<span class="st">&quot;t_rewardSTART:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(t_rewardSTART);
+        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rDELAY&quot;</span>) {
+                t_rDELAY = variable_value.toInt();
+                Serial.print(<span class="st">&quot;t_rDELAY:</span><span class="ch">\t</span><span class="st">&quot;</span>);
+                Serial.println(t_rDELAY);
                 <span class="kw">return</span> <span class="dv">1</span>;
         }
         <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rewardEND&quot;</span>) {
