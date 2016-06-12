@@ -287,6 +287,86 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
+<h2 id="global-variables">Global Variables</h2>
+<p>type name value description</p>
+<p>const char recTrig = 2; // digital pin 2 triggers ITC-18 const char stimulusPin = 3; // digital pin 4 control whisker stimulation const char speakerPin = 8; // digital pin 8 control water valve const char statusLED = 13; // led connected to digital pin 13 const char waterPort[] = {10,11}; const char lickRep = 13; const char lickSens[] = {A0,A1}; // the piezos are connected to analog pins 0 and 1</p>
+<h3 id="timing-parameters">timing parameters</h3>
+<table>
+<thead>
+<tr class="header">
+<th align="left">type</th>
+<th align="left">name</th>
+<th align="left">value</th>
+<th align="left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">long</span></code></td>
+<td align="left">t_init</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">t_noLickPer</td>
+<td align="left">1000</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">trial_delay</td>
+<td align="left">500</td>
+<td align="left">// ms</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span>[<span class="dv">2</span>]</code></td>
+<td align="left">t_stimONSET[]</td>
+<td align="left">2000, 2550</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">stimDUR</td>
+<td align="left">500</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">t_rDELAY</td>
+<td align="left">2100</td>
+<td align="left">// ms</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">t_rDUR</td>
+<td align="left">2000</td>
+<td align="left">// ms</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">timeout</td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p>char mode = '-'; //one of 'h'abituation, 'o'perant char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used byte minlickCount = 5;</p>
+<p>// Globals to count number of continuous left and rights byte reward_count[] = {0, 0};</p>
+<p>// stimulus parameters // -------------------</p>
+<p>bool single_stim; bool right_same;</p>
+<p>int DUR_short = 100; int DUR_long = 500;</p>
+<p>int diff_DUR[][2] = {{DUR_short, DUR_long}, { DUR_long, DUR_short}};</p>
+<p>int same_DUR[][2] = {{ DUR_long, DUR_long}, {DUR_short, DUR_short}};</p>
+<p>bool right = 1; bool left = 0;</p>
+<p>int right_DUR[2][2]; int left_DUR[2][2];</p>
+<p>// audio // ----- bool auditory = 0;</p>
+<p>int toneGoodLeft = 6000; //Hz int toneGoodRight = 7000; //Hz int toneGood = 2000; //Hz int toneBad = 500; //Hz int toneDur = 100;</p>
+<p>// Reward // ------</p>
+<p>// Global value to count the licks byte count[] = {0,0};</p>
+<p>char waterVol = 10; //uL per dispense</p>
+<p>int lickThres = 450; bool lickOn[] = {false, false};</p>
+<p>bool verbose = true; bool break_wrongChoice = false; // stop if the animal makes a mistake</p>
 <h2 id="start-program">Start program</h2>
 <p>The arduino program is a little complicated; but in principle a simple setup. The main method is <code>runTrial</code> which on initialisation:</p>
 <ol style="list-style-type: decimal">
