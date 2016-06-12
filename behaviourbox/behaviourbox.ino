@@ -1,4 +1,4 @@
-String version = "#behaviourbox160611";
+String version = "#behaviourbox_v2.0_160612_durdesc";
 
 /*
     Author: Naoya Takahashi
