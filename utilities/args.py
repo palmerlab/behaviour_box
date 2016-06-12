@@ -89,13 +89,13 @@ kwargs = {
                     'help' : 'set minimum trial duration'
                     },
                     
-    ('-rd', '--t_rDELAY', ) : {
+    ('-rdel', '--t_rDELAY', ) : {
                     'default' : 100, 
                     'type' : int, 
                     'help' : 'set start time of reward epoch'
                     },
                     
-    ('-rend', '--t_rDUR', ) : {
+    ('-rdur', '--t_rDUR', ) : {
                     'default' : 2000, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
