@@ -42,7 +42,7 @@ The operant mode features the following conditions:
 usage: SerialControl.py [-h] [-i ID] [-w WEIGHT] [-m MODE] [--repeats REPEATS]
                         [-p] [--verbose] [-a] [-bc] [-b] [-rs] [-s]
                         [-lt LICKTHRES] [-lc LCOUNT] [-nlp NOLICK]
-                        [-td TRIALDUR] [-rd T_REWARDSTART] [-rend T_REWARDEND]
+                        [-td TRIALDUR] [-rd t_rDELAY] [-rend T_REWARDEND]
                         [-to TIMEOUT] [--freq FREQ FREQ] [--ITI ITI ITI]
                         [-L | -R] [-N TRIAL_NUM] [--datapath DATAPATH]
                         [--port PORT]
@@ -86,7 +86,7 @@ Optional Arguments:
                         set `t_noLickPer` in arduino
   -td TRIALDUR, --trialDur TRIALDUR
                         set minimum trial duration
-  -rd T_REWARDSTART, --t_rewardSTART T_REWARDSTART
+  -rd t_rDELAY, --t_rDELAY t_rDELAY
                         set start time of reward epoch
   -rend T_REWARDEND, --t_rewardEND T_REWARDEND
                         set end time of reward epoch
@@ -436,10 +436,10 @@ int UpdateGlobals(String input) {
                 Serial.println(timeout);
                 return 1;
         }
-        else if (variable_name == "t_rewardSTART") {
-                t_rewardSTART = variable_value.toInt();
-                Serial.print("t_rewardSTART:\t");
-                Serial.println(t_rewardSTART);
+        else if (variable_name == "t_rDELAY") {
+                t_rDELAY = variable_value.toInt();
+                Serial.print("t_rDELAY:\t");
+                Serial.println(t_rDELAY);
                 return 1;
         }
         else if (variable_name == "t_rewardEND") {
