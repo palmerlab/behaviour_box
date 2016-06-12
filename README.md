@@ -216,10 +216,99 @@ Table: Digital connections to lick controller
 | A1        | right lick sensor | `lickSens[1]`   |
 
 Table: Analog connections to lick controller
-  
+
+
+Global Variables
+----------------
+
+type        name        value       description
+
+const char recTrig = 2;             // digital pin 2 triggers ITC-18
+const char stimulusPin = 3;         // digital pin 4 control whisker stimulation
+const char speakerPin = 8;          // digital pin 8 control water valve 
+const char statusLED = 13;          // led connected to digital pin 13
+const char waterPort[] = {10,11};
+const char lickRep = 13;
+const char lickSens[] = {A0,A1};    // the piezos are connected to analog pins 0 and 1
+
+      
+
+
+
+
+###timing parameters
+
+
+type                        name            value       description
+----                        ----            -----       -----------
+`unsigned long`{.cpp}       t_init          
+`unsigned int`{.cpp}        t_noLickPer     1000
+`unsigned int`{.cpp}        trial_delay     500           // ms
+`unsigned int[2]`{.cpp}     t_stimONSET   2000, 2550
+`unsigned int`{.cpp}        stimDUR         500
+`unsigned int`{.cpp}        t_rDELAY        2100          // ms
+`unsigned int`{.cpp}        t_rDUR          2000          // ms
+`unsigned int`{.cpp}        timeout         0
+    
+char mode = '-'; //one of 'h'abituation, 'o'perant
+char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+byte minlickCount = 5;
+
+// Globals to count number of continuous left and rights
+byte reward_count[] = {0, 0};
+
+// stimulus parameters
+// -------------------
+
+bool single_stim;
+bool right_same;
+
+int DUR_short = 100;
+int DUR_long = 500;
+
+int diff_DUR[][2] =  {{DUR_short, DUR_long},
+                      { DUR_long, DUR_short}};
+
+int same_DUR[][2] = {{ DUR_long, DUR_long},
+                     {DUR_short, DUR_short}};
+
+bool right = 1;
+bool left = 0;
+
+int right_DUR[2][2];
+int left_DUR[2][2];
+
+// audio
+// -----
+bool auditory = 0;
+
+int toneGoodLeft = 6000; //Hz
+int toneGoodRight = 7000; //Hz
+int toneGood = 2000; //Hz
+int toneBad = 500; //Hz
+int toneDur = 100;
+
+// Reward
+// ------
+
+
+// Global value to count the licks
+byte count[] = {0,0};
+
+char waterVol = 10; //uL per dispense
+
+int lickThres = 450;
+bool lickOn[] = {false, false};
+
+bool verbose = true;
+bool break_wrongChoice = false; // stop if the animal makes a mistake
+
+
+
+
+
 Start program
 --------------
-
 
 The arduino program is a little complicated; but in principle a simple
 setup. The main method is `runTrial` which on initialisation:
