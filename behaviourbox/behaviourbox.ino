@@ -59,8 +59,8 @@ unsigned int t_noLickPer = 1000;
 unsigned int trial_delay = 500; // ms
 unsigned int t_stimONSET[] = {2000,2550};
 unsigned int stimDUR = 500;
-unsigned int t_rewardSTART = 2100; // ms
-unsigned int t_rewardEND = 3000; // ms
+unsigned int t_rDELAY = 2100; // ms
+unsigned int t_rDUR = 2000; // ms
 unsigned int timeout = 0;
 
 char mode = '-'; //one of 'h'abituation, 'o'perant
@@ -472,6 +472,7 @@ char TrialReward() {
     */
                 
     int t = t_now(t_init);
+    int t_END = t + t_rDUR;
     bool RewardTest = 0;
     bool RewardPort = 0;
     char response = 0;
@@ -483,7 +484,7 @@ char TrialReward() {
         Serial.println(t);
     }
     
-    while (t < t_rewardEND) {
+    while (t < t_END) {
         
         t = t_now(t_init);
         
@@ -684,7 +685,7 @@ char runTrial() {
     t = t_now(t_init);
 
     // TODO include contingency to report on lick early without breaking?
-    ActiveDelay(t_rewardSTART, false);
+    ActiveDelay(t + t_rDELAY, false);
     t = t_now(t_init);
     
     /* this is a little complicated:
@@ -920,16 +921,16 @@ int UpdateGlobals(String input) {
                 Serial.println(timeout);
                 return 1;
         }
-        else if (variable_name == "t_rewardSTART") {
-                t_rewardSTART = variable_value.toInt();
-                Serial.print("t_rewardSTART:\t");
-                Serial.println(t_rewardSTART);
+        else if (variable_name == "t_rDELAY") {
+                t_rDELAY = variable_value.toInt();
+                Serial.print("t_rDELAY:\t");
+                Serial.println(t_rDELAY);
                 return 1;
         }
-        else if (variable_name == "t_rewardEND") {
-                t_rewardEND = variable_value.toInt();
-                Serial.print("t_rewardEND:\t");
-                Serial.println(t_rewardEND);
+        else if (variable_name == "t_rDUR") {
+                t_rDUR = variable_value.toInt();
+                Serial.print("t_rDUR:\t");
+                Serial.println(t_rDUR);
                 return 1;
         }
         else if (variable_name == "waterVol") {

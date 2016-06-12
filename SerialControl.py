@@ -74,8 +74,8 @@ lcount = args.lcount
 noLick = args.noLick
 right_same = args.right_same
 single_stim = args.single
-t_rewardSTART = args.t_rewardSTART
-t_rewardEND = args.t_rewardEND
+t_rDELAY = args.t_rDELAY
+t_rDUR = args.t_rDUR
 
 """
 --------------------------------------------------------------------
@@ -87,6 +87,14 @@ def menu():
     """
     Reads the characters in the buffer and modifies the program
     parameters accordingly
+    
+    TODO: On pause show current settings
+    TODO: Allow an input mechanism to access all possible values
+    TODO: make menu accept a dictionary or something and have it 
+          return one as well!
+            - Use the keys of the dictionary to allow tab 
+              completion and scrolling of the inputs as well
+                
     """
     
     c = "\x00"
@@ -106,6 +114,8 @@ def menu():
     global single_stim
     global timeout
     global bias_correct
+    global t_rDELAY
+    global t_rDUR
     paused = True
 
     while paused:
@@ -114,136 +124,153 @@ def menu():
             if c == '\xe0': 
                 c = c + m.getch()
             
-            print "PAUSE", " "*100, "\r",
+        if c in ("\r", " "):
+            paused = False
+        
+        # Toggle condition
+        elif c in ("\t"):               
+            if mode == "o": 
+                mode = "h"
+            elif mode == "h": 
+                mode = "o"
+            print "Training mode:\t%s" %mode
             
-            if c in ("\r", " "):
-                paused = False
+        elif c in ("C","c"): #m,Ctrl-m
+            comment = raw_input("Comment: ")
+            with open(logfile, 'a') as log:
+                log.write("Comment:\t%s\n" %comment)
+            print "Choose...\r",
             
-            # Toggle condition
-            elif c in ("\t"):               
-                if mode == "o": 
-                    mode = "h"
-                elif mode == "h": 
-                    mode = "o"
-                print "Training mode:\t%s" %mode
-                
-            elif c in ("C","c"): #m,Ctrl-m
-                comment = raw_input("Comment: ")
-                with open(logfile, 'a') as log:
-                    log.write("Comment:\t%s\n" %comment)
-                print "Choose...\r",
-                
-            elif c in '\xe0K':
-                leftmode = True
-                rightmode = False
-                print "left mode:\t%s" %leftmode
+        elif c in '\xe0K':
+            leftmode = True
+            rightmode = False
+            print "left mode:\t%s" %leftmode
+        
+        elif c in '\xe0M':
+            rightmode = True
+            leftmode = False
+            print "right mode:\t%s" %rightmode
+        
+        elif c in ('\xe0P', '\xe0H'):
+            leftmode = False
+            rightmode = False
+            print "random mode:\t", not (leftmode or rightmode)
+        
+        # Toggle punishment
+        elif c in ("P", "p", "\x10"):
+            punish = not punish
+            #noLick = args.noLick if punish else 0
+            print "Punish for wrong lick:\t%s" %punish
+            with open(logfile, 'a') as log:
+                log.write("Punish for wrong lick:\t%s\n" %punish)
+        
+        # adjust the no lick period
+        elif c in (":", ";"):
+            noLick -= 10
+            print "noLick:\t%3d\r" %noLick,
+        
+        elif c in ("\'", "\""):
+            noLick += 10
+            print "noLick:\t%3d\r" %noLick,
+        
+        elif c in ("l", "L"):
+            print "noLick:\t%3d\r" %noLick,
             
-            elif c in '\xe0M':
-                rightmode = True
-                leftmode = False
-                print "right mode:\t%s" %rightmode
-            
-            elif c in ('\xe0P', '\xe0H'):
-                leftmode = False
-                rightmode = False
-                print "random mode:\t", not (leftmode or rightmode)
-            
-            # Toggle punishment
-            elif c in ("P", "p", "\x10"):
-                punish = not punish
-                #noLick = args.noLick if punish else 0
-                print "Punish for wrong lick:\t%s" %punish
-                with open(logfile, 'a') as log:
-                    log.write("Punish for wrong lick:\t%s\n" %punish)
-            
-            # adjust the no lick period
-            elif c in (":", ";"):
-                noLick -= 10
-                print "noLick:\t%3d\r" %noLick,
-            
-            elif c in ("\'", "\""):
-                noLick += 10
-                print "noLick:\t%3d\r" %noLick,
-            
-            elif c in ("l", "L"):
-                print "noLick:\t%3d\r" %noLick,
-                
-            # adjust the trial duration
-            elif c in ("9", "("):
-                trialDur -= 1
-                print "trialDur:\t%3d\r" %trialDur,
-            
-            elif c in ("0", ")"):
-                trialDur += 1
-                print "trialDur:\t%3d\r" %trialDur,
-            
-            elif c in ("T", "t"):
-                print "TrialDur:\t%3d\r" %trialDur,
+        # adjust the trial duration
+        elif c in ("9", "("):
+            trialDur -= 1
+            print "trialDur:\t%3d\r" %trialDur,
+        
+        elif c in ("0", ")"):
+            trialDur += 1
+            print "trialDur:\t%3d\r" %trialDur,
+        
+        elif c in ("T", "t"):
+            print "TrialDur:\t%3d\r" %trialDur,
 
-            elif c in ("y", "Y"):
-                if timeout:
-                    timeout = 0
-                else:
-                    timeout = args.timeout
-                print "timeout:\t%3d\r" %timeout,
-                
-            # adjust minLickCount
-            elif c in ("[", "{"):
-                lcount -= 1
-                print "minLickCount: %3d\r" %lcount,
-            
-            elif c in ("]", "}"):
-                lcount += 1
-                print "minLickCount: %3d\r" %lcount,
-                
-            elif c in ("|", "\\"):
-                print "minLickCount: %3d\r" %lcount,
-
-            # update lickThreshold....
-            elif c in (",<"):
-                lickThres -= 25
-                print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-            
-            elif c in (".>"):
-                lickThres += 25
-                print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-                
-            elif c in ("/?"):
-                print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-            
-            elif c in ('s', 'S'):
-                single_stim = not single_stim
-                print "Single stim:\t", single_stim,
-            
-            elif c in ('b', 'B'):
-                bias_correct = not bias_correct
-                print "Bias Correct:\t%s" %bias_correct, "%R|%L:", pc_R, "|", pc_L
-                with open(logfile, 'a') as log:
-                    log.write("bias_correct:\t%s\n" %bias_correct)
-            
-            elif c in ("h"):
-                print color.Fore.LIGHTBLUE_EX, "\r",
-                print "-----------------------------"
-                print "options    :"
-                print "  ...   H  : This menu"
-                print "  ...   P  : Punish"
-                print "  ...   S  : toggle single stimulus"
-                print "  ...   < >: lick threshold" 
-                print "  ...   ?  : show threshold" 
-                print "  ...   [ ]: lickcount"
-                print "  ...   \\  : show lickcount" 
-                print "  ...   tab: toggle mode"
-                print "  ...   : \": adjust noLick period"
-                print "  ...   L  : show noLick period"
-                print "  ...   ( ): adjust trial duration"
-                print "  ...   T  : show trial duration period"
-                print "  ...   Y  : toggle timeout (requires punish to take effect)"
-                print "  ...   B  : toggle bias correction"
-                print "-----------------------------"
-                print color.Style.RESET_ALL, '\r',
-                
+        elif c in ("y", "Y"):
+            if timeout:
+                timeout = 0
             else:
-                print "SPACE or ENTER to unpause"
+                timeout = args.timeout
+            print "timeout:\t%3d\r" %timeout,
+            
+        # adjust minLickCount
+        elif c in ("[", "{"):
+            lcount -= 1
+            print "minLickCount: %3d\r" %lcount,
+        
+        elif c in ("]", "}"):
+            lcount += 1
+            print "minLickCount: %3d\r" %lcount,
+            
+        elif c in ("|", "\\"):
+            print "minLickCount: %3d\r" %lcount,
+
+        # update lickThreshold....
+        elif c in (",<"):
+            lickThres -= 25
+            print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
+        
+        elif c in (".>"):
+            lickThres += 25
+            print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
+            
+        elif c in ("/?"):
+            print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
+        
+        elif c in ('s', 'S'):
+            single_stim = not single_stim
+            print "Single stim:\t", single_stim,
+        
+        elif c in ('b', 'B'):
+            bias_correct = not bias_correct
+            print "Bias Correct:\t%s" %bias_correct, "%R|%L:", pc_R, "|", pc_L
+            with open(logfile, 'a') as log:
+                log.write("bias_correct:\t%s\n" %bias_correct)
+        
+        elif 'rdur:' in c:
+            val = c.split(':')[1]
+            if val.strip().isdigit():
+                t_rDUR = val
+                print "t_rDUR:\t", t_rDUR
+            else:
+                print 't_rDUR must be numerals ONLY'
+            
+        
+        elif 'rdel:' in c:
+            val = c.split(':')[1]
+            if val.strip().isdigit():
+                t_rDELAY = val
+                print "t_rDELAY:\t", t_rDELAY
+            else:
+                print 't_rDELAY must be numerals ONLY'
+
+        elif c in ("h"):
+            print color.Fore.LIGHTBLUE_EX, "\r",
+            print "-----------------------------"
+            print "options       :"
+            print "  ...   H     : This menu"
+            print "  ...   P     : Punish"
+            print "  ...   S     : toggle single stimulus"
+            print "  ...   < >   : lick threshold" 
+            print "  ...   ?     : show threshold" 
+            print "  ...   [ ]   : lickcount"
+            print "  ...   \\     : show lickcount" 
+            print "  ...   tab   : toggle mode"
+            print "  ...   : \"   : adjust noLick period"
+            print "  ...   L     : show noLick period"
+            print "  ...   ( )   : adjust trial duration"
+            print "  ...   T     : show trial duration period"
+            print "  ...   Y     : toggle timeout (requires punish to take effect)"
+            print "  ...   B     : toggle bias correction"
+            print "input rdur:%i : set the reward duration"
+            print "input rdel:%i : set the reward delay"
+            print "-----------------------------"
+            print color.Style.RESET_ALL, '\r',
+            
+        else:
+            c = raw_input("SPACE or ENTER to unpause: ")
                                 
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
@@ -604,7 +631,7 @@ try:
                             'dur_long'          : dur_long,
                             'single_stim'       : int(single_stim), #Converts to binary
                             'timeout'           : int(timeout*1000),     #Converts back to millis
-                            't_rewardSTART'     : t_rewardSTART,
+                            't_rDELAY'     : t_rDELAY,
                             't_rewardEND'     : t_rewardEND,
                 }
                 
