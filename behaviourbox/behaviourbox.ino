@@ -680,7 +680,7 @@ char runTrial() {
         Serial.println(count[1]);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET + t_stimDELAY, false);
+    ActiveDelay(t + t_stimDELAY, false);
     t = t_now(t_init);
     
     TrialStimulus(DUR[1]); // lock the intensity at highest
@@ -939,7 +939,7 @@ int UpdateGlobals(String input) {
         }
         else if (variable_name == "t_stimDELAY") {
                 t_stimDELAY = variable_value.toInt();
-                Serial.print("t_stimDELATY\t");
+                Serial.print("t_stimDELAY:\t");
                 Serial.println(t_stimDELAY);
                 return 1;
         }
