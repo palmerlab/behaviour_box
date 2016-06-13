@@ -43,7 +43,7 @@ code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Ann
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
   </style>
-  <link rel="stylesheet" href=".\documentation\style.css" type="text/css" />
+  <link rel="stylesheet" href="documentation\style.css" type="text/css" />
 </head>
 <body>
 <h1 id="andrews-behaviour-box">Andrew's Behaviour Box</h1>
@@ -189,6 +189,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td align="left">B</td>
 <td align="left">toggle bias correction</td>
 </tr>
+<tr class="odd">
+<td align="left">input <code>rdel</code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">input <code>rdur</code></td>
+<td align="left"></td>
+</tr>
 </tbody>
 </table>
 <ol style="list-style-type: decimal">
@@ -288,10 +296,63 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tbody>
 </table>
 <h2 id="global-variables">Global Variables</h2>
-<p>type name value description</p>
-<p>const char recTrig = 2; // digital pin 2 triggers ITC-18 const char stimulusPin = 3; // digital pin 4 control whisker stimulation const char speakerPin = 8; // digital pin 8 control water valve const char statusLED = 13; // led connected to digital pin 13 const char waterPort[] = {10,11}; const char lickRep = 13; const char lickSens[] = {A0,A1}; // the piezos are connected to analog pins 0 and 1</p>
-<h3 id="timing-parameters">timing parameters</h3>
 <table>
+<caption>connections</caption>
+<thead>
+<tr class="header">
+<th align="left">type</th>
+<th align="left">name</th>
+<th align="left">value</th>
+<th align="left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span></code></td>
+<td align="left">recTrig</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">2</span></code></td>
+<td align="left">digital pin 2 triggers ITC-18</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span></code></td>
+<td align="left">stimulusPin</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">3</span></code></td>
+<td align="left">digital pin 4 control whisker stimulation</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span></code></td>
+<td align="left">speakerPin</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">8</span></code></td>
+<td align="left">digital pin 8 control water valve</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span></code></td>
+<td align="left">statusLED</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">13</span></code></td>
+<td align="left">led connected to digital pin 13</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span>[<span class="dv">2</span>]</code></td>
+<td align="left">waterPort</td>
+<td align="left"><code class="sourceCode cpp">{<span class="dv">10</span>,<span class="dv">11</span>}</code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span></code></td>
+<td align="left">lickRep</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">13</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">const</span> <span class="dt">char</span>[<span class="dv">2</span>]</code></td>
+<td align="left">lickSens</td>
+<td align="left"><code class="sourceCode cpp">{A0,A1}</code></td>
+<td align="left">the piezos are connected to analog pins 0 and 1</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>timing parameters</caption>
 <thead>
 <tr class="header">
 <th align="left">type</th>
@@ -311,39 +372,45 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
 <td align="left">t_noLickPer</td>
 <td align="left">1000</td>
-<td align="left"></td>
+<td align="left">ms</td>
 </tr>
 <tr class="odd">
 <td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
 <td align="left">trial_delay</td>
 <td align="left">500</td>
-<td align="left">// ms</td>
+<td align="left">ms</td>
 </tr>
 <tr class="even">
-<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span>[<span class="dv">2</span>]</code></td>
-<td align="left">t_stimONSET[]</td>
-<td align="left">2000, 2550</td>
-<td align="left"></td>
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">t_stimONSET</td>
+<td align="left">2000</td>
+<td align="left">ms</td>
 </tr>
 <tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">t_stimDELAY</td>
+<td align="left">150</td>
+<td align="left">ms</td>
+</tr>
+<tr class="even">
 <td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
 <td align="left">stimDUR</td>
 <td align="left">500</td>
-<td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
-<td align="left">t_rDELAY</td>
-<td align="left">2100</td>
-<td align="left">// ms</td>
+<td align="left">ms</td>
 </tr>
 <tr class="odd">
 <td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
-<td align="left">t_rDUR</td>
-<td align="left">2000</td>
-<td align="left">// ms</td>
+<td align="left">t_rDELAY</td>
+<td align="left">2100</td>
+<td align="left">ms</td>
 </tr>
 <tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
+<td align="left">t_rDUR</td>
+<td align="left">2000</td>
+<td align="left">ms</td>
+</tr>
+<tr class="odd">
 <td align="left"><code class="sourceCode cpp"><span class="dt">unsigned</span> <span class="dt">int</span></code></td>
 <td align="left">timeout</td>
 <td align="left">0</td>
@@ -351,22 +418,220 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </tr>
 </tbody>
 </table>
-<p>char mode = '-'; //one of 'h'abituation, 'o'perant char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used byte minlickCount = 5;</p>
-<p>// Globals to count number of continuous left and rights byte reward_count[] = {0, 0};</p>
-<p>// stimulus parameters // -------------------</p>
-<p>bool single_stim; bool right_same;</p>
-<p>int DUR_short = 100; int DUR_long = 500;</p>
-<p>int diff_DUR[][2] = {{DUR_short, DUR_long}, { DUR_long, DUR_short}};</p>
-<p>int same_DUR[][2] = {{ DUR_long, DUR_long}, {DUR_short, DUR_short}};</p>
-<p>bool right = 1; bool left = 0;</p>
-<p>int right_DUR[2][2]; int left_DUR[2][2];</p>
-<p>// audio // ----- bool auditory = 0;</p>
-<p>int toneGoodLeft = 6000; //Hz int toneGoodRight = 7000; //Hz int toneGood = 2000; //Hz int toneBad = 500; //Hz int toneDur = 100;</p>
-<p>// Reward // ------</p>
-<p>// Global value to count the licks byte count[] = {0,0};</p>
-<p>char waterVol = 10; //uL per dispense</p>
-<p>int lickThres = 450; bool lickOn[] = {false, false};</p>
-<p>bool verbose = true; bool break_wrongChoice = false; // stop if the animal makes a mistake</p>
+<table>
+<caption>Misc</caption>
+<thead>
+<tr class="header">
+<th align="left">type</th>
+<th align="left">name</th>
+<th align="left">value</th>
+<th align="left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">char</span></code></td>
+<td align="left">mode</td>
+<td align="left"><code class="sourceCode cpp"><span class="st">&#39;-&#39;</span></code></td>
+<td align="left">one of <code>h</code>abituation, <code>o</code>perant</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">char</span></code></td>
+<td align="left">rewardCond</td>
+<td align="left"><code class="sourceCode cpp"><span class="st">&#39;R&#39;</span></code></td>
+<td align="left">a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp">byte</code></td>
+<td align="left">minlickCount</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">5</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp">byte[<span class="dv">2</span>]</code></td>
+<td align="left">reward_count</td>
+<td align="left"><code class="sourceCode cpp">{<span class="dv">0</span>, <span class="dv">0</span>}</code></td>
+<td align="left">Globals to count number of continuous left and rights</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>stimulus parameters</caption>
+<colgroup>
+<col width="26%" />
+<col width="17%" />
+<col width="42%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">type</th>
+<th align="left">name</th>
+<th align="left">value</th>
+<th align="left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">single_stim</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">right_same</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">DUR_short</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">100</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">DUR_long</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">500</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span>[<span class="dv">2</span>][<span class="dv">2</span>]</code></td>
+<td align="left">diff_DUR</td>
+<td align="left"><code class="sourceCode cpp">{{DUR_short, DUR_long},</code> <code class="sourceCode cpp">{  DUR_long, DUR_short}}</code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span>[<span class="dv">2</span>][<span class="dv">2</span>]</code></td>
+<td align="left">same_DUR</td>
+<td align="left"><code class="sourceCode cpp">{{ DUR_long, DUR_long},</code> <code class="sourceCode cpp">{DUR_short, DUR_short}}</code></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">right</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">1</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">left</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">0</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span>[<span class="dv">2</span>][<span class="dv">2</span>]</code></td>
+<td align="left">right_DUR</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span>[<span class="dv">2</span>][<span class="dv">2</span>]</code></td>
+<td align="left">left_DUR</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>audio</caption>
+<thead>
+<tr class="header">
+<th align="left">type</th>
+<th align="left">name</th>
+<th align="left">value</th>
+<th align="left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">auditory</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">0</span></code></td>
+<td align="left">Logical value. Runs in auditory mode when true</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">toneGoodLeft</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">6000</span></code></td>
+<td align="left">Hz</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">toneGoodRight</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">7000</span></code></td>
+<td align="left">Hz</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">toneGood</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">2000</span></code></td>
+<td align="left">Hz</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">toneBad</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">500</span></code></td>
+<td align="left">Hz</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">toneDur</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">100</span></code></td>
+<td align="left">ms</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Reward</caption>
+<thead>
+<tr class="header">
+<th align="left">type</th>
+<th align="left">name</th>
+<th align="left">value</th>
+<th align="left">description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp">byte[<span class="dv">2</span>]</code></td>
+<td align="left">count</td>
+<td align="left"><code class="sourceCode cpp">{<span class="dv">0</span>,<span class="dv">0</span>}</code></td>
+<td align="left">Global value to count the licks</td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">char</span></code></td>
+<td align="left">waterVol</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">10</span></code></td>
+<td align="left">uL per dispense</td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">int</span></code></td>
+<td align="left">lickThres</td>
+<td align="left"><code class="sourceCode cpp"><span class="dv">450</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span>[<span class="dv">2</span>]</code></td>
+<td align="left">lickOn</td>
+<td align="left"><code class="sourceCode cpp">{<span class="kw">false</span>, <span class="kw">false</span>}</code></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">verbose</td>
+<td align="left"><code class="sourceCode cpp"><span class="kw">true</span></code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code class="sourceCode cpp"><span class="dt">bool</span></code></td>
+<td align="left">break_wrongChoice</td>
+<td align="left"><code class="sourceCode cpp"><span class="kw">false</span></code></td>
+<td align="left">stop if the animal makes a mistake</td>
+</tr>
+</tbody>
+</table>
 <h2 id="start-program">Start program</h2>
 <p>The arduino program is a little complicated; but in principle a simple setup. The main method is <code>runTrial</code> which on initialisation:</p>
 <ol style="list-style-type: decimal">
@@ -437,131 +702,43 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </dd>
 </dl>
 <h2 id="serial-input-output">Serial Input / Output</h2>
-<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> UpdateGlobals(String input) {
-    <span class="co">/*</span>
-<span class="co">    This is a big ugly function which compares the</span>
-<span class="co">    input string to the names of variables that I have</span>
-<span class="co">    stored in memory; This is very much not the `C` </span>
-<span class="co">    way to do things...</span>
-<span class="co">    </span>
-<span class="co">    I think this could be a hash table. I haven&#39;t</span>
-<span class="co">    learned enough about hash table implementation</span>
-<span class="co">    yet and I know this works, so for the moment:</span>
-<span class="co">    *If it ain&#39;t broke*...</span>
-<span class="co">    */</span>
+<p><em>or Poor mans introspection</em></p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp">
+lickThres = variable_value.toInt();
 
-    <span class="co">// sep is the index of the &#39;:&#39; character</span>
-    <span class="dt">int</span> sep = getSepIndex(input, <span class="st">&#39;:&#39;</span>);
+mode = variable_value[<span class="dv">0</span>];
 
-    <span class="kw">if</span> (sep) {
-        
-        String variable_name = input.substring(<span class="dv">0</span>,sep);
-        String variable_value = input.substring(sep<span class="dv">+1</span>);
-        
-        Serial.print(<span class="st">&quot;#&quot;</span>);
-        Serial.print(variable_name);
-        Serial.print(<span class="st">&quot;</span><span class="ch">\t</span><span class="st">&quot;</span>);
-        Serial.println(variable_value);
-        
-        <span class="co">// input before seperator?</span>
-        
-        <span class="kw">if</span> (variable_name == <span class="st">&quot;lickThres&quot;</span>) {
-                lickThres = variable_value.toInt();
-                Serial.print(<span class="st">&quot;lickThres:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(lickThres);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-            
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;mode&quot;</span>) {
-                mode = variable_value[<span class="dv">0</span>];
-                Serial.print(<span class="st">&quot;mode:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(mode);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-            
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;rewardCond&quot;</span>) {
-                rewardCond = variable_value[<span class="dv">0</span>];
-                Serial.print(<span class="st">&quot;rewardCond:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(rewardCond);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-          
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;break_wrongChoice&quot;</span>) {
-                break_wrongChoice = <span class="dt">bool</span>(variable_value.toInt());
-                Serial.print(<span class="st">&quot;break_wrongChoice:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(break_wrongChoice);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-            
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;minlickCount&quot;</span>) {
-                minlickCount = variable_value.toInt();
-                Serial.print(<span class="st">&quot;minlickCount:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(minlickCount);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_noLickPer&quot;</span>) {
-                t_noLickPer = variable_value.toInt();
-                Serial.print(<span class="st">&quot;t_noLickPer:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(t_noLickPer);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;right_same&quot;</span>) {
-                right_same = <span class="dt">bool</span>(variable_value.toInt());
-                Serial.print(<span class="st">&quot;right_same:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(right_same);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;off_short&quot;</span>) {
-                off_short = variable_value.toInt();
-                Serial.print(<span class="st">&quot;off_short:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(off_short);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;off_long&quot;</span>) {
-                off_long = variable_value.toInt();
-                Serial.print(<span class="st">&quot;off_long:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(off_long);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;auditory&quot;</span>) {
-                auditory = <span class="dt">bool</span>(variable_value.toInt());
-                Serial.print(<span class="st">&quot;auditory:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(auditory);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;single_stim&quot;</span>) {
-                single_stim = <span class="dt">bool</span>(variable_value.toInt());
-                Serial.print(<span class="st">&quot;single_stim:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(single_stim);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;timeout&quot;</span>) {
-                timeout = variable_value.toInt();
-                Serial.print(<span class="st">&quot;timeout:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(timeout);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rDELAY&quot;</span>) {
-                t_rDELAY = variable_value.toInt();
-                Serial.print(<span class="st">&quot;t_rDELAY:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(t_rDELAY);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rewardEND&quot;</span>) {
-                t_rewardEND = variable_value.toInt();
-                Serial.print(<span class="st">&quot;t_rewardEND:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(t_rewardEND);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }
-        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;waterVol&quot;</span>) {
-                waterVol = variable_value.toInt();
-                Serial.print(<span class="st">&quot;waterVol:</span><span class="ch">\t</span><span class="st">&quot;</span>);
-                Serial.println(waterVol);
-                <span class="kw">return</span> <span class="dv">1</span>;
-        }        
-   }
-   <span class="kw">return</span> <span class="dv">0</span>;
-}</code></pre></div>
+rewardCond = variable_value[<span class="dv">0</span>];
+
+break_wrongChoice = <span class="dt">bool</span>(variable_value.toInt());
+
+minlickCount = variable_value.toInt();
+
+t_noLickPer = variable_value.toInt();
+
+right_same = <span class="dt">bool</span>(variable_value.toInt());
+
+auditory = <span class="dt">bool</span>(variable_value.toInt());
+
+single_stim = <span class="dt">bool</span>(variable_value.toInt());
+
+timeout = variable_value.toInt();
+
+t_stimDUR = variable_value.toInt();
+
+t_stimONSET = variable_value.toInt();
+
+t_rDELAY = variable_value.toInt();
+
+t_rDUR = variable_value.toInt();
+
+waterVol = variable_value.toInt();
+
+DUR_short = variable_value.toInt();
+
+DUR_long = variable_value.toInt();
+
+OFF = variable_value.toInt();</code></pre></div>
 <h1 id="plot_stats.py">plot_stats.py</h1>
 <h3 id="requires-1">Requires</h3>
 <ul>

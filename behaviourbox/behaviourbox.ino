@@ -57,8 +57,9 @@ unsigned long t_init;
 
 unsigned int t_noLickPer = 1000;
 unsigned int trial_delay = 500; // ms
-unsigned int t_stimONSET[] = {2000,2550};
-unsigned int stimDUR = 500;
+unsigned int t_stimONSET = 2000;
+unsigned int t_stimDELAY = 100; //ms
+unsigned int t_stimDUR = 500;
 unsigned int t_rDELAY = 2100; // ms
 unsigned int t_rDUR = 2000; // ms
 unsigned int timeout = 0;
@@ -641,7 +642,7 @@ char runTrial() {
     ActiveDelay(t_noLickPer, false);
     t = t_now(t_init);
     
-    response = ActiveDelay(t_stimONSET[0], t_noLickPer);
+    response = ActiveDelay(t_stimONSET, bool(t_noLickPer));
     
     if ((response != '-') and t_noLickPer){
         
@@ -676,7 +677,7 @@ char runTrial() {
         Serial.println(count[1]);
     t = t_now(t_init);
     
-    ActiveDelay(t_stimONSET[1], false);
+    ActiveDelay(t_stimONSET + t_stimDELAY, false);
     t = t_now(t_init);
     
     TrialStimulus(DUR[1]); // lock the intensity at highest
@@ -740,8 +741,6 @@ char Habituation(){
     
     bool rbit = random(0,2); // a random bit
     bool port = 0;
-    int t_interStimdelay = t_stimONSET[1] 
-                            - (t_stimONSET[0] + stimDUR);
     int duration[2] = {0,0};
     t_init = millis();
     
@@ -784,7 +783,7 @@ char Habituation(){
             
             // stim0, stim1, reward...
             TrialStimulus(duration[0]);            
-            delay(t_interStimdelay);
+            delay(t_stimDELAY);
             TrialStimulus(duration[1]);
             deliver_reward(port, waterVol);
                     
@@ -921,6 +920,18 @@ int UpdateGlobals(String input) {
                 timeout = variable_value.toInt();
                 Serial.print("timeout:\t");
                 Serial.println(timeout);
+                return 1;
+        }
+        else if (variable_name == "t_stimDUR") {
+                t_stimDUR = variable_value.toInt();
+                Serial.print("t_stimDUR:\t");
+                Serial.println(t_stimDUR);
+                return 1;
+        }
+        else if (variable_name == "t_stimONSET") {
+                t_stimONSET = variable_value.toInt();
+                Serial.print("t_stimONSET:\t");
+                Serial.println(t_stimONSET);
                 return 1;
         }
         else if (variable_name == "t_rDELAY") {

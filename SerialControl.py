@@ -56,7 +56,6 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
 dur_short, dur_long = sorted(args.dur)
 blanks = args.blanks
 bias_correct = args.bias_correct
@@ -76,6 +75,9 @@ right_same = args.right_same
 single_stim = args.single
 t_rDELAY = args.t_rDELAY
 t_rDUR = args.t_rDUR
+auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
+t_stimDELAY = args.t_stimDELAY
+t_stimONSET = args.t_stimONSET
 
 """
 --------------------------------------------------------------------
@@ -421,9 +423,10 @@ def habituation_run():
                 'lickThres'     : lickThres,
                 'auditory'      : int(auditory),    #Converts to binary
                 'right_same'    : int(right_same),  #Converts to binary
-                'dur_short'     : dur_short,
-                'dur_long'      : dur_long,
+                'DUR_short'     : dur_short,
+                'DUR_long'      : dur_long,
                 'single_stim'   : int(single_stim), #Converts to binary
+                't_stimDELAY'   : t_stimDELAY
     }
     
     params = update_bbox(ser, params, logfile)
@@ -627,8 +630,8 @@ try:
                             't_noLickPer'       : noLick,
                             'auditory'          : int(auditory),    #Converts to binary
                             'right_same'        : int(right_same),  #Converts to binary
-                            'dur_short'         : dur_short,
-                            'dur_long'          : dur_long,
+                            'DUR_short'         : dur_short,
+                            'DUR_long'          : dur_long,
                             'single_stim'       : int(single_stim), #Converts to binary
                             'timeout'           : int(timeout*1000),     #Converts back to millis
                             't_rDELAY'     : t_rDELAY,

@@ -123,23 +123,25 @@ Interactive Options
 -------------------
 
 
-key         option     
------------ -----------------
-     H      This menu
-     P      Punish
-     S      toggle single stimulus
-     < >    lick threshold 
-     ?      show threshold 
-     [ ]    lickcount
-     \\     show lickcount 
-     tab    toggle mode
-     : \"    adjust noLick period
-     L      show noLick period
-     ( )    adjust trial duration
-     T      show trial duration period
-     Y      toggle timeout (requires punish to take effect)
-     B      toggle bias correction
------------ -----------------
+key          option     
+-----------  -----------------
+     H       This menu
+     P       Punish
+     S       toggle single stimulus
+     < >     lick threshold 
+     ?       show threshold 
+     [ ]     lickcount
+     \\      show lickcount 
+     tab     toggle mode
+     : \"     adjust noLick period
+     L       show noLick period
+     ( )     adjust trial duration
+     T       show trial duration period
+     Y       toggle timeout (requires punish to take effect)
+     B       toggle bias correction
+input `rdel` 
+input `rdur` 
+-----------  -----------------
 
 
 
@@ -221,88 +223,99 @@ Table: Analog connections to lick controller
 Global Variables
 ----------------
 
-type        name        value       description
-
-const char recTrig = 2;             // digital pin 2 triggers ITC-18
-const char stimulusPin = 3;         // digital pin 4 control whisker stimulation
-const char speakerPin = 8;          // digital pin 8 control water valve 
-const char statusLED = 13;          // led connected to digital pin 13
-const char waterPort[] = {10,11};
-const char lickRep = 13;
-const char lickSens[] = {A0,A1};    // the piezos are connected to analog pins 0 and 1
-
-      
+type                   name        value            description
+----                   ----        -----            -----------
+`const char`{.cpp}     recTrig     `2`{.cpp}        digital pin 2 triggers ITC-18
+`const char`{.cpp}     stimulusPin `3`{.cpp}        digital pin 4 control whisker stimulation
+`const char`{.cpp}     speakerPin  `8`{.cpp}        digital pin 8 control water valve 
+`const char`{.cpp}     statusLED   `13`{.cpp}       led connected to digital pin 13
+`const char[2]`{.cpp}  waterPort   `{10,11}`{.cpp}
+`const char`{.cpp}     lickRep     `13`{.cpp}
+`const char[2]`{.cpp}  lickSens    `{A0,A1}`{.cpp}  the piezos are connected to analog pins 0 and 1
 
 
+Table: connections      
 
 
-###timing parameters
+
+
 
 
 type                        name            value       description
 ----                        ----            -----       -----------
 `unsigned long`{.cpp}       t_init          
-`unsigned int`{.cpp}        t_noLickPer     1000
-`unsigned int`{.cpp}        trial_delay     500           // ms
-`unsigned int[2]`{.cpp}     t_stimONSET   2000, 2550
-`unsigned int`{.cpp}        stimDUR         500
-`unsigned int`{.cpp}        t_rDELAY        2100          // ms
-`unsigned int`{.cpp}        t_rDUR          2000          // ms
+`unsigned int`{.cpp}        t_noLickPer     1000          ms
+`unsigned int`{.cpp}        trial_delay     500           ms
+`unsigned int`{.cpp}        t_stimONSET     2000          ms
+`unsigned int`{.cpp}        t_stimDELAY     150           ms
+`unsigned int`{.cpp}        stimDUR         500           ms
+`unsigned int`{.cpp}        t_rDELAY        2100          ms
+`unsigned int`{.cpp}        t_rDUR          2000          ms
 `unsigned int`{.cpp}        timeout         0
     
-char mode = '-'; //one of 'h'abituation, 'o'perant
-char rewardCond = 'R'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
-byte minlickCount = 5;
-
-// Globals to count number of continuous left and rights
-byte reward_count[] = {0, 0};
-
-// stimulus parameters
-// -------------------
-
-bool single_stim;
-bool right_same;
-
-int DUR_short = 100;
-int DUR_long = 500;
-
-int diff_DUR[][2] =  {{DUR_short, DUR_long},
-                      { DUR_long, DUR_short}};
-
-int same_DUR[][2] = {{ DUR_long, DUR_long},
-                     {DUR_short, DUR_short}};
-
-bool right = 1;
-bool left = 0;
-
-int right_DUR[2][2];
-int left_DUR[2][2];
-
-// audio
-// -----
-bool auditory = 0;
-
-int toneGoodLeft = 6000; //Hz
-int toneGoodRight = 7000; //Hz
-int toneGood = 2000; //Hz
-int toneBad = 500; //Hz
-int toneDur = 100;
-
-// Reward
-// ------
+Table: timing parameters
 
 
-// Global value to count the licks
-byte count[] = {0,0};
+type            name          value           description
+----            ----          -----           -----------
+`char`{.cpp}    mode          `'-'`{.cpp}     one of `h`abituation, `o`perant
+`char`{.cpp}    rewardCond    `'R'`{.cpp}     a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+`byte`{.cpp}    minlickCount  `5`{.cpp}       
+`byte[2]`{.cpp} reward_count  `{0, 0}`{.cpp}  Globals to count number of continuous left and rights
 
-char waterVol = 10; //uL per dispense
+Table: Misc
 
-int lickThres = 450;
-bool lickOn[] = {false, false};
+---------------------------------------------------------------------------------
+type                 name          value                             description
+----                 ----          -----                             -----------
+`bool`{.cpp}         single_stim
 
-bool verbose = true;
-bool break_wrongChoice = false; // stop if the animal makes a mistake
+`bool`{.cpp}         right_same
 
+`int`{.cpp}          DUR_short     `100`{.cpp}
+
+`int`{.cpp}          DUR_long      `500`{.cpp}
+
+`int[2][2]`{.cpp}    diff_DUR      `{{DUR_short, DUR_long}, `{.cpp}
+                                   `{  DUR_long, DUR_short}}`{.cpp}
+                                   
+`int[2][2]`{.cpp}    same_DUR      `{{ DUR_long, DUR_long},  `{.cpp}
+                                   `  {DUR_short, DUR_short}}`{.cpp}
+
+`bool`{.cpp}         right         `1`{.cpp}
+
+`bool`{.cpp}         left          `0`{.cpp}
+
+`int[2][2]`{.cpp}    right_DUR
+                     
+`int[2][2]`{.cpp}    left_DUR
+--------------------------------------------------------------------------------------
+
+Table: stimulus parameters
+
+
+type                 name          value          description
+----                 ----          -----          -----------
+`bool`{.cpp}         auditory      `0`{.cpp}      Logical value. Runs in auditory mode when true
+`int`{.cpp}          toneGoodLeft  `6000`{.cpp}   Hz
+`int`{.cpp}          toneGoodRight `7000`{.cpp}   Hz
+`int`{.cpp}          toneGood      `2000`{.cpp}   Hz
+`int`{.cpp}          toneBad       `500`{.cpp}    Hz
+`int`{.cpp}          toneDur       `100`{.cpp}    ms
+
+Table: audio
+
+
+type                 name                value                             description
+----                 ----                -----                             -----------
+`byte[2]`{.cpp}      count               `{0,0}`{.cpp}                     Global value to count the licks
+`char`{.cpp}         waterVol            `10`{.cpp}                        uL per dispense
+`int`{.cpp}          lickThres           `450`{.cpp}                                 
+`bool[2]`{.cpp}      lickOn              `{false, false}`{.cpp}                      
+`bool`{.cpp}         verbose             `true`{.cpp}                                 
+`bool`{.cpp}         break_wrongChoice   `false`{.cpp}                     stop if the animal makes a mistake
+
+Table: Reward
 
 
 
@@ -415,148 +428,51 @@ do the following:
     `'r'`{.cpp} incorrect lick on right port
     `0`{.cpp}   No lick detected during reward period
     ----------- -------------------------------------
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 
 Serial Input / Output
 ----------------------
 
+*or Poor mans introspection*
 
 ```{.cpp}
-int UpdateGlobals(String input) {
-    /*
-    This is a big ugly function which compares the
-    input string to the names of variables that I have
-    stored in memory; This is very much not the `C` 
-    way to do things...
-    
-    I think this could be a hash table. I haven't
-    learned enough about hash table implementation
-    yet and I know this works, so for the moment:
-    *If it ain't broke*...
-    */
 
-    // sep is the index of the ':' character
-    int sep = getSepIndex(input, ':');
+lickThres = variable_value.toInt();
 
-    if (sep) {
-        
-        String variable_name = input.substring(0,sep);
-        String variable_value = input.substring(sep+1);
-        
-        Serial.print("#");
-        Serial.print(variable_name);
-        Serial.print("\t");
-        Serial.println(variable_value);
-        
-        // input before seperator?
-        
-        if (variable_name == "lickThres") {
-                lickThres = variable_value.toInt();
-                Serial.print("lickThres:\t");
-                Serial.println(lickThres);
-                return 1;
-        }
-            
-        else if (variable_name == "mode") {
-                mode = variable_value[0];
-                Serial.print("mode:\t");
-                Serial.println(mode);
-                return 1;
-        }
-            
-        else if (variable_name == "rewardCond") {
-                rewardCond = variable_value[0];
-                Serial.print("rewardCond:\t");
-                Serial.println(rewardCond);
-                return 1;
-        }
-          
-        else if (variable_name == "break_wrongChoice") {
-                break_wrongChoice = bool(variable_value.toInt());
-                Serial.print("break_wrongChoice:\t");
-                Serial.println(break_wrongChoice);
-                return 1;
-        }
-            
-        else if (variable_name == "minlickCount") {
-                minlickCount = variable_value.toInt();
-                Serial.print("minlickCount:\t");
-                Serial.println(minlickCount);
-                return 1;
-        }
-        else if (variable_name == "t_noLickPer") {
-                t_noLickPer = variable_value.toInt();
-                Serial.print("t_noLickPer:\t");
-                Serial.println(t_noLickPer);
-                return 1;
-        }
-        else if (variable_name == "right_same") {
-                right_same = bool(variable_value.toInt());
-                Serial.print("right_same:\t");
-                Serial.println(right_same);
-                return 1;
-        }
-        else if (variable_name == "off_short") {
-                off_short = variable_value.toInt();
-                Serial.print("off_short:\t");
-                Serial.println(off_short);
-                return 1;
-        }
-        else if (variable_name == "off_long") {
-                off_long = variable_value.toInt();
-                Serial.print("off_long:\t");
-                Serial.println(off_long);
-                return 1;
-        }
-        else if (variable_name == "auditory") {
-                auditory = bool(variable_value.toInt());
-                Serial.print("auditory:\t");
-                Serial.println(auditory);
-                return 1;
-        }
-        else if (variable_name == "single_stim") {
-                single_stim = bool(variable_value.toInt());
-                Serial.print("single_stim:\t");
-                Serial.println(single_stim);
-                return 1;
-        }
-        else if (variable_name == "timeout") {
-                timeout = variable_value.toInt();
-                Serial.print("timeout:\t");
-                Serial.println(timeout);
-                return 1;
-        }
-        else if (variable_name == "t_rDELAY") {
-                t_rDELAY = variable_value.toInt();
-                Serial.print("t_rDELAY:\t");
-                Serial.println(t_rDELAY);
-                return 1;
-        }
-        else if (variable_name == "t_rewardEND") {
-                t_rewardEND = variable_value.toInt();
-                Serial.print("t_rewardEND:\t");
-                Serial.println(t_rewardEND);
-                return 1;
-        }
-        else if (variable_name == "waterVol") {
-                waterVol = variable_value.toInt();
-                Serial.print("waterVol:\t");
-                Serial.println(waterVol);
-                return 1;
-        }        
-   }
-   return 0;
-}
+mode = variable_value[0];
+
+rewardCond = variable_value[0];
+
+break_wrongChoice = bool(variable_value.toInt());
+
+minlickCount = variable_value.toInt();
+
+t_noLickPer = variable_value.toInt();
+
+right_same = bool(variable_value.toInt());
+
+auditory = bool(variable_value.toInt());
+
+single_stim = bool(variable_value.toInt());
+
+timeout = variable_value.toInt();
+
+t_stimDUR = variable_value.toInt();
+
+t_stimONSET = variable_value.toInt();
+
+t_rDELAY = variable_value.toInt();
+
+t_rDUR = variable_value.toInt();
+
+waterVol = variable_value.toInt();
+
+DUR_short = variable_value.toInt();
+
+DUR_long = variable_value.toInt();
+
+OFF = variable_value.toInt();
+
 ```
 
 plot_stats.py
