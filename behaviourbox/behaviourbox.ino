@@ -1,4 +1,4 @@
-String version = "#behaviourbox_v2.0_160612_durdesc";
+String version = "#behaviourbox_v2.0_160613_durdisc";
 
 /*
     Author: Naoya Takahashi
@@ -278,13 +278,13 @@ void init_stim(){
     diff_DUR[1][1] = DUR_short;
     
     if (single_stim) {
-        diff_DUR[0][0] = -1;
-        diff_DUR[1][0] = -1;
+        diff_DUR[0][0] = 0;
+        diff_DUR[1][0] = 0;
         diff_DUR[0][1] = right_same? DUR_long : DUR_short;
         diff_DUR[1][1] = right_same? DUR_long : DUR_short;
         
-        same_DUR[0][0] = -1;
-        same_DUR[1][0] = -1;
+        same_DUR[0][0] = 0;
+        same_DUR[1][0] = 0;
         same_DUR[0][1] = right_same? DUR_short : DUR_long;
         same_DUR[1][1] = right_same? DUR_short : DUR_long;
     }
@@ -431,14 +431,14 @@ int TrialStimulus(int duration) {
         Serial.println(duration);
     }
    
-    if (auditory and (intensity > 0)) {
-        tone(speakerPin, intensity, duration - 10);
+    if (auditory) {
+        tone(speakerPin, 15000, duration - 10);
     }
-    
-    // Run the buzzer if this is not an auditory trial
-    // update the time after each square pulse
-    if ((intensity >= 0) and (not auditory)){
-        digitalWrite(stimulusPin, HIGH);
+    else if (duration > 0) {
+      // Run the buzzer if this is not an auditory trial
+      // update the time after each square pulse
+  
+          digitalWrite(stimulusPin, HIGH);
     }
     while (t < duration){
         t = t_now(t_local);
@@ -937,6 +937,13 @@ int UpdateGlobals(String input) {
                 Serial.println(t_stimONSET);
                 return 1;
         }
+        else if (variable_name == "t_stimDELAY") {
+                t_stimDELAY = variable_value.toInt();
+                Serial.print("t_stimDELATY\t");
+                Serial.println(t_stimDELAY);
+                return 1;
+        }
+        
         else if (variable_name == "t_rDELAY") {
                 t_rDELAY = variable_value.toInt();
                 Serial.print("t_rDELAY:\t");
@@ -965,12 +972,6 @@ int UpdateGlobals(String input) {
                 DUR_long = variable_value.toInt();
                 Serial.print("DUR_long:\t");
                 Serial.println(DUR_long);
-                return 1;
-        }
-        else if (variable_name == "OFF") {
-                OFF = variable_value.toInt();
-                Serial.print("OFF:\t");
-                Serial.println(OFF);
                 return 1;
         }
    }

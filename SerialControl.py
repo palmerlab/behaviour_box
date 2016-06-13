@@ -317,10 +317,11 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     trail_df dictionary is updated to include the parameters 
     received from the arduino
     """
+    print ''
     
     for name, param in params.iteritems():
     
-        print fc.YELLOW, name[:5], 
+        print fc.YELLOW, name, 
         ser.writelines("%s:%s" %(name, param))
         if verbose: print "%s:%s" %(name, param)
         
@@ -335,11 +336,12 @@ def update_bbox(ser, params, logfile, trial_df = {}):
                 trial_df[var] = num(val)
                 if var == name:
                     #pass
-                    print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
+                    print  fc.GREEN, "\t", var, val, Style.RESET_ALL , "\r"
                 else:
                     print  fc.RED, "\r", var[:5], val, Style.RESET_ALL ,
                     quit()
                 
+    print ''
     return trial_df
 
 def create_datapath(DATADIR = "", date = today()):
@@ -636,6 +638,8 @@ try:
                             'timeout'           : int(timeout*1000),     #Converts back to millis
                             't_rDELAY'          : t_rDELAY,
                             't_rDUR'            : t_rDUR,
+                            't_stimDELAY'       : t_stimDELAY,
+                            't_stimONSET'       : t_stimONSET,
                 }
                 
                 trial_df = update_bbox(ser, params, logfile, trial_df)

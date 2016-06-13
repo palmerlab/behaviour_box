@@ -29,7 +29,7 @@ kwargs = {
                     },
                     
     ('-p', '--punish', ) : {
-                    'action' : 'store_true', 
+                    'action' : 'store_false', 
                     'help' : "sets `break_wrongChoice` to True, " 
                             "incorrect licks will end an operant "
                             "trial early",
@@ -66,7 +66,7 @@ kwargs = {
 
                     
     ('-lt', '--lickThres', ) : {
-                    'default' : 0.75, 
+                    'default' : 2, 
                     'type' : float, 
                     'help' : 'set `lickThres` in arduino',
                     },
@@ -78,7 +78,7 @@ kwargs = {
                     },
 
     ('-nlp', '--noLick', ) : {
-                    'default' : 1000, 
+                    'default' : 1500, 
                     'type' : int, 
                     'help' : 'set `t_noLickPer` in arduino'
                     },
