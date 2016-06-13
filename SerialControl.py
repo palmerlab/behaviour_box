@@ -634,8 +634,8 @@ try:
                             'DUR_long'          : dur_long,
                             'single_stim'       : int(single_stim), #Converts to binary
                             'timeout'           : int(timeout*1000),     #Converts back to millis
-                            't_rDELAY'     : t_rDELAY,
-                            't_rDUR'     : t_rDUR,
+                            't_rDELAY'          : t_rDELAY,
+                            't_rDUR'            : t_rDUR,
                 }
                 
                 trial_df = update_bbox(ser, params, logfile, trial_df)

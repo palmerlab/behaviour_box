@@ -50,13 +50,14 @@ The operant mode features the following conditions:
 # SerialController.py
 
 ```
-usage: SerialControl.py [-h] [-i ID] [-w WEIGHT] [-m MODE] [--repeats REPEATS]
-                        [-p] [--verbose] [-a] [-bc] [-b] [-rs] [-s]
-                        [-lt LICKTHRES] [-lc LCOUNT] [-nlp NOLICK]
-                        [-td TRIALDUR] [-rd t_rDELAY] [-rend T_REWARDEND]
-                        [-to TIMEOUT] [--freq FREQ FREQ] [--ITI ITI ITI]
-                        [-L | -R] [-N TRIAL_NUM] [--datapath DATAPATH]
-                        [--port PORT]
+usage: SerialControl.py [-h] [-b] [-lt LICKTHRES] [--verbose]
+                        [--repeats REPEATS] [-a] [--port PORT]
+                        [--t_stimDELAY T_STIMDELAY] [--ITI ITI ITI]
+                        [-rdur T_RDUR] [--dur DUR DUR] [-m MODE]
+                        [--t_stimONSET T_STIMONSET] [--datapath DATAPATH]
+                        [-rs] [-i ID] [-bc] [-nlp NOLICK] [-w WEIGHT]
+                        [-N TRIAL_NUM] [-td TRIALDUR] [-rdel T_RDELAY] [-p]
+                        [-to TIMEOUT] [-s] [-lc LCOUNT] [-L | -R]
 ```
 
 ### Requires
@@ -72,47 +73,52 @@ Optional Arguments:
 -------------------
 
 ```
+optional arguments:
   -h, --help            show this help message and exit
-  -i ID, --ID ID        identifier for this animal/run
-  -w WEIGHT, --weight WEIGHT
-                        weight of the animal in grams
-  -m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
-                        look in the config table
-  --repeats REPEATS     the number of times this block should repeat, by
-                        default this is 1
-  -p, --punish          sets `break_wrongChoice` to True, incorrect licks will
-                        end an operant trial early
-  --verbose             for debug this will print everything if enabled
-  -a, --auditory        switch to auditory stimulus instead of somatosensory
-  -bc, --bias_correct   turn on the bias correction for the random number
-                        generator
   -b, --blanks          include no stim trials
-  -rs, --right_same     define the right port as correct for same stimulus
-  -s, --single          use this flag for a single stimulus only
   -lt LICKTHRES, --lickThres LICKTHRES
                         set `lickThres` in arduino
-  -lc LCOUNT, --lcount LCOUNT
-                        set `minlickCount` in arduino
-  -nlp NOLICK, --noLick NOLICK
-                        set `t_noLickPer` in arduino
-  -td TRIALDUR, --trialDur TRIALDUR
-                        set minimum trial duration
-  -rd t_rDELAY, --t_rDELAY t_rDELAY
-                        set start time of reward epoch
-  -rend T_REWARDEND, --t_rewardEND T_REWARDEND
+  --verbose             for debug this will print everything if enabled
+  --repeats REPEATS     the number of times this block should repeat, by
+                        default this is 1
+  -a, --auditory        switch to auditory stimulus instead of somatosensory
+  --port PORT           port that the Arduino is connected to
+  --t_stimDELAY T_STIMDELAY
+                        sets the time between succesive stimuli
+  --ITI ITI ITI         an interval for randomising between trials
+  -rdur T_RDUR, --t_rDUR T_RDUR
                         set end time of reward epoch
-  -to TIMEOUT, --timeout TIMEOUT
-                        set the timeout duration for incorrect licks
   --dur DUR DUR         Durations or to be passed to arduino as DUR_short and
                         DUR_long
-  --ITI ITI ITI         an interval for randomising between trials
-  -L, --left
-  -R, --right
-  -N TRIAL_NUM, --trial_num TRIAL_NUM
-                        trial number to start at
+  -m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
+                        look in the config table
+  --t_stimONSET T_STIMONSET
+                        sets the time after trigger to run the first stimulus
   --datapath DATAPATH   path to save data to, by default is
                         'C:/DATA/Andrew/wavesurfer/%YY%MM%DD'
-  --port PORT           port that the Arduino is connected to
+  -rs, --right_same     define the right port as correct for same stimulus
+  -i ID, --ID ID        identifier for this animal/run
+  -bc, --bias_correct   turn on the bias correction for the random number
+                        generator
+  -nlp NOLICK, --noLick NOLICK
+                        set `t_noLickPer` in arduino
+  -w WEIGHT, --weight WEIGHT
+                        weight of the animal in grams
+  -N TRIAL_NUM, --trial_num TRIAL_NUM
+                        trial number to start at
+  -td TRIALDUR, --trialDur TRIALDUR
+                        set minimum trial duration
+  -rdel T_RDELAY, --t_rDELAY T_RDELAY
+                        set start time of reward epoch
+  -p, --punish          sets `break_wrongChoice` to True, incorrect licks will
+                        end an operant trial early
+  -to TIMEOUT, --timeout TIMEOUT
+                        set the timeout duration for incorrect licks
+  -s, --single          use this flag for a single stimulus only
+  -lc LCOUNT, --lcount LCOUNT
+                        set `minlickCount` in arduino
+  -L, --left
+  -R, --right
 ```
 
 See Also [list of rejected arguments](http://xkcd.com/1692/)

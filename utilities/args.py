@@ -89,17 +89,17 @@ kwargs = {
                     'help' : 'set minimum trial duration'
                     },
                     
-    ('--t_stimONSET') : {
+    ('--t_stimONSET',) : {
                     'default' : 2000, 
                     'type' : int, 
                     'help' : 'sets the time after trigger to run the first stimulus'
-    }
+    },
     
-    ('--t_stimDELAY') : {
+    ('--t_stimDELAY',) : {
                     'default' : 150, 
                     'type' : int, 
                     'help' : 'sets the time between succesive stimuli'
-    }
+    },
                     
     ('-rdel', '--t_rDELAY', ) : {
                     'default' : 100, 
