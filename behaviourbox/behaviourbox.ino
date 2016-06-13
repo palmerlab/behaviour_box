@@ -435,13 +435,12 @@ int TrialStimulus(int duration) {
     // update the time after each square pulse
     if ((intensity >= 0) and (not auditory)){
         digitalWrite(stimulusPin, HIGH);
-        while (t < duration){
-            t = t_now(t_local);
-            
-            count[left] = count[left] + senseLick(left);
-            count[right] = count[right] + senseLick(right);
-        }
-        digitalWrite(stimulusPin, HIGH);
+    }
+    while (t < duration){
+        t = t_now(t_local);
+        
+        count[left] = count[left] + senseLick(left);
+        count[right] = count[right] + senseLick(right);
     }
     
     digitalWrite(stimulusPin, LOW); //this is a safety catch
