@@ -280,9 +280,13 @@ void init_stim(){
     if (single_stim) {
         diff_DUR[0][0] = -1;
         diff_DUR[1][0] = -1;
+        diff_DUR[0][1] = right_same? DUR_long : DUR_short;
+        diff_DUR[1][1] = right_same? DUR_long : DUR_short;
         
         same_DUR[0][0] = -1;
         same_DUR[1][0] = -1;
+        same_DUR[0][1] = right_same? DUR_short : DUR_long;
+        same_DUR[1][1] = right_same? DUR_short : DUR_long;
     }
 
     if (right_same){
