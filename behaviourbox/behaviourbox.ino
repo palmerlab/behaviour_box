@@ -80,12 +80,6 @@ bool right_same;
 int DUR_short = 100;
 int DUR_long = 500;
 
-int diff_DUR[][2] =  {{DUR_short, DUR_long},
-                      { DUR_long, DUR_short}};
-
-int same_DUR[][2] = {{ DUR_long, DUR_long},
-                     {DUR_short, DUR_short}};
-
 bool right = 1;
 bool left = 0;
 
@@ -266,37 +260,43 @@ void init_stim(){
     // This function sets the right and left
     // stimulus intensities to the same or different
     // depending on the value of `right_same`
-        
-    same_DUR[0][0] = DUR_short;
-    same_DUR[0][1] = DUR_short;
-    same_DUR[1][0] = DUR_long;
-    same_DUR[1][1] = DUR_long;    
     
-    diff_DUR[0][0] = DUR_short;
-    diff_DUR[0][1] = DUR_long;
-    diff_DUR[1][0] = DUR_long;
-    diff_DUR[1][1] = DUR_short;
-    
-    if (single_stim) {
-        diff_DUR[0][0] = 0;
-        diff_DUR[1][0] = 0;
-        diff_DUR[0][1] = right_same? DUR_long : DUR_short;
-        diff_DUR[1][1] = right_same? DUR_long : DUR_short;
+    if (not single_stim) {
+        int diff_DUR[2][2];
+        int same_DUR[2][2];
         
-        same_DUR[0][0] = 0;
-        same_DUR[1][0] = 0;
-        same_DUR[0][1] = right_same? DUR_short : DUR_long;
-        same_DUR[1][1] = right_same? DUR_short : DUR_long;
+        same_DUR[0][0] = DUR_short;
+        same_DUR[0][1] = DUR_short;
+        same_DUR[1][0] = DUR_long;
+        same_DUR[1][1] = DUR_long;    
+        
+        diff_DUR[0][0] = DUR_short;
+        diff_DUR[0][1] = DUR_long;
+        diff_DUR[1][0] = DUR_long;
+        diff_DUR[1][1] = DUR_short;
+    
+        if (right_same){
+            memcpy(right_DUR, same_DUR, sizeof(right_DUR));
+            memcpy(left_DUR, diff_DUR, sizeof(left_DUR));
+        }
+        else {
+            memcpy(right_DUR, diff_DUR, sizeof(right_DUR));
+            memcpy(left_DUR, same_DUR, sizeof(left_DUR));
+        }
+    }
+    
+    else {
+        left_DUR[0][0] = 0;
+        left_DUR[1][0] = 0;
+        left_DUR[0][1] = right_same? DUR_long : DUR_short;
+        left_DUR[1][1] = right_same? DUR_long : DUR_short;
+        
+        right_DUR[0][0] = 0;
+        right_DUR[1][0] = 0;
+        right_DUR[0][1] = right_same? DUR_short : DUR_long;
+        right_DUR[1][1] = right_same? DUR_short : DUR_long;
     }
 
-    if (right_same){
-        memcpy(right_DUR, same_DUR, sizeof(right_DUR));
-        memcpy(left_DUR, diff_DUR, sizeof(left_DUR));
-    }
-    else {
-        memcpy(right_DUR, diff_DUR, sizeof(right_DUR));
-        memcpy(left_DUR, same_DUR, sizeof(left_DUR));
-    }
 }
 
 char ActiveDelay(unsigned long wait, bool break_on_lick) {
