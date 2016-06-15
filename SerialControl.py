@@ -57,10 +57,11 @@ weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
 auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
-off_short, off_long = sorted(args.freq)
+#off_short, off_long = sorted(args.freq)
 blanks = args.blanks
 bias_correct = args.bias_correct
 ITI = args.ITI
+freq = args.freq
 
 leftmode =  args.left
 rightmode = args.right
@@ -483,82 +484,18 @@ try:
         
         # loop for r repeats
         for r in xrange(repeats):
-
-            pc_L = 50
-            pc_R = 50
+        
             
-            if bias_correct and len(df) > 1:
-                response_hist = df.response.str.upper().dropna().values[-25:]
-                response_hist = response_hist[response_hist != '-']
-                N = len(response_hist)
-                
-                if N:
-                    left_licks = (response_hist == 'L').sum()
-                    right_licks = (response_hist == 'R').sum()
-                                      
-                    pc_R = right_licks / N * 100
-                    pc_L = left_licks / N * 100
-                
-                    pc_L = 100 - int(round(pc_L))
-                    pc_R = 100 - int(round(pc_R))
-
-
-            pc_B = 10 * blanks
-            pc_L = int(pc_L - pc_B / 2)
-            pc_R = int(pc_R - pc_B / 2)
-
-            choice_set = ''.join(('L' * pc_L,
-                                 'R' * pc_R, 
-                                 '-' * pc_B,
-                                ))
-            randomCond = random.choice(choice_set)
-            
-            if not bias_correct and df.shape[0] > 3:                    
-                if (df.rewardCond.values[-3:] == 'L').all():
-                    randomCond = 'R'
-                elif (df.rewardCond.values[-3:] == 'R').all():
-                    randomCond = 'L'
-       
-           
-            # Mechanism to prevent more than 5 correct in a row.
-            # a softer bias correct mechanism
-            if df.shape[0] > 5:
-
-                if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'R').all() or requires_L:
-                    randomCond = 'L'
-                    print  "\t\trequires_L: ", requires_L,
-                    if not requires_L:
-                        requires_L = 3
-                        requires_R = 0
-                    else:
-                        if df['WaterPort[0]'].astype(bool).values[-1]:
-                            requires_L -= 1
-                    if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'L').sum() > 2:
-                        requires_L = 0
-                        requires_R = 0
-                    
-                if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'L').all() or requires_R:
-                    randomCond = 'R'
-                    print  "\t\trequires_R: " , requires_R,
-                    if not requires_R:
-                        requires_R = 3
-                        requires_L = 0
-                    else:
-                        if df['WaterPort[1]'].astype(bool).values[-1]:
-                            requires_R -= 1
-                        
-                    if (df.response.dropna()[df.response.dropna().str.isupper()].values[-5:] == 'R').sum() > 2:
-                        requires_R = 0
-                        requires_L = 0
-                        
-                            
-       
-            
-            print colour("".join(randomCond), fc.CYAN),
+            shuffle(freq)
+            print colour(" . ".join(freq), fc.CYAN),
             
             # loop for number of trials in the list of random conditions
-            for trial_num, rewardCond in enumerate(randomCond):
             
+            
+            for trial_num, off in enumerate(freq):
+                
+                
+                
                 # create an empty dictionary to store data in
                 trial_df = {
                     'trial_num'      : trial_num,
@@ -578,32 +515,25 @@ try:
                 
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified
-                if rewardCond == '-':
-                    pass
-                elif leftmode:
-                    rewardCond = 'L'
-                elif rightmode:
-                    rewardCond = 'R'
-                    
+
                 trial_df['comment'] = comment
                             
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                            'rewardCond'        : rewardCond,
-                            'mode'              : mode,
+                            'rewardCond'        :  'B',
+                            'mode'              :  'o',
                             'lickThres'         : lickThres,
                             'break_wrongChoice' : int(punish),      #Converts to binary
                             'minlickCount'      : lcount,
                             't_noLickPer'       : noLick,
                             'auditory'          : int(auditory),    #Converts to binary
                             'right_same'        : int(right_same),  #Converts to binary
-                            'off_short'         : off_short,
-                            'off_long'          : off_long,
+                            'off'               : off,
                             'single_stim'       : int(single_stim), #Converts to binary
                             'timeout'           : int(timeout*1000),     #Converts back to millis
                             't_rewardSTART'     : t_rewardSTART,
-                            't_rewardEND'     : t_rewardEND,
+                            't_rewardEND'       : t_rewardEND,
                 }
                 
                 trial_df = update_bbox(ser, params, logfile, trial_df)

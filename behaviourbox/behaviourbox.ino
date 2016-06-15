@@ -76,15 +76,12 @@ byte reward_count[] = {0, 0};
 bool single_stim;
 bool right_same;
 
+
+int off = 10;
 int off_short = 0;
 int off_long = 40;
 
 int ON = 30;
-int diff_OFF[][2] =  {{off_short, off_long},
-                      { off_long, off_short}};
-
-int same_OFF[][2] = {{ off_long, off_long},
-                     {off_short, off_short}};
 
 bool right = 1;
 bool left = 0;
@@ -274,32 +271,29 @@ void init_stim(){
     // This function sets the right and left
     // stimulus intensities to the same or different
     // depending on the value of `right_same`
-        
-    same_OFF[0][0] = off_short;
-    same_OFF[0][1] = off_short;
-    same_OFF[1][0] = off_long;
-    same_OFF[1][1] = off_long;    
     
-    diff_OFF[0][0] = off_short;
-    diff_OFF[0][1] = off_long;
-    diff_OFF[1][0] = off_long;
-    diff_OFF[1][1] = off_short;
+    right_OFF[0][0] = right_same? off_short: off_long;
+    right_OFF[0][1] = right_same? off_short: off_long;
+    right_OFF[1][0] = right_same? off_long: off_short; 
+    right_OFF[1][1] = right_same? off_long: off_short;    
     
-    if (single_stim) {
-        diff_OFF[0][0] = -1;
-        diff_OFF[1][0] = -1;
-        
-        same_OFF[0][0] = -1;
-        same_OFF[1][0] = -1;
-    }
+    left_OFF[0][0] = right_same? off_short : off_long;
+    left_OFF[0][1] = right_same? off_long  : off_short;
+    left_OFF[1][0] = right_same? off_long  : off_short;
+    left_OFF[1][1] = right_same? off_short : off_long;
 
-    if (right_same){
-        memcpy(right_OFF, same_OFF, sizeof(right_OFF));
-        memcpy(left_OFF, diff_OFF, sizeof(left_OFF));
-    }
-    else {
-        memcpy(right_OFF, diff_OFF, sizeof(right_OFF));
-        memcpy(left_OFF, same_OFF, sizeof(left_OFF));
+    if (single_stim) {
+        left_OFF[0][0] = 0;
+        left_OFF[1][0] = 0;
+        
+        right_OFF[0][0] = 0;
+        right_OFF[1][0] = 0;
+        
+        left_OFF[0][1] = right_same? off_long : off_short;
+        left_OFF[1][1] = right_same? off_long : off_short;
+        
+        right_OFF[0][1] = right_same? off_short : off_long;
+        right_OFF[1][1] = right_same? off_short : off_long;
     }
 }
 
@@ -498,12 +492,16 @@ char TrialReward() {
         // response reports if there was a lick in the reward period
         
         if (rewardCond == 'L') {
-                RewardTest = (count[left] >= minlickCount);
-                RewardPort = left;
+            RewardTest = (count[left] >= minlickCount);
+            RewardPort = left;
         }
         else if (rewardCond ==  'R') {
-                RewardTest = (count[right] >= minlickCount); 
-                RewardPort = right;
+            RewardTest = (count[right] >= minlickCount); 
+            RewardPort = right;
+        }
+        else if (rewardCond == 'B') {
+            RewardTest = (count[right] + count[left]) >= minlickCount;
+            RewardPort = (count[right] > count[left]) ? right : left;
         }
         
         if (RewardTest) {
@@ -529,14 +527,14 @@ char TrialReward() {
                response stands as the one reported.
                Also play the associated reward tone */
                
-            if (rewardCond == 'L'){ // hit left
+            if ((rewardCond == 'L') or (rewardCond == 'B')){ // hit left
                 response = !response? 'L': response;
                 tone(speakerPin, toneGoodLeft, 50);
             } 
-            if (rewardCond == 'R'){ // hit right
+            if ((rewardCond == 'R') or (rewardCond == 'B')){ // hit right
                 response = !response? 'R': response;
                 tone(speakerPin, toneGoodRight, 50);
-            } 
+            }
                
             if (verbose) { 
                 Serial.print("count[0]:\t");
@@ -629,13 +627,19 @@ char runTrial() {
     t = t_now(t_init);
     
     // select the frequency pair to use
-    if (rewardCond == 'L') {
-        OFF[0] = left_OFF[rbit][0];
-        OFF[1] = left_OFF[rbit][1];
+    if (not single_stim) {
+        if (rewardCond == 'L') {
+            OFF[0] = left_OFF[rbit][0];
+            OFF[1] = left_OFF[rbit][1];
+        }
+        else if (rewardCond == 'R') {
+            OFF[0] = right_OFF[rbit][0];
+            OFF[1] = right_OFF[rbit][1];
+        }
     }
-    else if (rewardCond == 'R') {
-        OFF[0] = right_OFF[rbit][0];
-        OFF[1] = right_OFF[rbit][1];
+    else {
+        OFF[0] = -1;
+        OFF[1] = off;
     }
     
     /*trial_phase0
@@ -911,6 +915,18 @@ int UpdateGlobals(String input) {
                 right_same = bool(variable_value.toInt());
                 Serial.print("right_same:\t");
                 Serial.println(right_same);
+                return 1;
+        }
+        else if (variable_name == "OFF") {
+                OFF = variable_value.toInt();
+                Serial.print("OFF:\t");
+                Serial.println(OFF);
+                return 1;
+        }
+        else if (variable_name == "ON") {
+                ON = variable_value.toInt();
+                Serial.print("ON:\t");
+                Serial.println(ON);
                 return 1;
         }
         else if (variable_name == "off_short") {
