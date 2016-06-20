@@ -1,35 +1,5 @@
 String version = "#behaviourbox160620_GNG_flutterdiscrimination";
 
-/*
-    Author: Naoya Takahashi
-        modified by Andrew Micallef
-                    Mohamed Salih 
-
-    Setup connections:
-    ------------------
-      
-    DIGITAL   output            variable       
-    --------- ----------------- ---------------
-    Current
-    pin 2     recording trigger `recTrig`      
-    pin 3     stimulus          `stimulusPin`  
-    pin 8     speaker           `speakerPin`   
-    pin 10    left water valve  `waterValve[0]`
-    pin 11    right water valve `waterValve[1]`
-    
-    TODO
-    pin 7     vacuum tube valve `vacValve`     
-    pin 13    left  lick report `lickRep[0]`   
-    pin 13    right lick report `lickRep[1]`   
-    --------- ----------------- ---------------
-              
-    ANALOG    input                            
-    --------- ----------------- ---------------
-    A0        left  lick sensor `lickSens[0]`  
-    A1        right lick sensor `lickSens[1]`  
-    --------- ----------------- ---------------
- */
-
 /*--------------------------------------------------------++
 ||                  IO port settings:                     ||
 ++--------------------------------------------------------*/
@@ -41,7 +11,7 @@ const char recTrig = 2;
 const char stimulusPin = 3;
 const char speakerPin = 8;
 const char statusLED = 13;
-      
+
 // digital pin 8 control water valve 
 // led connected to digital pin 13
 // the piezos are connected to analog pins 0 and 1
@@ -54,7 +24,6 @@ const char lickSens[] = {A0,A1};
 // -----------------
 
 unsigned long t_init;
-
 unsigned int t_noLickPer = 1000;
 unsigned int trial_delay = 500; // ms
 unsigned int t_stimONSET = 2000;
@@ -63,8 +32,10 @@ unsigned int t_rewardDEL = 150; // ms
 unsigned int t_rewardDUR = 2000; // ms
 unsigned int timeout = 0;
 
-char mode = '-'; //one of 'h'abituation, 'o'perant
-char rewardCond = 'B'; // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+//one of 'h'abituation, 'o'perant
+char mode = '-';
+// a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+char rewardCond = 'B';
 byte minlickCount = 5;
 
 // Globals to count number of continuous left and rights
@@ -83,10 +54,10 @@ bool left = 0;
 // -----
 bool auditory = 0;
 
-int toneGoodLeft = 6000; //Hz
+int toneGoodLeft = 6000;  //Hz
 int toneGoodRight = 7000; //Hz
-int toneGood = 2000; //Hz
-int toneBad = 500; //Hz
+int toneGood = 2000;      //Hz
+int toneBad = 500;        //Hz
 int toneDur = 100;
 
 // Reward
@@ -180,7 +151,7 @@ void loop () {
         
         String input = getSerialInput();
         
-        init_stim();
+        init_stim(trialType);
         
         if (input == "GO"){
             runTrial();
@@ -266,10 +237,10 @@ void init_stim(char trialType){
     // depending on the value of `right_same`
     
     if (trialType == 'G'){
-        rewardCond = 'B'
+        rewardCond = 'B';
     }
     else if (trialType == 'N') {
-        rewardCond = '-'
+        rewardCond = '-';
     }
     else {
         OFF = -1;
@@ -600,7 +571,6 @@ char runTrial() {
     int response_time = 0;
     char response = 0;
     bool rbit = random(0,2);
-    int OFF[2] = {-1, -1};
     
     // local time
     t_init = millis() + trial_delay;
@@ -639,8 +609,7 @@ char runTrial() {
 
         Serial.println("count[0]:\tnan");
         Serial.println("count[1]:\tnan");
-        Serial.println("OFF[0]:\tnan");
-        Serial.println("OFF[1]:\tnan");
+        Serial.println("OFF:\tnan");
 
         return response;
     }
@@ -965,6 +934,3 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
-
-
-
