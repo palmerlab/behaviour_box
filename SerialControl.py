@@ -73,10 +73,8 @@ punish = args.punish
 timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
-right_same = args.right_same
-single_stim = args.single
-t_rewardSTART = args.t_rewardSTART
-t_rewardEND = args.t_rewardEND
+t_rewardDEL = args.t_rewardDEL
+t_rewardDUR = args.t_rewardDUR
 
 """
 --------------------------------------------------------------------
@@ -504,6 +502,8 @@ try:
         't_rewardEND'       : t_rewardEND,
         't_stimONSET'       : t_stimONSET,
         't_stimDUR'         : t_stimDUR,
+        't_rewardDEL'       : t_rewardDEL,
+        't_rewardDUR'       : t_rewardDUR,
     }
     trial_df = update_bbox(ser, params, logfile, trial_df)
 
@@ -520,7 +520,9 @@ try:
             
             
             for trial_num, off in enumerate(freq):
-
+                
+                trialType = 'G' if off == min(freq) else 'N'
+                
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
