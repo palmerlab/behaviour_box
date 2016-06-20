@@ -73,8 +73,11 @@ punish = args.punish
 timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
-t_rewardDEL = args.t_rewardDEL
-t_rewardDUR = args.t_rewardDUR
+t_stimONSET = args.t_stimONSET
+t_stimDUR = args.t_stimDUR
+t_rewardDEL = args.t_rDELAY
+t_rewardDUR = args.t_rDUR
+ON = args.ON
 
 """
 --------------------------------------------------------------------
@@ -90,7 +93,7 @@ def menu():
     
     c = "\x00"
     if not m.kbhit():
-        return
+        return {}
     
     global punish
     global lickThres
@@ -498,27 +501,25 @@ try:
         't_noLickPer'       : noLick,
         'auditory'          : int(auditory),         #Converts to binary
         'timeout'           : int(timeout*1000),     #Converts back to millis
-        't_rewardSTART'     : t_rewardSTART,
-        't_rewardEND'       : t_rewardEND,
         't_stimONSET'       : t_stimONSET,
         't_stimDUR'         : t_stimDUR,
         't_rewardDEL'       : t_rewardDEL,
         't_rewardDUR'       : t_rewardDUR,
+        'ON'                : ON,
     }
-    trial_df = update_bbox(ser, params, logfile, trial_df)
+    
+    trial_df = update_bbox(ser, params, logfile, {} )
 
     if mode == 'o':
         
         # loop for r repeats
         for r in xrange(repeats):
-        
-            
+
             shuffle(freq)
-            print colour(" . ".join(freq), fc.CYAN),
+            print colour(freq, fc.CYAN),
             
             # loop for number of trials in the list of random conditions
-            
-            
+
             for trial_num, off in enumerate(freq):
                 
                 trialType = 'G' if off == min(freq) else 'N'
@@ -530,6 +531,8 @@ try:
                     'OFF'               : off,
                 }
                 
+                trial_df = update_bbox(ser, params, logfile, {} )
+                
                 # create an empty dictionary to store data in
                 trial_df.update({
                     'trial_num'      : trial_num,
@@ -539,7 +542,7 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
-                    'bias_correct': bias_correct,
+                    'bias_correct'   : bias_correct,
                 })
                 
                 #checks the keys pressed during last iteration
@@ -555,7 +558,7 @@ try:
                 
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
-                print colour("C: %s" %params['rewardCond'], 
+                print colour("C: %s" %params['trialType'], 
                                 fc.MAGENTA, style = Style.BRIGHT),
 
                 trial_df['time'] = timenow()
@@ -595,20 +598,9 @@ try:
                     except NameError:
                         df = trial_df
                     
-                    df['correct'] = df.response.isin(['L', 'R'])
-                    df['miss'] = df.response[df.rewardCond != 'N'] == '-'
-                    df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
-                    
-                    hits = df.correct.cumsum()
-                    hit_L = df.correct[df.response == 'L'].cumsum()
-                    hit_R = df.correct[df.response == 'R'].cumsum()
-                    
+
                     cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
-                    
-                    df['hits'] =  hits
-                    df['hit_L'] = hit_R
-                    df['hit_R'] = hit_L
-                    
+
                     df['cumWater'] = cumWater
                     df['trial_num'] = df.shape[0]
 
@@ -619,22 +611,19 @@ try:
                 
                 table = {
                             'trial_num'    : 't', 
-                            'mode'         : 'mode', 
-                            'rewardCond'   : 'rewCond', 
                             'response'     : 'response', 
                             'count[0]'     : 'L', 
                             'count[1]'     : 'R', 
                             'WaterPort[0]' : 'waterL', 
                             'WaterPort[1]' : 'waterR',
-                            'OFF[0]'       : 'off0', 
-                            'OFF[1]'       : 'off1',
+                            'OFF'          : 'off',
                 }
 
                 try:
-                    if not pd.isnull(df['OFF[0]'].iloc[-1]):
+                    if not pd.isnull(df['OFF'].iloc[-1]):
                         for k in ('trial_num', 'rewardCond', 'response', 
                                         'count[0]', 'count[1]', 'WaterPort[0]', 
-                                        'WaterPort[1]', 'OFF[0]', 'OFF[1]',):
+                                        'WaterPort[1]', 'OFF',):
                             
                             if df.correct.iloc[-1]:
                                 print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
@@ -646,37 +635,6 @@ try:
                         #calculate percentage success
                         
                         print "\r", 100 * " ", "\r                ", #clear the line 
-                        
-                        hits = (df.dropna(subset=["OFF[0]", "OFF[1]"]).correct.sum() 
-                                        / df.dropna(subset=["OFF[0]", "OFF[1]"]).ID.size)
-                        
-                        if df.ID[df.rewardCond.isin(['L','B'])].count():
-                             hit_L = ((df.response == 'L').values.sum() 
-                                        / df.rewardCond.isin(['L','B']).values.sum())
-                        else: hit_L = float('nan')
-                        
-                        if df.ID[df.rewardCond.isin(['R','B'])].count():
-                             hit_R = ((df.response == 'R').values.sum() 
-                                        / df.rewardCond.isin(['R','B']).values.sum())
-                        else: hit_R = float('nan')
-                        
-                        if df.ID[df.rewardCond != 'N'].count():
-                            misses = (df.miss.values.sum() / 
-                                        df.ID[df.rewardCond != 'N'].values.size)*100
-                        else: misses = float('nan')
-                        
-                        wrong = (df.wrong.dropna().sum() / df.wrong.dropna().size)*100
-                        
-                        misses = na_printr(misses)
-                        wrong = na_printr(wrong)
-                        hits =  na_printr(hits*100)
-                        hit_L = na_printr(hit_L*100)
-                        hit_R = na_printr(hit_R*100)
-                        cumWater = df['WaterPort[0]'].sum() + df['WaterPort[1]'].sum()
-                                        
-                        print colour("hits:%03s%%  misses:%0s%%  wrong:%03s%%  R:%03s%%  L:%03s%%  Count:%4d  Water:%3d           " %(hits, misses, wrong, hit_R, hit_L, df.dropna(subset=["OFF[0]", 'response']).ID.count(), cumWater),
-                                        fc = fc.YELLOW, bc = bc.BLUE, style = Style.BRIGHT), '\r',
-                    
                 except:
                     pass
 
@@ -685,7 +643,7 @@ try:
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
-                if trialDur and not pd.isnull(df['OFF[0]'].iloc[-1]): #allows fall though for a non trial
+                if trialDur and not pd.isnull(df['OFF'].iloc[-1]): #allows fall though for a non trial
                     #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
                     print '\r',
                     while dur < trialDur:
@@ -717,20 +675,9 @@ except KeyboardInterrupt:
             df = df.append(trial_df, ignore_index = True)
         except NameError:
             df = trial_df
-        
-        df['correct'] = df.response.str.isupper()
-        df['miss'] = df.response[df.rewardCond != 'N'] == '-'
-        df['wrong'] = df.response[df.rewardCond != 'N'].str.islower()
-        
-        hits = df.correct.cumsum()
-        hit_L = df.correct[df.response == 'L'].cumsum()
-        hit_R = df.correct[df.response == 'R'].cumsum()
-        
+
         cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
-        
-        df['hits'] =  hits
-        df['hit_L'] = hit_R
-        df['hit_R'] = hit_L
+
         
         df['cumWater'] = cumWater               
 

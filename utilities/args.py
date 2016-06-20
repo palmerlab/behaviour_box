@@ -34,6 +34,7 @@ kwargs = {
                             "incorrect licks will end an operant "
                             "trial early",
                     },
+                    
     ("--verbose", ) : {
                     'action' : 'store_true', 
                     'help' : "for debug this will print everything if enabled",
@@ -82,13 +83,13 @@ kwargs = {
                     'default' : 2000, 
                     'type' : int, 
                     'help' : 'sets the time after trigger to run the first stimulus'
-    },
+                    },
     
     ('--t_stimDUR',) : {
                     'default' : 500, 
                     'type' : int, 
                     'help' : 'sets the time between succesive stimuli'
-    },
+                    },
                     
     ('-rdel', '--t_rDELAY', ) : {
                     'default' : 100, 
@@ -109,7 +110,7 @@ kwargs = {
                     },
 
     ('--freq', ) : {
-                    'nargs' : '2', 
+                    'nargs' : 2, 
                     'default' : [100,500], 
                     'type' : int, 
                     'help' : "Durations or to be passed to "
@@ -118,11 +119,17 @@ kwargs = {
 
     ('--ITI', ) : {
                     'nargs' : 2, 
-                    'default' : [1,3], 
+                    'default' : [1.0,3.0], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
                     },
-
+    ("--ON",)  : {
+                    'type': int,
+                    'default' : 5,
+                    'help' : "The UP time in ms of the square pulse",
+    },
+    
+    
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
                     'type' : int, 
