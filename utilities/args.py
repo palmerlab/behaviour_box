@@ -54,17 +54,6 @@ kwargs = {
                     'help' : "include no stim trials",
                     },
                     
-    ("-rs", "--right_same", ) : {
-                    'action' : 'store_true', 
-                    'help' : "define the right port as correct for same stimulus",
-                    },
-                    
-    ("-s", "--single", ) : {
-                    'action' : 'store_true', 
-                    'help' : "use this flag for a single stimulus only",
-                    },
-
-                    
     ('-lt', '--lickThres', ) : {
                     'default' : 2, 
                     'type' : float, 
@@ -95,8 +84,8 @@ kwargs = {
                     'help' : 'sets the time after trigger to run the first stimulus'
     },
     
-    ('--t_stimDELAY',) : {
-                    'default' : 150, 
+    ('--t_stimDUR',) : {
+                    'default' : 500, 
                     'type' : int, 
                     'help' : 'sets the time between succesive stimuli'
     },
@@ -120,7 +109,7 @@ kwargs = {
                     },
 
     ('--freq', ) : {
-                    'nargs' : '+', 
+                    'nargs' : '2', 
                     'default' : [100,500], 
                     'type' : int, 
                     'help' : "Durations or to be passed to "

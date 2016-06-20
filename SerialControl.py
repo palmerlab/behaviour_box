@@ -245,6 +245,17 @@ def menu():
                 
             else:
                 print "SPACE or ENTER to unpause"
+            
+    params = {
+           'break_wrongChoice'         :    int(punish),
+           'lickThres'                 :    lickThres,
+           'minlickCount'              :    lcount,
+           'mode'                      :    mode,
+           't_noLickPer'               :    noLick,
+           'timeout'                   :    int(timeout),
+    }
+    
+    return update_bbox(ser, params, logfile, trial_df)
                                 
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
@@ -479,7 +490,23 @@ requires_R = 0
 try:
     #open a file to save data in
     ser = init_serialport(port, logfile)
-    
+
+    # send initial paramaters to the arduino
+    params = {
+        'mode'              :  mode,
+        'lickThres'         : lickThres,
+        'break_wrongChoice' : int(punish),           #Converts to binary
+        'minlickCount'      : lcount,
+        't_noLickPer'       : noLick,
+        'auditory'          : int(auditory),         #Converts to binary
+        'timeout'           : int(timeout*1000),     #Converts back to millis
+        't_rewardSTART'     : t_rewardSTART,
+        't_rewardEND'       : t_rewardEND,
+        't_stimONSET'       : t_stimONSET,
+        't_stimDUR'         : t_stimDUR,
+    }
+    trial_df = update_bbox(ser, params, logfile, trial_df)
+
     if mode == 'o':
         
         # loop for r repeats
@@ -493,11 +520,16 @@ try:
             
             
             for trial_num, off in enumerate(freq):
-                
-                
+
+                #THE HANDSHAKE
+                # send all current parameters to the arduino box to run the trial
+                params = {
+                    'trialType'         : trialType, 
+                    'OFF'               : off,
+                }
                 
                 # create an empty dictionary to store data in
-                trial_df = {
+                trial_df.update({
                     'trial_num'      : trial_num,
                     'WaterPort[0]'   : 0,
                     'WaterPort[1]'   : 0,
@@ -506,37 +538,20 @@ try:
                     'block'          : r,
                     'comment'        : comment,
                     'bias_correct': bias_correct,
-                }
+                })
                 
                 #checks the keys pressed during last iteration
                 #adjusts options accordingly
                 
-                menu()
+                trial_df.update(menu())
                 
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified
 
                 trial_df['comment'] = comment
                             
-                #THE HANDSHAKE
-                # send all current parameters to the arduino box to run the trial
-                params = {
-                            'rewardCond'        :  'B',
-                            'mode'              :  'o',
-                            'lickThres'         : lickThres,
-                            'break_wrongChoice' : int(punish),      #Converts to binary
-                            'minlickCount'      : lcount,
-                            't_noLickPer'       : noLick,
-                            'auditory'          : int(auditory),    #Converts to binary
-                            'right_same'        : int(right_same),  #Converts to binary
-                            'off'               : off,
-                            'single_stim'       : int(single_stim), #Converts to binary
-                            'timeout'           : int(timeout*1000),     #Converts back to millis
-                            't_rewardSTART'     : t_rewardSTART,
-                            't_rewardEND'       : t_rewardEND,
-                }
                 
-                trial_df = update_bbox(ser, params, logfile, trial_df)
+                trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
                 print colour("C: %s" %params['rewardCond'], 
                                 fc.MAGENTA, style = Style.BRIGHT),
