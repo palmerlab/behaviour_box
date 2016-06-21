@@ -494,7 +494,7 @@ try:
 
     # send initial paramaters to the arduino
     params = {
-        'mode'              :  mode,
+        'mode'              : mode,
         'lickThres'         : lickThres,
         'break_wrongChoice' : int(punish),           #Converts to binary
         'minlickCount'      : lcount,
@@ -611,6 +611,7 @@ try:
                 
                 table = {
                             'trial_num'    : 't', 
+                            'trialType'    : 'type'
                             'response'     : 'response', 
                             'count[0]'     : 'L', 
                             'count[1]'     : 'R', 
@@ -621,7 +622,7 @@ try:
 
                 try:
                     if not pd.isnull(df['OFF'].iloc[-1]):
-                        for k in ('trial_num', 'rewardCond', 'response', 
+                        for k in ('trial_num', 'trialType', 'response', 
                                         'count[0]', 'count[1]', 'WaterPort[0]', 
                                         'WaterPort[1]', 'OFF',):
                             
