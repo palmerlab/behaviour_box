@@ -98,7 +98,7 @@ kwargs = {
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 2000, 
+                    'default' : 1000, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },

@@ -514,15 +514,15 @@ try:
         
         # loop for r repeats
         for r in xrange(repeats):
-
-            shuffle(freq)
+            trials = 'G' * 5 + 'N'
+            shuffle(list(trials))
             print colour(freq, fc.CYAN),
             
             # loop for number of trials in the list of random conditions
 
-            for trial_num, off in enumerate(freq):
+            for trial_num, trialType in enumerate(trials):
                 
-                trialType = 'G' if off == max(freq) else 'N'
+                off = max(freq) if trialType =='G' else min(freq)
                 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
