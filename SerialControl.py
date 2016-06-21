@@ -522,7 +522,7 @@ try:
 
             for trial_num, off in enumerate(freq):
                 
-                trialType = 'G' if off == min(freq) else 'N'
+                trialType = 'G' if off == max(freq) else 'N'
                 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
@@ -601,8 +601,28 @@ try:
 
                     cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
 
+                    df['outcome'] = '-'
+                    
+                    outcome = df.outcome.copy()
+                    
+                    
+                    hit = df.response.fillna('-').str.isupper().values & (df.trialType == 'G').values
+                    miss = (df.response == '-').values & (df.trialType == 'G').values
+                    correct_reject = (df.response == '-').values & (df.trialType == 'N').values
+                    false_alarm = (df.response.fillna('-') != '-').values & (df.trialType == 'N').values
+                    
+                    outcome[hit] = 'hit'
+                    outcome[correct_reject] = 'CR'
+                    outcome[miss] = 'miss'
+                    outcome[false_alarm] = 'FA'
+                    df['outcome'] = outcome
+                    
+                    
                     df['cumWater'] = cumWater
                     df['trial_num'] = df.shape[0]
+                    
+                    
+                    
 
                     df.to_csv(datafile)
                 
@@ -611,33 +631,37 @@ try:
                 
                 table = {
                             'trial_num'    : 't', 
-                            'trialType'    : 'type'
-                            'response'     : 'response', 
+                            'trialType'    : 'type',
+                            'outcome'      : 'outcome', 
                             'count[0]'     : 'L', 
                             'count[1]'     : 'R', 
                             'WaterPort[0]' : 'waterL', 
                             'WaterPort[1]' : 'waterR',
                             'OFF'          : 'off',
                 }
+                
+                colors = {
+                        'CR'  : Style.DIM + fc.GREEN,
+                        'hit' : fc.GREEN,
+                        'miss' : fc.YELLOW,
+                        'FA' : fc.RED,
+                        '-'  : Style.NORMAL + fc.YELLOW
+                }
+                
 
-                try:
-                    if not pd.isnull(df['OFF'].iloc[-1]):
-                        for k in ('trial_num', 'trialType', 'response', 
-                                        'count[0]', 'count[1]', 'WaterPort[0]', 
-                                        'WaterPort[1]', 'OFF',):
-                            
-                            if df.correct.iloc[-1]:
-                                print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.GREEN, str(trial_df[k].iloc[-1]).strip()),
-                            elif df.miss.iloc[-1]:
-                                print '%s%s:%s%4s' %(fc.WHITE, table[k], fc.YELLOW, str(trial_df[k].iloc[-1]).strip()),
-                            else:
-                                print '%s%s:%s%4s' %(fc.WHITE, table[k],fc.RED, str(trial_df[k].iloc[-1]).strip()),
-                        print '\r', Style.RESET_ALL
-                        #calculate percentage success
+                if not pd.isnull(df['OFF'].iloc[-1]):
+                    c = colors[df.outcome.values[-1]]
+                    for k in ('trial_num', 'trialType', 'outcome', 
+                                    'count[0]', 'count[1]', 'WaterPort[0]', 
+                                    'WaterPort[1]', 'OFF',):
                         
-                        print "\r", 100 * " ", "\r                ", #clear the line 
-                except:
-                    pass
+
+                        print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, table[k], c, str(df[k].iloc[-1]).strip()),
+
+                    print '\r', Style.RESET_ALL
+                    #calculate percentage success
+                    
+                    print "\r", 100 * " ", "\r                ", #clear the line 
 
                 comment = ""
                 trial_num += 1            
