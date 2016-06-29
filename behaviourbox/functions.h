@@ -12,6 +12,8 @@ char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
 void deliver_reward(bool port, char waterVol);
 
+void punish(int del);
+
 int Timeout(unsigned long wait, int depth = 0);
     
 int TrialStimulus(int value);
@@ -65,7 +67,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t < wait) {
         t = t_now(t_init);
 
-        response = response? 0 : get_response();
+        response = response? response : get_response();
 
         if (break_on_lick and (response != '-')){
             if (verbose) { 
@@ -93,13 +95,20 @@ void deliver_reward(bool port, char waterVol) {
     digitalWrite(waterPort[port], LOW);
 }
 
+void punish(int del){
+
+    digitalWrite(buzzerPin, HIGH);
+    delay(del);
+    digitalWrite(buzzerPin, LOW);
+}
+
 int Timeout(unsigned long wait, int depth) {
 
     unsigned long t_init = millis();
     unsigned long t = t_now(t_init);
 
    //delay(500); // Delay prevents punishing continued licking
-    tone(speakerPin, toneBad, 150);
+    punish(150);
 
     while (t < wait) {
         t = t_now(t_init);
@@ -312,7 +321,7 @@ char TrialReward() {
             }
 
             if (!response) {
-                tone(speakerPin, toneBad, 150);
+                punish(150);
             }
 
             if (break_wrongChoice){
@@ -397,7 +406,7 @@ char runTrial() {
             response = 'r';
         }
 
-        //tone(speakerPin, toneBad, 150);
+        //punish(150);
 
         Serial.print("response:\t");
         Serial.println(response);

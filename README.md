@@ -10,11 +10,17 @@ Version 3.0: Capacitive sensors
 
 `BB_V3.0.20160629`
 
+Major changes in the last update.
+The behaviour box program is now split into a handful of modules. 
+Each module is mostly holding utility functions for the box as a whole.
+The behaviour box itself only contains `setup` and `loop` functions, which
+call the other components as necessary.
+
 This is the collection of files I use to run my behavioural experiments.
 
 This branch record the state of the first fairly stable version.
 It implements a frequency discrimination task, described by the 
-following diagram.
+following diagram. 
 
 Operant Mode
 ------------
@@ -208,18 +214,11 @@ Setup connections:
 | pin 7     | speaker            | `speakerPin`    |
 | pin 10    | left water valve   | `waterValve[0]` |
 | pin 11    | right water valve  | `waterValve[1]` |
-
-Table: Digital connections to lick controller
-
-| ANALOG    | input             |                 |
-| --------- | ----------------- | --------------- |
-| A0        | left  lick sensor | `lickSens[0]`   |
-| A1        | right lick sensor | `lickSens[1]`   |
 | A4        | MPR121 SCL        | `Wire`          |
 | A5        | MPR121 SDA        | `Wire`          |
 
-Table: Analog connections to lick controller
-  
+Table: Digital connections to lick controller
+
 Start program
 --------------
 
