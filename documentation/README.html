@@ -43,11 +43,12 @@ code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Ann
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
   </style>
-  <link rel="stylesheet" href=".\documentation\style.css" type="text/css" />
+  <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 <body>
 <h1 id="andrews-behaviour-box">Andrew's Behaviour Box</h1>
-<h2 id="version-1.0-frequency-discrimination">Version 1.0: Frequency Discrimination</h2>
+<h2 id="version-3.0-capacitive-sensors">Version 3.0: Capacitive sensors</h2>
+<p><code>BB_V3.0.20160629</code></p>
 <p>This is the collection of files I use to run my behavioural experiments.</p>
 <p>This branch record the state of the first fairly stable version. It implements a frequency discrimination task, described by the following diagram.</p>
 <h2 id="operant-mode">Operant Mode</h2>
@@ -241,25 +242,40 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <tbody>
 <tr class="odd">
 <td align="left">pin 2</td>
-<td align="left">recording trigger</td>
-<td align="left"><code>recTrig</code></td>
+<td align="left">IRQ comm interrupt</td>
+<td align="left"><code>irqpin</code></td>
 </tr>
 <tr class="even">
 <td align="left">pin 3</td>
+<td align="left">recording trigger</td>
+<td align="left"><code>recTrig</code></td>
+</tr>
+<tr class="odd">
+<td align="left">pin 4</td>
+<td align="left">bulb style trigger</td>
+<td align="left"><code>bulbTrig</code></td>
+</tr>
+<tr class="even">
+<td align="left">pin 5</td>
 <td align="left">stimulus</td>
 <td align="left"><code>stimulusPin</code></td>
 </tr>
 <tr class="odd">
-<td align="left">pin 8</td>
+<td align="left">pin 6</td>
+<td align="left">Punishment Buzzer</td>
+<td align="left"><code>buzzerPin</code></td>
+</tr>
+<tr class="even">
+<td align="left">pin 7</td>
 <td align="left">speaker</td>
 <td align="left"><code>speakerPin</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">pin 10</td>
 <td align="left">left water valve</td>
 <td align="left"><code>waterValve[0]</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pin 11</td>
 <td align="left">right water valve</td>
 <td align="left"><code>waterValve[1]</code></td>
@@ -285,6 +301,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td align="left">A1</td>
 <td align="left">right lick sensor</td>
 <td align="left"><code>lickSens[1]</code></td>
+</tr>
+<tr class="odd">
+<td align="left">A4</td>
+<td align="left">MPR121 SCL</td>
+<td align="left"><code>Wire</code></td>
+</tr>
+<tr class="even">
+<td align="left">A5</td>
+<td align="left">MPR121 SDA</td>
+<td align="left"><code>Wire</code></td>
 </tr>
 </tbody>
 </table>
@@ -358,6 +384,27 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </dd>
 </dl>
 <h2 id="serial-input-output">Serial Input / Output</h2>
+<dl>
+<dt>adjustable parameters</dt>
+<dd><ul>
+<li><code>lickThres</code></li>
+<li><code>mode</code></li>
+<li><code>trialType</code></li>
+<li><code>break_wrongChoice</code></li>
+<li><code>minlickCount</code></li>
+<li><code>t_noLickPer</code></li>
+<li><code>OFF</code></li>
+<li><code>ON</code></li>
+<li><code>auditory</code></li>
+<li><code>timeout</code></li>
+<li><code>t_stimONSET</code></li>
+<li><code>t_stimDUR</code></li>
+<li><code>t_rewardDEL</code></li>
+<li><code>t_rewardDUR</code></li>
+<li><code>waterVol</code></li>
+</ul>
+</dd>
+</dl>
 <div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> UpdateGlobals(String input) {
     <span class="co">/*</span>
 <span class="co">    This is a big ugly function which compares the</span>
