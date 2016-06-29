@@ -1,0 +1,198 @@
+String getSerialInput();
+
+int getSepIndex(String input, char seperator);
+
+int UpdateGlobals(String input);
+
+/*----------------------------------------------++
+||                  Serial Coms                 ||
+++----------------------------------------------*/
+
+String getSerialInput(){
+
+    /*
+      This function reads the data from the serial 
+      connection and returns it as a string. 
+      
+      This is used later to update the values
+    */
+    String readString;
+    
+    while (Serial.available()) { 
+        /* 1. delay to allow buffer to fill
+           2. get one byte from serial buffer
+           3. make the string readString 
+       */
+        
+        delay(3);  
+        char c = Serial.read();  
+        readString += c; 
+    }
+    
+    return readString;
+}
+
+int getSepIndex(String input, char separator) {
+    /*
+      Returns the index of the separator character
+      in a string.
+    */
+    
+    char c = 1;
+    int i = 0;
+   
+    while (c != 0) {
+        c = input[i];
+        if (c == separator){ 
+            return i; 
+        }
+        i ++;
+    }
+    return 0;
+}
+
+int UpdateGlobals(String input) {
+    /*
+    This is a big ugly function which compares the
+    input string to the names of variables that I have
+    stored in memory; This is very much not the `C` 
+    way to do things...
+    
+    I think this could be a hash table. I haven't
+    learned enough about hash table implementation
+    yet and I know this works, so for the moment:
+    *If it ain't broke*...
+    */
+
+    // sep is the index of the ':' character
+    int sep = getSepIndex(input, ':');
+
+    if (sep) {
+        
+        String variable_name = input.substring(0,sep);
+        String variable_value = input.substring(sep+1);
+        
+        Serial.print("#");
+        Serial.print(variable_name);
+        Serial.print("\t");
+        Serial.println(variable_value);
+        
+        // input before seperator?
+        // lickThres
+        if (variable_name == "lickThres") {
+                lickThres = variable_value.toInt();
+                Serial.print("lickThres:\t");
+                Serial.println(lickThres);
+                return 1;
+        }        // mode
+        else if (variable_name == "mode") {
+                mode = variable_value[0];
+                Serial.print("mode:\t");
+                Serial.println(mode);
+                return 1;
+        }
+                // trialType
+        else if (variable_name == "trialType") {
+                trialType = variable_value[0];
+                Serial.print("trialType:\t");
+                Serial.println(trialType);
+                return 1;
+        }
+                // break_wrongChoice
+        else if (variable_name == "break_wrongChoice") {
+                break_wrongChoice = bool(variable_value.toInt());
+                Serial.print("break_wrongChoice:\t");
+                Serial.println(break_wrongChoice);
+                return 1;
+        }
+        // minlickCount
+        else if (variable_name == "minlickCount") {
+                minlickCount = variable_value.toInt();
+                Serial.print("minlickCount:\t");
+                Serial.println(minlickCount);
+                return 1;
+        }
+
+        // t_noLickPer
+        else if (variable_name == "t_noLickPer") {
+                t_noLickPer = variable_value.toInt();
+                Serial.print("t_noLickPer:\t");
+                Serial.println(t_noLickPer);
+                return 1;
+        }
+        // OFF
+        else if (variable_name == "OFF") {
+                OFF = variable_value.toInt();
+                Serial.print("OFF:\t");
+                Serial.println(OFF);
+                return 1;
+        }
+
+        // ON
+        else if (variable_name == "ON") {
+                ON = variable_value.toInt();
+                Serial.print("ON:\t");
+                Serial.println(ON);
+                return 1;
+        }
+
+        // auditory
+        else if (variable_name == "auditory") {
+                auditory = bool(variable_value.toInt());
+                Serial.print("auditory:\t");
+                Serial.println(auditory);
+                return 1;
+        }
+
+        // timeout
+        else if (variable_name == "timeout") {
+                timeout = variable_value.toInt();
+                Serial.print("timeout:\t");
+                Serial.println(timeout);
+                return 1;
+        }
+
+        // t_stimONSET
+        else if (variable_name == "t_stimONSET") {
+                t_stimONSET = variable_value.toInt();
+                Serial.print("t_stimONSET:\t");
+                Serial.println(t_stimONSET);
+                return 1;
+        }
+
+        // t_stimDUR
+        else if (variable_name == "t_stimDUR") {
+                t_stimDUR = variable_value.toInt();
+                Serial.print("t_stimDUR:\t");
+                Serial.println(t_stimDUR);
+                return 1;
+        }
+
+        // t_rewardDEL
+        else if (variable_name == "t_rewardDEL") {
+                t_rewardDEL = variable_value.toInt();
+                Serial.print("t_rewardDEL:\t");
+                Serial.println(t_rewardDEL);
+                return 1;
+        }
+
+        // t_rewardDUR
+        else if (variable_name == "t_rewardDUR") {
+                t_rewardDUR = variable_value.toInt();
+                Serial.print("t_rewardDUR:\t");
+                Serial.println(t_rewardDUR);
+                return 1;
+        }
+
+        // waterVol
+        else if (variable_name == "waterVol") {
+                waterVol = variable_value.toInt();
+                Serial.print("waterVol:\t");
+                Serial.println(waterVol);
+                return 1;
+        }
+   }
+   return 0;
+}
+
+
