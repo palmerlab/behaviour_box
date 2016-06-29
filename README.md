@@ -5,6 +5,19 @@ link-citations: true
 Andrew's Behaviour Box
 =======================
 
+TODO:
+-----
+
+Presently the new box compiles.
+
+- Make the thresholds for each sensor independent, and modifiable through python
+- Make a nice way to switch between GnG and 2AFC
+- Make a flag for the buzzer to turn on and off.
+- Make sure all existing / relevant variables can be accessed through python menu
+- make the python menu accept a dict or something for general interfacing.
+    - consider tab completion and raw_input to access all variables.
+    - Have both a quick hotkey menu and tab completing complete interface.
+
 Version 3.0: Capacitive sensors
 -------------------------------
 

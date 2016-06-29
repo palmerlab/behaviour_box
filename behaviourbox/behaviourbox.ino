@@ -1,3 +1,6 @@
+#include <Wire.h>
+#include <Arduino.h>
+
 #include "global_variables.h"
 
 #include "timing.h"
@@ -31,11 +34,12 @@ void setup (){
     randomSeed(analogRead(5));
 
     // declare the digital out pins as OUTPUTs
+    pinMode(irqpin, OUTPUT);
     pinMode(recTrig, OUTPUT);
+    pinMode(bulbTrig, OUTPUT);
     pinMode(waterPort[0], OUTPUT);
     pinMode(waterPort[1], OUTPUT);
     pinMode(stimulusPin, OUTPUT);
-    pinMode(lickRep, OUTPUT);
     pinMode(speakerPin, OUTPUT);
 
     Serial.println("-- Status: Ready --");
@@ -64,13 +68,5 @@ void loop () {
 
     while (!Serial.available() and (mode == 'h')){
         Habituation();
-    }
-
-    while (!Serial.available() and (mode == 's')){
-        Serial.print(senseLick(0));
-        Serial.print(" ... ");
-        Serial.println(senseLick(1));
-        delay(100);
-
     }
 }

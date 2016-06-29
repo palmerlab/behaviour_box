@@ -46,9 +46,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 <body>
-<h1 id="andrews-behaviour-box">Andrew's Behaviour Box</h1>
+<h1 id="andrews-behaviour-box">Andrew’s Behaviour Box</h1>
+<h2 id="todo">TODO:</h2>
+<p>Presently the new box compiles.</p>
+<ul>
+<li>Make the thresholds for each sensor independent, and modifiable through python</li>
+<li>Make a nice way to switch between GnG and 2AFC</li>
+<li>Make a flag for the buzzer to turn on and off.</li>
+<li>Make sure all existing / relevant variables can be accessed through python menu</li>
+<li>make the python menu accept a dict or something for general interfacing.
+<ul>
+<li>consider tab completion and raw_input to access all variables.</li>
+<li>Have both a quick hotkey menu and tab completing complete interface.</li>
+</ul></li>
+</ul>
 <h2 id="version-3.0-capacitive-sensors">Version 3.0: Capacitive sensors</h2>
 <p><code>BB_V3.0.20160629</code></p>
+<p>Major changes in the last update. The behaviour box program is now split into a handful of modules. Each module is mostly holding utility functions for the box as a whole. The behaviour box itself only contains <code>setup</code> and <code>loop</code> functions, which call the other components as necessary.</p>
 <p>This is the collection of files I use to run my behavioural experiments.</p>
 <p>This branch record the state of the first fairly stable version. It implements a frequency discrimination task, described by the following diagram.</p>
 <h2 id="operant-mode">Operant Mode</h2>
@@ -60,7 +74,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ol style="list-style-type: decimal">
 <li>Randomised selection of left or right trials
 <ul>
-<li><p>If a run of three trials of the same type are detected the program forces the next trial to be of the other type: ie: 'Left - Left - Left - Left' will be replaced by 'Left - Left - Left - Right' before the fourth trial runs. This is in line with <span class="citation">Guo et al. (<a href="#ref-guo_procedures_2014">2014</a>)</span></p>
+<li><p>If a run of three trials of the same type are detected the program forces the next trial to be of the other type: ie: ‘Left - Left - Left - Left’ will be replaced by ‘Left - Left - Left - Right’ before the fourth trial runs. This is in line with <span class="citation">Guo et al. (<a href="#ref-guo_procedures_2014">2014</a>)</span></p>
 <p>This logic is over written if the bias correction is in place.</p></li>
 <li><p>In addition to the bias correction weighting, another bias correction mechanism prevents the animal from having a straight run of successes on one side. If 5 rewards are delivered on one side, without any delivered on the other side, the system will lock off that side. The associated stimulus will not be presented until the animal gets at least three rewards from the opposite port. This is in line with <span class="citation">Guo et al. (<a href="#ref-guo_procedures_2014">2014</a>)</span></p></li>
 </ul></li>
@@ -296,12 +310,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The arduino program is a little complicated; but in principle a simple setup. The main method is <code>runTrial</code> which on initialisation:</p>
 <ol style="list-style-type: decimal">
 <li>Waits a period of ms defined by <code>trial_delay</code>. In this period the timer counts up to zero; and the sensors detect licks. 10 ms before zero, a pulse is sent to the <code>recTrig</code> to trigger the recording</li>
-<li>Next two periods of <code>ActiveDelay</code> are intialised in sequence. Two are used so that if I decide the set a <code>noLickPer</code> time, I can have that come on a short time after the trigger. <code>ActiveDelay</code> has the condition <code>break_on_lick</code> as it's second argument. If <code>true</code> the program will exit the function before it reaches the time that it is set to delay until.</li>
+<li>Next two periods of <code>ActiveDelay</code> are intialised in sequence. Two are used so that if I decide the set a <code>noLickPer</code> time, I can have that come on a short time after the trigger. <code>ActiveDelay</code> has the condition <code>break_on_lick</code> as it’s second argument. If <code>true</code> the program will exit the function before it reaches the time that it is set to delay until.</li>
 <li>Two stimuli are delivered, separated by an <code>ActiveDelay</code> method.</li>
 <li>After another <code>ActiveDelay</code> the program enters the <code>TrialReward</code> period, if <code>rewardCond</code> is not <code>'N'</code>, which stands for neither port giving water. During the <code>TrialReward</code> phase, if the <code>mode</code> is <code>c</code> then water is dispensed immediately from the associated port.</li>
 <li>The program delays again, and then exits the <code>runTrial</code> function. Resulting in the program sending the ready string to the Serial controller.</li>
 </ol>
-<p>Now also includes a mode switch. Using <code>&lt;tab&gt;</code> you can switch between operant and habituation modes. In habituation the animal is delivered a pair of randomly selected stimuli, which match the reward condition when it licks the water ports. Following the stimulus delivery a reward is dispensed on the port that the animal licked. In this mode an upper limit on the number of contiguous successful trials on the same side is used (Thanks to Conrad Lee from ANU). A counter keeps track of the number of licks, and if the counter reaches 10 the associated port becomes inactive. Licking the other port subtracts 1 from the counter. In this way the animal must balance it's attention on both ports.</p>
+<p>Now also includes a mode switch. Using <code>&lt;tab&gt;</code> you can switch between operant and habituation modes. In habituation the animal is delivered a pair of randomly selected stimuli, which match the reward condition when it licks the water ports. Following the stimulus delivery a reward is dispensed on the port that the animal licked. In this mode an upper limit on the number of contiguous successful trials on the same side is used (Thanks to Conrad Lee from ANU). A counter keeps track of the number of licks, and if the counter reaches 10 the associated port becomes inactive. Licking the other port subtracts 1 from the counter. In this way the animal must balance it’s attention on both ports.</p>
 <h2 id="functions">Functions</h2>
 <p>In addition to the basic functionality the program also features modules that do the following:</p>
 <dl>
