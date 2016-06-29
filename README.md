@@ -5,8 +5,10 @@ link-citations: true
 Andrew's Behaviour Box
 =======================
 
-Version 1.0: Frequency Discrimination
---------------------------------------
+Version 3.0: Capacitive sensors
+-------------------------------
+
+`BB_V3.0.20160629`
 
 This is the collection of files I use to run my behavioural experiments.
 
@@ -196,13 +198,16 @@ certain time window.
 Setup connections:
 ------------------
 
-|  DIGITAL  | output            | variable        |
-| --------- | ----------------- | --------------- |
-| pin 2     | recording trigger | `recTrig`       |
-| pin 3     | stimulus          | `stimulusPin`   |
-| pin 8     | speaker           | `speakerPin`    |
-| pin 10    | left water valve  | `waterValve[0]` |
-| pin 11    | right water valve | `waterValve[1]` |
+|  DIGITAL  | output             | variable        |
+| --------- | ------------------ | --------------- |                               
+| pin 2     | IRQ comm interrupt | `irqpin`        |
+| pin 3     | recording trigger  | `recTrig`       |
+| pin 4     | bulb style trigger | `bulbTrig`      |
+| pin 5     | stimulus           | `stimulusPin`   |
+| pin 6     | Punishment Buzzer  | `buzzerPin`     |
+| pin 7     | speaker            | `speakerPin`    |
+| pin 10    | left water valve   | `waterValve[0]` |
+| pin 11    | right water valve  | `waterValve[1]` |
 
 Table: Digital connections to lick controller
 
@@ -210,6 +215,8 @@ Table: Digital connections to lick controller
 | --------- | ----------------- | --------------- |
 | A0        | left  lick sensor | `lickSens[0]`   |
 | A1        | right lick sensor | `lickSens[1]`   |
+| A4        | MPR121 SCL        | `Wire`          |
+| A5        | MPR121 SDA        | `Wire`          |
 
 Table: Analog connections to lick controller
   
@@ -322,21 +329,26 @@ do the following:
     `'r'`{.cpp} incorrect lick on right port
     `0`{.cpp}   No lick detected during reward period
     ----------- -------------------------------------
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
 Serial Input / Output
 ----------------------
 
+adjustable parameters
+:    + `lickThres`
+    + `mode`
+    + `trialType`
+    + `break_wrongChoice`
+    + `minlickCount`
+    + `t_noLickPer`
+    + `OFF`
+    + `ON`
+    + `auditory`
+    + `timeout`
+    + `t_stimONSET`
+    + `t_stimDUR`
+    + `t_rewardDEL`
+    + `t_rewardDUR`
+    + `waterVol`
 
 ```{.cpp}
 int UpdateGlobals(String input) {
