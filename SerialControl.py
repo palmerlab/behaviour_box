@@ -502,7 +502,7 @@ try:
         'auditory'          : int(auditory),         #Converts to binary
         'timeout'           : int(timeout*1000),     #Converts back to millis
         't_stimONSET'       : t_stimONSET,
-        't_stimDUR'         : t_stimDUR,
+        'OFF'               : 5,
         't_rewardDEL'       : t_rewardDEL,
         't_rewardDUR'       : t_rewardDUR,
     }
@@ -513,21 +513,19 @@ try:
         
         # loop for r repeats
         for r in xrange(repeats):
-            trials = 'G' * 5 + 'N'
+            trials = np.arange(1,5) * 125
             shuffle(list(trials))
             print colour(freq, fc.CYAN),
             
             # loop for number of trials in the list of random conditions
 
-            for trial_num, trialType in enumerate(trials):
-                
-                DUR = max(freq) if trialType =='G' else min(freq)
+            for trial_num, t_stimDUR in enumerate(trials):
                 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                    'trialType'         : trialType, 
-                    't_stimDUR'         : DUR,
+                    'trialType'         : 'N' if t_stimDUR == max(trials) else 'G' ,
+                    't_stimDUR'         : t_stimDUR,
                 }
                 
                 trial_df = update_bbox(ser, params, logfile, {} )
@@ -667,7 +665,7 @@ try:
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
-                if trialDur and not pd.isnull(df['OFF'].iloc[-1]): #allows fall though for a non trial
+                if trialDur: # and not pd.isnull(df['OFF'].iloc[-1]): #allows fall though for a non trial
                     #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
                     print '\r',
                     while dur < trialDur:
