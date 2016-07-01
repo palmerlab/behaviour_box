@@ -1,3 +1,17 @@
+/*--------------------------------------------------------++
+||                  IO port settings:                     ||
+++--------------------------------------------------------*/
+
+const byte recTrig = 3;           // triggers ITC-18
+const byte bulbTrig = 4;          // Bulb mode trigger for ThorImage
+const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
+const byte buzzerPin = 6;         // punishment buzzer
+const byte speakerPin = 7;        // reward / cue tone
+const byte statusLED = 13;        // led connected to digital pin 13
+const char lickSens[] = {A0,A1};
+
+const char waterPort[] = {10,11}; // digital pins 10, 11 control water valve 
+
 
 /*-----------------------------------------------------------------------------
 
@@ -9,31 +23,8 @@ REFENENCED IN sensors.h
 
 byte lick_port_L = 0;           // the left lick port
 byte lick_port_R = 1;           // the right lick port
-byte button_touch_pin = 2;      // the vibration button
 
-
-bool touchStates[12];           // keeps track of the previous touch states
-bool touchOn[12];               // flags the onset of touches
-
-
-
-
-/*--------------------------------------------------------++
-||                  IO port settings:                     ||
-++--------------------------------------------------------*/
-
-
-
-
-const byte irqpin = 2;            // Pin for communication with MPR121
-const byte recTrig = 3;           // triggers ITC-18
-const byte bulbTrig = 4;          // Bulb mode trigger for ThorImage
-const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
-const byte buzzerPin = 6;         // punishment buzzer
-const byte speakerPin = 7;        // reward / cue tone
-const byte statusLED = 13;        // led connected to digital pin 13
-
-const char waterPort[] = {10,11}; // digital pins 10, 11 control water valve 
+bool lickOn[] = {false, false};
 
 // timing parameters
 // -----------------
@@ -55,9 +46,6 @@ byte reward_count[] = {0, 0};     // Globals to count number of continuous left 
 
 // stimulus parameters
 // -------------------
-
-int OFF = 10;
-int ON = 30;
 
 bool right = 1;
 bool left = 0;
@@ -82,7 +70,7 @@ char waterVol = 10;               // uL per dispense
 char trialType = 'G';             // 'G' or 'N'
 
 int lickThres = 450;
-bool lickOn[] = {false, false};
 
 bool verbose = true;
 bool break_wrongChoice = false;   // stop if the animal makes a mistake
+bool break_on_early = false;      // stop if the animal licks during the stimulus presentation

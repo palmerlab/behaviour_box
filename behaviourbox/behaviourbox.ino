@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include <Arduino.h>
 
 #include "global_variables.h"
@@ -24,17 +23,9 @@ void setup (){
     Serial.println("#Arduino online");
     Serial.println  (version);
     
-    // MPR121 communications
-    pinMode(irqpin, INPUT);
-    digitalWrite(irqpin, HIGH); //enable pullup resistor
-
-    Wire.begin();
-    mpr121_setup();
-
     randomSeed(analogRead(5));
 
     // declare the digital out pins as OUTPUTs
-    pinMode(irqpin, OUTPUT);
     pinMode(recTrig, OUTPUT);
     pinMode(bulbTrig, OUTPUT);
     pinMode(waterPort[0], OUTPUT);
@@ -53,11 +44,12 @@ void loop () {
 
         String input = getSerialInput();
 
-        init_stim(trialType);
+        init_trial(trialType);
 
         if (input == "GO"){
             runTrial();
 
+            digitalWrite(bulbTrig, LOW);
             digitalWrite(recTrig, LOW);
             Serial.println("-- Status: Ready --");
         }

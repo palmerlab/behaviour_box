@@ -91,7 +91,7 @@ int UpdateGlobals(String input) {
                 Serial.println(mode);
                 return 1;
         }
-                // trialType
+        // trialType
         else if (variable_name == "trialType") {
                 trialType = variable_value[0];
                 Serial.print("trialType:\t");
@@ -103,6 +103,14 @@ int UpdateGlobals(String input) {
                 break_wrongChoice = bool(variable_value.toInt());
                 Serial.print("break_wrongChoice:\t");
                 Serial.println(break_wrongChoice);
+                return 1;
+        }
+
+        // break_on_early
+        else if (variable_name == "break_on_early") {
+                break_on_early = bool(variable_value.toInt());
+                Serial.print("break_on_early:\t");
+                Serial.println(break_on_early);
                 return 1;
         }
         // minlickCount
@@ -120,30 +128,6 @@ int UpdateGlobals(String input) {
                 Serial.println(t_noLickPer);
                 return 1;
         }
-        // OFF
-        else if (variable_name == "OFF") {
-                OFF = variable_value.toInt();
-                Serial.print("OFF:\t");
-                Serial.println(OFF);
-                return 1;
-        }
-
-        // ON
-        else if (variable_name == "ON") {
-                ON = variable_value.toInt();
-                Serial.print("ON:\t");
-                Serial.println(ON);
-                return 1;
-        }
-
-        // auditory
-        else if (variable_name == "auditory") {
-                auditory = bool(variable_value.toInt());
-                Serial.print("auditory:\t");
-                Serial.println(auditory);
-                return 1;
-        }
-
         // timeout
         else if (variable_name == "timeout") {
                 timeout = variable_value.toInt();

@@ -77,7 +77,6 @@ t_stimONSET = args.t_stimONSET
 t_stimDUR = args.t_stimDUR
 t_rewardDEL = args.t_rDELAY
 t_rewardDUR = args.t_rDUR
-ON = args.ON
 
 """
 --------------------------------------------------------------------
@@ -497,6 +496,7 @@ try:
         'mode'              : mode,
         'lickThres'         : lickThres,
         'break_wrongChoice' : int(punish),           #Converts to binary
+        'break_on_early'    : int(0),
         'minlickCount'      : lcount,
         't_noLickPer'       : noLick,
         'auditory'          : int(auditory),         #Converts to binary
@@ -505,7 +505,6 @@ try:
         't_stimDUR'         : t_stimDUR,
         't_rewardDEL'       : t_rewardDEL,
         't_rewardDUR'       : t_rewardDUR,
-        'ON'                : ON,
     }
     
     trial_df = update_bbox(ser, params, logfile, {} )
@@ -522,13 +521,13 @@ try:
 
             for trial_num, trialType in enumerate(trials):
                 
-                off = max(freq) if trialType =='G' else min(freq)
+                DUR = max(freq) if trialType =='G' else min(freq)
                 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
                     'trialType'         : trialType, 
-                    'OFF'               : off,
+                    't_stimDUR'         : DUR,
                 }
                 
                 trial_df = update_bbox(ser, params, logfile, {} )

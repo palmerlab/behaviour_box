@@ -122,13 +122,7 @@ kwargs = {
                     'default' : [1.0,3.0], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
-                    },
-    ("--ON",)  : {
-                    'type': int,
-                    'default' : 5,
-                    'help' : "The UP time in ms of the square pulse",
-    },
-    
+                    },    
     
     ("-N", '--trial_num', ) : {
                     'default' : 0, 

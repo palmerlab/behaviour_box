@@ -11,5 +11,3 @@ long t_now(unsigned long t_init){
 
     return (long) millis() - t_init;
 }
-
-
