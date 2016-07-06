@@ -56,8 +56,7 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-auditory = args.auditory              # a binary, flags auditory (True) or somatosensory (False)
-#off_short, off_long = sorted(args.freq)
+dur_short, dur_long = sorted(args.dur)
 blanks = args.blanks
 bias_correct = args.bias_correct
 ITI = args.ITI
@@ -73,6 +72,7 @@ punish = args.punish
 timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
+
 t_stimONSET = args.t_stimONSET
 t_stimDUR = args.t_stimDUR
 t_rewardDEL = args.t_rDELAY
@@ -88,8 +88,16 @@ def menu():
     """
     Reads the characters in the buffer and modifies the program
     parameters accordingly
-    """
     
+    TODO: On pause show current settings
+    TODO: Allow an input mechanism to access all possible values
+    TODO: make menu accept a dictionary or something and have it 
+          return one as well!
+            - Use the keys of the dictionary to allow tab 
+              completion and scrolling of the inputs as well
+                
+    """
+    print '\r                 \r',
     c = "\x00"
     if not m.kbhit():
         return {}
@@ -107,6 +115,8 @@ def menu():
     global single_stim
     global timeout
     global bias_correct
+    global t_rDELAY
+    global t_rDUR
     paused = True
 
     while paused:
@@ -114,8 +124,8 @@ def menu():
             c = m.getch()
             if c == '\xe0': 
                 c = c + m.getch()
-            
-            print "PAUSE", " "*100, "\r",
+        
+
             
             if c in ("\r", " "):
                 paused = False
@@ -222,24 +232,43 @@ def menu():
                 with open(logfile, 'a') as log:
                     log.write("bias_correct:\t%s\n" %bias_correct)
             
+            elif 'rdur:' in c:
+                val = c.split(':')[1]
+                if val.strip().isdigit():
+                    t_rDUR = val
+                    print "t_rDUR:\t", t_rDUR
+                else:
+                    print 't_rDUR must be numerals ONLY'
+                
+            
+            elif 'rdel:' in c:
+                val = c.split(':')[1]
+                if val.strip().isdigit():
+                    t_rDELAY = val
+                    print "t_rDELAY:\t", t_rDELAY
+                else:
+                    print 't_rDELAY must be numerals ONLY'
+
             elif c in ("h"):
                 print color.Fore.LIGHTBLUE_EX, "\r",
                 print "-----------------------------"
-                print "options    :"
-                print "  ...   H  : This menu"
-                print "  ...   P  : Punish"
-                print "  ...   S  : toggle single stimulus"
-                print "  ...   < >: lick threshold" 
-                print "  ...   ?  : show threshold" 
-                print "  ...   [ ]: lickcount"
-                print "  ...   \\  : show lickcount" 
-                print "  ...   tab: toggle mode"
-                print "  ...   : \": adjust noLick period"
-                print "  ...   L  : show noLick period"
-                print "  ...   ( ): adjust trial duration"
-                print "  ...   T  : show trial duration period"
-                print "  ...   Y  : toggle timeout (requires punish to take effect)"
-                print "  ...   B  : toggle bias correction"
+                print "options       :"
+                print "  ...   H     : This menu"
+                print "  ...   P     : Punish"
+                print "  ...   S     : toggle single stimulus"
+                print "  ...   < >   : lick threshold" 
+                print "  ...   ?     : show threshold" 
+                print "  ...   [ ]   : lickcount"
+                print "  ...   \\     : show lickcount" 
+                print "  ...   tab   : toggle mode"
+                print "  ...   : \"   : adjust noLick period"
+                print "  ...   L     : show noLick period"
+                print "  ...   ( )   : adjust trial duration"
+                print "  ...   T     : show trial duration period"
+                print "  ...   Y     : toggle timeout (requires punish to take effect)"
+                print "  ...   B     : toggle bias correction"
+                print "input rdur:%i : set the reward duration"
+                print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
                 print color.Style.RESET_ALL, '\r',
                 
@@ -256,6 +285,7 @@ def menu():
     }
     
     return update_bbox(ser, params, logfile, trial_df)
+
                                 
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
@@ -303,7 +333,7 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     
     for name, param in params.iteritems():
     
-        print fc.YELLOW, name[:5], 
+        print fc.YELLOW, color.Style.BRIGHT, name[:2], "\r",
         ser.writelines("%s:%s" %(name, param))
         if verbose: print "%s:%s" %(name, param)
         
@@ -318,11 +348,11 @@ def update_bbox(ser, params, logfile, trial_df = {}):
                 trial_df[var] = num(val)
                 if var == name:
                     #pass
-                    print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
+                    print  "\r", fc.GREEN, "\t", var[:2], val, Style.RESET_ALL , "\r",
                 else:
-                    print  fc.RED, "\r", var[:5], val, Style.RESET_ALL ,
+                    print  fc.RED, "\r", var, val, Style.RESET_ALL ,
                     quit()
-                
+
     return trial_df
 
 def create_datapath(DATADIR = "", date = today()):
@@ -406,10 +436,10 @@ def habituation_run():
                 'lickThres'     : lickThres,
                 'auditory'      : int(auditory),    #Converts to binary
                 'right_same'    : int(right_same),  #Converts to binary
-                'off_short'     : off_short,
-                'off_long'      : off_long,
+                'DUR_short'     : dur_short,
+                'DUR_long'      : dur_long,
                 'single_stim'   : int(single_stim), #Converts to binary
-                't_rewardSTART' : t_rewardSTART,
+                't_stimDELAY'   : t_stimDELAY
     }
     
     params = update_bbox(ser, params, logfile)
@@ -421,6 +451,8 @@ def habituation_run():
         
         trial_df = {}
         line = Serial_monitor(ser, logfile, show = verbose).strip()
+
+        trial_df['time'] = timenow()
         
         while line.strip() != "-- Status: Ready --":
             line = Serial_monitor(ser, logfile, False).strip()
@@ -429,6 +461,7 @@ def habituation_run():
                     var, val = line.split(":\t")
                     trial_df[var] = num(val)
             menu()
+        
         
         if 'response'  in trial_df.keys():
         
@@ -532,6 +565,7 @@ try:
                 
                 trial_df = update_bbox(ser, params, logfile, {} )
                 
+
                 # create an empty dictionary to store data in
                 trial_df.update({
                     'trial_num'      : trial_num,
@@ -543,7 +577,7 @@ try:
                     'comment'        : comment,
                     'bias_correct'   : bias_correct,
                 })
-                
+
                 #checks the keys pressed during last iteration
                 #adjusts options accordingly
                 
@@ -553,8 +587,8 @@ try:
                 # if the over-ride has been specified
 
                 trial_df['comment'] = comment
-                            
-                
+
+
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
                 print colour("C: %s" %params['trialType'], 
@@ -645,6 +679,7 @@ try:
                         'miss' : fc.YELLOW,
                         'FA' : fc.RED,
                         '-'  : Style.NORMAL + fc.YELLOW
+
                 }
                 
 
@@ -667,8 +702,10 @@ try:
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
+
                 if trialDur and not pd.isnull(df['OFF'].iloc[-1]): #allows fall though for a non trial
                     #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
+
                     print '\r',
                     while dur < trialDur:
                         dur = time.time() - start_time

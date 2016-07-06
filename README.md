@@ -38,7 +38,7 @@ following diagram.
 Operant Mode
 ------------
 
-![Flow of the behavioural paradigm](.\Flow_diagram.svg)
+![Flow of the behavioural paradigm](./documentation/Flow_diagram.svg)
 
 
 The operant mode features the following conditions:
@@ -66,13 +66,14 @@ The operant mode features the following conditions:
 # SerialController.py
 
 ```
-usage: SerialControl.py [-h] [-i ID] [-w WEIGHT] [-m MODE] [--repeats REPEATS]
-                        [-p] [--verbose] [-a] [-bc] [-b] [-rs] [-s]
-                        [-lt LICKTHRES] [-lc LCOUNT] [-nlp NOLICK]
-                        [-td TRIALDUR] [-rd T_REWARDSTART] [-rend T_REWARDEND]
-                        [-to TIMEOUT] [--freq FREQ FREQ] [--ITI ITI ITI]
-                        [-L | -R] [-N TRIAL_NUM] [--datapath DATAPATH]
-                        [--port PORT]
+usage: SerialControl.py [-h] [-b] [-lt LICKTHRES] [--verbose]
+                        [--repeats REPEATS] [-a] [--port PORT]
+                        [--t_stimDELAY T_STIMDELAY] [--ITI ITI ITI]
+                        [-rdur T_RDUR] [--dur DUR DUR] [-m MODE]
+                        [--t_stimONSET T_STIMONSET] [--datapath DATAPATH]
+                        [-rs] [-i ID] [-bc] [-nlp NOLICK] [-w WEIGHT]
+                        [-N TRIAL_NUM] [-td TRIALDUR] [-rdel T_RDELAY] [-p]
+                        [-to TIMEOUT] [-s] [-lc LCOUNT] [-L | -R]
 ```
 
 ### Requires
@@ -88,48 +89,52 @@ Optional Arguments:
 -------------------
 
 ```
+optional arguments:
   -h, --help            show this help message and exit
-  -i ID, --ID ID        identifier for this animal/run
-  -w WEIGHT, --weight WEIGHT
-                        weight of the animal in grams
-  -m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
-                        look in the config table
-  --repeats REPEATS     the number of times this block should repeat, by
-                        default this is 1
-  -p, --punish          sets `break_wrongChoice` to True, incorrect licks will
-                        end an operant trial early
-  --verbose             for debug this will print everything if enabled
-  -a, --auditory        switch to auditory stimulus instead of somatosensory
-  -bc, --bias_correct   turn on the bias correction for the random number
-                        generator
   -b, --blanks          include no stim trials
-  -rs, --right_same     define the right port as correct for same stimulus
-  -s, --single          use this flag for a single stimulus only
   -lt LICKTHRES, --lickThres LICKTHRES
                         set `lickThres` in arduino
-  -lc LCOUNT, --lcount LCOUNT
-                        set `minlickCount` in arduino
-  -nlp NOLICK, --noLick NOLICK
-                        set `t_noLickPer` in arduino
-  -td TRIALDUR, --trialDur TRIALDUR
-                        set minimum trial duration
-  -rd T_REWARDSTART, --t_rewardSTART T_REWARDSTART
-                        set start time of reward epoch
-  -rend T_REWARDEND, --t_rewardEND T_REWARDEND
-                        set end time of reward epoch
-  -to TIMEOUT, --timeout TIMEOUT
-                        set the timeout duration for incorrect licks
-  --freq FREQ FREQ      Frequencies or OFF time values to be passed to arduino
-                        as off_short and off_long
+  --verbose             for debug this will print everything if enabled
+  --repeats REPEATS     the number of times this block should repeat, by
+                        default this is 1
+  -a, --auditory        switch to auditory stimulus instead of somatosensory
+  --port PORT           port that the Arduino is connected to
+  --t_stimDELAY T_STIMDELAY
+                        sets the time between succesive stimuli
   --ITI ITI ITI         an interval for randomising between trials
-  -L, --left
-  -R, --right
-  -N TRIAL_NUM, --trial_num TRIAL_NUM
-                        trial number to start at
+  -rdur T_RDUR, --t_rDUR T_RDUR
+                        set end time of reward epoch
+  --dur DUR DUR         Durations or to be passed to arduino as DUR_short and
+                        DUR_long
+  -m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
+                        look in the config table
+  --t_stimONSET T_STIMONSET
+                        sets the time after trigger to run the first stimulus
   --datapath DATAPATH   path to save data to, by default is
                         'C:/DATA/Andrew/wavesurfer/%YY%MM%DD'
-  --port PORT           port that the Arduino is connected to
-
+  -rs, --right_same     define the right port as correct for same stimulus
+  -i ID, --ID ID        identifier for this animal/run
+  -bc, --bias_correct   turn on the bias correction for the random number
+                        generator
+  -nlp NOLICK, --noLick NOLICK
+                        set `t_noLickPer` in arduino
+  -w WEIGHT, --weight WEIGHT
+                        weight of the animal in grams
+  -N TRIAL_NUM, --trial_num TRIAL_NUM
+                        trial number to start at
+  -td TRIALDUR, --trialDur TRIALDUR
+                        set minimum trial duration
+  -rdel T_RDELAY, --t_rDELAY T_RDELAY
+                        set start time of reward epoch
+  -p, --punish          sets `break_wrongChoice` to True, incorrect licks will
+                        end an operant trial early
+  -to TIMEOUT, --timeout TIMEOUT
+                        set the timeout duration for incorrect licks
+  -s, --single          use this flag for a single stimulus only
+  -lc LCOUNT, --lcount LCOUNT
+                        set `minlickCount` in arduino
+  -L, --left
+  -R, --right
 ```
 
 See Also [list of rejected arguments](http://xkcd.com/1692/)
@@ -140,23 +145,25 @@ Interactive Options
 -------------------
 
 
-key         option     
------------ -----------------
-     H      This menu
-     P      Punish
-     S      toggle single stimulus
-     < >    lick threshold 
-     ?      show threshold 
-     [ ]    lickcount
-     \\     show lickcount 
-     tab    toggle mode
-     : \"    adjust noLick period
-     L      show noLick period
-     ( )    adjust trial duration
-     T      show trial duration period
-     Y      toggle timeout (requires punish to take effect)
-     B      toggle bias correction
------------ -----------------
+key          option     
+-----------  -----------------
+     H       This menu
+     P       Punish
+     S       toggle single stimulus
+     < >     lick threshold 
+     ?       show threshold 
+     [ ]     lickcount
+     \\      show lickcount 
+     tab     toggle mode
+     : \"     adjust noLick period
+     L       show noLick period
+     ( )     adjust trial duration
+     T       show trial duration period
+     Y       toggle timeout (requires punish to take effect)
+     B       toggle bias correction
+input `rdel` 
+input `rdur` 
+-----------  -----------------
 
 
 
@@ -219,7 +226,6 @@ Setup connections:
 
 |  DIGITAL  | output             | variable        |
 | --------- | ------------------ | --------------- |                               
-| pin 2     | IRQ comm interrupt | `irqpin`        |
 | pin 3     | recording trigger  | `recTrig`       |
 | pin 4     | bulb style trigger | `bulbTrig`      |
 | pin 5     | stimulus           | `stimulusPin`   |
@@ -227,14 +233,115 @@ Setup connections:
 | pin 7     | speaker            | `speakerPin`    |
 | pin 10    | left water valve   | `waterValve[0]` |
 | pin 11    | right water valve  | `waterValve[1]` |
-| A4        | MPR121 SCL        | `Wire`          |
-| A5        | MPR121 SDA        | `Wire`          |
 
 Table: Digital connections to lick controller
 
+
+| ANALOG    | input             |                 |
+| --------- | ----------------- | --------------- |
+| A0        | left  lick sensor | `lickSens[0]`   |
+| A1        | right lick sensor | `lickSens[1]`   |
+
+Table: Analog connections to lick controller
+
+
+Global Variables
+----------------
+
+type                   name        value            description
+----                   ----        -----            -----------
+`const char`{.cpp}     recTrig     `2`{.cpp}        digital pin 2 triggers ITC-18
+`const char`{.cpp}     stimulusPin `3`{.cpp}        digital pin 4 control whisker stimulation
+`const char`{.cpp}     speakerPin  `8`{.cpp}        digital pin 8 control water valve 
+`const char`{.cpp}     statusLED   `13`{.cpp}       led connected to digital pin 13
+`const char[2]`{.cpp}  waterPort   `{10,11}`{.cpp}
+`const char`{.cpp}     lickRep     `13`{.cpp}
+`const char[2]`{.cpp}  lickSens    `{A0,A1}`{.cpp}  the piezos are connected to analog pins 0 and 1
+
+
+Table: connections      
+
+
+type                        name            value       description
+----                        ----            -----       -----------
+`unsigned long`{.cpp}       t_init          
+`unsigned int`{.cpp}        t_noLickPer     1000          ms
+`unsigned int`{.cpp}        trial_delay     500           ms
+`unsigned int`{.cpp}        t_stimONSET     2000          ms
+`unsigned int`{.cpp}        t_stimDELAY     150           ms
+`unsigned int`{.cpp}        stimDUR         500           ms
+`unsigned int`{.cpp}        t_rDELAY        2100          ms
+`unsigned int`{.cpp}        t_rDUR          2000          ms
+`unsigned int`{.cpp}        timeout         0
+    
+Table: timing parameters
+
+
+type            name          value           description
+----            ----          -----           -----------
+`char`{.cpp}    mode          `'-'`{.cpp}     one of `h`abituation, `o`perant
+`char`{.cpp}    rewardCond    `'R'`{.cpp}     a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
+`byte`{.cpp}    minlickCount  `5`{.cpp}       
+`byte[2]`{.cpp} reward_count  `{0, 0}`{.cpp}  Globals to count number of continuous left and rights
+
+Table: Misc
+
+---------------------------------------------------------------------------------
+type                 name          value                             description
+----                 ----          -----                             -----------
+`bool`{.cpp}         single_stim
+
+`bool`{.cpp}         right_same
+
+`int`{.cpp}          DUR_short     `100`{.cpp}
+
+`int`{.cpp}          DUR_long      `500`{.cpp}
+
+`int[2][2]`{.cpp}    diff_DUR      `{{DUR_short, DUR_long}, `{.cpp}
+                                   `{  DUR_long, DUR_short}}`{.cpp}
+                                   
+`int[2][2]`{.cpp}    same_DUR      `{{ DUR_long, DUR_long},  `{.cpp}
+                                   `  {DUR_short, DUR_short}}`{.cpp}
+
+`bool`{.cpp}         right         `1`{.cpp}
+
+`bool`{.cpp}         left          `0`{.cpp}
+
+`int[2][2]`{.cpp}    right_DUR
+                     
+`int[2][2]`{.cpp}    left_DUR
+--------------------------------------------------------------------------------------
+
+Table: stimulus parameters
+
+
+type                 name          value          description
+----                 ----          -----          -----------
+`bool`{.cpp}         auditory      `0`{.cpp}      Logical value. Runs in auditory mode when true
+`int`{.cpp}          toneGoodLeft  `6000`{.cpp}   Hz
+`int`{.cpp}          toneGoodRight `7000`{.cpp}   Hz
+`int`{.cpp}          toneGood      `2000`{.cpp}   Hz
+`int`{.cpp}          toneBad       `500`{.cpp}    Hz
+`int`{.cpp}          toneDur       `100`{.cpp}    ms
+
+Table: audio
+
+
+type                 name                value                             description
+----                 ----                -----                             -----------
+`byte[2]`{.cpp}      count               `{0,0}`{.cpp}                     Global value to count the licks
+`char`{.cpp}         waterVol            `10`{.cpp}                        uL per dispense
+`int`{.cpp}          lickThres           `450`{.cpp}                                 
+`bool[2]`{.cpp}      lickOn              `{false, false}`{.cpp}                      
+`bool`{.cpp}         verbose             `true`{.cpp}                                 
+`bool`{.cpp}         break_wrongChoice   `false`{.cpp}                     stop if the animal makes a mistake
+
+Table: Reward
+
+
+
 Start program
 --------------
-
 
 The arduino program is a little complicated; but in principle a simple
 setup. The main method is `runTrial` which on initialisation:
@@ -362,132 +469,46 @@ adjustable parameters
     + `t_rewardDUR`
     + `waterVol`
 
+*or Poor mans introspection*
+
 ```{.cpp}
-int UpdateGlobals(String input) {
-    /*
-    This is a big ugly function which compares the
-    input string to the names of variables that I have
-    stored in memory; This is very much not the `C` 
-    way to do things...
-    
-    I think this could be a hash table. I haven't
-    learned enough about hash table implementation
-    yet and I know this works, so for the moment:
-    *If it ain't broke*...
-    */
 
-    // sep is the index of the ':' character
-    int sep = getSepIndex(input, ':');
+lickThres = variable_value.toInt();
 
-    if (sep) {
-        
-        String variable_name = input.substring(0,sep);
-        String variable_value = input.substring(sep+1);
-        
-        Serial.print("#");
-        Serial.print(variable_name);
-        Serial.print("\t");
-        Serial.println(variable_value);
-        
-        // input before seperator?
-        
-        if (variable_name == "lickThres") {
-                lickThres = variable_value.toInt();
-                Serial.print("lickThres:\t");
-                Serial.println(lickThres);
-                return 1;
-        }
-            
-        else if (variable_name == "mode") {
-                mode = variable_value[0];
-                Serial.print("mode:\t");
-                Serial.println(mode);
-                return 1;
-        }
-            
-        else if (variable_name == "rewardCond") {
-                rewardCond = variable_value[0];
-                Serial.print("rewardCond:\t");
-                Serial.println(rewardCond);
-                return 1;
-        }
-          
-        else if (variable_name == "break_wrongChoice") {
-                break_wrongChoice = bool(variable_value.toInt());
-                Serial.print("break_wrongChoice:\t");
-                Serial.println(break_wrongChoice);
-                return 1;
-        }
-            
-        else if (variable_name == "minlickCount") {
-                minlickCount = variable_value.toInt();
-                Serial.print("minlickCount:\t");
-                Serial.println(minlickCount);
-                return 1;
-        }
-        else if (variable_name == "t_noLickPer") {
-                t_noLickPer = variable_value.toInt();
-                Serial.print("t_noLickPer:\t");
-                Serial.println(t_noLickPer);
-                return 1;
-        }
-        else if (variable_name == "right_same") {
-                right_same = bool(variable_value.toInt());
-                Serial.print("right_same:\t");
-                Serial.println(right_same);
-                return 1;
-        }
-        else if (variable_name == "off_short") {
-                off_short = variable_value.toInt();
-                Serial.print("off_short:\t");
-                Serial.println(off_short);
-                return 1;
-        }
-        else if (variable_name == "off_long") {
-                off_long = variable_value.toInt();
-                Serial.print("off_long:\t");
-                Serial.println(off_long);
-                return 1;
-        }
-        else if (variable_name == "auditory") {
-                auditory = bool(variable_value.toInt());
-                Serial.print("auditory:\t");
-                Serial.println(auditory);
-                return 1;
-        }
-        else if (variable_name == "single_stim") {
-                single_stim = bool(variable_value.toInt());
-                Serial.print("single_stim:\t");
-                Serial.println(single_stim);
-                return 1;
-        }
-        else if (variable_name == "timeout") {
-                timeout = variable_value.toInt();
-                Serial.print("timeout:\t");
-                Serial.println(timeout);
-                return 1;
-        }
-        else if (variable_name == "t_rewardSTART") {
-                t_rewardSTART = variable_value.toInt();
-                Serial.print("t_rewardSTART:\t");
-                Serial.println(t_rewardSTART);
-                return 1;
-        }
-        else if (variable_name == "t_rewardEND") {
-                t_rewardEND = variable_value.toInt();
-                Serial.print("t_rewardEND:\t");
-                Serial.println(t_rewardEND);
-                return 1;
-        }
-        else if (variable_name == "waterVol") {
-                waterVol = variable_value.toInt();
-                Serial.print("waterVol:\t");
-                Serial.println(waterVol);
-                return 1;
-        }        
-   }
-   return 0;
-}
+mode = variable_value[0];
+
+rewardCond = variable_value[0];
+
+break_wrongChoice = bool(variable_value.toInt());
+
+minlickCount = variable_value.toInt();
+
+t_noLickPer = variable_value.toInt();
+
+right_same = bool(variable_value.toInt());
+
+auditory = bool(variable_value.toInt());
+
+single_stim = bool(variable_value.toInt());
+
+timeout = variable_value.toInt();
+
+t_stimDUR = variable_value.toInt();
+
+t_stimONSET = variable_value.toInt();
+
+t_rDELAY = variable_value.toInt();
+
+t_rDUR = variable_value.toInt();
+
+waterVol = variable_value.toInt();
+
+DUR_short = variable_value.toInt();
+
+DUR_long = variable_value.toInt();
+
+OFF = variable_value.toInt();
+
 ```
 
 plot_stats.py
