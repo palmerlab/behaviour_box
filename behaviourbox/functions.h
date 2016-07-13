@@ -14,7 +14,7 @@ void punish(int del);
 
 int Timeout(unsigned long wait, int depth = 0);
     
-int TrialStimulus(bool break_on_early);
+bool TrialStimulus(bool break_on_early);
 
 void preTrial();
 
@@ -171,9 +171,6 @@ bool TrialStimulus(bool break_on_early) {
 
         Serial.print("#\tt_stimDUR:\t");
         Serial.println(t_stimDUR);
-
-        Serial.print("#\tvalue:\t");
-        Serial.println(value);
     }
 
     if (not t_stimDUR){
@@ -182,7 +179,7 @@ bool TrialStimulus(bool break_on_early) {
         return 0;
         
     }
-    digitalWrite(stimPin, HIGH);
+    digitalWrite(stimulusPin, HIGH);
     
     while (t < t_stimDUR){
         /* Run the buzzer while:
@@ -199,11 +196,9 @@ bool TrialStimulus(bool break_on_early) {
             Serial.print("#\tLick Detected");
             Serial.print("#Exit `TrialStimulus`:\t");
             Serial.println(t);
-            return 0
+            return 0;
         }
     }
-
-    digitalWrite(stimPin, LOW);
 
     digitalWrite(stimulusPin, LOW); //this is a safety catch
 
@@ -424,7 +419,7 @@ char runTrial() {
 
     t = t_now(t_init);
 
-    TrialStimulus(break_on_lick);
+    TrialStimulus(break_on_early);
     t = t_now(t_init);
 
     // TODO include contingency to report on lick early without breaking?
