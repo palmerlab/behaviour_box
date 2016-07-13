@@ -21,8 +21,8 @@ REFENENCED IN sensors.h
 
 // Electrodes on the MPR121 to be used.
 
-byte lick_port_L = 0;           // the left lick port
-byte lick_port_R = 1;           // the right lick port
+byte lick_port_L = 0;             // the left lick port
+byte lick_port_R = 1;             // the right lick port
 
 bool lickOn[] = {false, false};
 

@@ -34,7 +34,7 @@ kwargs = {
                             "incorrect licks will end an operant "
                             "trial early",
                     },
-                    
+
     ("--verbose", ) : {
                     'action' : 'store_true', 
                     'help' : "for debug this will print everything if enabled",
@@ -55,6 +55,7 @@ kwargs = {
                     'help' : "include no stim trials",
                     },
                     
+
     ('-lt', '--lickThres', ) : {
                     'default' : 2, 
                     'type' : float, 

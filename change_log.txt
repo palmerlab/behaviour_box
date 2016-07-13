@@ -1,3 +1,192 @@
+commit edce035f63c71cae8f65ef6281bff6232ede8317
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Sun Jun 12 16:53:26 2016 +1000
+
+    Updates the TODO list
+
+commit 9b86365747bde2ea4b80a20efe076fc9abd901cc
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sun Jun 12 16:30:52 2016 +1000
+
+    Starts trackign the documentation
+
+commit 53896f896ef6c6f652f14e4bf294941eb7c5e42b
+Merge: 5d856d2 d6de26e
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sun Jun 12 16:24:57 2016 +1000
+
+    Merge branch 'master' into Stim_duration_condition
+
+commit 5d856d25435122741e7d40a7e6bdfc70ff96a3da
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sun Jun 12 16:24:53 2016 +1000
+
+    edits to Readme
+
+commit 6924fa79a672bfd23257cefbf2e7732e1e426708
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sun Jun 12 16:23:40 2016 +1000
+
+    Makes reward period determined by a delay and duration
+    	modified:   SerialControl.py
+    	modified:   behaviourbox/behaviourbox.ino
+    	modified:   utilities/args.py
+
+commit 0638bbc1174ea41cb3d7abcab63486f51d162b71
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sun Jun 12 14:12:27 2016 +1000
+
+    Moves diagram to documentation folder
+
+commit 972f4a7316bcf24749e8d1777dc9156bc1f19a79
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 19:18:27 2016 +1000
+
+    Removes freq argument
+
+commit e7a72e7f8191042d146d5e72a4923fb3c70a5e07
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 19:15:16 2016 +1000
+
+    Makes args a dictionary
+
+commit d6de26eafc18bee6a9b6b45d45ed5a0130601d8c
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 18:43:12 2016 +1000
+
+    Fixes image location
+
+commit ce2a5ce1fdb250ddfe34fd922695eabe1eab63ab
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 18:32:11 2016 +1000
+
+    Replaces Off with duration in Serial Control
+
+commit 6730a22853290bd3585a113c6908b63537b717c2
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 18:31:05 2016 +1000
+
+    Replaces intensity with duration in habituation
+
+commit 2f227376cac8aa7139a0178d631ae8e8b76e9476
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 18:03:48 2016 +1000
+
+    Updates Version string
+
+commit 7e956d653801e219adbebf44e8ecc692a7b8fb29
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 17:53:21 2016 +1000
+
+    Adds OFF to update globals
+
+commit 3631188aa38c7c70ac8014daf9176fb3c3172113
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 17:49:48 2016 +1000
+
+    Adds OFF to global variables
+    
+    Sets it with a default value of 5 and makes it accesable throught
+    the update globals routine.
+
+commit fccb914fef92650f0d31fde40da3d8dff198cbe4
+Merge: 90e13eb 94de5e1
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 17:45:18 2016 +1000
+
+    Merge branch 'master' into Stim_duration_condition
+
+commit 90e13ebb985e603bf2411113d34b71e9b2bc22b4
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 17:41:30 2016 +1000
+
+    Fixes TrialStimulus refactor and replaces OFF with DUR
+
+commit 1de271cde002a8be0e1161af7bd39d1672264546
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 17:40:11 2016 +1000
+
+    Adds -dur argument to Serial Control'
+
+commit 6046a5e356c6fc13c0a3dce742b1f11a361e2920
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 15:38:05 2016 +1000
+
+    Formatting changes
+
+commit d5fee989c286e2a0375a6bde910c38b2814947e8
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 15:37:07 2016 +1000
+
+    Reorders TrialStimulus logic to prevent multiple checks for auditory or non-stimulus
+
+commit 54fe00630d65ae59554a46233d6254a2d3eb6f7d
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 15:33:34 2016 +1000
+
+    Adds duration argument to TrialStimulus function
+
+commit 94de5e161b353a03386504e763ac805fb0b95f3e
+Author: Andrew Henry Micallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 03:28:40 2016 +0000
+
+    README.md edited online with Bitbucket
+
+commit 76f371d114bdfead0118e1c1d710020727c66e36
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Sat Jun 11 03:17:45 2016 +1000
+
+    Removes sense lick from TrialStimulus
+
+commit b7fa2d8cef44d7df6a94a19a1fe8e596f9499ff8
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 18:23:12 2016 +1000
+
+    Adds a joke to the Readme
+
+commit eeddaefc08fef09a3e47769ec96b92e73fa22d43
+Merge: 6e61167 b488991
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 18:08:01 2016 +1000
+
+    Merge branch 'master' of bitbucket.org:andrew_henry_micallef/behaviour_box
+
+commit 6e61167c592c6384ca4b0527c6812f476051d0fd
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 18:07:31 2016 +1000
+
+    Updates README
+
+commit b488991ece3d6c1d8afecfe201b4dbe290494688
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 17:54:15 2016 +1000
+
+    Fixes up the logic of requiring x number on either port
+
+commit 94c97b535b3f204f49b127d1045f8bbe0016a58d
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 17:53:31 2016 +1000
+
+    Adds option to plot old data by using a third argument for DATAPATH
+
+commit 1b5d3b923fe916fde6f115cd0a0b8e3383f9804e
+Author: andrew <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 13:35:54 2016 +1000
+
+    Fixes multiple csv files generated by SerialControl
+
+commit 4e1563d5a883b7fb3f3bff6416f234ce9175e67a
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 12:28:15 2016 +1000
+
+    Ignores website specific files
+
+commit b52703eba9d1f1aad018be8a8f8b547dca46d241
+Author: amicallef <amicallef@student.unimelb.edu.au>
+Date:   Fri Jun 10 12:11:44 2016 +1000
+
+    documents changes
+
 commit a468a63900d866ec4e03c620d8a13e31715d6f69
 Author: amicallef <amicallef@student.unimelb.edu.au>
 Date:   Fri Jun 10 12:11:07 2016 +1000
