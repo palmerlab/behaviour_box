@@ -30,7 +30,7 @@ bool senseLick(bool sensor) {
     // 1. check to see if the lick sensor has moved
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has change
-    
+
     bool CallSpike = false; // Who You Gonna Call?
 
     if (lickOn[sensor] == false) { 
