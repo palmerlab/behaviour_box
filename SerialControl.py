@@ -541,8 +541,12 @@ try:
 
         # loop for r repeats
         for r in xrange(repeats):
-            trials = [100] * 20
-            shuffle(list(trials))
+            trials = ([100] * 20)
+            [trials.append(0) for i in range(2)]
+            [trials.append(600) for i in range(5)]
+           
+            shuffle(trials)
+            print trials
             print colour(freq, fc.CYAN),
             
             # loop for number of trials in the list of random conditions
@@ -552,7 +556,7 @@ try:
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                    'trialType'         : 'N' if t_stimDUR == 600 else 'G' ,
+                    'trialType'         : 'N' if t_stimDUR in (600,0) else 'G' ,
                     't_stimDUR'         : t_stimDUR,
                 }
                 
