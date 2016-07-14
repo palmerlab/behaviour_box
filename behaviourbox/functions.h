@@ -144,7 +144,8 @@ void preTrial() {
             digitalWrite(bulbTrig, HIGH);
         }
     }
-
+    
+    tone(speakerPin, 10000, 100); // cue tone
     digitalWrite(recTrig, LOW);
 
     if (verbose) {
