@@ -5,19 +5,35 @@ link-citations: true
 Andrew's Behaviour Box
 =======================
 
-Version 2.0 Duration Discrimination
------------------------------------
+TODO:
+-----
 
+Presently the new box compiles.
+
+- Make the thresholds for each sensor independent, and modifiable through python
+- Make a nice way to switch between GnG and 2AFC
+- Make a flag for the buzzer to turn on and off.
+- Make sure all existing / relevant variables can be accessed through python menu
+- make the python menu accept a dict or something for general interfacing.
+    - consider tab completion and raw_input to access all variables.
+    - Have both a quick hotkey menu and tab completing complete interface.
+
+Version 3.0: Capacitive sensors
+-------------------------------
+
+`BB_V3.0.20160629`
+
+Major changes in the last update.
+The behaviour box program is now split into a handful of modules. 
+Each module is mostly holding utility functions for the box as a whole.
+The behaviour box itself only contains `setup` and `loop` functions, which
+call the other components as necessary.
 
 This is the collection of files I use to run my behavioural experiments.
-Due to continued poor performance I have updated the system to now implement
-a stimulus duration discrimination task. As before the animal is to report
-if the stimulus is the same or different. The key difference to the
-previous version is that the stimulus intensity is locked to it's highest
-value and the animal simply needs to tell me the difference in the durations.
 
-
-It runs a routine described by the following diagram
+This branch record the state of the first fairly stable version.
+It implements a frequency discrimination task, described by the 
+following diagram. 
 
 Operant Mode
 ------------
@@ -208,15 +224,18 @@ certain time window.
 Setup connections:
 ------------------
 
-|  DIGITAL  | output            | variable        |
-| --------- | ----------------- | --------------- |
-| pin 2     | recording trigger | `recTrig`       |
-| pin 3     | stimulus          | `stimulusPin`   |
-| pin 8     | speaker           | `speakerPin`    |
-| pin 10    | left water valve  | `waterValve[0]` |
-| pin 11    | right water valve | `waterValve[1]` |
+|  DIGITAL  | output             | variable        |
+| --------- | ------------------ | --------------- |                               
+| pin 3     | recording trigger  | `recTrig`       |
+| pin 4     | bulb style trigger | `bulbTrig`      |
+| pin 5     | stimulus           | `stimulusPin`   |
+| pin 6     | Punishment Buzzer  | `buzzerPin`     |
+| pin 7     | speaker            | `speakerPin`    |
+| pin 10    | left water valve   | `waterValve[0]` |
+| pin 11    | right water valve  | `waterValve[1]` |
 
 Table: Digital connections to lick controller
+
 
 | ANALOG    | input             |                 |
 | --------- | ----------------- | --------------- |
@@ -241,10 +260,6 @@ type                   name        value            description
 
 
 Table: connections      
-
-
-
-
 
 
 type                        name            value       description
@@ -322,7 +337,6 @@ type                 name                value                             descr
 `bool`{.cpp}         break_wrongChoice   `false`{.cpp}                     stop if the animal makes a mistake
 
 Table: Reward
-
 
 
 
@@ -435,9 +449,25 @@ do the following:
     `0`{.cpp}   No lick detected during reward period
     ----------- -------------------------------------
 
-
 Serial Input / Output
 ----------------------
+
+adjustable parameters
+:    + `lickThres`
+    + `mode`
+    + `trialType`
+    + `break_wrongChoice`
+    + `minlickCount`
+    + `t_noLickPer`
+    + `OFF`
+    + `ON`
+    + `auditory`
+    + `timeout`
+    + `t_stimONSET`
+    + `t_stimDUR`
+    + `t_rewardDEL`
+    + `t_rewardDUR`
+    + `waterVol`
 
 *or Poor mans introspection*
 

@@ -34,14 +34,10 @@ kwargs = {
                             "incorrect licks will end an operant "
                             "trial early",
                     },
+
     ("--verbose", ) : {
                     'action' : 'store_true', 
                     'help' : "for debug this will print everything if enabled",
-                    },
-
-    ("-a", "--auditory", ) : {
-                    'action' : 'store_true', 
-                    'help' : "switch to auditory stimulus instead of somatosensory",
                     },
 
     ("-bc", "--bias_correct", ) : {
@@ -54,17 +50,7 @@ kwargs = {
                     'help' : "include no stim trials",
                     },
                     
-    ("-rs", "--right_same", ) : {
-                    'action' : 'store_true', 
-                    'help' : "define the right port as correct for same stimulus",
-                    },
-                    
-    ("-s", "--single", ) : {
-                    'action' : 'store_true', 
-                    'help' : "use this flag for a single stimulus only",
-                    },
 
-                    
     ('-lt', '--lickThres', ) : {
                     'default' : 2, 
                     'type' : float, 
@@ -93,13 +79,13 @@ kwargs = {
                     'default' : 2000, 
                     'type' : int, 
                     'help' : 'sets the time after trigger to run the first stimulus'
-    },
+                    },
     
-    ('--t_stimDELAY',) : {
-                    'default' : 150, 
+    ('--t_stimDUR',) : {
+                    'default' : 500, 
                     'type' : int, 
                     'help' : 'sets the time between succesive stimuli'
-    },
+                    },
                     
     ('-rdel', '--t_rDELAY', ) : {
                     'default' : 100, 
@@ -108,7 +94,7 @@ kwargs = {
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 2000, 
+                    'default' : 1000, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },
@@ -119,7 +105,7 @@ kwargs = {
                     'help' : 'set the timeout duration for incorrect licks'
                     },
 
-    ('--dur', ) : {
+    ('--freq', ) : {
                     'nargs' : 2, 
                     'default' : [100,500], 
                     'type' : int, 
@@ -129,11 +115,11 @@ kwargs = {
 
     ('--ITI', ) : {
                     'nargs' : 2, 
-                    'default' : [1,3], 
+                    'default' : [1.0,3.0], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
-                    },
-
+                    },    
+    
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
                     'type' : int, 
