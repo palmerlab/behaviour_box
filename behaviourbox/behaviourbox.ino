@@ -6,6 +6,7 @@
 #include "sensors.h" 
 #include "functions.h"
 #include "SerialComms.h"
+#include "single_port_setup.h"
 
 String version = "#BB_V3.0.20160629";
 
@@ -46,17 +47,16 @@ void loop () {
 
         init_trial(trialType);
 
-        if (input == "GO"){
-            if (mode == 'o'){
-                runTrial();
+        if ((mode == 'o') and (input == "GO")){
 
-                digitalWrite(bulbTrig, LOW);
-                digitalWrite(recTrig, LOW);
-                Serial.println("-- Status: Ready --");
-            }
-            else if (mode == 'h'){
-                Habituation();
-            }
+            runTrial();
+
+            digitalWrite(bulbTrig, LOW);
+            digitalWrite(recTrig, LOW);
+            Serial.println("-- Status: Ready --");
+        }
+        else if (mode == 'h'){
+            Habituation_single();
         }
         else { 
             UpdateGlobals(input);
