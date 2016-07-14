@@ -56,7 +56,6 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-dur_short, dur_long = sorted(args.dur)
 blanks = args.blanks
 bias_correct = args.bias_correct
 ITI = args.ITI
@@ -83,7 +82,6 @@ t_rewardDUR = args.t_rDUR
 END Arguments
 --------------------------------------------------------------------
 """
-
 def menu():
     """
     Reads the characters in the buffer and modifies the program
@@ -286,7 +284,6 @@ def menu():
     
     return update_bbox(ser, params, logfile, trial_df)
 
-
 def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
@@ -427,7 +424,6 @@ def init_serialport(port, logfile = None):
 
     return ser
 
-
 def habituation_run():
     #THE HANDSHAKE
     # send all current parameters to the arduino box to run the trial
@@ -441,19 +437,19 @@ def habituation_run():
                 'single_stim'   : int(single_stim), #Converts to binary
                 't_stimDELAY'   : t_stimDELAY
     }
-    
+
     params = update_bbox(ser, params, logfile)
     
     print colour("trial count L count R\n"
                  "----- ------- -------", fc.MAGENTA, style = Style.BRIGHT)
-    
+
     while mode == 'h':
-        
+
         trial_df = {}
         line = Serial_monitor(ser, logfile, show = verbose).strip()
 
         trial_df['time'] = timenow()
-        
+
         while line.strip() != "-- Status: Ready --":
             line = Serial_monitor(ser, logfile, False).strip()
             if line:
@@ -461,37 +457,27 @@ def habituation_run():
                     var, val = line.split(":\t")
                     trial_df[var] = num(val)
             menu()
-        
-        
+
         if 'response'  in trial_df.keys():
-        
+
             with open(df_file, 'w') as datafile:
-                
+
                 for k, v in params.iteritems():
                     trial_df[k] = v
-                
+
                 trial_df = pd.DataFrame(trial_df, index=[trial_num])
-                
+
                 try: 
                     df = df.append(trial_df, ignore_index = True)
                 except NameError:
                     df = trial_df
-                    
+
                 df.to_csv(datafile)
-            
+
             #Count percent L v R
             hab_df = df[df['mode'] == 'h']
-            right = (hab_df.response == 'R').values[-1]
-            left = (hab_df.response == 'L').values[-1]
-            if hab_df.response.values[-1] == 'R':
-                color = fc.CYAN
-            elif hab_df.response.values[-1] == 'L':
-                color = fc.RED
-            print colour("%4d %7d %7d " %(len(hab_df), left, right), color, style = Style.BRIGHT)
-            count_right = (hab_df.response == 'R').sum()
-            count_left = (hab_df.response == 'L').sum()
-            print colour("sum: %7d %7d " %(count_left, count_right), style = Style.BRIGHT), '\r',
-    
+            print colour("%s\t%4d" %(timenow(), hab_df.shape[0]), color, style = Style.BRIGHT)
+
 """
 ---------------------------------------------------------------------
                        MAIN FUNCTION HERE
@@ -532,7 +518,6 @@ try:
         'break_on_early'    : int(0),
         'minlickCount'      : lcount,
         't_noLickPer'       : noLick,
-        'auditory'          : int(auditory),         #Converts to binary
         'timeout'           : int(timeout*1000),     #Converts back to millis
         't_stimONSET'       : t_stimONSET,
         'OFF'               : 5,
