@@ -55,11 +55,11 @@ void loop () {
             digitalWrite(recTrig, LOW);
             Serial.println("-- Status: Ready --");
         }
-        else if (mode == 'h'){
-            Habituation_single();
-        }
         else { 
             UpdateGlobals(input);
         }
+    }
+    else if (mode == 'h'){
+            Habituation_single();
     }
 }
