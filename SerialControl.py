@@ -477,12 +477,15 @@ def habituation_run():
             hab_df = df[df['mode'] == 'h']
             print colour("%s\t%4d" %(timenow(), hab_df.shape[0]), color, style = Style.BRIGHT)
 
+            
+            
+            
+
 """
 ---------------------------------------------------------------------
                        MAIN FUNCTION HERE
 ---------------------------------------------------------------------
-"""
-
+"""    
 
 color.init()
 
@@ -521,7 +524,193 @@ try:
     
     trial_df = update_bbox(ser, params, logfile, {} )
 
-    habituation_run()
+    
+    if mode == 'h':
+        habituation_run()
+    elif mode == 'o':
+        params = {
+            'mode'              : mode,
+            'lickThres'         : lickThres,
+            'break_wrongChoice' : int(punish),           #Converts to binary
+            'break_on_early'    : int(0),
+            'minlickCount'      : lcount,
+            't_noLickPer'       : noLick,
+            'timeout'           : int(timeout*1000),     #Converts back to millis
+            't_stimONSET'       : t_stimONSET,
+            'OFF'               : 5,
+            't_rewardDEL'       : t_rewardDEL,
+            't_rewardDUR'       : t_rewardDUR,
+        }
+        
+        trial_df = update_bbox(ser, params, logfile, {} )
+
+        # loop for r repeats
+        for r in xrange(repeats):
+            trials = np.arange(1,5) * 125
+            shuffle(list(trials))
+            print colour(freq, fc.CYAN),
+            
+            # loop for number of trials in the list of random conditions
+
+            for trial_num, t_stimDUR in enumerate(trials):
+                
+                #THE HANDSHAKE
+                # send all current parameters to the arduino box to run the trial
+                params = {
+                    'trialType'         : 'N' if t_stimDUR == max(trials) else 'G' ,
+                    't_stimDUR'         : t_stimDUR,
+                }
+                
+                trial_df = update_bbox(ser, params, logfile, {} )
+                
+
+                # create an empty dictionary to store data in
+                trial_df.update({
+                    'trial_num'      : trial_num,
+                    'WaterPort[0]'   : 0,
+                    'ID'             : ID,
+                    'weight'         : weight,
+                    'block'          : r,
+                    'comment'        : comment,
+                    'bias_correct'   : bias_correct,
+                })
+
+                #checks the keys pressed during last iteration
+                #adjusts options accordingly
+                
+                trial_df.update(menu())
+                
+                # apply the over-ride to the reward condition
+                # if the over-ride has been specified
+
+                trial_df['comment'] = comment
+
+
+                trial_df.update(update_bbox(ser, params, logfile, trial_df))
+                
+                print colour("C: %s" %params['trialType'], 
+                                fc.MAGENTA, style = Style.BRIGHT),
+
+                trial_df['time'] = timenow()
+                
+                # Send the literal GO symbol
+                start_time = time.time()
+            
+                ser.write("GO")
+                line = Serial_monitor(ser, logfile, show = verbose).strip()
+                
+                while line.strip() != "-- Status: Ready --":
+                    # keep running until arduino reports it has broken out of loop
+                    line = Serial_monitor(ser, logfile, False).strip()
+                    if line:
+                        if line[0] != "#" and line[0] != "-":
+                            var, val = line.split(":\t")
+                            #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
+                            trial_df[var] = num(val)
+                         
+                for k in trial_df.keys():
+                    if type(trial_df[k]) == list: 
+                        trial_df[k] = trial_df[k][0]
+               
+                """
+                THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
+                """
+                """
+                #Save the data to a data frame / Save to a file
+                """
+                    
+                with open(df_file, 'w') as datafile:
+                    
+                    trial_df = pd.DataFrame(trial_df, index=[trial_num])
+                    
+                    try: 
+                        df = df.append(trial_df, ignore_index = True)
+                    except NameError:
+                        df = trial_df
+                    
+
+                    cumWater = df['WaterPort[0]'].cumsum()
+
+                    df['outcome'] = '-'
+                    
+                    outcome = df.outcome.copy()
+                    
+                    hit = (df.response == 'G')values  & (df.trialType == 'G').values
+                    miss = (df.response == '-').values & (df.trialType == 'G').values
+                    correct_reject = (df.response == '-').values & (df.trialType == 'N').values
+                    false_alarm = (df.response == 'f').values & (df.trialType == 'N').values
+                    
+                    outcome[hit] = 'hit'
+                    outcome[correct_reject] = 'CR'
+                    outcome[miss] = 'miss'
+                    outcome[false_alarm] = 'FA'
+                    df['outcome'] = outcome
+                    
+                    
+                    df['cumWater'] = cumWater
+                    df['trial_num'] = df.shape[0]
+                    
+                    
+                    
+
+                    df.to_csv(datafile)
+                
+                #Print the important data and coloured code for hits / misses  
+                print Style.BRIGHT, '\r', 
+                
+                table = {
+                            'trial_num'    : 't', 
+                            'trialType'    : 'type',
+                            'outcome'      : 'outcome', 
+                            'count'        : 'licks', 
+                            'WaterPort[0]' : 'water', 
+                            't_stimDUR'    : 'dur',
+                }
+                
+                colors = {
+                        'CR'  : Style.DIM + fc.GREEN,
+                        'hit' : fc.GREEN,
+                        'miss' : fc.YELLOW,
+                        'FA' : fc.RED,
+                        '-'  : Style.NORMAL + fc.YELLOW
+                }
+                
+
+                if not pd.isnull(df['OFF'].iloc[-1]):
+                    c = colors[df.outcome.values[-1]]
+                    for k, label in table.iteritems():
+                        print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, label, c, str(df[k].iloc[-1]).strip()),
+
+                    print '\r', Style.RESET_ALL
+                    #calculate percentage success
+                    
+                    print "\r", 100 * " ", "\r                ", #clear the line 
+
+                comment = ""
+                trial_num += 1            
+                
+                # creates a set trial time if a duration has been flagged
+                dur = time.time() - start_time
+
+                if trialDur and not pd.isnull(df['OFF'].iloc[-1]): #allows fall though for a non trial
+                    #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
+
+                    print '\r',
+                    while dur < trialDur:
+                        dur = time.time() - start_time
+                        
+
+                wait = 0
+                print Style.BRIGHT, fc.GREEN,
+                if trial_df['response'].item() not in ('L', 'R', '-'):
+                    wait = random.uniform(*ITI)
+                    print fc.CYAN,
+                if bias_correct:
+                    print colour(''.join(('\r'," "*10,"BC: ", str(pc_R),"R",str(pc_L),"L\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
+                print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
+                time.sleep(wait)
+                print "             \r",
+
 
 except KeyboardInterrupt:
 

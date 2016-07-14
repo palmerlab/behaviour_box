@@ -180,7 +180,7 @@ char TrialReward_single() {
 
         // response reports if there was a lick in the reward period
 
-        if ((count >= minlickCount)) {
+        if ((count >= minlickCount) and (rewardCond == 'G')) {
             /* This next block opens the water port on the 
             correct side and returns the response */
             digitalWrite(waterPort[lick_port], HIGH);
