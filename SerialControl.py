@@ -477,10 +477,6 @@ def habituation_run():
             hab_df = df[df['mode'] == 'h']
             print colour("%s\t%4d" %(timenow(), hab_df.shape[0]), color, style = Style.BRIGHT)
 
-            
-            
-            
-
 """
 ---------------------------------------------------------------------
                        MAIN FUNCTION HERE
@@ -537,7 +533,6 @@ try:
             't_noLickPer'       : noLick,
             'timeout'           : int(timeout*1000),     #Converts back to millis
             't_stimONSET'       : t_stimONSET,
-            'OFF'               : 5,
             't_rewardDEL'       : t_rewardDEL,
             't_rewardDUR'       : t_rewardDUR,
         }
@@ -546,7 +541,7 @@ try:
 
         # loop for r repeats
         for r in xrange(repeats):
-            trials = np.arange(1,5) * 125
+            trials = [100] * 20
             shuffle(list(trials))
             print colour(freq, fc.CYAN),
             
@@ -557,7 +552,7 @@ try:
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                    'trialType'         : 'N' if t_stimDUR == max(trials) else 'G' ,
+                    'trialType'         : 'N' if t_stimDUR == 600 else 'G' ,
                     't_stimDUR'         : t_stimDUR,
                 }
                 
@@ -635,7 +630,7 @@ try:
                     
                     outcome = df.outcome.copy()
                     
-                    hit = (df.response == 'G')values  & (df.trialType == 'G').values
+                    hit = (df.response == 'H').values  & (df.trialType == 'G').values
                     miss = (df.response == '-').values & (df.trialType == 'G').values
                     correct_reject = (df.response == '-').values & (df.trialType == 'N').values
                     false_alarm = (df.response == 'f').values & (df.trialType == 'N').values
@@ -649,9 +644,6 @@ try:
                     
                     df['cumWater'] = cumWater
                     df['trial_num'] = df.shape[0]
-                    
-                    
-                    
 
                     df.to_csv(datafile)
                 
@@ -676,7 +668,7 @@ try:
                 }
                 
 
-                if not pd.isnull(df['OFF'].iloc[-1]):
+                if not pd.isnull(df['t_stimDUR'].iloc[-1]):
                     c = colors[df.outcome.values[-1]]
                     for k, label in table.iteritems():
                         print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, label, c, str(df[k].iloc[-1]).strip()),
@@ -692,7 +684,7 @@ try:
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
 
-                if trialDur and not pd.isnull(df['OFF'].iloc[-1]): #allows fall though for a non trial
+                if trialDur and not pd.isnull(df['t_stimDUR'].iloc[-1]): #allows fall though for a non trial
                     #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
 
                     print '\r',
@@ -723,7 +715,7 @@ except KeyboardInterrupt:
         except NameError:
             df = trial_df
 
-        cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
+        cumWater = df['WaterPort[0]'].cumsum()
 
         
         df['cumWater'] = cumWater               

@@ -180,7 +180,7 @@ char TrialReward_single() {
 
         // response reports if there was a lick in the reward period
 
-        if ((count >= minlickCount) and (rewardCond == 'G')) {
+        if ((count >= minlickCount) and (rewardCond == 'B')) {
             /* This next block opens the water port on the 
             correct side and returns the response */
             digitalWrite(waterPort[lick_port], HIGH);
@@ -203,7 +203,7 @@ char TrialReward_single() {
                response stands as the one reported.
                Also play the associated reward tone */
 
-            if ((rewardCond == 'G')){ // hit
+            if ((rewardCond == 'B')){ // hit
                 response = 'H';
                 tone(speakerPin, toneGood, 50);
             }
