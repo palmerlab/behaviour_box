@@ -56,7 +56,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t < wait) {
         t = t_now(t_init);
 
-        response = response? response : get_response();
+        response = (response == '-')? response : get_response();
 
         if (break_on_lick and (response != '-')){
             if (verbose) { 
