@@ -2,6 +2,8 @@ char get_response();
 
 bool senseLick(bool sensor);
 
+
+
 char get_response_dual(){
 
     char response = 0;
