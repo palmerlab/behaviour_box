@@ -47,18 +47,19 @@ void loop () {
         init_trial(trialType);
 
         if (input == "GO"){
-            runTrial();
+            if (mode == 'o'){
+                runTrial();
 
-            digitalWrite(bulbTrig, LOW);
-            digitalWrite(recTrig, LOW);
-            Serial.println("-- Status: Ready --");
+                digitalWrite(bulbTrig, LOW);
+                digitalWrite(recTrig, LOW);
+                Serial.println("-- Status: Ready --");
+            }
+            else if (mode == 'h'){
+                Habituation();
+            }
         }
         else { 
             UpdateGlobals(input);
         }
-    }
-
-    while (!Serial.available() and (mode == 'h')){
-        Habituation();
     }
 }
