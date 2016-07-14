@@ -434,7 +434,6 @@ def habituation_run():
     params = {
                 'mode'          : mode,
                 'lickThres'     : lickThres,
-                'auditory'      : int(auditory),    #Converts to binary
                 'right_same'    : int(right_same),  #Converts to binary
                 'DUR_short'     : dur_short,
                 'DUR_long'      : dur_long,
@@ -532,7 +531,6 @@ try:
         'break_on_early'    : int(0),
         'minlickCount'      : lcount,
         't_noLickPer'       : noLick,
-        'auditory'          : int(auditory),         #Converts to binary
         'timeout'           : int(timeout*1000),     #Converts back to millis
         't_stimONSET'       : t_stimONSET,
         'OFF'               : 5,

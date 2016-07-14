@@ -165,10 +165,7 @@ bool TrialStimulus(bool break_on_early) {
         Serial.print("#Enter `TrialStimulus`:\t");
 
         Serial.println(t_now(t_init));
-
-        Serial.print("#\tauditory:\t");
-        Serial.println(auditory);
-
+        
         Serial.print("#\tt_stimDUR:\t");
         Serial.println(t_stimDUR);
     }

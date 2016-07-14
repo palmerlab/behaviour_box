@@ -40,11 +40,6 @@ kwargs = {
                     'help' : "for debug this will print everything if enabled",
                     },
 
-    ("-a", "--auditory", ) : {
-                    'action' : 'store_true', 
-                    'help' : "switch to auditory stimulus instead of somatosensory",
-                    },
-
     ("-bc", "--bias_correct", ) : {
                     'action' : 'store_true', 
                     'help' : "turn on the bias correction for the random number generator",
