@@ -6,8 +6,9 @@
 #include "sensors.h" 
 #include "functions.h"
 #include "SerialComms.h"
+#include "single_port_setup.h"
 
-String version = "#BB_V3.0.20160629";
+String version = "#BB_V3.0.20160714";
 
 
 void setup (){
@@ -46,19 +47,19 @@ void loop () {
 
         init_trial(trialType);
 
-        if (input == "GO"){
+        if ((mode == 'o') and (input == "GO")){
+
             runTrial();
 
             digitalWrite(bulbTrig, LOW);
             digitalWrite(recTrig, LOW);
             Serial.println("-- Status: Ready --");
         }
+        else if (mode == 'h'){
+            Habituation_single();
+        }
         else { 
             UpdateGlobals(input);
         }
-    }
-
-    while (!Serial.available() and (mode == 'h')){
-        Habituation();
     }
 }

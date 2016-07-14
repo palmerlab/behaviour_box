@@ -21,8 +21,10 @@ REFENENCED IN sensors.h
 
 // Electrodes on the MPR121 to be used.
 
-byte lick_port_L = 0;             // the left lick port
-byte lick_port_R = 1;             // the right lick port
+
+bool lick_port_L = 0;             // the left lick port
+bool lick_port_R = 1;             // the right lick port
+bool lick_port = lick_port_L;     // TODO make a switch
 
 bool lickOn[] = {false, false};
 
@@ -50,9 +52,6 @@ byte reward_count[] = {0, 0};     // Globals to count number of continuous left 
 bool right = 1;
 bool left = 0;
 
-// audio
-// -----
-bool auditory = 0;
 
 int toneGoodLeft = 6000;          // Hz
 int toneGoodRight = 7000;         // Hz
@@ -71,6 +70,8 @@ char trialType = 'G';             // 'G' or 'N'
 
 int lickThres = 450;
 
+
+byte Nports = 2;                  // flag for 2AFC vs GoNoGo
 bool verbose = true;
 bool break_wrongChoice = false;   // stop if the animal makes a mistake
 bool break_on_early = false;      // stop if the animal licks during the stimulus presentation

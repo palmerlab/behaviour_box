@@ -175,6 +175,14 @@ int UpdateGlobals(String input) {
                 Serial.println(waterVol);
                 return 1;
         }
+
+        // Nports
+        else if (variable_name == "Nports") {
+                Nports = variable_value.toInt();
+                Serial.print("Nports:\t");
+                Serial.println(Nports);
+                return 1;
+        }
    }
    return 0;
 }

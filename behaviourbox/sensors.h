@@ -1,6 +1,10 @@
 char get_response();
+//char get_response_dual();
+char get_response_single();
 
 bool senseLick(bool sensor);
+
+
 
 char get_response(){
 
@@ -25,6 +29,25 @@ char get_response(){
     }
     return response;
 }
+
+char get_response_single(){
+    /*
+    Returns either:
+        -`'G'` for a lick (as in 'Go')
+        - or `'-'` for no response
+    */
+
+    char response = '-';
+
+    senseLick(lick_port);
+
+    if (lickOn[lick_port]){
+        response = 'G';
+    }
+
+    return response;
+}
+
 
 bool senseLick(bool sensor) {
     // 1. check to see if the lick sensor has moved
