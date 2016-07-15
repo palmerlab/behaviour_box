@@ -4,6 +4,8 @@ char TrialReward();
 
 char runTrial();
 
+byte count_responses(int duration, bool no_go = false);
+
 
 char runTrial() { 
 
@@ -56,15 +58,15 @@ char runTrial() {
     TrialStimulus(break_on_early);
     t = t_now(t_init);
 
-    ActiveDelay(stimONSET + t_rewardDEL, false);
+    ActiveDelay(t_stimONSET + t_rewardDEL, false);
     t = t_now(t_init);
 
     tone(speakerPin, toneGood, 50);
     count = count_responses(t_rewardDUR, (trialType == 'N'));
     
     if (trialType == 'G') {
-        if (count >= minlickCount)) {
-            deliver_reward(port, waterVol);
+        if (count >= minlickCount) {
+            deliver_reward(lick_port, waterVol);
             response = 'H';
         }
         else {
@@ -72,13 +74,13 @@ char runTrial() {
         }
     }
     else if (trialType == 'N'){
-        if (count >= minlickCount)) {
+        if (count >= minlickCount) {
             response = 'f';
         }
         else {
             response = 'R';
         }
-    
+    }
     else {
         response = '?';
     }
@@ -96,7 +98,7 @@ char runTrial() {
     return response;
 }
 
-char Habituation_single(){
+char Habituation(){
 
     bool port = 0;
     t_init = millis();
@@ -143,7 +145,7 @@ char Habituation_single(){
     return response;
 }
 
-byte count_responses(int duration, bool no_go = false) {
+byte count_responses(int duration, bool no_go) {
 
     int t0 = t_now(t_init);
     int t = t0;
@@ -178,6 +180,7 @@ byte count_responses(int duration, bool no_go = false) {
                 Serial.println(t);
             }
             return response;
+        }
     }
     
     if (verbose) {
