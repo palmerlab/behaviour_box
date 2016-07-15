@@ -46,7 +46,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
     unsigned long t = t_now(t_init);
 
-    char response = 0;
+    char response = '-';
 
     if (verbose) {
         Serial.print("#Enter `ActiveDelay`:\t");
@@ -56,7 +56,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t < wait) {
         t = t_now(t_init);
 
-        response = (response == '-')? response : get_response();
+        response = (response == '-')? get_response() : response;
 
         if (break_on_lick and (response != '-')){
             if (verbose) { 

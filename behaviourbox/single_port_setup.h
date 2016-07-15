@@ -165,7 +165,7 @@ byte count_responses(int duration, bool no_go) {
         count = count + lickOn[lick_port];
 
         if ((break_wrongChoice) and (response != '-') and (no_go)){
-            punish(200);
+            punish(1500);
     
             if (timeout) {
                 N_to = Timeout(timeout); //count the number of timeouts                 
