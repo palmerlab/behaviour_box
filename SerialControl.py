@@ -634,10 +634,10 @@ try:
                     
                     outcome = df.outcome.copy()
                     
-                    hit = (df.response == 'H').values  & (df.trialType == 'G').values
-                    miss = (df.response == '-').values & (df.trialType == 'G').values
-                    correct_reject = (df.response == '-').values & (df.trialType == 'N').values
-                    false_alarm = (df.response == 'f').values & (df.trialType == 'N').values
+                    hit = (df.response == 'H').values
+                    miss = (df.response == '-').values
+                    correct_reject = (df.response == 'R')
+                    false_alarm = (df.response == 'f').values
                     
                     outcome[hit] = 'hit'
                     outcome[correct_reject] = 'CR'

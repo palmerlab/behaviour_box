@@ -1,9 +1,6 @@
 char get_response();
-//char get_response_dual();
-//char get_response_single();
 
 bool senseLick(bool sensor);
-
 
 char get_response(){
     /*

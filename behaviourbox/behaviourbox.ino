@@ -8,7 +8,7 @@
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
-String version = "#BB_V3.0.20160714.2";
+String version = "#BB_V3.0.20160715.0";
 
 
 void setup (){
@@ -49,7 +49,7 @@ void loop () {
 
         if ((mode == 'o') and (input == "GO")){
 
-            runTrial_single();
+            runTrial();
 
             digitalWrite(bulbTrig, LOW);
             digitalWrite(recTrig, LOW);
@@ -60,6 +60,6 @@ void loop () {
         }
     }
     else if (mode == 'h'){
-            Habituation_single();
+            Habituation();
     }
 }
