@@ -511,7 +511,7 @@ try:
 
     # send initial paramaters to the arduino
     params = {
-        'mode'              : 'h',
+        'mode'              : mode,
         'lickThres'         : lickThres,
         'break_on_early'    : int(0),
         'minlickCount'      : lcount,

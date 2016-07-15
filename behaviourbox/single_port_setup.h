@@ -38,7 +38,7 @@ char runTrial_single() {
 
     response = ActiveDelay(t_stimONSET, t_noLickPer);
 
-    if ((response == 'G') and t_noLickPer){
+    if ((response != '-') and t_noLickPer){
 
         response = 'e';
 
@@ -49,8 +49,7 @@ char runTrial_single() {
         Serial.print("response_time:\t");
         Serial.println(t_now(t_init));
 
-        Serial.println("count[0]:\tnan");
-        Serial.println("count[1]:\tnan");
+        Serial.println("count:\tnan");
         Serial.println("t_stimDUR:\tnan");
 
         return response;
