@@ -1,36 +1,11 @@
 char get_response();
 //char get_response_dual();
-char get_response_single();
+//char get_response_single();
 
 bool senseLick(bool sensor);
 
 
-
 char get_response(){
-
-    char response = 0;
-
-    senseLick(lick_port_L);
-    senseLick(lick_port_R);
-
-    if (lickOn[lick_port_L] 
-        and lickOn[lick_port_R]) {
-        response = 'B'; // could happen?
-    }
-    else if (lickOn[lick_port_L]){
-        response = 'L';
-    }
-    else if (lickOn[lick_port_R]){
-        response = 'R';
-    }
-    else {
-        // set the response to nothing if there was none
-        response = '-';
-    }
-    return response;
-}
-
-char get_response_single(){
     /*
     Returns either:
         -`'G'` for a lick (as in 'Go')
