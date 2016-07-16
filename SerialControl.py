@@ -542,8 +542,8 @@ try:
         # loop for r repeats
         for r in xrange(repeats):
             trials = ([100] * 20)
-            [trials.append(0) for i in range(2)]
-            [trials.append(600) for i in range(5)]
+            #[trials.append(0) for i in range(2)]
+            [trials.append(600) for i in range(10)]
            
             shuffle(trials)
             print trials

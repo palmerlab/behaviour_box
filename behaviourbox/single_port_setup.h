@@ -61,7 +61,7 @@ char runTrial() {
     ActiveDelay(t_stimONSET + t_rewardDEL, false);
     t = t_now(t_init);
 
-    tone(speakerPin, toneGood, 50);
+    //tone(speakerPin, toneGood, 50);
     count = count_responses(t_rewardDUR, (trialType == 'N'));
     
     if (trialType == 'G') {

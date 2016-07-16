@@ -11,9 +11,7 @@ char get_response(){
 
     char response = '-';
 
-    senseLick(lick_port);
-
-    if (lickOn[lick_port]){
+    if (senseLick(lick_port)){
         response = 'G';
     }
 

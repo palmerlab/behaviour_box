@@ -8,7 +8,7 @@
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
-String version = "#BB_V3.0.20160715.0";
+String version = "#BB_V3.0.20160716.2";
 
 
 void setup (){
