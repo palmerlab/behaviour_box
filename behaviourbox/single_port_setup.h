@@ -162,7 +162,7 @@ byte count_responses(int duration, bool no_go) {
 
         t = t_now(t_init);
         lick = sense_lick();
-        count = lick ? count + 1 : count;
+        count = count + lick;
 
         if (break_wrongChoice and lick and no_go) {
             
