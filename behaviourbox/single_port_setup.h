@@ -100,13 +100,10 @@ char runTrial() {
 
 char Habituation(){
 
-    bool port = 0;
     t_init = millis();
 
     // Check the lick sensor
-    char response = get_response();
-
-    if (response == 'G') {
+    if (senseLick()) {
 
         /* 
         1. Determine the appropriate stimulus
@@ -134,15 +131,11 @@ char Habituation(){
 
         Serial.print("t_stimDUR:\t");
         Serial.println(t_stimDUR);
-        Serial.print("response:\t");
-        Serial.println(response);
         Serial.print("reward_count:\t");
-        Serial.println(int(reward_count[port]));
+        Serial.println(int(reward_count));
 
         Serial.println("-- Status: Ready --");
     }
-
-    return response;
 }
 
 byte count_responses(int duration, bool no_go) {
@@ -161,7 +154,7 @@ byte count_responses(int duration, bool no_go) {
     while (t < t0 + duration) {
 
         t = t_now(t_init);
-        lick = sense_lick();
+        lick = senseLick();
         count = count + lick;
 
         if (break_wrongChoice and lick and no_go) {

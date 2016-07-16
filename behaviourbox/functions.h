@@ -39,7 +39,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t < wait) {
         t = t_now(t_init);
 
-        response = response? response : sense_lick();
+        response = response? response : senseLick();
 
         if (break_on_lick and response){
             if (verbose) { 
@@ -89,7 +89,7 @@ int Timeout(unsigned long wait, int depth) {
     while (t < wait) {
         t = t_now(t_init);
 
-        if (sense_lick()) {
+        if (senseLick()) {
             if (depth < 10) {
                 depth ++;
                 depth = Timeout(wait, depth);
@@ -172,7 +172,7 @@ bool TrialStimulus(bool break_on_early) {
            2. check for licks
         */
 
-        sense_lick();
+        senseLick();
 
         t = t_now(t_local);
 
