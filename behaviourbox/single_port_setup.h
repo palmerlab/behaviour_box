@@ -162,7 +162,7 @@ byte count_responses(int duration, bool no_go) {
 
         t = t_now(t_init);
         response = get_response();
-        count = count + lickOn[lick_port];
+        count = (response != '-')? count++ : count;
 
         if ((break_wrongChoice) and (response != '-') and (no_go)){
             punish(1500);
