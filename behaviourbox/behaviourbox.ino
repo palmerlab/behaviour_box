@@ -29,8 +29,7 @@ void setup (){
     // declare the digital out pins as OUTPUTs
     pinMode(recTrig, OUTPUT);
     pinMode(bulbTrig, OUTPUT);
-    pinMode(waterPort[0], OUTPUT);
-    pinMode(waterPort[1], OUTPUT);
+    pinMode(waterPort, OUTPUT);
     pinMode(stimulusPin, OUTPUT);
     pinMode(speakerPin, OUTPUT);
 
@@ -44,8 +43,6 @@ void loop () {
     if (Serial.available()){
 
         String input = getSerialInput();
-
-        init_trial(trialType);
 
         if ((mode == 'o') and (input == "GO")){
 

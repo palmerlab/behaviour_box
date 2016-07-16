@@ -40,7 +40,7 @@ char runTrial() {
 
     response = ActiveDelay(t_stimONSET, t_noLickPer);
 
-    if ((response != '-') and t_noLickPer){
+    if (response and t_noLickPer){
 
         response = 'e';
 
@@ -66,7 +66,7 @@ char runTrial() {
     
     if (trialType == 'G') {
         if (count >= minlickCount) {
-            deliver_reward(lick_port, waterVol);
+            deliver_reward();
             response = 'H';
         }
         else {
@@ -123,7 +123,7 @@ char Habituation(){
 
         // stim0, stim1, reward...
         TrialStimulus(0);
-        deliver_reward(port, waterVol);
+        deliver_reward();
 
         ActiveDelay(3500u, false);
 
@@ -150,7 +150,7 @@ byte count_responses(int duration, bool no_go) {
     int t0 = t_now(t_init);
     int t = t0;
     byte count = 0;
-    char response = 0;
+    bool lick = 0;
     int N_to; //number of timeouts
 
     if (verbose) {
@@ -161,10 +161,11 @@ byte count_responses(int duration, bool no_go) {
     while (t < t0 + duration) {
 
         t = t_now(t_init);
-        response = get_response();
-        count = (response != '-')? count++ : count;
+        lick = sense_lick();
+        count = lick ? count + 1 : count;
 
-        if ((break_wrongChoice) and (response != '-') and (no_go)){
+        if (break_wrongChoice and lick and no_go) {
+            
             punish(1500);
     
             if (timeout) {
@@ -179,7 +180,7 @@ byte count_responses(int duration, bool no_go) {
                 Serial.print("#Exit `count_responses`:\t");
                 Serial.println(t);
             }
-            return response;
+            return count;
         }
     }
     

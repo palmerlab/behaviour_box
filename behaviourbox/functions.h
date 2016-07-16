@@ -2,13 +2,11 @@
 ||                  THE PROTOTYPES                        ||
 ++--------------------------------------------------------*/
 
-void init_trial(char trialType);
-
 char Habituation();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
-void deliver_reward(bool port, char waterVol);
+void deliver_reward();
 
 void punish(int del);
 
@@ -26,27 +24,12 @@ char runTrial();
 ||                  THE FUNCTIONS                         ||
 ++--------------------------------------------------------*/
 
-void init_trial(char trialType){
-    // This function sets the right and left
-    // stimulus intensities to the same or different
-    // depending on the value of `right_same`
-
-    if (trialType == 'G'){
-        rewardCond = 'B';
-    }
-    else if (trialType == 'N') {
-        rewardCond = '-';
-    }
-    else {
-        t_stimDUR = 0;
-    }
-}
 
 char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
     unsigned long t = t_now(t_init);
 
-    char response = '-';
+    char response = 0;
 
     if (verbose) {
         Serial.print("#Enter `ActiveDelay`:\t");
@@ -56,9 +39,9 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t < wait) {
         t = t_now(t_init);
 
-        response = (response == '-')? get_response() : response;
+        response = response? response : sense_lick();
 
-        if (break_on_lick and (response != '-')){
+        if (break_on_lick and response){
             if (verbose) { 
                 Serial.print("#Exit `ActiveDelay`:\t");
                 Serial.println(t);
@@ -66,29 +49,25 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
             return response;
         }
     }
-
+    
     if (verbose) {
         Serial.print("#Exit `ActiveDelay`:\t");
         Serial.println(t);
     }
-
     return response;
 }
 
-void deliver_reward(bool port, char waterVol) {
+void deliver_reward() {
     /* Open the water port on `port` for a 
         duration defined by waterVol */
 
-    digitalWrite(waterPort[port], HIGH);
+    digitalWrite(waterPort, HIGH);
     delay(waterVol);
-    digitalWrite(waterPort[port], LOW);
-    
+    digitalWrite(waterPort, LOW);
     
     if (verbose) { 
-        Serial.print("WaterPort[");
-        Serial.print(port);
-        Serial.print("]:\t");
-        Serial.println("1");
+        Serial.print("Water:\t");
+        Serial.println(waterVol);
     }
 }
 
@@ -110,7 +89,7 @@ int Timeout(unsigned long wait, int depth) {
     while (t < wait) {
         t = t_now(t_init);
 
-        if (get_response() != '-') {
+        if (sense_lick()) {
             if (depth < 10) {
                 depth ++;
                 depth = Timeout(wait, depth);
@@ -193,12 +172,11 @@ bool TrialStimulus(bool break_on_early) {
            2. check for licks
         */
 
-        get_response();
+        sense_lick();
 
         t = t_now(t_local);
 
-        if ((lickOn[lick_port_L] or lickOn[lick_port_R])
-                and break_on_early) {
+        if (lickOn and break_on_early) {
             Serial.print("#\tLick Detected");
             Serial.print("#Exit `TrialStimulus`:\t");
             Serial.println(t);
