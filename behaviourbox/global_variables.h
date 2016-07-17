@@ -57,7 +57,7 @@ int toneDur = 100;                // Hz
 // Global value to keep track of the total water consumed
 // this really shouldn't get much higher than 100. 
 
-char waterVol = 10;               // uL per dispense
+byte waterVol = 10;               // uL per dispense
 char trialType = 'G';             // 'G' or 'N'
 
 int lickThres = 450;

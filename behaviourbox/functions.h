@@ -90,6 +90,7 @@ int Timeout(unsigned long wait, int depth) {
         t = t_now(t_init);
 
         if (senseLick()) {
+            
             if (depth < 10) {
                 depth ++;
                 depth = Timeout(wait, depth);

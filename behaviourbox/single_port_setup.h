@@ -157,7 +157,7 @@ byte count_responses(int duration, bool no_go) {
         lick = senseLick();
         count = count + lick;
 
-        if (break_wrongChoice and lick and no_go) {
+        if (break_wrongChoice and (count >= minlickCount) and no_go) {
             
             punish(1500);
     
