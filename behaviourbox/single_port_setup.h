@@ -40,7 +40,7 @@ char runTrial() {
 
     response = ActiveDelay(t_stimONSET, t_noLickPer);
 
-    if ((response != '-') and t_noLickPer){
+    if (response and t_noLickPer){
 
         response = 'e';
 
@@ -66,7 +66,7 @@ char runTrial() {
     
     if (trialType == 'G') {
         if (count >= minlickCount) {
-            deliver_reward(lick_port, waterVol);
+            deliver_reward();
             response = 'H';
         }
         else {
@@ -100,13 +100,10 @@ char runTrial() {
 
 char Habituation(){
 
-    bool port = 0;
     t_init = millis();
 
     // Check the lick sensor
-    char response = get_response();
-
-    if (response == 'G') {
+    if (senseLick()) {
 
         /* 
         1. Determine the appropriate stimulus
@@ -123,7 +120,7 @@ char Habituation(){
 
         // stim0, stim1, reward...
         TrialStimulus(0);
-        deliver_reward(port, waterVol);
+        deliver_reward();
 
         ActiveDelay(3500u, false);
 
@@ -134,15 +131,11 @@ char Habituation(){
 
         Serial.print("t_stimDUR:\t");
         Serial.println(t_stimDUR);
-        Serial.print("response:\t");
-        Serial.println(response);
         Serial.print("reward_count:\t");
-        Serial.println(int(reward_count[port]));
+        Serial.println(int(reward_count));
 
         Serial.println("-- Status: Ready --");
     }
-
-    return response;
 }
 
 byte count_responses(int duration, bool no_go) {
@@ -150,7 +143,7 @@ byte count_responses(int duration, bool no_go) {
     int t0 = t_now(t_init);
     int t = t0;
     byte count = 0;
-    char response = 0;
+    bool lick = 0;
     int N_to; //number of timeouts
 
     if (verbose) {
@@ -161,10 +154,11 @@ byte count_responses(int duration, bool no_go) {
     while (t < t0 + duration) {
 
         t = t_now(t_init);
-        response = get_response();
-        count = count + lickOn[lick_port];
+        lick = senseLick();
+        count = count + lick;
 
-        if ((break_wrongChoice) and (response != '-') and (no_go)){
+        if (break_wrongChoice and lick and no_go) {
+            
             punish(1500);
     
             if (timeout) {
@@ -179,7 +173,7 @@ byte count_responses(int duration, bool no_go) {
                 Serial.print("#Exit `count_responses`:\t");
                 Serial.println(t);
             }
-            return response;
+            return count;
         }
     }
     

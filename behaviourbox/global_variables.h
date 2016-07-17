@@ -8,9 +8,9 @@ const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
 const byte buzzerPin = 6;         // punishment buzzer
 const byte speakerPin = 7;        // reward / cue tone
 const byte statusLED = 13;        // led connected to digital pin 13
-const char lickSens[] = {A0,A1};
+const byte lickSens = A0;
 
-const char waterPort[] = {10,11}; // digital pins 10, 11 control water valve 
+const char waterPort = 10; // digital pins 10, 11 control water valve 
 
 
 /*-----------------------------------------------------------------------------
@@ -19,14 +19,7 @@ REFENENCED IN sensors.h
 =======================
 */
 
-// Electrodes on the MPR121 to be used.
-
-
-bool lick_port_L = 0;             // the left lick port
-bool lick_port_R = 1;             // the right lick port
-bool lick_port = lick_port_L;     // TODO make a switch
-
-bool lickOn[] = {false, false};
+bool lickOn = false;
 
 // timing parameters
 // -----------------
@@ -41,10 +34,9 @@ unsigned int t_rewardDUR = 2000;  // ms
 unsigned int timeout = 0;         // ms
 
 char mode = '-';                  //one of 'h'abituation, 'o'perant
-char rewardCond = 'B';            // a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used
 byte minlickCount = 5;
 
-byte reward_count[] = {0, 0};     // Globals to count number of continuous left and rights
+byte reward_count = 0;     // Globals to count number of continuous left and rights
 
 // stimulus parameters
 // -------------------
