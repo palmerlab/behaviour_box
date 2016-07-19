@@ -8,7 +8,7 @@
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
-String version = "#BB_V3.0.20160716.2";
+String version = "#BB_V3.0.20160719.0";
 
 
 void setup (){
@@ -30,8 +30,10 @@ void setup (){
     pinMode(recTrig, OUTPUT);
     pinMode(bulbTrig, OUTPUT);
     pinMode(waterPort, OUTPUT);
+    pinMode(buzzerPin, OUTPUT);
     pinMode(stimulusPin, OUTPUT);
     pinMode(speakerPin, OUTPUT);
+    
 
     Serial.println("-- Status: Ready --");
 }

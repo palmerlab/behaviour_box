@@ -71,7 +71,7 @@ void deliver_reward() {
     }
 }
 
-void punish(int del){
+void punish(int del) {
 
     digitalWrite(buzzerPin, HIGH);
     delay(del);
@@ -84,7 +84,7 @@ int Timeout(unsigned long wait, int depth) {
     unsigned long t = t_now(t_init);
 
    //delay(500); // Delay prevents punishing continued licking
-    punish(150);
+    punish(500);
 
     while (t < wait) {
         t = t_now(t_init);

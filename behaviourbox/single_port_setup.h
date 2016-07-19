@@ -159,7 +159,7 @@ byte count_responses(int duration, bool no_go) {
 
         if (break_wrongChoice and (count >= minlickCount) and no_go) {
             
-            punish(1500);
+            punish(500);
     
             if (timeout) {
                 N_to = Timeout(timeout); //count the number of timeouts                 
