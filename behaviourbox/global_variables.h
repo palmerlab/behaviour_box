@@ -41,12 +41,6 @@ byte reward_count = 0;     // Globals to count number of continuous left and rig
 // stimulus parameters
 // -------------------
 
-bool right = 1;
-bool left = 0;
-
-
-int toneGoodLeft = 6000;          // Hz
-int toneGoodRight = 7000;         // Hz
 int toneGood = 2000;              // Hz
 int toneBad = 500;                // Hz
 int toneDur = 100;                // Hz
@@ -62,8 +56,8 @@ char trialType = 'G';             // 'G' or 'N'
 
 int lickThres = 450;
 
-
 byte Nports = 2;                  // flag for 2AFC vs GoNoGo
 bool verbose = true;
 bool break_wrongChoice = false;   // stop if the animal makes a mistake
 bool break_on_early = false;      // stop if the animal licks during the stimulus presentation
+bool punish_tone = false;

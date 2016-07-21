@@ -183,6 +183,14 @@ int UpdateGlobals(String input) {
                 Serial.println(Nports);
                 return 1;
         }
+        
+        // punish_tone
+        else if (variable_name == "punish_tone") {
+                punish_tone = variable_value.toInt();
+                Serial.print("punish_tone:\t");
+                Serial.println(punish_tone);
+                return 1;
+        }
    }
    return 0;
 }

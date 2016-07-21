@@ -12,7 +12,7 @@ void punish(int del);
 
 int Timeout(unsigned long wait, int depth = 0);
     
-bool TrialStimulus(bool break_on_early);
+int TrialStimulus(bool break_on_early);
 
 void preTrial();
 
@@ -142,10 +142,11 @@ void preTrial() {
     }
 } 
 
-bool TrialStimulus(bool break_on_early) {
+int TrialStimulus(bool break_on_early) {
 
     int t_local = millis();
     int t = t_now(t_local);
+    int count = 0;
 
     // TODO this should be abstracted
 
@@ -173,7 +174,7 @@ bool TrialStimulus(bool break_on_early) {
            2. check for licks
         */
 
-        senseLick();
+        count = count + senseLick();
 
         t = t_now(t_local);
 
@@ -181,7 +182,7 @@ bool TrialStimulus(bool break_on_early) {
             Serial.print("#\tLick Detected");
             Serial.print("#Exit `TrialStimulus`:\t");
             Serial.println(t);
-            return 0;
+            return count;
         }
     }
 
@@ -191,5 +192,5 @@ bool TrialStimulus(bool break_on_early) {
         Serial.print("#Exit `TrialStimulus`:\t");
         Serial.println(t);
     }
-    return 1;
+    return count;
 }

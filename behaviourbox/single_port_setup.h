@@ -71,18 +71,22 @@ char runTrial() {
         }
         else {
             response = '-';
+            Serial.println("Water:\t0");
         }
     }
     else if (trialType == 'N'){
         if (count >= minlickCount) {
             response = 'f';
+            Serial.println("Water:\t0");
         }
         else {
             response = 'R';
+            Serial.println("Water:\t0");
         }
     }
     else {
         response = '?';
+        Serial.println("Water:\t0");
     }
 
 
@@ -151,7 +155,7 @@ byte count_responses(int duration, bool no_go) {
         Serial.println(t);
     }
 
-    while (t < t0 + duration) {
+    while (t < (t0 + duration)) {
 
         t = t_now(t_init);
         lick = senseLick();

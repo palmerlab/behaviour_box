@@ -57,12 +57,7 @@ weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
 blanks = args.blanks
-bias_correct = args.bias_correct
 ITI = args.ITI
-freq = args.freq
-
-leftmode =  args.left
-rightmode = args.right
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
@@ -73,7 +68,6 @@ lcount = args.lcount
 noLick = args.noLick
 
 t_stimONSET = args.t_stimONSET
-t_stimDUR = args.t_stimDUR
 t_rewardDEL = args.t_rDELAY
 t_rewardDUR = args.t_rDUR
 
@@ -106,15 +100,12 @@ def menu():
     global mode
     global rewardCond
     global comment
-    global leftmode
-    global rightmode
     global noLick
     global trialDur
-    global single_stim
     global timeout
-    global bias_correct
     global t_rDELAY
     global t_rDUR
+    global t_stimDUR
     paused = True
 
     while paused:
@@ -141,21 +132,20 @@ def menu():
                 with open(logfile, 'a') as log:
                     log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
-                
-            elif c in '\xe0K':
-                leftmode = True
-                rightmode = False
-                print "left mode:\t%s" %leftmode
             
+            #leftkey
+            elif c in '\xe0K':
+                t_stimDUR = 100.0
+                print "stimDUR:\t%s\r" %t_stimDUR,
+            
+            # right key
             elif c in '\xe0M':
-                rightmode = True
-                leftmode = False
-                print "right mode:\t%s" %rightmode
+                t_stimDUR = 600.0
+                print "stimDUR:\t%s\r" %t_stimDUR,
             
             elif c in ('\xe0P', '\xe0H'):
-                leftmode = False
-                rightmode = False
-                print "random mode:\t", not (leftmode or rightmode)
+                t_stimDUR = 0
+                print "stimDUR:\t%s\r" %t_stimDUR,
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
@@ -220,16 +210,6 @@ def menu():
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
-            elif c in ('s', 'S'):
-                single_stim = not single_stim
-                print "Single stim:\t", single_stim,
-            
-            elif c in ('b', 'B'):
-                bias_correct = not bias_correct
-                print "Bias Correct:\t%s" %bias_correct, "%R|%L:", pc_R, "|", pc_L
-                with open(logfile, 'a') as log:
-                    log.write("bias_correct:\t%s\n" %bias_correct)
-            
             elif 'rdur:' in c:
                 val = c.split(':')[1]
                 if val.strip().isdigit():
@@ -253,7 +233,6 @@ def menu():
                 print "options       :"
                 print "  ...   H     : This menu"
                 print "  ...   P     : Punish"
-                print "  ...   S     : toggle single stimulus"
                 print "  ...   < >   : lick threshold" 
                 print "  ...   ?     : show threshold" 
                 print "  ...   [ ]   : lickcount"
@@ -264,7 +243,6 @@ def menu():
                 print "  ...   ( )   : adjust trial duration"
                 print "  ...   T     : show trial duration period"
                 print "  ...   Y     : toggle timeout (requires punish to take effect)"
-                print "  ...   B     : toggle bias correction"
                 print "input rdur:%i : set the reward duration"
                 print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
@@ -280,6 +258,8 @@ def menu():
            'mode'                      :    mode,
            't_noLickPer'               :    noLick,
            'timeout'                   :    int(timeout),
+           't_stimDUR'                 :    t_stimDUR,
+           'trialType'                 : 'N' if t_stimDUR in (600, 0) else 'G' ,
     }
     
     return update_bbox(ser, params, logfile, trial_df)
@@ -430,10 +410,8 @@ def habituation_run():
     params = {
                 'mode'          : mode,
                 'lickThres'     : lickThres,
-                'right_same'    : int(right_same),  #Converts to binary
                 'DUR_short'     : dur_short,
                 'DUR_long'      : dur_long,
-                'single_stim'   : int(single_stim), #Converts to binary
                 't_stimDELAY'   : t_stimDELAY
     }
 
@@ -529,6 +507,7 @@ try:
             'lickThres'         : lickThres,
             'break_wrongChoice' : int(punish),           #Converts to binary
             'break_on_early'    : int(0),
+            'punish_tone'       : int(1),
             'minlickCount'      : lcount,
             't_noLickPer'       : noLick,
             'timeout'           : int(timeout*1000),     #Converts back to millis
@@ -536,9 +515,10 @@ try:
             't_rewardDEL'       : t_rewardDEL,
             't_rewardDUR'       : t_rewardDUR,
         }
-        
-        trial_df = update_bbox(ser, params, logfile, {} )
 
+        trial_df = update_bbox(ser, params, logfile, {} )
+        df = df.append(pd.DataFrame(trial_df, index = [df.shape[0]+1]), ignore_index=True)
+        
         # loop for r repeats
         for r in xrange(repeats):
             trials = ([100] * 20)
@@ -547,8 +527,7 @@ try:
            
             shuffle(trials)
             print trials
-            print colour(freq, fc.CYAN),
-            
+
             # loop for number of trials in the list of random conditions
 
             for trial_num, t_stimDUR in enumerate(trials):
@@ -556,11 +535,11 @@ try:
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                    'trialType'         : 'N' if t_stimDUR in (600,0) else 'G' ,
+                    'trialType'         : 'N' if t_stimDUR in (600, 0) else 'G' ,
                     't_stimDUR'         : t_stimDUR,
                 }
                 
-                trial_df = update_bbox(ser, params, logfile, {} )
+                trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
 
                 # create an empty dictionary to store data in
@@ -571,7 +550,6 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
-                    'bias_correct'   : bias_correct,
                 })
 
                 #checks the keys pressed during last iteration
@@ -619,14 +597,8 @@ try:
                 """
                     
                 with open(df_file, 'w') as datafile:
-                    
-                    trial_df = pd.DataFrame(trial_df, index=[trial_num])
-                    
-                    try: 
-                        df = df.append(trial_df, ignore_index = True)
-                    except NameError:
-                        df = trial_df
-                    
+
+                    df = df.append(pd.DataFrame(trial_df, index=[trial_num]), ignore_index = True)
 
                     cumWater = df['WaterPort[0]'].cumsum()
 
@@ -698,11 +670,9 @@ try:
 
                 wait = 0
                 print Style.BRIGHT, fc.GREEN,
-                if trial_df['response'].item() not in ('L', 'R', '-'):
-                    wait = random.uniform(*ITI)
-                    print fc.CYAN,
-                if bias_correct:
-                    print colour(''.join(('\r'," "*10,"BC: ", str(pc_R),"R",str(pc_L),"L\r")), fc = fc.YELLOW, bc = bc.RED, style = Style.BRIGHT),
+                
+                wait = random.uniform(*ITI)
+                print fc.CYAN,
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
