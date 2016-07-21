@@ -12,7 +12,7 @@ void punish(int del);
 
 int Timeout(unsigned long wait, int depth = 0);
     
-bool TrialStimulus(bool break_on_early);
+int TrialStimulus(bool break_on_early);
 
 void preTrial();
 
@@ -27,7 +27,7 @@ char runTrial();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
-    unsigned long t = t_now(t_init);
+    unsigned long t = t_since(t_init);
 
     char response = 0;
 
@@ -37,7 +37,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     }
 
     while (t < wait) {
-        t = t_now(t_init);
+        t = t_since(t_init);
 
         response = response? response : senseLick();
 
@@ -81,13 +81,13 @@ void punish(int del) {
 int Timeout(unsigned long wait, int depth) {
 
     unsigned long t_init = millis();
-    unsigned long t = t_now(t_init);
+    unsigned long t = t_since(t_init);
 
    //delay(500); // Delay prevents punishing continued licking
     punish(500);
 
     while (t < wait) {
-        t = t_now(t_init);
+        t = t_since(t_init);
 
         if (senseLick()) {
             
@@ -107,7 +107,7 @@ void preTrial() {
        2. check for licks
        4. trigger the recording by putting recTrig -> HIGH
     */
-    long t = t_now(t_init);
+    long t = t_since(t_init);
 
     if (verbose) {
         Serial.print("#Enter `preTrial`:\t");
@@ -117,7 +117,7 @@ void preTrial() {
     while (t < 0){
         // 1. update time
         // 2. check for licks
-        t = t_now(t_init);
+        t = t_since(t_init);
 
         if (t%1000 < 20){
             digitalWrite(statusLED, HIGH);
@@ -142,10 +142,11 @@ void preTrial() {
     }
 } 
 
-bool TrialStimulus(bool break_on_early) {
+int TrialStimulus(bool break_on_early) {
 
     int t_local = millis();
-    int t = t_now(t_local);
+    int t = t_since(t_local);
+    int count = 0;
 
     // TODO this should be abstracted
 
@@ -153,7 +154,7 @@ bool TrialStimulus(bool break_on_early) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t");
 
-        Serial.println(t_now(t_init));
+        Serial.println(t_since(t_init));
         
         Serial.print("#\tt_stimDUR:\t");
         Serial.println(t_stimDUR);
@@ -162,7 +163,7 @@ bool TrialStimulus(bool break_on_early) {
     if (not t_stimDUR){
         Serial.print("#Exit `TrialStimulus`:\t");
         Serial.println(t);
-        return 0;
+        return count;
         
     }
     digitalWrite(stimulusPin, HIGH);
@@ -173,15 +174,17 @@ bool TrialStimulus(bool break_on_early) {
            2. check for licks
         */
 
-        senseLick();
+        t = t_since(t_local);
 
-        t = t_now(t_local);
+        if (t_since(t_init) >= (t_stimONSET + t_rewardDEL) {
+            count = count_responses(t_stimDUR - t, (trialType == 'N'));
+        }
 
         if (lickOn and break_on_early) {
             Serial.print("#\tLick Detected");
             Serial.print("#Exit `TrialStimulus`:\t");
             Serial.println(t);
-            return 0;
+            return count;
         }
     }
 
@@ -191,5 +194,5 @@ bool TrialStimulus(bool break_on_early) {
         Serial.print("#Exit `TrialStimulus`:\t");
         Serial.println(t);
     }
-    return 1;
+    return count;
 }
