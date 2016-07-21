@@ -4,7 +4,7 @@ char TrialReward();
 
 char runTrial();
 
-int count_responses(int duration, bool no_go = false);
+int count_responses(int duration, int count = 0, unsigned int timeout = 0, bool no_go = false);
 
 int TrialStimulus(bool break_on_early);
 
@@ -63,7 +63,7 @@ char runTrial() {
     t = t_since(t_init);
 
     //tone(speakerPin, toneGood, 50);
-    count = count + count_responses(t_rewardDUR, (trialType == 'N'));
+    count = count_responses(t_rewardDUR, count, timeout, (trialType == 'N'));
 
     if (trialType == 'G') {
         if (count >= minlickCount) {
@@ -143,11 +143,11 @@ char Habituation(){
     }
 }
 
-int count_responses(int duration, bool no_go) {
+int count_responses(int duration, int count, unsigned int timeout, bool no_go) {
 
     int t0 = t_since(t_init);
     int t = t0;
-    int count = 0;
+
     bool lick = 0;
     int N_to; //number of timeouts
 
@@ -162,7 +162,7 @@ int count_responses(int duration, bool no_go) {
         lick = senseLick();
         count = count + lick;
 
-        if (break_wrongChoice and (count >= minlickCount) and no_go) {
+        if ((count >= minlickCount) and no_go) {
             
             punish(500);
     
@@ -225,7 +225,8 @@ int TrialStimulus(bool break_on_early) {
         t = t_since(t_local);
 
         if (t_since(t_init) >= (t_stimONSET + t_rewardDEL)) {
-            count = count_responses(t_stimDUR - t, (trialType == 'N'));
+            count = count_responses(t_stimDUR - t, 0, 0, true);
+            break;
         }
 
         if (lickOn and break_on_early) {
