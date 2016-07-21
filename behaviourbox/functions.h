@@ -2,8 +2,6 @@
 ||                  THE PROTOTYPES                        ||
 ++--------------------------------------------------------*/
 
-char Habituation();
-
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
 void deliver_reward();
@@ -11,8 +9,6 @@ void deliver_reward();
 void punish(int del);
 
 int Timeout(unsigned long wait, int depth = 0);
-    
-int TrialStimulus(bool break_on_early);
 
 void preTrial();
 
@@ -142,57 +138,4 @@ void preTrial() {
     }
 } 
 
-int TrialStimulus(bool break_on_early) {
 
-    int t_local = millis();
-    int t = t_since(t_local);
-    int count = 0;
-
-    // TODO this should be abstracted
-
-    if (verbose) {
-        // TODO make verbosity a scale instead of Boolean
-        Serial.print("#Enter `TrialStimulus`:\t");
-
-        Serial.println(t_since(t_init));
-        
-        Serial.print("#\tt_stimDUR:\t");
-        Serial.println(t_stimDUR);
-    }
-
-    if (not t_stimDUR){
-        Serial.print("#Exit `TrialStimulus`:\t");
-        Serial.println(t);
-        return count;
-        
-    }
-    digitalWrite(stimulusPin, HIGH);
-    
-    while (t < t_stimDUR){
-        /* Run the buzzer while:
-           1. update the time
-           2. check for licks
-        */
-
-        t = t_since(t_local);
-
-        if (t_since(t_init) >= (t_stimONSET + t_rewardDEL) {
-            count = count_responses(t_stimDUR - t, (trialType == 'N'));
-        }
-
-        if (lickOn and break_on_early) {
-            Serial.print("#\tLick Detected");
-            Serial.print("#Exit `TrialStimulus`:\t");
-            Serial.println(t);
-            return count;
-        }
-    }
-
-    digitalWrite(stimulusPin, LOW); //this is a safety catch
-
-    if (verbose) {
-        Serial.print("#Exit `TrialStimulus`:\t");
-        Serial.println(t);
-    }
-    return count;
-}
