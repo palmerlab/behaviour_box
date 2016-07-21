@@ -259,7 +259,7 @@ def menu():
            't_noLickPer'               :    noLick,
            'timeout'                   :    int(timeout),
            't_stimDUR'                 :    t_stimDUR,
-           'trialType'                 : 'N' if t_stimDUR in (600, 0) else 'G' ,
+           'trialType'                 :    'N' if t_stimDUR in (600, 0) else 'G' ,
     }
     
     return update_bbox(ser, params, logfile, trial_df)
@@ -555,7 +555,7 @@ try:
                 #checks the keys pressed during last iteration
                 #adjusts options accordingly
                 
-                trial_df.update(menu())
+                params.update(menu())
                 
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified

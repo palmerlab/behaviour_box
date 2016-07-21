@@ -4,8 +4,9 @@ char TrialReward();
 
 char runTrial();
 
-byte count_responses(int duration, bool no_go = false);
+int count_responses(int duration, bool no_go = false);
 
+int TrialStimulus(bool break_on_early);
 
 char runTrial() { 
 
@@ -14,16 +15,16 @@ char runTrial() {
     // until next trial
 
     // local variables and initialisation of the trial
-    /* t_init is initialised such that t_now
+    /* t_init is initialised such that t_since
        returns 0 at the start of the trial, and 
        increases from there. */ 
     unsigned long t;
     char response = 0;
-    byte count = 0;
+    int count = 0;
 
     // local time
     t_init = millis() + trial_delay;
-    t = t_now(t_init);
+    t = t_since(t_init);
 
     /*trial_phase0
     while the trial has not started 
@@ -33,10 +34,10 @@ char runTrial() {
     */
 
     preTrial();
-    t = t_now(t_init);
+    t = t_since(t_init);
 
     ActiveDelay(t_noLickPer, false);
-    t = t_now(t_init);
+    t = t_since(t_init);
 
     response = ActiveDelay(t_stimONSET, t_noLickPer);
 
@@ -53,17 +54,17 @@ char runTrial() {
         return response;
     }
 
-    t = t_now(t_init);
+    t = t_since(t_init);
 
-    TrialStimulus(break_on_early);
-    t = t_now(t_init);
+    count = TrialStimulus(break_on_early);
+    t = t_since(t_init);
 
     ActiveDelay(t_stimONSET + t_rewardDEL, false);
-    t = t_now(t_init);
+    t = t_since(t_init);
 
     //tone(speakerPin, toneGood, 50);
-    count = count_responses(t_rewardDUR, (trialType == 'N'));
-    
+    count = count + count_responses(t_rewardDUR, (trialType == 'N'));
+
     if (trialType == 'G') {
         if (count >= minlickCount) {
             deliver_reward();
@@ -142,11 +143,11 @@ char Habituation(){
     }
 }
 
-byte count_responses(int duration, bool no_go) {
+int count_responses(int duration, bool no_go) {
 
-    int t0 = t_now(t_init);
+    int t0 = t_since(t_init);
     int t = t0;
-    byte count = 0;
+    int count = 0;
     bool lick = 0;
     int N_to; //number of timeouts
 
@@ -157,7 +158,7 @@ byte count_responses(int duration, bool no_go) {
 
     while (t < (t0 + duration)) {
 
-        t = t_now(t_init);
+        t = t_since(t_init);
         lick = senseLick();
         count = count + lick;
 
@@ -186,5 +187,60 @@ byte count_responses(int duration, bool no_go) {
         Serial.println(t);
     }
     
+    return count;
+}
+
+int TrialStimulus(bool break_on_early) {
+
+    int t_local = millis();
+    int t = t_since(t_local);
+    int count = 0;
+
+    // TODO this should be abstracted
+
+    if (verbose) {
+        // TODO make verbosity a scale instead of Boolean
+        Serial.print("#Enter `TrialStimulus`:\t");
+
+        Serial.println(t_since(t_init));
+        
+        Serial.print("#\tt_stimDUR:\t");
+        Serial.println(t_stimDUR);
+    }
+
+    if (not t_stimDUR){
+        Serial.print("#Exit `TrialStimulus`:\t");
+        Serial.println(t);
+        return count;
+        
+    }
+    digitalWrite(stimulusPin, HIGH);
+    
+    while (t < t_stimDUR){
+        /* Run the buzzer while:
+           1. update the time
+           2. check for licks
+        */
+
+        t = t_since(t_local);
+
+        if (t_since(t_init) >= (t_stimONSET + t_rewardDEL)) {
+            count = count_responses(t_stimDUR - t, (trialType == 'N'));
+        }
+
+        if (lickOn and break_on_early) {
+            Serial.print("#\tLick Detected");
+            Serial.print("#Exit `TrialStimulus`:\t");
+            Serial.println(t);
+            return count;
+        }
+    }
+
+    digitalWrite(stimulusPin, LOW); //this is a safety catch
+
+    if (verbose) {
+        Serial.print("#Exit `TrialStimulus`:\t");
+        Serial.println(t);
+    }
     return count;
 }
