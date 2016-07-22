@@ -164,9 +164,21 @@ int count_responses(int duration, int count, unsigned int timeout, bool no_go) {
         count = count + lick;
 
         if ((count >= minlickCount) and no_go) {
+
+            /*
+            In the event that we are in the trial stimulus I want
+            the punishment delay not to blow out the stimulus.
+            The arithmetic reduces the punish time according to 
+            the stimulus end
+            */
             
-            punish(500);
-    
+            if (t < (t_stimONSET + t_stimDUR)) {
+                punish(500 - (t_stimONSET + t_stimDUR - t));
+            }
+            else {
+                punish(500);
+            }
+
             if (timeout) {
                 N_to = Timeout(timeout); //count the number of timeouts                 
                 Serial.print("N_timeouts:\t");
