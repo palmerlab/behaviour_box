@@ -63,8 +63,8 @@ char runTrial() {
     t = t_since(t_init);
 
     //tone(speakerPin, toneGood, 50);
-    count = count_responses(t_rewardDUR - t_stimDUR - t_rewardDEL, 
-            count, timeout, (trialType == 'N'));
+    count = count_responses((t_stimONSET + t_rewardDEL + t_rewardDUR) -t, 
+                  count, timeout, (trialType == 'N'));
 
     if (trialType == 'G') {
         if (count >= minlickCount) {
