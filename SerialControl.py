@@ -58,6 +58,7 @@ trial_num = args.trial_num            # deprecated; for use if this continues a 
 trialDur = args.trialDur              # nominally the time to idle before resetting
 blanks = args.blanks
 ITI = args.ITI
+ratio = args.ratio
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
@@ -252,7 +253,7 @@ def menu():
                 print "SPACE or ENTER to unpause"
             
     params = {
-           'break_wrongChoice'         :    int(punish),
+           'break_wrongChoice'         :    int(punish) if lcount > 0 else 0, # don't punish the animal if not counting licks
            'lickThres'                 :    lickThres,
            'minlickCount'              :    lcount,
            'mode'                      :    mode,
@@ -505,7 +506,7 @@ try:
         params = {
             'mode'              : mode,
             'lickThres'         : lickThres,
-            'break_wrongChoice' : int(punish),           #Converts to binary
+            'break_wrongChoice' : int(punish) if lcount > 0 else 0,           #Converts to binary
             'break_on_early'    : int(0),
             'punish_tone'       : int(1),
             'minlickCount'      : lcount,
@@ -521,9 +522,12 @@ try:
         
         # loop for r repeats
         for r in xrange(repeats):
-            trials = ([100] * 5)
-            #[trials.append(0) for i in range(2)]
-            [trials.append(600) for i in range(15)]
+
+            Ngo, Nngo, Nblank = *ratio
+            
+            trials = ([100] * Ngo, [600] * Nngo, [0] * Nblank)
+            trials = [item for sublist in trials for item in sublist]
+
            
             shuffle(trials)
             print trials
@@ -550,6 +554,7 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
+                    'hitVmissVblank' : ':'.join(ratio),
                 })
 
                 #checks the keys pressed during last iteration

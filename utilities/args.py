@@ -101,6 +101,13 @@ kwargs = {
                     'help' : "an interval for randomising between trials",
                     },    
     
+    ('-ratio', ) : {
+                    'nargs' : 3, 
+                    'default' : [10,10, 0], 
+                    'type' : float, 
+                    'help' : "number of go, nogo, and blank trials respectively",
+                    },    
+    
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
                     'type' : int, 

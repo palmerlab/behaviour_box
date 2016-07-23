@@ -163,7 +163,7 @@ int count_responses(int duration, int count, unsigned int timeout, bool no_go) {
         lick = senseLick();
         count = count + lick;
 
-        if ((count >= minlickCount) and no_go) {
+        if ((count >= minlickCount) and no_go and break_wrongChoice) {
 
             /*
             In the event that we are in the trial stimulus I want
