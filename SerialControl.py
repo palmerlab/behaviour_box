@@ -252,7 +252,7 @@ def menu():
                 print "SPACE or ENTER to unpause"
             
     params = {
-           'break_wrongChoice'         :    int(punish),
+           'break_wrongChoice'         :    int(punish) if lcount > 0 else 0, # don't punish the animal if not counting licks
            'lickThres'                 :    lickThres,
            'minlickCount'              :    lcount,
            'mode'                      :    mode,
@@ -505,7 +505,7 @@ try:
         params = {
             'mode'              : mode,
             'lickThres'         : lickThres,
-            'break_wrongChoice' : int(punish),           #Converts to binary
+            'break_wrongChoice' : int(punish) if lcount > 0 else 0,           #Converts to binary
             'break_on_early'    : int(0),
             'punish_tone'       : int(1),
             'minlickCount'      : lcount,
