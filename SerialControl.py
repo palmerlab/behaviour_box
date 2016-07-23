@@ -56,7 +56,6 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-blanks = args.blanks
 ITI = args.ITI
 ratio = args.ratio
 

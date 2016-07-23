@@ -40,12 +40,6 @@ kwargs = {
                     'help' : "for debug this will print everything if enabled",
                     },
 
-    ("-b", "--blanks", ) : {
-                    'action' : 'store_true', 
-                    'help' : "include no stim trials",
-                    },
-                    
-
     ('-lt', '--lickThres', ) : {
                     'default' : 2, 
                     'type' : float, 
@@ -77,13 +71,13 @@ kwargs = {
                     },
 
     ('-rdel', '--t_rDELAY', ) : {
-                    'default' : 100, 
+                    'default' : 150, 
                     'type' : int, 
                     'help' : 'set start time of reward epoch'
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 750, 
+                    'default' : 1200, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },
@@ -96,7 +90,7 @@ kwargs = {
 
     ('--ITI', ) : {
                     'nargs' : 2, 
-                    'default' : [1.0,3.0], 
+                    'default' : [3,8], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
                     },    
