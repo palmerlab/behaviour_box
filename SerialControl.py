@@ -58,6 +58,7 @@ trial_num = args.trial_num            # deprecated; for use if this continues a 
 trialDur = args.trialDur              # nominally the time to idle before resetting
 blanks = args.blanks
 ITI = args.ITI
+ratio = args.ratio
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
@@ -521,9 +522,12 @@ try:
         
         # loop for r repeats
         for r in xrange(repeats):
-            trials = ([100] * 20)
-            #[trials.append(0) for i in range(2)]
-            [trials.append(600) for i in range(5)]
+            
+            Ngo, Nngo, Nblank = *ratio
+            
+            trials = ([100] * Ngo, [600] * Nngo, [0] * Nblank)
+            trials = [item for sublist in trials for item in sublist]
+
            
             shuffle(trials)
             print trials
@@ -550,6 +554,7 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
+                    'hitVmissVblank' : ':'.join(ratio),
                 })
 
                 #checks the keys pressed during last iteration
