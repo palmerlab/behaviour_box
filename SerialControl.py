@@ -522,7 +522,7 @@ try:
         # loop for r repeats
         for r in xrange(repeats):
 
-            Ngo, Nngo, Nblank = *ratio
+            Ngo, Nngo, Nblank = ratio
             
             trials = ([100] * Ngo, [600] * Nngo, [0] * Nblank)
             trials = [item for sublist in trials for item in sublist]
@@ -542,6 +542,8 @@ try:
                     't_stimDUR'         : t_stimDUR,
                 }
                 
+                
+                
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
 
@@ -553,13 +555,19 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
-                    'hitVmissVblank' : ':'.join(ratio),
+                    'hitVmissVblank' : '%s:%s:%s' %(Ngo, Nngo, Nblank),
                 })
 
                 #checks the keys pressed during last iteration
                 #adjusts options accordingly
                 
                 params.update(menu())
+                
+                if params['trialType'] == 'N' and lcount == 0:
+                    params['minlickCount'] = 1
+                    params['break_wrongChoice'] = int(1)
+                elif params['trialType'] == 'G' and lcount == 0:
+                    params['minlickCount'] = 0
                 
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified
