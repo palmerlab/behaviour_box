@@ -98,7 +98,7 @@ kwargs = {
     ('-ratio', ) : {
                     'nargs' : 3, 
                     'default' : [10,10, 0], 
-                    'type' : float, 
+                    'type' : int, 
                     'help' : "number of go, nogo, and blank trials respectively",
                     },    
     
