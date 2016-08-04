@@ -24,25 +24,12 @@ usage = '''bokeh serve
            plot_stats.py ID DATAPATH
 '''
 
-#STYLING -------------------------------------------------
-# wining, living it up in the city,
 
-total_line = {
-    'line_color' : 'black',
-    #'line_dash' : [4,2],
-    'line_width' : 2,
-    }
 
-    
-    
-total_marker = {
-    'fill_color' : 'white',
-    'line_color' : 'black',
-    'line_width' : 2,
-    'size' : 7.5,
-    }
-# --------------------------------------------------------
-
+colors = {
+    'C0' : 'DodgerBlue',
+    'C4' : 'limegreen'
+}
 
 def today():
     import datetime
@@ -69,6 +56,23 @@ infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH)
                     
 #first_loop = True
 last_mod = 0
+
+#STYLING -------------------------------------------------
+# wining, living it up in the city,
+
+total_line = {
+    'line_color' : colors[ID],
+    #'line_dash' : [4,2],
+    'line_width' : 2,
+    }
+
+total_marker = {
+    'fill_color' : 'white',
+    'line_color' : colors[ID],
+    'line_width' : 2,
+    'size' : 7.5,
+    }
+# --------------------------------------------------------
 
 def read_data(df = pd.DataFrame([])):   
 
@@ -160,12 +164,17 @@ def update():
 
     p_reward = pd.rolling_mean(reward, bin)
     p_correct = pd.rolling_mean(correct, bin)
+    
+    d_prime_col = ['limegreen' if d else 'red' for d in (d_prime>1.5)]
              
     ###############################################################################
     #Rendering of the lines ---------------------------------------
  
     p1_DPRIME['tot'].data_source.data = {'x' : trial[::bin], 'y' :  d_prime}
-    p1_DPRIME['marker'].data_source.data = {'x' : trial[::bin], 'y' :  d_prime}
+    p1_DPRIME['marker'].data_source.data = {'x' : trial[::bin], 'y' :  d_prime, 
+                            'fill_color':d_prime_col,
+                            'line_color':d_prime_col,
+                            }
     
     p2_CORRECT['tot'].data_source.data = {'x': trial, 'y': p_correct}
     p2_CORRECT['marker'].data_source.data = {'x' : trial[::bin], 'y' : p_correct[::bin]}
@@ -173,8 +182,8 @@ def update():
     p3_REWARD['tot'].data_source.data = {'x': trial, 'y' : p_reward}
     p3_REWARD['marker'].data_source.data = {'x': trial[::bin], 'y' : p_reward[::bin]}
     
-    p4_CUMREWARD['tot'].data_source.data = {'x': trial, 'y' : reward.cumsum()}
-    p4_CUMREWARD['marker'].data_source.data = {'x': trial[::bin], 'y' : reward.cumsum()[::bin]}
+    p4_CUMREWARD['tot'].data_source.data = {'x': trial, 'y' : reward.cumsum() * 10}
+    p4_CUMREWARD['marker'].data_source.data = {'x': trial[::bin], 'y' : reward.cumsum()[::bin] * 10}
     
     p5_HITS['tot'].data_source.data = {'x': trial, 'y' : p_hit_go}
     p5_HITS['marker'].data_source.data = {'x': trial[::bin], 'y' : p_hit_go[::bin]}
@@ -199,6 +208,8 @@ water_target = Span(location = 1000, dimension = 'width')
 # signal detection
 
 p1 = figure(title='signal detection',
+                    height = 200,
+                    width = 400,
                     y_range = (-2, 2.0),
                     x_axis_label = 'trial (%d bins)' %bin,
                     y_axis_label = 'd`'
@@ -206,6 +217,8 @@ p1 = figure(title='signal detection',
 
 ##plot 2
 p2 = figure(title="fraction 'correct'",
+                    height = 200,
+                    width = 400,
                     y_range= (-.05, 1.05),
                     x_range = p1.x_range,
                     x_axis_label = 'trial (%d bins)' %bin,
@@ -213,6 +226,8 @@ p2 = figure(title="fraction 'correct'",
             )
  
 p3 = figure(title="fraction rewarded",
+                    height = 200,
+                    width = 400,
                     y_range=(-.05,1.05),
                     x_range = p1.x_range,
                     x_axis_label = 'trial (%d bins)' %bin,
@@ -220,24 +235,30 @@ p3 = figure(title="fraction rewarded",
             )
 
 p4 = figure(title="Cumulative Reward",
+                    height = 200,
+                    width = 400,
                     x_range = p1.x_range,
                     y_range=(-.05, 1500),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'Delta'
+                    y_axis_label = 'uL'
             )
 
 p5 = figure(title="Hit ratio",
+                    height = 200,
+                    width = 400,
                     x_range = p1.x_range,
                     y_range = (0.05, 1.05),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'Delta'
+                    y_axis_label = 'fraction'
             )
 
 p6 = figure(title="False Alarm ratio",
+                    height = 200,
+                    width = 400,
                     x_range = p1.x_range,
                     y_range = (0.05, 1.05),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'Delta'
+                    y_axis_label = 'fraction'
             )
 
 p1.renderers.extend([dprime_cutoff])
@@ -245,7 +266,7 @@ p4.renderers.extend([water_target])
 
 p = gridplot([[p1, p2],
               [p3, p4],
-              [p5, p6]]
+              [p5, p6]],
             )
 
 #-----------------------------------------------------------------------------#
@@ -259,9 +280,9 @@ p1_DPRIME = {
                             line_dash = [4,4]
                         ),
 
-        'marker' : p1.circle([0,0], [0,0],
-                            fill_color = 'red', 
-                            line_color = 'red', 
+        'marker' : p1.circle(x = [], y = [], 
+                            fill_color = [], 
+                            line_color = [], 
                             size = 10,
                         ),
         }
