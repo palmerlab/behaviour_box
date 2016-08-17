@@ -98,8 +98,8 @@ def read_data(df = pd.DataFrame([])):
         df.minlickCount = df.minlickCount.fillna(method = 'ffill')
         #df = df[df.minlickCount > 0]
 
-        df.loc[df.t_stimDUR == 100, 'trialType'] = 'G'
-        df.loc[df.t_stimDUR != 100, 'trialType'] = 'N'
+        #df.loc[df.t_stimDUR == 100, 'trialType'] = 'G'
+        #df.loc[df.t_stimDUR != 100, 'trialType'] = 'N'
         
         if 'time' in df.columns:
             df = df.drop_duplicates(subset  = 'time')
@@ -197,7 +197,10 @@ def update():
     p6_FALSEALARMS['marker'].data_source.data = {'x': trial[::bin], 'y' : p_FA_ngo[::bin]}
     
     print '                               updated:', mod_time, '\r',
-      
+    
+    #import pdb; pdb.set_trace()
+
+    
 ##generate_plots## ===========================================================#
 #=============================================================================#
 ## static lines ##
@@ -324,7 +327,9 @@ p6_FALSEALARMS = {
 ###############################################################################
 
 df, changed = read_data(df)
+
 update()
+
 ###############################################################################
 
 #-----------------------------------------------------------------#
