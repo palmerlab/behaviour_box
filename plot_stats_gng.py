@@ -27,8 +27,13 @@ usage = '''bokeh serve
 
 
 colors = {
-    'C0' : 'DodgerBlue',
-    'C4' : 'limegreen'
+    'D0' : 'magenta',
+    'D1' : 'DodgerBlue',
+    'D2' : 'gold',
+    'D3' : 'lime',
+    'D4' : 'darkorange',
+    'D5' : 'blue',
+    
 }
 
 def today():
@@ -190,7 +195,8 @@ def update():
    
     p6_FALSEALARMS['tot'].data_source.data = {'x': trial, 'y' : p_FA_ngo}
     p6_FALSEALARMS['marker'].data_source.data = {'x': trial[::bin], 'y' : p_FA_ngo[::bin]}
-             
+    
+    print '                               updated:', mod_time, '\r',
       
 ##generate_plots## ===========================================================#
 #=============================================================================#
