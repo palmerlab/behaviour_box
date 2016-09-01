@@ -410,15 +410,13 @@ def habituation_run():
     params = {
                 'mode'          : mode,
                 'lickThres'     : lickThres,
-                'DUR_short'     : dur_short,
-                'DUR_long'      : dur_long,
-                't_stimDELAY'   : t_stimDELAY
+                't_stimDUR'     : 200,
     }
 
     params = update_bbox(ser, params, logfile)
     
-    print colour("trial count L count R\n"
-                 "----- ------- -------", fc.MAGENTA, style = Style.BRIGHT)
+    print colour("trial count\n"
+                 "----- -----", fc.MAGENTA, style = Style.BRIGHT)
 
     while mode == 'h':
 
@@ -435,7 +433,7 @@ def habituation_run():
                     trial_df[var] = num(val)
             menu()
 
-        if 'response'  in trial_df.keys():
+        if 'Water'  in trial_df.keys():
 
             with open(df_file, 'w') as datafile:
 
@@ -453,7 +451,8 @@ def habituation_run():
 
             #Count percent L v R
             hab_df = df[df['mode'] == 'h']
-            print colour("%s\t%4d" %(timenow(), hab_df.shape[0]), color, style = Style.BRIGHT)
+            print colour("%s\t10 ul" %(timenow()), style = Style.BRIGHT)
+
 
 """
 ---------------------------------------------------------------------
@@ -469,7 +468,7 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': []})
+df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': [], 'outcome':[]})
 if os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
    
@@ -507,7 +506,7 @@ try:
             'lickThres'         : lickThres,
             'break_wrongChoice' : int(punish) if lcount > 0 else 0,           #Converts to binary
             'break_on_early'    : int(0),
-            'punish_tone'       : int(1),
+            'punish_tone'       : int(0),
             'minlickCount'      : lcount,
             't_noLickPer'       : noLick,
             'timeout'           : int(timeout*1000),     #Converts back to millis
@@ -524,7 +523,7 @@ try:
 
             Ngo, Nngo, Nblank = ratio
             
-            trials = ([100] * Ngo, [600] * Nngo, [0] * Nblank)
+            trials = ([200] * Ngo, [600] * Nngo, [0] * Nblank)
             trials = [item for sublist in trials for item in sublist]
 
            
@@ -535,6 +534,7 @@ try:
 
             for trial_num, t_stimDUR in enumerate(trials):
                 
+                
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
@@ -542,15 +542,41 @@ try:
                     't_stimDUR'         : t_stimDUR,
                 }
                 
-                
-                
+                try:
+                    #if df.outcome[df.response != 'e'].values[-1] == 'FA':
+                    #    params['t_stimDUR'] = 600
+                    if df.outcome[df.response != 'e'].values[-1] == 'CR':
+                        params['t_stimDUR'] = 200
+                    if df.outcome[df.response != 'e'].values[-1] == 'miss':
+                        if df.outcome[df.response != 'e'].values[-2] == 'CR' or df.outcome[df.response != 'e'].values[-2] == 'miss':
+                            params['t_stimDUR'] = 200
+                    #if (df.outcome.values[-5:-1] == 'miss').sum() > 3:
+                    #    params['minlickCount'] = 0
+                    #else:
+                    #    params['minlickCount'] = lcount
+                    
+                    operant_trials = (df.minLickCount >= 1).values
+                    good_trials = (df.response != 'e').values
+                    hit_trials = (df.outcome == 'hit').values
+                    
+                    if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
+                        print '\ngoing strong'
+                        t_rewardDUR -= 50
+                        params['t_rewardDUR'] = t_rewardDUR
+                    elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
+                        t_rewardDUR = args.t_rDUR
+                        params['t_rewardDUR'] = t_rewardDUR
+                        
+                except:
+                    pass
+                params['trialType'] = 'N' if params['t_stimDUR'] in (600, 0) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
 
                 # create an empty dictionary to store data in
                 trial_df.update({
                     'trial_num'      : trial_num,
-                    'WaterPort[0]'   : 0,
+                    'Water'          : 0,
                     'ID'             : ID,
                     'weight'         : weight,
                     'block'          : r,
@@ -612,7 +638,7 @@ try:
 
                     df = df.append(pd.DataFrame(trial_df, index=[trial_num]), ignore_index = True)
 
-                    cumWater = df['WaterPort[0]'].cumsum()
+                    cumWater = df['Water'].cumsum()
 
                     df['outcome'] = '-'
                     
@@ -643,7 +669,7 @@ try:
                             'trialType'    : 'type',
                             'outcome'      : 'outcome', 
                             'count'        : 'licks', 
-                            'WaterPort[0]' : 'water', 
+                            'Water' : 'water', 
                             't_stimDUR'    : 'dur',
                 }
                 
@@ -672,13 +698,12 @@ try:
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
 
-                if trialDur and not pd.isnull(df['t_stimDUR'].iloc[-1]): #allows fall though for a non trial
+                if trialDur: #allows fall though for a non trial
                     #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
-
                     print '\r',
                     while dur < trialDur:
                         dur = time.time() - start_time
-                        
+
 
                 wait = 0
                 print Style.BRIGHT, fc.GREEN,
@@ -701,7 +726,7 @@ except KeyboardInterrupt:
         except NameError:
             df = trial_df
 
-        cumWater = df['WaterPort[0]'].cumsum()
+        cumWater = df['Water'].cumsum()
 
         
         df['cumWater'] = cumWater               

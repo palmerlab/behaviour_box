@@ -56,13 +56,7 @@ datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
-blanks = args.blanks
-bias_correct = args.bias_correct
 ITI = args.ITI
-freq = args.freq
-
-leftmode =  args.left
-rightmode = args.right
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)

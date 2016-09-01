@@ -71,13 +71,13 @@ kwargs = {
                     },
 
     ('-rdel', '--t_rDELAY', ) : {
-                    'default' : 150, 
+                    'default' : 250, 
                     'type' : int, 
                     'help' : 'set start time of reward epoch'
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 1200, 
+                    'default' : 500, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },
@@ -109,7 +109,7 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"R:\Andrew\160616_GOnoGO_duration", 
+                    'default' : r"R:\Andrew\160806_GOnoGO_duration", 
                     'help' : "path to save data to, " 
                             "by default is "
                             "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",

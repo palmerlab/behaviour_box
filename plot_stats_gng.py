@@ -14,6 +14,8 @@ from bokeh.plotting import figure, curdoc, show
 from bokeh.models import Span
 from bokeh.charts import Bar
 
+from bokeh.models import HoverTool, BoxSelectTool
+TOOLS = [BoxSelectTool(), HoverTool()]
 
 from scipy.stats import norm
 
@@ -168,6 +170,8 @@ def update():
     trial = np.arange(df.shape[0])
 
     p_reward = pd.rolling_mean(reward, bin)
+    p_response = pd.rolling_mean(did_respond, bin)
+    
     p_correct = pd.rolling_mean(correct, bin)
     
     d_prime_col = ['limegreen' if d else 'red' for d in (d_prime>1.5)]
@@ -184,8 +188,8 @@ def update():
     p2_CORRECT['tot'].data_source.data = {'x': trial, 'y': p_correct}
     p2_CORRECT['marker'].data_source.data = {'x' : trial[::bin], 'y' : p_correct[::bin]}
     
-    p3_REWARD['tot'].data_source.data = {'x': trial, 'y' : p_reward}
-    p3_REWARD['marker'].data_source.data = {'x': trial[::bin], 'y' : p_reward[::bin]}
+    p3_REWARD['tot'].data_source.data = {'x': trial, 'y' : p_response}
+    p3_REWARD['marker'].data_source.data = {'x': trial[::bin], 'y' : p_response[::bin]}
     
     p4_CUMREWARD['tot'].data_source.data = {'x': trial, 'y' : reward.cumsum() * 10}
     p4_CUMREWARD['marker'].data_source.data = {'x': trial[::bin], 'y' : reward.cumsum()[::bin] * 10}
@@ -221,7 +225,8 @@ p1 = figure(title='signal detection',
                     width = 400,
                     y_range = (-2, 2.0),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'd`'
+                    y_axis_label = 'd`',
+                    
             )
 
 ##plot 2
@@ -231,16 +236,18 @@ p2 = figure(title="fraction 'correct'",
                     y_range= (-.05, 1.05),
                     x_range = p1.x_range,
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'fraction'
+                    y_axis_label = 'fraction',
+                    #tools=TOOLS,
             )
  
-p3 = figure(title="fraction rewarded",
+p3 = figure(title="fraction Responded",
                     height = 200,
                     width = 400,
                     y_range=(-.05,1.05),
                     x_range = p1.x_range,
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'fraction'
+                    y_axis_label = 'fraction',
+                    #tools=TOOLS,
             )
 
 p4 = figure(title="Cumulative Reward",
@@ -249,7 +256,8 @@ p4 = figure(title="Cumulative Reward",
                     x_range = p1.x_range,
                     y_range=(-.05, 1500),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'uL'
+                    y_axis_label = 'uL',
+                   # tools=TOOLS,
             )
 
 p5 = figure(title="Hit ratio",
@@ -258,7 +266,8 @@ p5 = figure(title="Hit ratio",
                     x_range = p1.x_range,
                     y_range = (0.05, 1.05),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'fraction'
+                    y_axis_label = 'fraction',
+                   # tools=TOOLS,
             )
 
 p6 = figure(title="False Alarm ratio",
@@ -267,17 +276,20 @@ p6 = figure(title="False Alarm ratio",
                     x_range = p1.x_range,
                     y_range = (0.05, 1.05),
                     x_axis_label = 'trial (%d bins)' %bin,
-                    y_axis_label = 'fraction'
+                    y_axis_label = 'fraction',
+                    #tools=TOOLS,
             )
 
 p1.renderers.extend([dprime_cutoff])
 p4.renderers.extend([water_target])
+p4.add_tools(HoverTool())
 
 p = gridplot([[p1, p2],
               [p3, p4],
               [p5, p6]],
+              
+              #tools=TOOLS,
             )
-
 #-----------------------------------------------------------------------------#
 #=============================================================================#
 
