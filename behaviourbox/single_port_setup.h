@@ -4,7 +4,7 @@ char TrialReward();
 
 char runTrial();
 
-int count_responses(int duration, int count = 0, unsigned int timeout = 0, bool no_go = false);
+int count_responses(int duration, int count = 0);
 
 int TrialStimulus(bool break_on_early);
 
@@ -20,7 +20,8 @@ char runTrial() {
        increases from there. */ 
     unsigned long t;
     char response = 0;
-    int count = 0;
+    int count = 0;                  //number of licks
+    int N_to;                       //number of timeouts
 
     // local time
     t_init = millis() + trial_delay;
@@ -63,8 +64,7 @@ char runTrial() {
     t = t_since(t_init);
 
     //tone(speakerPin, toneGood, 50);
-    count = count_responses((t_stimONSET + t_rewardDEL + t_rewardDUR) -t, 
-                  count, timeout, (trialType == 'N'));
+    count = count_responses((t_stimONSET + t_rewardDEL + t_rewardDUR) -t, count);
 
     if (trialType == 'G') {
         if (count >= minlickCount) {
@@ -78,8 +78,23 @@ char runTrial() {
     }
     else if (trialType == 'N'){
         if (count >= minlickCount) {
+            punish(200);
             response = 'f';
             Serial.println("Water:\t0");
+
+            /*
+            In the event that we are in the trial stimulus I want
+            the punishment delay not to blow out the stimulus.
+            The arithmetic reduces the punish time according to 
+            the stimulus end
+            */
+
+            if (timeout) {
+                N_to = Timeout(timeout); //count the number of timeouts                 
+                Serial.print("N_timeouts:\t");
+                Serial.println(N_to);
+            }
+            
         }
         else {
             response = 'R';
@@ -144,13 +159,11 @@ char Habituation(){
     }
 }
 
-int count_responses(int duration, int count, unsigned int timeout, bool no_go) {
+int count_responses(int duration, int count) {
 
     int t0 = t_since(t_init);
     int t = t0;
-
     bool lick = 0;
-    int N_to; //number of timeouts
 
     if (verbose) {
         Serial.print("#Enter `count_responses`:\t");
@@ -162,44 +175,13 @@ int count_responses(int duration, int count, unsigned int timeout, bool no_go) {
         t = t_since(t_init);
         lick = senseLick();
         count = count + lick;
-
-        if ((count >= minlickCount) and no_go and break_wrongChoice) {
-
-            /*
-            In the event that we are in the trial stimulus I want
-            the punishment delay not to blow out the stimulus.
-            The arithmetic reduces the punish time according to 
-            the stimulus end
-            */
-            
-            if (t < (t_stimONSET + t_stimDUR)) {
-                punish(500 - (t_stimONSET + t_stimDUR - t));
-            }
-            else {
-                punish(500);
-            }
-
-            if (timeout) {
-                N_to = Timeout(timeout); //count the number of timeouts                 
-                Serial.print("N_timeouts:\t");
-                Serial.println(N_to);
-            }
-            if (verbose) { 
-                Serial.print("count:\t");
-                Serial.println(count);
-                
-                Serial.print("#Exit `count_responses`:\t");
-                Serial.println(t);
-            }
-            return count;
-        }
     }
-    
+
     if (verbose) {
         Serial.print("#Exit `count_responses`:\t");
         Serial.println(t);
     }
-    
+
     return count;
 }
 
@@ -238,7 +220,7 @@ int TrialStimulus(bool break_on_early) {
         t = t_since(t_local);
 
         if (t_since(t_init) >= (t_stimONSET + t_rewardDEL)) {
-            count = count_responses(t_stimDUR - t, 0, 0, true);
+            count = count_responses(t_stimDUR - t, count);
             break;
         }
 
