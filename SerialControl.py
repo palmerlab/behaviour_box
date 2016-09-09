@@ -559,13 +559,13 @@ try:
                     good_trials = (df.response != 'e').values
                     hit_trials = (df.outcome == 'hit').values
                     
-                    if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
-                        print '\ngoing strong'
-                        t_rewardDUR -= 50
-                        params['t_rewardDUR'] = t_rewardDUR
-                    elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
-                        t_rewardDUR = args.t_rDUR
-                        params['t_rewardDUR'] = t_rewardDUR
+                    #if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
+                    #    print '\ngoing strong'
+                    #    t_rewardDUR -= 50
+                    #    params['t_rewardDUR'] = t_rewardDUR
+                    #elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
+                    #    t_rewardDUR = args.t_rDUR
+                    #    params['t_rewardDUR'] = t_rewardDUR
                         
                 except:
                     pass
