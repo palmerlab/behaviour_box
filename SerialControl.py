@@ -668,8 +668,10 @@ try:
                             'trial_num'    : 't', 
                             'trialType'    : 'type',
                             'outcome'      : 'outcome', 
-                            'count'        : 'licks', 
-                            'Water' : 'water', 
+                            'pre_count'    : 'pre_Lick', 
+                            'post_count'   : 'post_Lick', 
+                            'delta'        : 'lick change', 
+                            'Water'        : 'water', 
                             't_stimDUR'    : 'dur',
                 }
                 
