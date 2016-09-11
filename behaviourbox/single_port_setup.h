@@ -4,7 +4,7 @@ char TrialReward();
 
 char runTrial();
 
-int count_responses(int duration, int count = 0);
+int count_responses(int duration);
 
 int TrialStimulus(bool break_on_early);
 
@@ -20,7 +20,9 @@ char runTrial() {
        increases from there. */ 
     unsigned long t;
     char response = 0;
-    int count = 0;                  //number of licks
+    float pre_count = 0;                  //number of licks
+    float post_count = 0;                  //number of licks
+    int delta = 0;
     int N_to;                       //number of timeouts
 
     // local time
@@ -36,11 +38,10 @@ char runTrial() {
 
     preTrial();
     t = t_since(t_init);
-
-    ActiveDelay(t_noLickPer, false);
-    t = t_since(t_init);
-
-    response = ActiveDelay(t_stimONSET, t_noLickPer);
+    
+    // wait 
+    //ActiveDelay(t_stimONSET - t_rewardDUR, false);
+    pre_count = (float) count_responses(t_stimONSET) / ((float) t_stimONSET / 1000);
 
     if (response and t_noLickPer){
 
@@ -49,7 +50,9 @@ char runTrial() {
         Serial.print("response:\t");
         Serial.println(response);
 
-        Serial.println("count:\tnan");
+        Serial.println("delta:\tnan");
+        Serial.println("post_count:\tnan");
+        Serial.println("pre_count:\tnan");
         Serial.println("t_stimDUR:\tnan");
 
         return response;
@@ -57,17 +60,21 @@ char runTrial() {
 
     t = t_since(t_init);
 
-    count = TrialStimulus(break_on_early);
+    post_count = (float) TrialStimulus(break_on_early);
     t = t_since(t_init);
 
-    ActiveDelay(t_stimONSET + t_rewardDEL, false);
+    ActiveDelay(t_rewardDEL, false);
     t = t_since(t_init);
 
     //tone(speakerPin, toneGood, 50);
-    count = count_responses((t_stimONSET + t_rewardDEL + t_rewardDUR) -t, count);
-
+    
+    post_count += (float) count_responses(t_rewardDUR);
+    post_count = post_count / ((float) t_rewardDUR / 1000);
+    
+    delta = post_count - pre_count;
+    
     if (trialType == 'G') {
-        if (count >= minlickCount) {
+        if (delta >= minlickCount) {
             deliver_reward();
             response = 'H';
         }
@@ -77,7 +84,7 @@ char runTrial() {
         }
     }
     else if (trialType == 'N'){
-        if (count >= minlickCount) {
+        if (delta >= minlickCount) {
             punish(200);
             response = 'f';
             Serial.println("Water:\t0");
@@ -90,7 +97,7 @@ char runTrial() {
             */
 
             if (timeout) {
-                N_to = Timeout(timeout); //count the number of timeouts                 
+                N_to = Timeout(timeout); //count the number of timeouts
                 Serial.print("N_timeouts:\t");
                 Serial.println(N_to);
             }
@@ -106,12 +113,17 @@ char runTrial() {
         Serial.println("Water:\t0");
     }
 
-
     Serial.print("response:\t");
     Serial.println(response);
     
-    Serial.print("count:\t");
-    Serial.println(count);
+    Serial.print("delta:\t");
+    Serial.println(delta);
+    
+    Serial.print("pre_count:\t");
+    Serial.println(pre_count);
+    
+    Serial.print("post_count:\t");
+    Serial.println(post_count);
     
     Serial.print("t_stimDUR:\t");
     Serial.println(t_stimDUR);
@@ -159,11 +171,18 @@ char Habituation(){
     }
 }
 
-int count_responses(int duration, int count) {
+int count_responses(int duration) {
+    
+    /*
+    Counts the number of hits on the lick sensor over `duration`
+    of milliseconds.
+    
+    */
 
     int t0 = t_since(t_init);
     int t = t0;
     bool lick = 0;
+    int count = 0;
 
     if (verbose) {
         Serial.print("#Enter `count_responses`:\t");
@@ -174,7 +193,7 @@ int count_responses(int duration, int count) {
 
         t = t_since(t_init);
         lick = senseLick();
-        count = count + lick;
+        count += lick;
     }
 
     if (verbose) {
@@ -207,8 +226,8 @@ int TrialStimulus(bool break_on_early) {
         Serial.print("#Exit `TrialStimulus`:\t");
         Serial.println(t);
         return count;
-        
     }
+    
     digitalWrite(stimulusPin, HIGH);
     
     while (t < t_stimDUR){
@@ -219,7 +238,7 @@ int TrialStimulus(bool break_on_early) {
 
         t = t_since(t_local);
 
-        if (t_since(t_init) >= (t_stimONSET + t_rewardDEL)) {
+        if (t >= t_rewardDEL) {
             count = count_responses(t_stimDUR - t, count);
             break;
         }

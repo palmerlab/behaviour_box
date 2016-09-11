@@ -23,6 +23,7 @@ char runTrial();
 
 char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
+    unsigned long t_init = millis();
     unsigned long t = t_since(t_init);
 
     char response = 0;
