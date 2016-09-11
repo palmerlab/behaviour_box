@@ -239,7 +239,7 @@ int TrialStimulus(bool break_on_early) {
         t = t_since(t_local);
 
         if (t >= t_rewardDEL) {
-            count = count_responses(t_stimDUR - t, count);
+            count = count_responses(t_stimDUR - t);
             break;
         }
 
