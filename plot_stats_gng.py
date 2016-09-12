@@ -137,7 +137,8 @@ def update():
     ###############################################################################
     
     was_operant  = (df.minlickCount < 1).values
-    did_respond  = ((df['count'] >= df.minlickCount).values & (df['count'] > 0).values)
+
+    did_respond  = (df['delta'] > df.minlickCount).values
     was_go_trial = (df.trialType == 'G').values
     was_nogo_trial = (df.trialType == 'N').values
     reward       = df.Water.astype(bool)
