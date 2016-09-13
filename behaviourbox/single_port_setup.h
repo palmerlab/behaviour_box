@@ -63,12 +63,16 @@ char runTrial() {
     post_count = (float) TrialStimulus(break_on_early);
     t = t_since(t_init);
 
-    ActiveDelay(t_rewardDEL, false);
-    t = t_since(t_init);
 
     //tone(speakerPin, toneGood, 50);
-    
-    post_count += (float) count_responses(t_rewardDUR);
+    if (t_stimDUR > t_rewardDEL) {
+        post_count += (float) count_responses(t_rewardDUR - (t_stimDUR - t_rewardDEL));
+    }
+    else{
+        ActiveDelay(t_rewardDEL, false);
+        t = t_since(t_init);
+        post_count += (float) count_responses(t_rewardDUR);
+    }
     post_count = post_count / ((float) t_rewardDUR / 1000);
     
     delta = post_count - pre_count;
