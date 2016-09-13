@@ -66,13 +66,13 @@ char runTrial() {
 
     //tone(speakerPin, toneGood, 50);
     if (t_stimDUR > t_rewardDEL) {
-        post_count += (float) count_responses(t_rewardDUR - (t_stimDUR - t_rewardDEL));
     }
     else{
         ActiveDelay(t_rewardDEL, false);
-        t = t_since(t_init);
-        post_count += (float) count_responses(t_rewardDUR);
     }
+    
+    t = t_since(t_init);
+    post_count += (float) count_responses((t_stimONSET + t_rewardDEL + t_rewardDUR) - t);
     
     post_count = post_count / ((float) t_rewardDUR / 1000);
     
