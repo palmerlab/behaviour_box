@@ -73,6 +73,7 @@ char runTrial() {
         t = t_since(t_init);
         post_count += (float) count_responses(t_rewardDUR);
     }
+    
     post_count = post_count / ((float) t_rewardDUR / 1000);
     
     delta = post_count - pre_count;
