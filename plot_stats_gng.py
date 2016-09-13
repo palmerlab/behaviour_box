@@ -31,10 +31,10 @@ usage = '''bokeh serve
 colors = {
     'D0' : 'magenta',
     'D1' : 'DodgerBlue',
-    'D2' : 'gold',
+    'D2' : 'forestgreen',
     'D3' : 'lime',
-    'D4' : 'darkorange',
-    'D5' : 'blue',
+    'D4' : 'purple',
+    'D5' : 'cyan',
     
 }
 
@@ -138,7 +138,7 @@ def update():
     
     was_operant  = (df.minlickCount < 1).values
 
-    did_respond  = (df['delta'] > df.minlickCount).values
+    did_respond  = (df['delta'] >= df.minlickCount).values
     was_go_trial = (df.trialType == 'G').values
     was_nogo_trial = (df.trialType == 'N').values
     reward       = df.Water.astype(bool)
