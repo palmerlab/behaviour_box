@@ -79,7 +79,7 @@ char runTrial() {
     delta = post_count - pre_count;
     
     if (trialType == 'G') {
-        if (delta >= minlickCount) {
+        if (post_count >= minlickCount) {
             deliver_reward();
             response = 'H';
         }
