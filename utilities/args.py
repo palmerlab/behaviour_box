@@ -22,7 +22,7 @@ kwargs = {
                     },          
                     
     ('--repeats', ) : {
-                    'default' : 50, 
+                    'default' : 500, 
                     'type' : int, 
                     'help' : "the number of times this block should repeat, " 
                             "by default this is 1",
@@ -77,7 +77,7 @@ kwargs = {
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 500, 
+                    'default' : 800, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },
@@ -90,14 +90,14 @@ kwargs = {
 
     ('--ITI', ) : {
                     'nargs' : 2, 
-                    'default' : [3,8], 
+                    'default' : [5,8], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
                     },    
     
     ('-ratio', ) : {
                     'nargs' : 3, 
-                    'default' : [10,10, 0], 
+                    'default' : [1,1,0], 
                     'type' : int, 
                     'help' : "number of go, nogo, and blank trials respectively",
                     },    
@@ -109,10 +109,10 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"R:\Andrew\160806_GOnoGO_duration", 
+                    'default' : r"R:\Andrew\160927_GOnoGO_Perception", 
                     'help' : "path to save data to, " 
                             "by default is "
-                            "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
+                            r"R:\Andrew\160927_GOnoGO_Perception\%%YY%%MM%%DD",
                     },
                     
     ("--port", ) : {
