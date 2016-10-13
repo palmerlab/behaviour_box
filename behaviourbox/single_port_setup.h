@@ -1,4 +1,4 @@
-char Habituation();
+void Habituation();
 
 char TrialReward();
 
@@ -65,14 +65,12 @@ char runTrial() {
 
 
     //tone(speakerPin, toneGood, 50);
-    if (t_stimDUR > t_rewardDEL) {
-    }
-    else{
-        ActiveDelay(t_rewardDEL, false);
-    }
+    
+    ActiveDelay(t_rewardDEL, false);
+    
     
     t = t_since(t_init);
-    post_count += (float) count_responses((t_stimONSET + t_rewardDEL + t_rewardDUR) - t);
+    post_count += (float) count_responses(t_rewardDUR);
     
     post_count = post_count / ((float) t_rewardDUR / 1000);
     
@@ -136,7 +134,7 @@ char runTrial() {
     return response;
 }
 
-char Habituation(){
+void Habituation(){
 
     t_init = millis();
 
@@ -233,29 +231,8 @@ int TrialStimulus(bool break_on_early) {
         return count;
     }
     
-    digitalWrite(stimulusPin, HIGH);
-    
-    while (t < t_stimDUR){
-        /* Run the buzzer while:
-           1. update the time
-           2. check for licks
-        */
-
-        t = t_since(t_local);
-
-        if (t >= t_rewardDEL) {
-            count = count_responses(t_stimDUR - t);
-            break;
-        }
-
-        if (lickOn and break_on_early) {
-            Serial.print("#\tLick Detected");
-            Serial.print("#Exit `TrialStimulus`:\t");
-            Serial.println(t);
-            return count;
-        }
-    }
-
+    digitalWrite(stimulusPin, HIGH);    
+    delay(t_stimDUR);
     digitalWrite(stimulusPin, LOW); //this is a safety catch
 
     if (verbose) {
