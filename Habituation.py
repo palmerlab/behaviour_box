@@ -57,17 +57,17 @@ weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
 ITI = args.ITI
-ratio = args.ratio
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
-mode = args.mode
+mode = 'h'
 punish = args.punish
 timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
 
 t_stimONSET = args.t_stimONSET
+t_stimDUR = args.t_stimDUR
 t_rewardDEL = args.t_rDELAY
 t_rewardDUR = args.t_rDUR
 
@@ -100,12 +100,15 @@ def menu():
     global mode
     global rewardCond
     global comment
+    global leftmode
+    global rightmode
     global noLick
     global trialDur
+    global single_stim
     global timeout
+    global bias_correct
     global t_rDELAY
     global t_rDUR
-    global t_stimDUR
     paused = True
 
     while paused:
@@ -132,20 +135,21 @@ def menu():
                 with open(logfile, 'a') as log:
                     log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
-            
-            #leftkey
+                
             elif c in '\xe0K':
-                t_stimDUR = 100.0
-                print "stimDUR:\t%s\r" %t_stimDUR,
+                leftmode = True
+                rightmode = False
+                print "left mode:\t%s" %leftmode
             
-            # right key
             elif c in '\xe0M':
-                t_stimDUR = 600.0
-                print "stimDUR:\t%s\r" %t_stimDUR,
+                rightmode = True
+                leftmode = False
+                print "right mode:\t%s" %rightmode
             
             elif c in ('\xe0P', '\xe0H'):
-                t_stimDUR = 0
-                print "stimDUR:\t%s\r" %t_stimDUR,
+                leftmode = False
+                rightmode = False
+                print "random mode:\t", not (leftmode or rightmode)
             
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
@@ -210,6 +214,16 @@ def menu():
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
             
+            elif c in ('s', 'S'):
+                single_stim = not single_stim
+                print "Single stim:\t", single_stim,
+            
+            elif c in ('b', 'B'):
+                bias_correct = not bias_correct
+                print "Bias Correct:\t%s" %bias_correct, "%R|%L:", pc_R, "|", pc_L
+                with open(logfile, 'a') as log:
+                    log.write("bias_correct:\t%s\n" %bias_correct)
+            
             elif 'rdur:' in c:
                 val = c.split(':')[1]
                 if val.strip().isdigit():
@@ -233,6 +247,7 @@ def menu():
                 print "options       :"
                 print "  ...   H     : This menu"
                 print "  ...   P     : Punish"
+                print "  ...   S     : toggle single stimulus"
                 print "  ...   < >   : lick threshold" 
                 print "  ...   ?     : show threshold" 
                 print "  ...   [ ]   : lickcount"
@@ -243,6 +258,7 @@ def menu():
                 print "  ...   ( )   : adjust trial duration"
                 print "  ...   T     : show trial duration period"
                 print "  ...   Y     : toggle timeout (requires punish to take effect)"
+                print "  ...   B     : toggle bias correction"
                 print "input rdur:%i : set the reward duration"
                 print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
@@ -252,14 +268,12 @@ def menu():
                 print "SPACE or ENTER to unpause"
             
     params = {
-           'break_wrongChoice'         :    int(punish) if lcount > 0 else 0, # don't punish the animal if not counting licks
+           'break_wrongChoice'         :    int(punish),
            'lickThres'                 :    lickThres,
            'minlickCount'              :    lcount,
            'mode'                      :    mode,
            't_noLickPer'               :    noLick,
            'timeout'                   :    int(timeout),
-           't_stimDUR'                 :    t_stimDUR,
-           'trialType'                 :    'N' if t_stimDUR in (600, 0) else 'G' ,
     }
     
     return update_bbox(ser, params, logfile, trial_df)
@@ -410,13 +424,13 @@ def habituation_run():
     params = {
                 'mode'          : mode,
                 'lickThres'     : lickThres,
-                't_stimDUR'     : 200,
+                't_stimDUR'     : 100,
     }
 
     params = update_bbox(ser, params, logfile)
-    
-    print colour("trial count\n"
-                 "----- -----", fc.MAGENTA, style = Style.BRIGHT)
+
+    print colour("time       hits\n"
+                 "--------- -------", fc.MAGENTA, style = Style.BRIGHT)
 
     while mode == 'h':
 
@@ -433,7 +447,7 @@ def habituation_run():
                     trial_df[var] = num(val)
             menu()
 
-        if 'Water'  in trial_df.keys():
+        if 'response'  in trial_df.keys():
 
             with open(df_file, 'w') as datafile:
 
@@ -451,8 +465,7 @@ def habituation_run():
 
             #Count percent L v R
             hab_df = df[df['mode'] == 'h']
-            print colour("%s\t10 ul" %(timenow()), style = Style.BRIGHT)
-
+            print colour(("%s\t%4d" %(timenow(), hab_df.shape[0])), style = Style.BRIGHT)
 
 """
 ---------------------------------------------------------------------
@@ -468,7 +481,7 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': [], 'outcome':[]})
+df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': []})
 if os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
    
@@ -487,253 +500,24 @@ try:
     ser = init_serialport(port, logfile)
 
     # send initial paramaters to the arduino
-    params = {
-        'mode'              : mode,
-        'lickThres'         : lickThres,
-        'break_on_early'    : int(0),
-        'minlickCount'      : lcount,
-        't_stimONSET'       : t_stimONSET,
-    }
-    
-    trial_df = update_bbox(ser, params, logfile, {} )
-
-    
-    if mode == 'h':
-        habituation_run()
-    elif mode == 'o':
-        params = {
-            'mode'              : mode,
-            'lickThres'         : lickThres,
-            'break_wrongChoice' : int(punish) if lcount > 0 else 0,           #Converts to binary
-            'break_on_early'    : int(0),
-            'punish_tone'       : int(0),
-            'minlickCount'      : lcount,
-            't_noLickPer'       : noLick,
-            'timeout'           : int(timeout*1000),     #Converts back to millis
-            't_stimONSET'       : t_stimONSET,
-            't_rewardDEL'       : t_rewardDEL,
-            't_rewardDUR'       : t_rewardDUR,
-        }
-
-        trial_df = update_bbox(ser, params, logfile, {} )
-        df = df.append(pd.DataFrame(trial_df, index = [df.shape[0]+1]), ignore_index=True)
-        
-        # loop for r repeats
-        for r in xrange(repeats):
-
-            Ngo, Nngo, Nblank = ratio
-            
-            trials = ([200] * Ngo, [600] * Nngo, [0] * Nblank)
-            trials = [item for sublist in trials for item in sublist]
-
-           
-            shuffle(trials)
-            print trials
-
-            # loop for number of trials in the list of random conditions
-
-            for trial_num, t_stimDUR in enumerate(trials):
-                
-                
-                #THE HANDSHAKE
-                # send all current parameters to the arduino box to run the trial
-                params = {
-                    'trialType'         : 'N' if t_stimDUR in (600, 0) else 'G' ,
-                    't_stimDUR'         : t_stimDUR,
-                }
-                
-                try:
-                    #if df.outcome[df.response != 'e'].values[-1] == 'FA':
-                    #    params['t_stimDUR'] = 600
-                    if df.outcome[df.response != 'e'].values[-1] == 'CR':
-                        params['t_stimDUR'] = 200
-                    if df.outcome[df.response != 'e'].values[-1] == 'miss':
-                        if df.outcome[df.response != 'e'].values[-2] == 'CR' or df.outcome[df.response != 'e'].values[-2] == 'miss':
-                            params['t_stimDUR'] = 200
-                    #if (df.outcome.values[-5:-1] == 'miss').sum() > 3:
-                    #    params['minlickCount'] = 0
-                    #else:
-                    #    params['minlickCount'] = lcount
-                    
-                    operant_trials = (df.minLickCount >= 1).values
-                    good_trials = (df.response != 'e').values
-                    hit_trials = (df.outcome == 'hit').values
-                    
-                    #if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
-                    #    print '\ngoing strong'
-                    #    t_rewardDUR -= 50
-                    #    params['t_rewardDUR'] = t_rewardDUR
-                    #elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
-                    #    t_rewardDUR = args.t_rDUR
-                    #    params['t_rewardDUR'] = t_rewardDUR
-                        
-                except:
-                    pass
-                params['trialType'] = 'N' if params['t_stimDUR'] in (600, 0) else 'G'
-                trial_df.update(update_bbox(ser, params, logfile, trial_df))
-                
-
-                # create an empty dictionary to store data in
-                trial_df.update({
-                    'trial_num'      : trial_num,
-                    'Water'          : 0,
-                    'ID'             : ID,
-                    'weight'         : weight,
-                    'block'          : r,
-                    'comment'        : comment,
-                    'hitVmissVblank' : '%s:%s:%s' %(Ngo, Nngo, Nblank),
-                })
-
-                #checks the keys pressed during last iteration
-                #adjusts options accordingly
-                
-                params.update(menu())
-                
-                if params['trialType'] == 'N' and lcount == 0:
-                    params['minlickCount'] = 1
-                    params['break_wrongChoice'] = int(1)
-                elif params['trialType'] == 'G' and lcount == 0:
-                    params['minlickCount'] = 0
-                
-                # apply the over-ride to the reward condition
-                # if the over-ride has been specified
-
-                trial_df['comment'] = comment
-
-
-                trial_df.update(update_bbox(ser, params, logfile, trial_df))
-                
-                print colour("C: %s" %params['trialType'], 
-                                fc.MAGENTA, style = Style.BRIGHT),
-
-                trial_df['time'] = timenow()
-                
-                # Send the literal GO symbol
-                start_time = time.time()
-            
-                ser.write("GO")
-                line = Serial_monitor(ser, logfile, show = verbose).strip()
-                
-                while line.strip() != "-- Status: Ready --":
-                    # keep running until arduino reports it has broken out of loop
-                    line = Serial_monitor(ser, logfile, False).strip()
-                    if line:
-                        if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":\t")
-                            #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
-                            trial_df[var] = num(val)
-                         
-                for k in trial_df.keys():
-                    if type(trial_df[k]) == list: 
-                        trial_df[k] = trial_df[k][0]
-               
-                """
-                THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
-                """
-                """
-                #Save the data to a data frame / Save to a file
-                """
-                    
-                with open(df_file, 'w') as datafile:
-
-                    df = df.append(pd.DataFrame(trial_df, index=[trial_num]), ignore_index = True)
-
-                    cumWater = df['Water'].cumsum()
-
-                    df['outcome'] = '-'
-                    
-                    outcome = df.outcome.copy()
-                    
-                    hit = (df.response == 'H').values
-                    miss = (df.response == '-').values
-                    correct_reject = (df.response == 'R')
-                    false_alarm = (df.response == 'f').values
-                    
-                    outcome[hit] = 'hit'
-                    outcome[correct_reject] = 'CR'
-                    outcome[miss] = 'miss'
-                    outcome[false_alarm] = 'FA'
-                    df['outcome'] = outcome
-                    
-                    
-                    df['cumWater'] = cumWater
-                    df['trial_num'] = df.shape[0]
-
-                    df.to_csv(datafile)
-                
-                #Print the important data and coloured code for hits / misses  
-                print Style.BRIGHT, '\r', 
-                
-                table = {
-                            'trial_num'    : 't', 
-                            'trialType'    : 'type',
-                            'outcome'      : 'outcome', 
-                            'pre_count'    : 'pre_Lick', 
-                            'post_count'   : 'post_Lick', 
-                            'delta'        : 'lick change', 
-                            'Water'        : 'water', 
-                            't_stimDUR'    : 'dur',
-                }
-                
-                colors = {
-                        'CR'  : Style.DIM + fc.GREEN,
-                        'hit' : fc.GREEN,
-                        'miss' : fc.YELLOW,
-                        'FA' : fc.RED,
-                        '-'  : Style.NORMAL + fc.YELLOW
-                }
-                
-
-                if not pd.isnull(df['t_stimDUR'].iloc[-1]):
-                    c = colors[df.outcome.values[-1]]
-                    for k, label in table.iteritems():
-                        print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, label, c, str(df[k].iloc[-1]).strip()),
-
-                    print '\r', Style.RESET_ALL
-                    #calculate percentage success
-                    
-                    print "\r", 100 * " ", "\r                ", #clear the line 
-
-                comment = ""
-                trial_num += 1            
-                
-                # creates a set trial time if a duration has been flagged
-                dur = time.time() - start_time
-
-                if trialDur: #allows fall though for a non trial
-                    #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
-                    print '\r',
-                    while dur < trialDur:
-                        dur = time.time() - start_time
-
-
-                wait = 0
-                print Style.BRIGHT, fc.GREEN,
-                
-                wait = random.uniform(*ITI)
-                print fc.CYAN,
-                print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
-                time.sleep(wait)
-                print "             \r",
-
-
+    habituation_run()
 except KeyboardInterrupt:
+
 
     try:
         print "attempting to create DataFrame"
         trial_df = pd.DataFrame(trial_df, index=[trial_num])
-        
+
         try: 
             df = df.append(trial_df, ignore_index = True)
         except NameError:
             df = trial_df
 
-        cumWater = df['Water'].cumsum()
-
-        
+        cumWater = df['WaterPort[0]'].cumsum() + df['WaterPort[1]'].cumsum()
         df['cumWater'] = cumWater               
 
         df.to_csv(df_file)
+        
     except NameError:
         print "unable to create trial_df does not exist"
     except AttributeError:

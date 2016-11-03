@@ -46,6 +46,30 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 <body>
+<<<<<<< HEAD
+<h1 id="andrews-behaviour-box">Andrew’s Behaviour Box</h1>
+<h2 id="todo">TODO:</h2>
+<p>Presently the new box compiles.</p>
+<ul>
+<li>Make the thresholds for each sensor independent, and modifiable through python</li>
+<li>Make a nice way to switch between GnG and 2AFC</li>
+<li>Make a flag for the buzzer to turn on and off.</li>
+<li>Make sure all existing / relevant variables can be accessed through python menu</li>
+<li>make the python menu accept a dict or something for general interfacing.
+<ul>
+<li>consider tab completion and raw_input to access all variables.</li>
+<li>Have both a quick hotkey menu and tab completing complete interface.</li>
+</ul></li>
+</ul>
+<h2 id="version-3.0-capacitive-sensors">Version 3.0: Capacitive sensors</h2>
+<p><code>BB_V3.0.20160629</code></p>
+<p>Major changes in the last update. The behaviour box program is now split into a handful of modules. Each module is mostly holding utility functions for the box as a whole. The behaviour box itself only contains <code>setup</code> and <code>loop</code> functions, which call the other components as necessary.</p>
+<p>This is the collection of files I use to run my behavioural experiments.</p>
+<p>This branch record the state of the first fairly stable version. It implements a frequency discrimination task, described by the following diagram.</p>
+<h2 id="operant-mode">Operant Mode</h2>
+<div class="figure">
+<img src=".\Flow_diagram.svg" alt="Flow of the behavioural paradigm" />
+=======
 <h1 id="andrews-behaviour-box">Andrew's Behaviour Box</h1>
 <h2 id="version-2.0-duration-discrimination">Version 2.0 Duration Discrimination</h2>
 <p>This is the collection of files I use to run my behavioural experiments. Due to continued poor performance I have updated the system to now implement a stimulus duration discrimination task. As before the animal is to report if the stimulus is the same or different. The key difference to the previous version is that the stimulus intensity is locked to it's highest value and the animal simply needs to tell me the difference in the durations.</p>
@@ -53,13 +77,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2 id="operant-mode">Operant Mode</h2>
 <div class="figure">
 <img src=".\documentation\Flow_diagram.svg" alt="Flow of the behavioural paradigm" />
+>>>>>>> master
 <p class="caption">Flow of the behavioural paradigm</p>
 </div>
 <p>The operant mode features the following conditions:</p>
 <ol style="list-style-type: decimal">
 <li>Randomised selection of left or right trials
 <ul>
+<<<<<<< HEAD
+<li><p>If a run of three trials of the same type are detected the program forces the next trial to be of the other type: ie: ‘Left - Left - Left - Left’ will be replaced by ‘Left - Left - Left - Right’ before the fourth trial runs. This is in line with <span class="citation">Guo et al. (<a href="#ref-guo_procedures_2014">2014</a>)</span></p>
+=======
 <li><p>If a run of three trials of the same type are detected the program forces the next trial to be of the other type: ie: 'Left - Left - Left - Left' will be replaced by 'Left - Left - Left - Right' before the fourth trial runs. This is in line with <span class="citation">Guo et al. (<a href="#ref-guo_procedures_2014">2014</a>)</span></p>
+>>>>>>> master
 <p>This logic is over written if the bias correction is in place.</p></li>
 <li><p>In addition to the bias correction weighting, another bias correction mechanism prevents the animal from having a straight run of successes on one side. If 5 rewards are delivered on one side, without any delivered on the other side, the system will lock off that side. The associated stimulus will not be presented until the animal gets at least three rewards from the opposite port. This is in line with <span class="citation">Guo et al. (<a href="#ref-guo_procedures_2014">2014</a>)</span></p></li>
 </ul></li>
@@ -68,7 +97,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <pre><code>usage: SerialControl.py [-h] [-i ID] [-w WEIGHT] [-m MODE] [--repeats REPEATS]
                         [-p] [--verbose] [-a] [-bc] [-b] [-rs] [-s]
                         [-lt LICKTHRES] [-lc LCOUNT] [-nlp NOLICK]
+<<<<<<< HEAD
+                        [-td TRIALDUR] [-rd T_REWARDSTART] [-rend T_REWARDEND]
+=======
                         [-td TRIALDUR] [-rd t_rDELAY] [-rend T_REWARDEND]
+>>>>>>> master
                         [-to TIMEOUT] [--freq FREQ FREQ] [--ITI ITI ITI]
                         [-L | -R] [-N TRIAL_NUM] [--datapath DATAPATH]
                         [--port PORT]</code></pre>
@@ -107,14 +140,23 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                         set `t_noLickPer` in arduino
   -td TRIALDUR, --trialDur TRIALDUR
                         set minimum trial duration
+<<<<<<< HEAD
+  -rd T_REWARDSTART, --t_rewardSTART T_REWARDSTART
+=======
   -rd t_rDELAY, --t_rDELAY t_rDELAY
+>>>>>>> master
                         set start time of reward epoch
   -rend T_REWARDEND, --t_rewardEND T_REWARDEND
                         set end time of reward epoch
   -to TIMEOUT, --timeout TIMEOUT
                         set the timeout duration for incorrect licks
+<<<<<<< HEAD
+  --freq FREQ FREQ      Frequencies or OFF time values to be passed to arduino
+                        as off_short and off_long
+=======
   --dur DUR DUR         Durations or to be passed to arduino as DUR_short and
                         DUR_long
+>>>>>>> master
   --ITI ITI ITI         an interval for randomising between trials
   -L, --left
   -R, --right
@@ -122,7 +164,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                         trial number to start at
   --datapath DATAPATH   path to save data to, by default is
                         &#39;C:/DATA/Andrew/wavesurfer/%YY%MM%DD&#39;
+<<<<<<< HEAD
+  --port PORT           port that the Arduino is connected to
+</code></pre>
+=======
   --port PORT           port that the Arduino is connected to</code></pre>
+>>>>>>> master
 <p>See Also <a href="http://xkcd.com/1692/">list of rejected arguments</a></p>
 <h2 id="interactive-options">Interactive Options</h2>
 <table>
@@ -240,29 +287,75 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <tbody>
 <tr class="odd">
 <td align="left">pin 2</td>
+<<<<<<< HEAD
+<td align="left">IRQ comm interrupt</td>
+<td align="left"><code>irqpin</code></td>
+</tr>
+<tr class="even">
+<td align="left">pin 3</td>
+<td align="left">recording trigger</td>
+<td align="left"><code>recTrig</code></td>
+</tr>
+<tr class="odd">
+<td align="left">pin 4</td>
+<td align="left">bulb style trigger</td>
+<td align="left"><code>bulbTrig</code></td>
+</tr>
+<tr class="even">
+<td align="left">pin 5</td>
+=======
 <td align="left">recording trigger</td>
 <td align="left"><code>recTrig</code></td>
 </tr>
 <tr class="even">
 <td align="left">pin 3</td>
+>>>>>>> master
 <td align="left">stimulus</td>
 <td align="left"><code>stimulusPin</code></td>
 </tr>
 <tr class="odd">
+<<<<<<< HEAD
+<td align="left">pin 6</td>
+<td align="left">Punishment Buzzer</td>
+<td align="left"><code>buzzerPin</code></td>
+</tr>
+<tr class="even">
+<td align="left">pin 7</td>
+<td align="left">speaker</td>
+<td align="left"><code>speakerPin</code></td>
+</tr>
+<tr class="odd">
+=======
 <td align="left">pin 8</td>
 <td align="left">speaker</td>
 <td align="left"><code>speakerPin</code></td>
 </tr>
 <tr class="even">
+>>>>>>> master
 <td align="left">pin 10</td>
 <td align="left">left water valve</td>
 <td align="left"><code>waterValve[0]</code></td>
 </tr>
+<<<<<<< HEAD
+<tr class="even">
+=======
 <tr class="odd">
+>>>>>>> master
 <td align="left">pin 11</td>
 <td align="left">right water valve</td>
 <td align="left"><code>waterValve[1]</code></td>
 </tr>
+<<<<<<< HEAD
+<tr class="odd">
+<td align="left">A4</td>
+<td align="left">MPR121 SCL</td>
+<td align="left"><code>Wire</code></td>
+</tr>
+<tr class="even">
+<td align="left">A5</td>
+<td align="left">MPR121 SDA</td>
+<td align="left"><code>Wire</code></td>
+=======
 </tbody>
 </table>
 <table>
@@ -284,6 +377,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <td align="left">A1</td>
 <td align="left">right lick sensor</td>
 <td align="left"><code>lickSens[1]</code></td>
+>>>>>>> master
 </tr>
 </tbody>
 </table>
@@ -291,12 +385,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The arduino program is a little complicated; but in principle a simple setup. The main method is <code>runTrial</code> which on initialisation:</p>
 <ol style="list-style-type: decimal">
 <li>Waits a period of ms defined by <code>trial_delay</code>. In this period the timer counts up to zero; and the sensors detect licks. 10 ms before zero, a pulse is sent to the <code>recTrig</code> to trigger the recording</li>
+<<<<<<< HEAD
+<li>Next two periods of <code>ActiveDelay</code> are intialised in sequence. Two are used so that if I decide the set a <code>noLickPer</code> time, I can have that come on a short time after the trigger. <code>ActiveDelay</code> has the condition <code>break_on_lick</code> as it’s second argument. If <code>true</code> the program will exit the function before it reaches the time that it is set to delay until.</li>
+=======
 <li>Next two periods of <code>ActiveDelay</code> are intialised in sequence. Two are used so that if I decide the set a <code>noLickPer</code> time, I can have that come on a short time after the trigger. <code>ActiveDelay</code> has the condition <code>break_on_lick</code> as it's second argument. If <code>true</code> the program will exit the function before it reaches the time that it is set to delay until.</li>
+>>>>>>> master
 <li>Two stimuli are delivered, separated by an <code>ActiveDelay</code> method.</li>
 <li>After another <code>ActiveDelay</code> the program enters the <code>TrialReward</code> period, if <code>rewardCond</code> is not <code>'N'</code>, which stands for neither port giving water. During the <code>TrialReward</code> phase, if the <code>mode</code> is <code>c</code> then water is dispensed immediately from the associated port.</li>
 <li>The program delays again, and then exits the <code>runTrial</code> function. Resulting in the program sending the ready string to the Serial controller.</li>
 </ol>
+<<<<<<< HEAD
+<p>Now also includes a mode switch. Using <code>&lt;tab&gt;</code> you can switch between operant and habituation modes. In habituation the animal is delivered a pair of randomly selected stimuli, which match the reward condition when it licks the water ports. Following the stimulus delivery a reward is dispensed on the port that the animal licked. In this mode an upper limit on the number of contiguous successful trials on the same side is used (Thanks to Conrad Lee from ANU). A counter keeps track of the number of licks, and if the counter reaches 10 the associated port becomes inactive. Licking the other port subtracts 1 from the counter. In this way the animal must balance it’s attention on both ports.</p>
+=======
 <p>Now also includes a mode switch. Using <code>&lt;tab&gt;</code> you can switch between operant and habituation modes. In habituation the animal is delivered a pair of randomly selected stimuli, which match the reward condition when it licks the water ports. Following the stimulus delivery a reward is dispensed on the port that the animal licked. In this mode an upper limit on the number of contiguous successful trials on the same side is used (Thanks to Conrad Lee from ANU). A counter keeps track of the number of licks, and if the counter reaches 10 the associated port becomes inactive. Licking the other port subtracts 1 from the counter. In this way the animal must balance it's attention on both ports.</p>
+>>>>>>> master
 <h2 id="functions">Functions</h2>
 <p>In addition to the basic functionality the program also features modules that do the following:</p>
 <dl>
@@ -357,6 +459,30 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </dd>
 </dl>
 <h2 id="serial-input-output">Serial Input / Output</h2>
+<<<<<<< HEAD
+<dl>
+<dt>adjustable parameters</dt>
+<dd><ul>
+<li><code>lickThres</code></li>
+<li><code>mode</code></li>
+<li><code>trialType</code></li>
+<li><code>break_wrongChoice</code></li>
+<li><code>minlickCount</code></li>
+<li><code>t_noLickPer</code></li>
+<li><code>OFF</code></li>
+<li><code>ON</code></li>
+<li><code>auditory</code></li>
+<li><code>timeout</code></li>
+<li><code>t_stimONSET</code></li>
+<li><code>t_stimDUR</code></li>
+<li><code>t_rewardDEL</code></li>
+<li><code>t_rewardDUR</code></li>
+<li><code>waterVol</code></li>
+</ul>
+</dd>
+</dl>
+=======
+>>>>>>> master
 <div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">int</span> UpdateGlobals(String input) {
     <span class="co">/*</span>
 <span class="co">    This is a big ugly function which compares the</span>
@@ -461,10 +587,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                 Serial.println(timeout);
                 <span class="kw">return</span> <span class="dv">1</span>;
         }
+<<<<<<< HEAD
+        <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rewardSTART&quot;</span>) {
+                t_rewardSTART = variable_value.toInt();
+                Serial.print(<span class="st">&quot;t_rewardSTART:</span><span class="ch">\t</span><span class="st">&quot;</span>);
+                Serial.println(t_rewardSTART);
+=======
         <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rDELAY&quot;</span>) {
                 t_rDELAY = variable_value.toInt();
                 Serial.print(<span class="st">&quot;t_rDELAY:</span><span class="ch">\t</span><span class="st">&quot;</span>);
                 Serial.println(t_rDELAY);
+>>>>>>> master
                 <span class="kw">return</span> <span class="dv">1</span>;
         }
         <span class="kw">else</span> <span class="kw">if</span> (variable_name == <span class="st">&quot;t_rewardEND&quot;</span>) {

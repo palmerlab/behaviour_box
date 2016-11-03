@@ -22,7 +22,7 @@ kwargs = {
                     },          
                     
     ('--repeats', ) : {
-                    'default' : 10, 
+                    'default' : 50, 
                     'type' : int, 
                     'help' : "the number of times this block should repeat, " 
                             "by default this is 1",
@@ -34,37 +34,12 @@ kwargs = {
                             "incorrect licks will end an operant "
                             "trial early",
                     },
+
     ("--verbose", ) : {
                     'action' : 'store_true', 
                     'help' : "for debug this will print everything if enabled",
                     },
 
-    ("-a", "--auditory", ) : {
-                    'action' : 'store_true', 
-                    'help' : "switch to auditory stimulus instead of somatosensory",
-                    },
-
-    ("-bc", "--bias_correct", ) : {
-                    'action' : 'store_true', 
-                    'help' : "turn on the bias correction for the random number generator",
-                    },
-                    
-    ("-b", "--blanks", ) : {
-                    'action' : 'store_true', 
-                    'help' : "include no stim trials",
-                    },
-                    
-    ("-rs", "--right_same", ) : {
-                    'action' : 'store_true', 
-                    'help' : "define the right port as correct for same stimulus",
-                    },
-                    
-    ("-s", "--single", ) : {
-                    'action' : 'store_true', 
-                    'help' : "use this flag for a single stimulus only",
-                    },
-
-                    
     ('-lt', '--lickThres', ) : {
                     'default' : 2, 
                     'type' : float, 
@@ -93,47 +68,40 @@ kwargs = {
                     'default' : 2000, 
                     'type' : int, 
                     'help' : 'sets the time after trigger to run the first stimulus'
-    },
-    
-    ('--t_stimDELAY',) : {
-                    'default' : 150, 
-                    'type' : int, 
-                    'help' : 'sets the time between succesive stimuli'
-    },
-                    
+                    },
+
     ('-rdel', '--t_rDELAY', ) : {
-                    'default' : 100, 
+                    'default' : 250, 
                     'type' : int, 
                     'help' : 'set start time of reward epoch'
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 2000, 
+                    'default' : 500, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },
                     
     ('-to', '--timeout', ) : {
-                    'default' : 1.5,
+                    'default' : 2.5,
                     'type' : float,
                     'help' : 'set the timeout duration for incorrect licks'
                     },
 
-    ('--dur', ) : {
-                    'nargs' : 2, 
-                    'default' : [100,500], 
-                    'type' : int, 
-                    'help' : "Durations or to be passed to "
-                            "arduino as DUR_short and DUR_long",
-                    },
-
     ('--ITI', ) : {
                     'nargs' : 2, 
-                    'default' : [1,3], 
+                    'default' : [3,8], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
-                    },
-
+                    },    
+    
+    ('-ratio', ) : {
+                    'nargs' : 3, 
+                    'default' : [10,10, 0], 
+                    'type' : int, 
+                    'help' : "number of go, nogo, and blank trials respectively",
+                    },    
+    
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
                     'type' : int, 
@@ -141,7 +109,7 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : "C:/DATA/Andrew/wavesurfer", 
+                    'default' : r"R:\Andrew\160806_GOnoGO_duration", 
                     'help' : "path to save data to, " 
                             "by default is "
                             "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
@@ -153,18 +121,7 @@ kwargs = {
                     },
 }
 
-
 for k, v in kwargs.iteritems():
     p.add_argument(*k, **v)
-
-
-lickside = p.add_mutually_exclusive_group()
-lickside.add_argument("-L", "--left", 
-                action = 'store_true',
-                )
-                
-lickside.add_argument("-R", "--right", 
-                action = 'store_true',
-                )
 
 args = p.parse_args()
