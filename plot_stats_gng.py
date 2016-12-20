@@ -29,13 +29,9 @@ usage = '''bokeh serve
 
 
 colors = {
-    'D0' : 'magenta',
-    'D1' : 'DodgerBlue',
-    'D2' : 'forestgreen',
-    'D3' : 'lime',
-    'D4' : 'purple',
-    'D5' : 'cyan',
-    
+    'F0' : 'dodgerblue',
+    'F2' : 'magenta',
+    'F3' : 'magenta',
 }
 
 def today():
@@ -351,7 +347,7 @@ update()
 # open a session to keep our local document in sync with server
 session = push_session(curdoc())
  
-curdoc().add_periodic_callback(update, 50)
+curdoc().add_periodic_callback(update, 10000)
 
 session.show() # open the document in a browser
 
