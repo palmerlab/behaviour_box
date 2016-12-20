@@ -1,19 +1,21 @@
 from __future__ import division
 
-import pandas as pd
+
+
 import datetime
+import ConfigParser
 import time
 import os
 import sys
-import serial
-
 import msvcrt as m
-import numpy as np
-from numpy.random import shuffle
 import random
 
+import serial
+import numpy as np
+import pandas as pd
+from numpy.random import shuffle
+
 from itertools import product
-import sounddevice as sd
 
 import colorama as color # makes things look nice
 from colorama import Fore as fc
@@ -260,10 +262,58 @@ def menu():
            't_stimDUR'                 :    t_stimDUR,
            'trialType'                 :    'N' if t_stimDUR in (600, 0) else 'G' ,
     }
-
+    
     return update_bbox(ser, params, logfile, trial_df)
 
-def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
+def write_out_config(params):
+    
+    with open('comms.ini','r+') as cfgfile:
+        Config = ConfigParser.ConfigParser()
+        Config.read('comms.ini')
+
+        if ID not in Config.sections():
+            Config.add_section(ID)
+        for key, value in params.iteritems():
+            if type(value) == str:
+                Config.set(ID, key, '"%s"' %value)
+            else:
+                Config.set(ID, key, value)
+        Config.write(cfgfile)
+
+def ConfigSectionMap(section, Config):
+    dict1 = {}
+    options = Config.options(section)
+    for option in options:
+        try:
+            dict1[option] = Config.get(section, option)
+            if dict1[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+
+def restore_old_config():
+    with open('comms.ini','r+') as cfgfile:
+        Config = ConfigParser.ConfigParser()
+        Config.read('comms.ini')
+
+    print Config.sections()
+    if ID in Config.sections():
+        print 'previous config found for', ID
+        exec_string = []
+        for name, value in ConfigSectionMap(ID, Config).iteritems():
+            print name, ':', value
+            exec_string.append('global {name}\n'.format(name = name, value = value) +
+                               '{name} = {value}\n'.format(name = name, value = value))
+        exec('\n'.join(exec_string))
+    else:
+        print 'No previous paramaters found'
+
+def colour (x, 
+    fc = color.Fore.WHITE, 
+    bc = color.Back.BLACK, 
+    style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
 def timenow():
@@ -306,6 +356,7 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     trail_df dictionary is updated to include the parameters 
     received from the arduino
     """
+    write_out_config(params)
     
     for name, param in params.iteritems():
     
@@ -403,7 +454,7 @@ def init_serialport(port, logfile = None):
 
     return ser
 
-def habituation_run():
+def habituation_run(df):
     #THE HANDSHAKE
     # send all current parameters to the arduino box to run the trial
     params = {
@@ -441,10 +492,9 @@ def habituation_run():
 
                 trial_df = pd.DataFrame(trial_df, index=[trial_num])
 
-                try: 
-                    df = df.append(trial_df, ignore_index = True)
-                except NameError:
-                    df = trial_df
+
+                df = df.append(trial_df, ignore_index = True)
+
 
                 df.to_csv(datafile)
 
@@ -475,14 +525,13 @@ df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
 
-noise = np.random.rand(44100) * .2
-sd.play(noise, 44100, loop = True)
-
 requires_L = 0
 requires_R = 0
 
 # making the random condition in this way means 
 # there are never more than 3 in a row
+
+restore_old_config()
 
 try:
     #open a file to save data in
@@ -501,7 +550,7 @@ try:
 
     
     if mode == 'h':
-        habituation_run()
+        habituation_run(df)
     elif mode == 'o':
         params = {
             'mode'              : mode,
@@ -511,7 +560,7 @@ try:
             'punish_tone'       : int(0),
             'minlickCount'      : lcount,
             't_noLickPer'       : noLick,
-            'timeout'           : int(timeout*1000),     #Converts back to millis
+            'timeout'           : timeout,     #Converts back to millis
             't_stimONSET'       : t_stimONSET,
             't_rewardDEL'       : t_rewardDEL,
             't_rewardDUR'       : t_rewardDUR,
@@ -525,8 +574,10 @@ try:
 
             Ngo, Nngo, Nblank = ratio
             
-            trials = list(np.arange(15)*10)
-            trials.append(200)
+            #trials = [0, 200, 50 , 100, 25, 150]
+            #trials = [0, 200,200,200,200,200]
+            #trials = [0, ] * 5
+            #trials.append(200)
             
             shuffle(trials)
             print trials
@@ -718,27 +769,29 @@ try:
 
 
 except KeyboardInterrupt:
+    if mode != 'o':
+        update_bbox(ser, {'mode': 'o'}, logfile)
+    else:
+        try:
+            print "attempting to create DataFrame"
+            trial_df = pd.DataFrame(trial_df, index=[trial_num])
+            
+            try: 
+                df = df.append(trial_df, ignore_index = True)
+            except NameError:
+                df = trial_df
 
-    try:
-        print "attempting to create DataFrame"
-        trial_df = pd.DataFrame(trial_df, index=[trial_num])
-        
-        try: 
-            df = df.append(trial_df, ignore_index = True)
+            cumWater = df['Water'].cumsum()
+
+            
+            df['cumWater'] = cumWater               
+
+            df.to_csv(df_file)
         except NameError:
-            df = trial_df
+            print "unable to create trial_df does not exist"
+        except AttributeError:
+            df.to_csv(df_file)
+            print "saved df"
 
-        cumWater = df['Water'].cumsum()
-
-        
-        df['cumWater'] = cumWater               
-
-        df.to_csv(df_file)
-    except NameError:
-        print "unable to create trial_df does not exist"
-    except AttributeError:
-        df.to_csv(df_file)
-        print "saved df"
-
-    print "Closing", port
-    sys.exit(0)
+        print "Closing", port
+        sys.exit(0)
