@@ -129,7 +129,7 @@ def menu():
                 print "Training mode:\t%s" %mode
                 
             elif c in ("C","c"): #m,Ctrl-m
-                comment = raw_input("Comment: ")
+                comment = raw_input("Comment: ") + ''
                 with open(logfile, 'a') as log:
                     log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
@@ -267,6 +267,8 @@ def menu():
 
 def write_out_config(params):
     
+    ignore = ( 'time', 'comments', 'trial')
+    
     with open('comms.ini','r+') as cfgfile:
         Config = ConfigParser.ConfigParser()
         Config.read('comms.ini')
@@ -274,6 +276,8 @@ def write_out_config(params):
         if ID not in Config.sections():
             Config.add_section(ID)
         for key, value in params.iteritems():
+            if key in ignore:
+                continue
             if type(value) == str:
                 Config.set(ID, key, '"%s"' %value)
             else:
