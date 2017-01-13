@@ -2,7 +2,7 @@
 ||                  IO port settings:                     ||
 ++--------------------------------------------------------*/
 
-const byte debounce = 15;         // a simple debounce method 
+
 const byte recTrig = 3;           // triggers ITC-18
 const byte bulbTrig = 4;          // Bulb mode trigger for ThorImage
 const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
@@ -33,6 +33,8 @@ unsigned int t_stimDUR = 500;     // ms
 unsigned int t_rewardDEL = 150;   // ms
 unsigned int t_rewardDUR = 2000;  // ms
 unsigned int timeout = 0;         // ms
+
+byte debounce = 15;         // a simple debounce method 
 
 char mode = '-';                  //one of 'h'abituation, 'o'perant
 byte minlickCount = 5;
