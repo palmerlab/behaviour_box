@@ -5,16 +5,18 @@ bool senseLick() {
     //     if the sensor was in a low state, allow the calling of a rising edge.
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has change
-
+    
     bool CallSpike = false; // Who You Gonna Call?
-
+    
     if (lickOn == false) { 
         CallSpike = true;
     }
-
+    
     if (analogRead(lickSens) >= lickThres){
-        lickOn = true;
+        delay(debounce);
+        lickOn = (analogRead(lickSens) >= lickThres);
     }
+    
     else {
         lickOn = false;
     }

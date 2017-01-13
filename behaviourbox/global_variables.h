@@ -2,6 +2,7 @@
 ||                  IO port settings:                     ||
 ++--------------------------------------------------------*/
 
+const byte debounce = 15;         // a simple debounce method 
 const byte recTrig = 3;           // triggers ITC-18
 const byte bulbTrig = 4;          // Bulb mode trigger for ThorImage
 const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
