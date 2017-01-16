@@ -267,7 +267,7 @@ def menu():
 
 def write_out_config(params):
     
-    ignore = ( 'time', 'comments', 'trial')
+    ignore = ( 'time', 'comment', 'trial')
     
     with open('comms.ini','r+') as cfgfile:
         Config = ConfigParser.ConfigParser()
@@ -529,9 +529,6 @@ df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
 
-requires_L = 0
-requires_R = 0
-
 # making the random condition in this way means 
 # there are never more than 3 in a row
 
@@ -578,7 +575,7 @@ try:
 
             Ngo, Nngo, Nblank = ratio
             
-            #trials = [0, 200, 50 , 100, 25, 150]
+            trials = [0, 200, 50 , 100, 25, 150]
             #trials = [0, 200,200,200,200,200]
             #trials = [0, ] * 5
             #trials.append(200)
