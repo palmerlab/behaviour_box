@@ -61,6 +61,7 @@ trial_num = args.trial_num            # deprecated; for use if this continues a 
 trialDur = args.trialDur              # nominally the time to idle before resetting
 ITI = args.ITI
 ratio = args.ratio
+restore = args.restore
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
@@ -266,8 +267,19 @@ def menu():
     return update_bbox(ser, params, logfile, trial_df)
 
 def write_out_config(params):
-    
-    ignore = ( 'time', 'comment', 'trial')
+
+    write = ( 'mode',
+              'lickThres',
+              'break_wrongChoice',
+              'break_on_early',
+              'punish_tone',
+              'minlickCount',
+              't_noLickPer',
+              'timeout',
+              't_stimONSET',
+              't_rewardDEL',
+              't_rewardDUR'
+              )
     
     with open('comms.ini','r+') as cfgfile:
         Config = ConfigParser.ConfigParser()
@@ -276,7 +288,7 @@ def write_out_config(params):
         if ID not in Config.sections():
             Config.add_section(ID)
         for key, value in params.iteritems():
-            if key in ignore:
+            if key not in write:
                 continue
             if type(value) == str:
                 Config.set(ID, key, '"%s"' %value)
@@ -532,7 +544,9 @@ comment = ""
 # making the random condition in this way means 
 # there are never more than 3 in a row
 
-restore_old_config()
+# load the old configs
+if restore:
+    restore_old_config()
 
 try:
     #open a file to save data in
