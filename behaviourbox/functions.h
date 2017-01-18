@@ -82,12 +82,15 @@ int Timeout(unsigned long wait, int depth) {
 
    //delay(500); // Delay prevents punishing continued licking
     punish(500);
-
+    
     while (t < wait) {
         t = t_since(t_init);
 
         if (senseLick()) {
-            
+            if (depth == 2) {
+                // don't record more than a couple of timeouts
+                digitalWrite(bulbTrig, LOW);
+            }
             if (depth < 10) {
                 depth ++;
                 depth = Timeout(wait, depth);

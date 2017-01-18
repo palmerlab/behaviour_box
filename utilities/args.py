@@ -22,7 +22,7 @@ kwargs = {
                     },          
                     
     ('--repeats', ) : {
-                    'default' : 50, 
+                    'default' : 500, 
                     'type' : int, 
                     'help' : "the number of times this block should repeat, " 
                             "by default this is 1",
@@ -71,13 +71,13 @@ kwargs = {
                     },
 
     ('-rdel', '--t_rDELAY', ) : {
-                    'default' : 250, 
+                    'default' : 50, 
                     'type' : int, 
                     'help' : 'set start time of reward epoch'
                     },
                     
     ('-rdur', '--t_rDUR', ) : {
-                    'default' : 500, 
+                    'default' : 800, 
                     'type' : int, 
                     'help' : 'set end time of reward epoch'
                     },
@@ -90,17 +90,21 @@ kwargs = {
 
     ('--ITI', ) : {
                     'nargs' : 2, 
-                    'default' : [3,8], 
+                    'default' : [5,8], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
                     },    
     
     ('-ratio', ) : {
                     'nargs' : 3, 
-                    'default' : [10,10, 0], 
+                    'default' : [1,1,0], 
                     'type' : int, 
                     'help' : "number of go, nogo, and blank trials respectively",
-                    },    
+                    },
+    ('-restore', ) : {
+                     'action': 'store_true',
+                     'help' : "Use to look up previous settings in the comms.ini file",
+                    },
     
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
@@ -109,10 +113,10 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"R:\Andrew\160806_GOnoGO_duration", 
+                    'default' : r"R:\Andrew\161222_GOnoGO_Perception_III", 
                     'help' : "path to save data to, " 
                             "by default is "
-                            "'C:/DATA/Andrew/wavesurfer/%%YY%%MM%%DD'",
+                            r"R:\Andrew\161222_GOnoGO_Perception_III\%%YY%%MM%%DD",
                     },
                     
     ("--port", ) : {

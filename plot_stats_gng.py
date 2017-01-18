@@ -29,13 +29,9 @@ usage = '''bokeh serve
 
 
 colors = {
-    'D0' : 'magenta',
-    'D1' : 'DodgerBlue',
-    'D2' : 'forestgreen',
-    'D3' : 'lime',
-    'D4' : 'purple',
-    'D5' : 'cyan',
-    
+    'test' : 'dodgerblue',
+    'F2' : 'magenta',
+    'F3' : 'magenta',
 }
 
 def today():
@@ -55,7 +51,7 @@ bin = int(sys.argv[2])
 if len(sys.argv) == 4:
     DATAPATH = sys.argv[3]
 else:
-    DATAPATH = '/'.join((r'R:\Andrew\160616_GOnoGO_duration', today()))
+    DATAPATH = '/'.join((r'R:\Andrew\161222_GOnoGO_Perception_III', today()))
 
 infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH) 
                     if ID in f 
@@ -175,7 +171,7 @@ def update():
     
     p_correct = pd.rolling_mean(correct, bin)
     
-    d_prime_col = ['limegreen' if d else 'red' for d in (d_prime>1.5)]
+    d_prime_col = 'limegreen'# if d else 'red' for d in (d_prime>1.5)]
              
     ###############################################################################
     #Rendering of the lines ---------------------------------------
@@ -351,7 +347,7 @@ update()
 # open a session to keep our local document in sync with server
 session = push_session(curdoc())
  
-curdoc().add_periodic_callback(update, 50)
+curdoc().add_periodic_callback(update, 10000)
 
 session.show() # open the document in a browser
 

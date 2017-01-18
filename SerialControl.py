@@ -1,16 +1,17 @@
 from __future__ import division
 
-import pandas as pd
 import datetime
+import ConfigParser
 import time
 import os
 import sys
-import serial
-
 import msvcrt as m
-import numpy as np
-from numpy.random import shuffle
 import random
+
+import serial
+import numpy as np
+import pandas as pd
+from numpy.random import shuffle
 
 from itertools import product
 
@@ -21,6 +22,14 @@ from colorama import Style
 
 from utilities.args import args
 from utilities.numerical import num, na_printr, unpack_table
+
+
+
+
+
+import sounddevice as sd
+
+
 
 """
 1. The program starts
@@ -58,6 +67,7 @@ trial_num = args.trial_num            # deprecated; for use if this continues a 
 trialDur = args.trialDur              # nominally the time to idle before resetting
 ITI = args.ITI
 ratio = args.ratio
+restore = args.restore
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
@@ -113,14 +123,12 @@ def menu():
             c = m.getch()
             if c == '\xe0': 
                 c = c + m.getch()
-        
 
-            
             if c in ("\r", " "):
                 paused = False
             
             # Toggle condition
-            elif c in ("\t"):               
+            elif c in ("\t"):
                 if mode == "o": 
                     mode = "h"
                 elif mode == "h": 
@@ -128,11 +136,11 @@ def menu():
                 print "Training mode:\t%s" %mode
                 
             elif c in ("C","c"): #m,Ctrl-m
-                comment = raw_input("Comment: ")
+                comment = raw_input("Comment: ") + ''
                 with open(logfile, 'a') as log:
                     log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
-            
+
             #leftkey
             elif c in '\xe0K':
                 t_stimDUR = 100.0
@@ -247,10 +255,10 @@ def menu():
                 print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
                 print color.Style.RESET_ALL, '\r',
-                
+
             else:
                 print "SPACE or ENTER to unpause"
-            
+
     params = {
            'break_wrongChoice'         :    int(punish) if lcount > 0 else 0, # don't punish the animal if not counting licks
            'lickThres'                 :    lickThres,
@@ -264,13 +272,92 @@ def menu():
     
     return update_bbox(ser, params, logfile, trial_df)
 
-def colour (x, fc = color.Fore.WHITE, bc = color.Back.BLACK, style = color.Style.NORMAL):
+def write_out_config(params):
+
+    write = ( 'mode',
+              'lickThres',
+              'break_wrongChoice',
+              'break_on_early',
+              'punish_tone',
+              'minlickCount',
+              't_noLickPer',
+              'timeout',
+              't_stimONSET',
+              't_rewardDEL',
+              't_rewardDUR'
+              )
+    
+    with open('comms.ini','r+') as cfgfile:
+        Config = ConfigParser.ConfigParser()
+        Config.read('comms.ini')
+
+        if ID not in Config.sections():
+            Config.add_section(ID)
+        for key, value in params.iteritems():
+            if key not in write:
+                continue
+            if type(value) == str:
+                Config.set(ID, key, '"%s"' %value)
+            else:
+                Config.set(ID, key, value)
+        Config.write(cfgfile)
+
+def ConfigSectionMap(section, Config):
+    dict1 = {}
+    options = Config.options(section)
+    for option in options:
+        try:
+            dict1[option] = Config.get(section, option)
+            if dict1[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+
+def restore_old_config():
+    with open('comms.ini','r+') as cfgfile:
+        Config = ConfigParser.ConfigParser()
+        Config.read('comms.ini')
+
+    print Config.sections()
+    if ID in Config.sections():
+        print 'previous config found for', ID
+        exec_string = []
+        for name, value in ConfigSectionMap(ID, Config).iteritems():
+            print name, ':', value
+            exec_string.append('global {name}\n'.format(name = name, value = value) +
+                               '{name} = {value}\n'.format(name = name, value = value))
+        exec('\n'.join(exec_string))
+    else:
+        print 'No previous paramaters found'
+
+def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
+    freqs = np.abs(np.fft.fftfreq(samples, float(1)/samplerate))
+    f = np.zeros(samples)
+    idx = np.where(np.logical_and(freqs>=min_freq, freqs<=max_freq))[0]
+    f[idx] = 1
+    return fftnoise(f)
+
+def fftnoise(f):
+    f = np.array(f, dtype='complex')
+    Np = (len(f) - 1) // 2
+    phases = np.random.rand(Np) * 2 * np.pi
+    phases = np.cos(phases) + 1j * np.sin(phases)
+    f[1:Np+1] *= phases
+    f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
+    return np.fft.ifft(f).real
+
+def colour (x, 
+    fc = color.Fore.WHITE, 
+    bc = color.Back.BLACK, 
+    style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')      
-      
+
 def today():
     """provides today's date as a string in the form YYMMDD"""
     return datetime.date.today().strftime('%y%m%d')
@@ -278,23 +365,23 @@ def today():
 def Serial_monitor(ser, logfile, show = True):
     
     line = ser.readline()
-    
+
     if line:
-        
+
         fmt_line = "%s\t%s\t%s\t%s" %(timenow(), port, ID, line.strip())
-        
+
         if line.startswith("#"): 
             fmt_line = "#" + fmt_line
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
-        
+
         elif show: 
             if line.startswith("port") == False:
                 print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
                 print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
-    
+
         with open(logfile, 'a') as log:    
             log.write(fmt_line + "\n")
-        
+
     return line
 
 def update_bbox(ser, params, logfile, trial_df = {}):
@@ -307,6 +394,7 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     trail_df dictionary is updated to include the parameters 
     received from the arduino
     """
+    write_out_config(params)
     
     for name, param in params.iteritems():
     
@@ -336,7 +424,7 @@ def create_datapath(DATADIR = "", date = today()):
     """
     
     """
-    
+
     if not DATADIR: 
         DATADIR = os.path.join(os.getcwd(), date)
     else: 
@@ -349,7 +437,7 @@ def create_datapath(DATADIR = "", date = today()):
     print colour(DATADIR, fc = fc.GREEN, style=Style.BRIGHT)
     
     return DATADIR        
-  
+
 def create_logfile(DATADIR = "", date = today()):
     """
     
@@ -404,7 +492,7 @@ def init_serialport(port, logfile = None):
 
     return ser
 
-def habituation_run():
+def habituation_run(df):
     #THE HANDSHAKE
     # send all current parameters to the arduino box to run the trial
     params = {
@@ -442,10 +530,9 @@ def habituation_run():
 
                 trial_df = pd.DataFrame(trial_df, index=[trial_num])
 
-                try: 
-                    df = df.append(trial_df, ignore_index = True)
-                except NameError:
-                    df = trial_df
+
+                df = df.append(trial_df, ignore_index = True)
+
 
                 df.to_csv(datafile)
 
@@ -476,11 +563,12 @@ df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
 
-requires_L = 0
-requires_R = 0
-
 # making the random condition in this way means 
 # there are never more than 3 in a row
+
+# load the old configs
+if restore:
+    restore_old_config()
 
 try:
     #open a file to save data in
@@ -499,7 +587,7 @@ try:
 
     
     if mode == 'h':
-        habituation_run()
+        habituation_run(df)
     elif mode == 'o':
         params = {
             'mode'              : mode,
@@ -509,10 +597,11 @@ try:
             'punish_tone'       : int(0),
             'minlickCount'      : lcount,
             't_noLickPer'       : noLick,
-            'timeout'           : int(timeout*1000),     #Converts back to millis
+            'timeout'           : timeout,     #Converts back to millis
             't_stimONSET'       : t_stimONSET,
             't_rewardDEL'       : t_rewardDEL,
             't_rewardDUR'       : t_rewardDUR,
+            't_trialDUR'        : trialDur * 1000 # converts to millis
         }
 
         trial_df = update_bbox(ser, params, logfile, {} )
@@ -523,33 +612,33 @@ try:
 
             Ngo, Nngo, Nblank = ratio
             
-            trials = ([200] * Ngo, [600] * Nngo, [0] * Nblank)
-            trials = [item for sublist in trials for item in sublist]
-
-           
+            #trials = [0, 200, 50 , 100, 25, 150]
+            trials = [0, 0,200,200,200,200]
+            #trials = [0, ] * 5
+            #trials.append(200)
+            
             shuffle(trials)
             print trials
 
             # loop for number of trials in the list of random conditions
 
             for trial_num, t_stimDUR in enumerate(trials):
-                
-                
+
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                    'trialType'         : 'N' if t_stimDUR in (600, 0) else 'G' ,
+                    'trialType'         : 'N' if t_stimDUR in (0, ) else 'G' ,
                     't_stimDUR'         : t_stimDUR,
                 }
                 
                 try:
                     #if df.outcome[df.response != 'e'].values[-1] == 'FA':
                     #    params['t_stimDUR'] = 600
-                    if df.outcome[df.response != 'e'].values[-1] == 'CR':
-                        params['t_stimDUR'] = 200
-                    if df.outcome[df.response != 'e'].values[-1] == 'miss':
-                        if df.outcome[df.response != 'e'].values[-2] == 'CR' or df.outcome[df.response != 'e'].values[-2] == 'miss':
-                            params['t_stimDUR'] = 200
+                    #if df.outcome[df.response != 'e'].values[-1] == 'CR':
+                    #    params['t_stimDUR'] = 200
+                    #if df.outcome[df.response != 'e'].values[-1] == 'miss':
+                    #    if df.outcome[df.response != 'e'].values[-2] == 'CR' or df.outcome[df.response != 'e'].values[-2] == 'miss':
+                    #        params['t_stimDUR'] = 200
                     #if (df.outcome.values[-5:-1] == 'miss').sum() > 3:
                     #    params['minlickCount'] = 0
                     #else:
@@ -569,7 +658,7 @@ try:
                         
                 except:
                     pass
-                params['trialType'] = 'N' if params['t_stimDUR'] in (600, 0) else 'G'
+                params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
 
@@ -614,6 +703,10 @@ try:
                 ser.write("GO")
                 line = Serial_monitor(ser, logfile, show = verbose).strip()
                 
+                noise = band_limited_noise(5000, 20000, samples=int(44100*trialDur), samplerate=44100)
+                noise = noise/ noise.min()
+                sd.play(noise*.5, 44100)
+
                 while line.strip() != "-- Status: Ready --":
                     # keep running until arduino reports it has broken out of loop
                     line = Serial_monitor(ser, logfile, False).strip()
@@ -718,27 +811,29 @@ try:
 
 
 except KeyboardInterrupt:
+    if mode != 'o':
+        update_bbox(ser, {'mode': 'o'}, logfile)
+    else:
+        try:
+            print "attempting to create DataFrame"
+            trial_df = pd.DataFrame(trial_df, index=[trial_num])
+            
+            try: 
+                df = df.append(trial_df, ignore_index = True)
+            except NameError:
+                df = trial_df
 
-    try:
-        print "attempting to create DataFrame"
-        trial_df = pd.DataFrame(trial_df, index=[trial_num])
-        
-        try: 
-            df = df.append(trial_df, ignore_index = True)
+            cumWater = df['Water'].cumsum()
+
+            
+            df['cumWater'] = cumWater               
+
+            df.to_csv(df_file)
         except NameError:
-            df = trial_df
+            print "unable to create trial_df does not exist"
+        except AttributeError:
+            df.to_csv(df_file)
+            print "saved df"
 
-        cumWater = df['Water'].cumsum()
-
-        
-        df['cumWater'] = cumWater               
-
-        df.to_csv(df_file)
-    except NameError:
-        print "unable to create trial_df does not exist"
-    except AttributeError:
-        df.to_csv(df_file)
-        print "saved df"
-
-    print "Closing", port
-    sys.exit(0)
+        print "Closing", port
+        sys.exit(0)

@@ -167,6 +167,14 @@ int UpdateGlobals(String input) {
                 Serial.println(t_rewardDUR);
                 return 1;
         }
+        
+        // t_trialDUR
+        else if (variable_name == "t_trialDUR") {
+                t_trialDUR = variable_value.toInt();
+                Serial.print("t_trialDUR:\t");
+                Serial.println(t_trialDUR);
+                return 1;
+        }
 
         // waterVol
         else if (variable_name == "waterVol") {
@@ -189,6 +197,14 @@ int UpdateGlobals(String input) {
                 punish_tone = variable_value.toInt();
                 Serial.print("punish_tone:\t");
                 Serial.println(punish_tone);
+                return 1;
+        }
+        
+        // debounce
+        else if (variable_name == "debounce") {
+                debounce = variable_value.toInt();
+                Serial.print("debounce:\t");
+                Serial.println(debounce);
                 return 1;
         }
    }
