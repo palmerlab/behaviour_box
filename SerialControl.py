@@ -589,8 +589,8 @@ try:
 
             Ngo, Nngo, Nblank = ratio
             
-            trials = [0, 200, 50 , 100, 25, 150]
-            #trials = [0, 200,200,200,200,200]
+            #trials = [0, 200, 50 , 100, 25, 150]
+            trials = [0, 0,200,200,200,200]
             #trials = [0, ] * 5
             #trials.append(200)
             

@@ -191,6 +191,14 @@ int UpdateGlobals(String input) {
                 Serial.println(punish_tone);
                 return 1;
         }
+        
+        // debounce
+        else if (variable_name == "debounce") {
+                debounce = variable_value.toInt();
+                Serial.print("debounce:\t");
+                Serial.println(debounce);
+                return 1;
+        }
    }
    return 0;
 }

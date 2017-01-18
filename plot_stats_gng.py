@@ -29,7 +29,7 @@ usage = '''bokeh serve
 
 
 colors = {
-    'F0' : 'dodgerblue',
+    'test' : 'dodgerblue',
     'F2' : 'magenta',
     'F3' : 'magenta',
 }
@@ -51,7 +51,7 @@ bin = int(sys.argv[2])
 if len(sys.argv) == 4:
     DATAPATH = sys.argv[3]
 else:
-    DATAPATH = '/'.join((r'R:\Andrew\160616_GOnoGO_duration', today()))
+    DATAPATH = '/'.join((r'R:\Andrew\161222_GOnoGO_Perception_III', today()))
 
 infile = ['/'.join((DATAPATH,f)) for f in os.listdir(DATAPATH) 
                     if ID in f 
@@ -171,7 +171,7 @@ def update():
     
     p_correct = pd.rolling_mean(correct, bin)
     
-    d_prime_col = ['limegreen' if d else 'red' for d in (d_prime>1.5)]
+    d_prime_col = 'limegreen'# if d else 'red' for d in (d_prime>1.5)]
              
     ###############################################################################
     #Rendering of the lines ---------------------------------------

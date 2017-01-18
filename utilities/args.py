@@ -71,7 +71,7 @@ kwargs = {
                     },
 
     ('-rdel', '--t_rDELAY', ) : {
-                    'default' : 250, 
+                    'default' : 50, 
                     'type' : int, 
                     'help' : 'set start time of reward epoch'
                     },
@@ -100,7 +100,11 @@ kwargs = {
                     'default' : [1,1,0], 
                     'type' : int, 
                     'help' : "number of go, nogo, and blank trials respectively",
-                    },    
+                    },
+    ('-restore', ) : {
+                     'action': 'store_true',
+                     'help' : "Use to look up previous settings in the comms.ini file",
+                    },
     
     ("-N", '--trial_num', ) : {
                     'default' : 0, 
@@ -109,10 +113,10 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"R:\Andrew\160927_GOnoGO_Perception", 
+                    'default' : r"R:\Andrew\161222_GOnoGO_Perception_III", 
                     'help' : "path to save data to, " 
                             "by default is "
-                            r"R:\Andrew\160927_GOnoGO_Perception\%%YY%%MM%%DD",
+                            r"R:\Andrew\161222_GOnoGO_Perception_III\%%YY%%MM%%DD",
                     },
                     
     ("--port", ) : {

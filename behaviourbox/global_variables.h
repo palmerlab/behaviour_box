@@ -34,7 +34,7 @@ unsigned int t_rewardDEL = 150;   // ms
 unsigned int t_rewardDUR = 2000;  // ms
 unsigned int timeout = 0;         // ms
 
-byte debounce = 15;         // a simple debounce method 
+byte debounce = 5;         // a simple debounce method 
 
 char mode = '-';                  //one of 'h'abituation, 'o'perant
 byte minlickCount = 5;
