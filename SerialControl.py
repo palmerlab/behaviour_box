@@ -1,7 +1,5 @@
 from __future__ import division
 
-
-
 import datetime
 import ConfigParser
 import time
@@ -24,6 +22,14 @@ from colorama import Style
 
 from utilities.args import args
 from utilities.numerical import num, na_printr, unpack_table
+
+
+
+
+
+import sounddevice as sd
+
+
 
 """
 1. The program starts
@@ -326,6 +332,22 @@ def restore_old_config():
     else:
         print 'No previous paramaters found'
 
+def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
+    freqs = np.abs(np.fft.fftfreq(samples, float(1)/samplerate))
+    f = np.zeros(samples)
+    idx = np.where(np.logical_and(freqs>=min_freq, freqs<=max_freq))[0]
+    f[idx] = 1
+    return fftnoise(f)
+
+def fftnoise(f):
+    f = np.array(f, dtype='complex')
+    Np = (len(f) - 1) // 2
+    phases = np.random.rand(Np) * 2 * np.pi
+    phases = np.cos(phases) + 1j * np.sin(phases)
+    f[1:Np+1] *= phases
+    f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
+    return np.fft.ifft(f).real
+
 def colour (x, 
     fc = color.Fore.WHITE, 
     bc = color.Back.BLACK, 
@@ -579,6 +601,7 @@ try:
             't_stimONSET'       : t_stimONSET,
             't_rewardDEL'       : t_rewardDEL,
             't_rewardDUR'       : t_rewardDUR,
+            't_trialDUR'        : trialDur * 1000 # converts to millis
         }
 
         trial_df = update_bbox(ser, params, logfile, {} )
@@ -680,6 +703,10 @@ try:
                 ser.write("GO")
                 line = Serial_monitor(ser, logfile, show = verbose).strip()
                 
+                noise = band_limited_noise(5000, 20000, samples=int(44100*trialDur), samplerate=44100)
+                noise = noise/ noise.min()
+                sd.play(noise*.5, 44100)
+
                 while line.strip() != "-- Status: Ready --":
                     # keep running until arduino reports it has broken out of loop
                     line = Serial_monitor(ser, logfile, False).strip()

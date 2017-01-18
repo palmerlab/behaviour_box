@@ -32,6 +32,7 @@ unsigned int t_stimONSET = 2000;  // ms
 unsigned int t_stimDUR = 500;     // ms
 unsigned int t_rewardDEL = 150;   // ms
 unsigned int t_rewardDUR = 2000;  // ms
+unsigned int t_trialDUR = 5000;  // ms
 unsigned int timeout = 0;         // ms
 
 byte debounce = 5;         // a simple debounce method 

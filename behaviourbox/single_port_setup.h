@@ -76,6 +76,10 @@ char runTrial() {
     
     delta = post_count - pre_count;
     
+    while (t < t_trialDUR){
+        t = t_since(t_init);
+    }
+    
     if (trialType == 'G') {
         if (post_count >= minlickCount) {
             deliver_reward();
