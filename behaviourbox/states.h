@@ -12,13 +12,11 @@ int Timeout(unsigned long wait, int depth = 0);
 
 void preTrial();
 
-char TrialReward();
-
 int count_responses(int duration);
 
-int TrialStimulus(bool break_on_early);
+int TrialStimulus();
 
-
+response();
 
 /*--------------------------------------------------------++
 ||                THE STATE FUNCTIONS                     ||
@@ -26,14 +24,12 @@ int TrialStimulus(bool break_on_early);
 
 
 /*
-
 pre_trial baseline
 _noick period
 stimulus
 delay
 response_period
 _reward
-
 */
 
 
@@ -70,17 +66,16 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     return response;
 }
 
-bool deliver_reward() {
+bool deliver_reward(bool water) {
     /* Open the water port on `port` for a 
         duration defined by waterVol */
-
     digitalWrite(waterPort, HIGH);
     delay(waterVol);
     digitalWrite(waterPort, LOW);
     
     if (verbose) { 
         Serial.print("Water:\t");
-        Serial.println(waterVol);
+        Serial.println(water);
     }
     return 1;
 }
@@ -159,20 +154,18 @@ void preTrial() {
     }
 } 
 
-
-
-int count_responses(int duration) {
+int count_responses(int duration, bool lickTrig) {
     
     /*
     Counts the number of hits on the lick sensor over `duration`
     of milliseconds.
-    
     */
 
     int t0 = t_since(t_init);
     int t = t0;
     bool lick = 0;
     int count = 0;
+    bool water = 0;
 
     if (verbose) {
         Serial.print("#Enter `count_responses`:\t");
@@ -183,6 +176,11 @@ int count_responses(int duration) {
         t = t_since(t_init);
         lick = senseLick();
         count += lick;
+        
+        if ((count >= minlickCount) and (lickTrig) and (!water)){
+            deliver_reward();
+            water = 1;
+        }
     }
 
     if (verbose) {
@@ -193,7 +191,7 @@ int count_responses(int duration) {
     return count;
 }
 
-int TrialStimulus(bool break_on_early) {
+int TrialStimulus() {
 
     int t_local = millis();
     int t = t_since(t_local);
@@ -204,9 +202,7 @@ int TrialStimulus(bool break_on_early) {
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t");
-
-        Serial.println(t_since(t_init));
-        
+        Serial.println(t_since(t_init));    
         Serial.print("#\tt_stimDUR:\t");
         Serial.println(t_stimDUR);
     }

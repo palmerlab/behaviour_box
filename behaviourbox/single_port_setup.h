@@ -44,7 +44,8 @@ char runTrial() {
     
     // wait 
     //ActiveDelay(t_stimONSET - t_rewardDUR, false);
-    pre_count = (float) count_responses(t_stimONSET) / ((float) t_stimONSET / 1000);
+    pre_count = count_responses(t_stimONSET, 0);
+    //pre_count = (float) pre_count / ((float) t_stimONSET / 1000);
 
     if (response and t_noLickPer){
 
@@ -63,7 +64,7 @@ char runTrial() {
 
     t = t_since(t_init);
 
-    post_count = (float) TrialStimulus(break_on_early);
+    post_count = TrialStimulus();
     t = t_since(t_init);
 
 

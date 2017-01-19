@@ -106,13 +106,6 @@ int UpdateGlobals(String input) {
                 return 1;
         }
 
-        // break_on_early
-        else if (variable_name == "break_on_early") {
-                break_on_early = bool(variable_value.toInt());
-                Serial.print("\tbreak_on_early:");
-                Serial.println(break_on_early);
-                return 1;
-        }
         // minlickCount
         else if (variable_name == "minlickCount") {
                 minlickCount = variable_value.toInt();
