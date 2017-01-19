@@ -40,7 +40,7 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
 
     if (verbose) {
         Serial.print("#Enter `ActiveDelay`:\t");
-        Serial.println(t);
+        Serial.println(wait);
     }
 
     while (t < wait) {
@@ -73,7 +73,7 @@ bool deliver_reward(bool water) {
     }
     
     if (verbose) { 
-        Serial.print("Water:\t");
+        Serial.print("Water:");
         Serial.println(water);
     }
     return 1;

@@ -72,9 +72,9 @@ int UpdateGlobals(String input) {
         String variable_name = input.substring(0,sep);
         String variable_value = input.substring(sep+1);
         
-        Serial.print("#");
+        Serial.print("\t#");
         Serial.print(variable_name);
-        Serial.print("\t");
+        Serial.print(":");
         Serial.println(variable_value);
         
         // input before seperator?

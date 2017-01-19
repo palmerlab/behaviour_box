@@ -23,10 +23,6 @@ from colorama import Style
 from utilities.args import args
 from utilities.numerical import num, na_printr, unpack_table
 
-
-
-
-
 import sounddevice as sd
 
 
@@ -68,6 +64,7 @@ trialDur = args.trialDur              # nominally the time to idle before resett
 ITI = args.ITI
 ratio = args.ratio
 restore = args.restore
+trials = args.trials
 
 #----- shared paramaters -----
 lickThres = int((args.lickThres/5)*1024)
@@ -82,6 +79,7 @@ reward_nogo = args.reward_nogo
 t_stimONSET = args.t_stimONSET
 t_rewardDEL = args.t_rDELAY
 t_rewardDUR = args.t_rDUR
+trial_noise = args.noise
 
 """
 --------------------------------------------------------------------
@@ -369,12 +367,14 @@ def Serial_monitor(ser, logfile, show = True):
 
     if line:
 
-        fmt_line = "%s#\t%s\t%s\t%s" %(line.strip(), timenow(), port, ID)
-
+        fmt_line = "%s,%s" %(line.strip(), timenow())
         if line.startswith("\t#"): 
             fmt_line = "#" + fmt_line
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
-
+        if not line.startswith("-"): 
+            fmt_line = '    ' + fmt_line
+        
+        
         elif show: 
             if line.startswith("port") == False:
                 print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
@@ -407,10 +407,10 @@ def update_bbox(ser, params, logfile, trial_df = {}):
         
         while ser.inWaiting():
 
-            line = Serial_monitor(ser, logfile, False).strip()
-
+            line = Serial_monitor(ser, logfile, False)[:-1]
+            
             if line[:2] not in ("\t#", "- "):
-                var, val = line.split(":")
+                var, val = line.strip().split(":")
                 trial_df[var] = num(val)
                 if var == name:
                     #pass
@@ -515,10 +515,10 @@ def habituation_run(df):
         trial_df['time'] = timenow()
 
         while line.strip() != "- Status: Ready":
-            line = Serial_monitor(ser, logfile, False).strip()
+            line = Serial_monitor(ser, logfile, False)
             if line:
-                if line[:2] not in ("\t#", "- "):
-                    var, val = line.split(":")
+                if line[:2] not in ("#", "\t#", "- "):
+                    var, val = line.strip().split(":")
                     trial_df[var] = num(val)
             menu()
 
@@ -614,7 +614,7 @@ try:
             Ngo, Nngo, Nblank = ratio
             
             #trials = [0, 200, 50 , 100, 25, 150]
-            trials = [0, 0,200,200,200,200]
+            #trials = [0, 0,0,200,200,200]
             #trials = [0, ] * 5
             #trials.append(200)
             
@@ -704,16 +704,17 @@ try:
                 ser.write("GO")
                 line = Serial_monitor(ser, logfile, show = verbose).strip()
                 
-                noise = band_limited_noise(5000, 20000, samples=int(44100*trialDur), samplerate=44100)
-                noise = noise/ noise.min()
-                sd.play(noise*.5, 44100)
+                if trial_noise:
+                    noise = band_limited_noise(5000, 20000, samples=int(44100*trialDur), samplerate=44100)
+                    noise = noise/ noise.min()
+                    sd.play(noise*.5, 44100)
 
                 while line.strip() != "- Status: Ready":
                     # keep running until arduino reports it has broken out of loop
-                    line = Serial_monitor(ser, logfile, False).strip()
+                    line = Serial_monitor(ser, logfile, False)
                     if line:
-                        if line[:2] not in ("\t#", "- "):
-                            var, val = line.split(":")
+                        if line[:2] not in ("#", "\t#", "- "):
+                            var, val = line.strip().split(":")
                             #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
                             trial_df[var] = num(val)
                          

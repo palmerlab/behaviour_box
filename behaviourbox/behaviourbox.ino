@@ -8,7 +8,7 @@
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
-String version = "#BB_V3.0.20170119.2";
+String version = "#BB_V3.0.20170119.3";
 
 void setup (){
     // Open serial communications and wait for port to open:

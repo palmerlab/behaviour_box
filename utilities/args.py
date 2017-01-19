@@ -89,15 +89,17 @@ kwargs = {
                     },
                     
     ('-ltr', '--lickTrigReward', ) : {
-                    'default' : 1,
-                    'type' : bool,
+                    'action' : 'store_true', 
                     'help' : 'flag to allow licks to trigger the reward immediatly'
                     },
                     
     ('-rng', '--reward_nogo', ) : {
-                    'default' : 1,
-                    'type' : bool,
+                    'action' : 'store_true', 
                     'help' : 'flag to allow a water delivery following no lick of a no go stim'
+                    },    
+    ('-noise', ) : {
+                    'action' : 'store_true', 
+                    'help' : 'plays a noise during trials'
                     },
 
     ('--ITI', ) : {
@@ -105,6 +107,13 @@ kwargs = {
                     'default' : [5,8], 
                     'type' : float, 
                     'help' : "an interval for randomising between trials",
+                    },    
+                    
+    ('--trials', ) : {
+                    'nargs' : '*', 
+                    'default' : [200,0], 
+                    'type' : int, 
+                    'help' : "durations to run on each trial",
                     },    
     
     ('-ratio', ) : {
