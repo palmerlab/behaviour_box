@@ -4,7 +4,7 @@
 
 #include "timing.h"
 #include "sensors.h" 
-#include "functions.h"
+#include "states.h"
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
