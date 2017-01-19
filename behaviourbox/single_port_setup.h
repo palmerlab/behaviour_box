@@ -24,7 +24,7 @@ char runTrial() {
     char response = 0;
     int pre_count = 0;                   //number of licks
     int post_count = 0;                  //number of licks
-    int delta = 0;
+    int rew_count = 0;
     int N_to;                              //number of timeouts
     // local time
     t_init = millis() + trial_delay;
@@ -54,9 +54,9 @@ char runTrial() {
         Serial.print("\tresponse:");
         Serial.println(response);
 
-        Serial.println("\tdelta:nan");
         Serial.println("\tpost_count:nan");
         Serial.println("\tpre_count:nan");
+        Serial.println("\trew_count:nan");
         Serial.println("\tt_stimDUR:nan");
 
         return response;
@@ -117,14 +117,14 @@ char runTrial() {
     Serial.print("\tresponse:");
     Serial.println(response);
     
-    Serial.print("\tdelta:");
-    Serial.println(delta);
-    
     Serial.print("\tpre_count:");
     Serial.println(pre_count);
     
     Serial.print("\tpost_count:");
     Serial.println(post_count);
+    
+    Serial.print("\trew_count:");
+    Serial.println(rew_count);
     
     Serial.print("\tt_stimDUR:");
     Serial.println(t_stimDUR);

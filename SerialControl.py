@@ -752,7 +752,8 @@ try:
                     
                     df['cumWater'] = cumWater
                     df['trial_num'] = df.shape[0]
-
+                    #TODO: calculate delta
+                    
                     df.to_csv(datafile)
                 
                 #Print the important data and coloured code for hits / misses  
@@ -764,7 +765,7 @@ try:
                             'outcome'      : 'outcome', 
                             'pre_count'    : 'pre_Lick', 
                             'post_count'   : 'post_Lick', 
-                            'delta'        : 'lick change', 
+                            #'delta'        : 'lick change', 
                             'Water'        : 'water', 
                             't_stimDUR'    : 'dur',
                 }
