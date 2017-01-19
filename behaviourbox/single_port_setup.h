@@ -47,7 +47,7 @@ char runTrial() {
     t = t_since(t_init);
   
 
-    if ((count>0) and t_noLickPer){
+    if ((pre_count>0) and t_noLickPer){
 
         response = 'e';
 
@@ -72,7 +72,7 @@ char runTrial() {
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
     deliver_reward(1);
-    response = 'H'
+    response = 'H';
     // keeps counting even if the reward was triggered already
     rew_count += ActiveDelay((t - t_since(t_init)) - t_rewardDUR, 0);
     
@@ -152,8 +152,8 @@ void Habituation(){
         */
 
         // stim0, stim1, reward...
-        TrialStimulus(0);
-        deliver_reward();
+        TrialStimulus();
+        deliver_reward(1);
 
         ActiveDelay(3500u, false);
 

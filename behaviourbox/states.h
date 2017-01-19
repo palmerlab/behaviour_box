@@ -16,8 +16,6 @@ int count_responses(int duration);
 
 int TrialStimulus();
 
-response();
-
 /*--------------------------------------------------------++
 ||                THE STATE FUNCTIONS                     ||
 ++--------------------------------------------------------*/
@@ -179,7 +177,7 @@ int count_responses(int duration, bool lickTrig) {
         count += lick;
         
         if ((count >= minlickCount) and (lickTrig) and (!water)){
-            deliver_reward();
+            deliver_reward(1);
             water = 1;
         }
     }
