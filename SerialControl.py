@@ -765,6 +765,7 @@ try:
                             'outcome'      : 'outcome', 
                             'pre_count'    : 'pre_Lick', 
                             'post_count'   : 'post_Lick', 
+                            'rew_count'    : 'rew_Lick',
                             #'delta'        : 'lick change', 
                             'Water'        : 'water', 
                             't_stimDUR'    : 'dur',

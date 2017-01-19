@@ -74,8 +74,7 @@ char runTrial() {
     deliver_reward(1);
     response = 'H'
     // keeps counting even if the reward was triggered already
-    rew_count += ActiveDelay((t - t_since(t_init)) - t_rewardDUR, lickTrigReward);
-    
+    rew_count += ActiveDelay((t - t_since(t_init)) - t_rewardDUR, 0);
     
     if (trialType == 'G'){
         if (post_count >= minlickCount) {
@@ -109,9 +108,9 @@ char runTrial() {
             deliver_reward(0);
     }//switch
     
-    while (t < t_trialDUR){
-        t = t_since(t_init);
-    } //continue trial till end (for the bulb trigger)
+    //continue trial till end (for the bulb trigger)
+    t = t_since(t_init);
+    rew_count += ActiveDelay((t - t_trialDUR), 0);
     
 
     Serial.print("\tresponse:");
