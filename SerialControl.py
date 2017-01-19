@@ -76,6 +76,8 @@ punish = args.punish
 timeout = args.timeout
 lcount = args.lcount
 noLick = args.noLick
+lickTrigReward = args.lickTrigReward
+reward_nogo = args.reward_nogo
 
 t_stimONSET = args.t_stimONSET
 t_rewardDEL = args.t_rDELAY
@@ -277,7 +279,6 @@ def write_out_config(params):
     write = ( 'mode',
               'lickThres',
               'break_wrongChoice',
-              'break_on_early',
               'punish_tone',
               'minlickCount',
               't_noLickPer',
@@ -578,7 +579,6 @@ try:
     params = {
         'mode'              : mode,
         'lickThres'         : lickThres,
-        'break_on_early'    : int(0),
         'minlickCount'      : lcount,
         't_stimONSET'       : t_stimONSET,
     }
@@ -592,16 +592,17 @@ try:
         params = {
             'mode'              : mode,
             'lickThres'         : lickThres,
-            'break_wrongChoice' : int(punish) if lcount > 0 else 0,           #Converts to binary
-            'break_on_early'    : int(0),
+            'break_wrongChoice' : int(punish) if lcount > 0 else 0,   #Converts to binary
             'punish_tone'       : int(0),
             'minlickCount'      : lcount,
             't_noLickPer'       : noLick,
-            'timeout'           : timeout,     #Converts back to millis
+            'timeout'           : timeout,                            #Converts back to millis
             't_stimONSET'       : t_stimONSET,
             't_rewardDEL'       : t_rewardDEL,
             't_rewardDUR'       : t_rewardDUR,
-            't_trialDUR'        : trialDur * 1000 # converts to millis
+            't_trialDUR'        : trialDur * 1000,                    # converts to millis
+            'lickTrigReward'    : int(lickTrigReward),
+            'reward_nogo'       : int(reward_nogo),
         }
 
         trial_df = update_bbox(ser, params, logfile, {} )

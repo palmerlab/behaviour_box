@@ -87,6 +87,18 @@ kwargs = {
                     'type' : float,
                     'help' : 'set the timeout duration for incorrect licks'
                     },
+                    
+    ('-ltr', '--lickTrigReward', ) : {
+                    'default' : 1,
+                    'type' : bool,
+                    'help' : 'flag to allow licks to trigger the reward immediatly'
+                    },
+                    
+    ('-rng', '--reward_nogo', ) : {
+                    'default' : 1,
+                    'type' : bool,
+                    'help' : 'flag to allow a water delivery following no lick of a no go stim'
+                    },
 
     ('--ITI', ) : {
                     'nargs' : 2, 
