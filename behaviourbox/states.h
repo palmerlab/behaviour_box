@@ -4,7 +4,7 @@
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
-void deliver_reward();
+bool deliver_reward();
 
 void punish(int del);
 
@@ -14,11 +14,27 @@ void preTrial();
 
 char TrialReward();
 
-char runTrial();
+int count_responses(int duration);
+
+int TrialStimulus(bool break_on_early);
+
+
 
 /*--------------------------------------------------------++
 ||                THE STATE FUNCTIONS                     ||
 ++--------------------------------------------------------*/
+
+
+/*
+
+pre_trial baseline
+_noick period
+stimulus
+delay
+response_period
+_reward
+
+*/
 
 
 char ActiveDelay(unsigned long wait, bool break_on_lick) {
@@ -54,7 +70,7 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
     return response;
 }
 
-void deliver_reward() {
+bool deliver_reward() {
     /* Open the water port on `port` for a 
         duration defined by waterVol */
 
@@ -66,6 +82,7 @@ void deliver_reward() {
         Serial.print("Water:\t");
         Serial.println(waterVol);
     }
+    return 1;
 }
 
 void punish(int del) {
@@ -141,3 +158,72 @@ void preTrial() {
         Serial.println(t);
     }
 } 
+
+
+
+int count_responses(int duration) {
+    
+    /*
+    Counts the number of hits on the lick sensor over `duration`
+    of milliseconds.
+    
+    */
+
+    int t0 = t_since(t_init);
+    int t = t0;
+    bool lick = 0;
+    int count = 0;
+
+    if (verbose) {
+        Serial.print("#Enter `count_responses`:\t");
+        Serial.println(t);
+    }
+
+    while (t < (t0 + duration)) {
+        t = t_since(t_init);
+        lick = senseLick();
+        count += lick;
+    }
+
+    if (verbose) {
+        Serial.print("#Exit `count_responses`:\t");
+        Serial.println(t);
+    }
+
+    return count;
+}
+
+int TrialStimulus(bool break_on_early) {
+
+    int t_local = millis();
+    int t = t_since(t_local);
+    int count = 0;
+
+    // TODO this should be abstracted
+
+    if (verbose) {
+        // TODO make verbosity a scale instead of Boolean
+        Serial.print("#Enter `TrialStimulus`:\t");
+
+        Serial.println(t_since(t_init));
+        
+        Serial.print("#\tt_stimDUR:\t");
+        Serial.println(t_stimDUR);
+    }
+
+    if (not t_stimDUR){
+        Serial.print("#Exit `TrialStimulus`:\t");
+        Serial.println(t);
+        return count;
+    }
+    
+    digitalWrite(stimulusPin, HIGH);    
+    delay(t_stimDUR);
+    digitalWrite(stimulusPin, LOW); //this is a safety catch
+
+    if (verbose) {
+        Serial.print("#Exit `TrialStimulus`:\t");
+        Serial.println(t);
+    }
+    return count;
+}
