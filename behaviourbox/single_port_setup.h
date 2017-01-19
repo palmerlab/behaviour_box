@@ -22,12 +22,10 @@ char runTrial() {
        increases from there. */ 
     unsigned long t;
     char response = 0;
-    float pre_count = 0;                   //number of licks
-    float post_count = 0;                  //number of licks
+    int pre_count = 0;                   //number of licks
+    int post_count = 0;                  //number of licks
     int delta = 0;
     int N_to;                              //number of timeouts
-    bool water = 0;                        //internal flag to 
-
     // local time
     t_init = millis() + trial_delay;
     t = t_since(t_init);
@@ -43,11 +41,13 @@ char runTrial() {
     t = t_since(t_init);
     
     // wait 
-    //ActiveDelay(t_stimONSET - t_rewardDUR, false);
-    pre_count = count_responses(t_stimONSET, 0);
-    //pre_count = (float) pre_count / ((float) t_stimONSET / 1000);
+    pre_count += ActiveDelay(t_noLickPer, false);
+    t = t_since(t_init);
+    pre_count += ActiveDelay(t_stimONSET - t, (t_noLickPer>0));
+    t = t_since(t_init);
+  
 
-    if (response and t_noLickPer){
+    if ((count>0) and t_noLickPer){
 
         response = 'e';
 
@@ -66,47 +66,32 @@ char runTrial() {
 
     post_count = TrialStimulus();
     t = t_since(t_init);
-
-
-    //tone(speakerPin, toneGood, 50);
     
     ActiveDelay(t_rewardDEL, false);
     
-    
     t = t_since(t_init);
+    post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
+    deliver_reward(1);
+    response = 'H'
+    // keeps counting even if the reward was triggered already
+    rew_count += ActiveDelay((t - t_since(t_init)) - t_rewardDUR, lickTrigReward);
     
-    post_count += (float) count_responses(t_rewardDUR);
-    post_count = post_count / ((float) t_rewardDUR / 1000);
-    delta = post_count - pre_count;
     
-    while (t < t_trialDUR){
-        t = t_since(t_init);
-    }
-    
-    if (trialType == 'G') {
+    if (trialType == 'G'){
         if (post_count >= minlickCount) {
-            deliver_reward();
             response = 'H';
+            deliver_reward(!lickTrigReward);
         }
         else {
             response = '-';
-            Serial.print("\tWater:");
-            Serial.println(water);
-        }
+            deliver_reward(0);
+        }            
     }
-    else if (trialType == 'N'){
-        if (delta >= minlickCount) {
-            punish(200);
+    else if (trialType == 'N') {
+        if (post_count >= minlickCount) {
             response = 'f';
-            Serial.print("\tWater:");
-            Serial.println(water);
-
-            /*
-            In the event that we are in the trial stimulus I want
-            the punishment delay not to blow out the stimulus.
-            The arithmetic reduces the punish time according to 
-            the stimulus end
-            */
+            punish(200);
+            deliver_reward(0);
 
             if (timeout) {
                 N_to = Timeout(timeout); //count the number of timeouts
@@ -116,15 +101,18 @@ char runTrial() {
         }
         else {
             response = 'R';
-            Serial.print("\tWater:");
-            Serial.println(water);
+            deliver_reward(reward_nogo);
         }
     }
     else {
-        response = '?';
-        Serial.print("\tWater:");
-        Serial.println(water);
-    }
+            response = '?';
+            deliver_reward(0);
+    }//switch
+    
+    while (t < t_trialDUR){
+        t = t_since(t_init);
+    } //continue trial till end (for the bulb trigger)
+    
 
     Serial.print("\tresponse:");
     Serial.println(response);

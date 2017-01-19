@@ -128,7 +128,23 @@ int UpdateGlobals(String input) {
                 Serial.println(timeout);
                 return 1;
         }
-
+        
+        // reward_nogo
+        else if (variable_name == "reward_nogo") {
+                reward_nogo = bool(variable_value.toInt());
+                Serial.print("\treward_nogo:");
+                Serial.println(reward_nogo);
+                return 1;
+        }
+        
+        // lickTrigReward
+        else if (variable_name == "lickTrigReward") {
+                lickTrigReward = bool(variable_value.toInt());
+                Serial.print("\tlickTrigReward:");
+                Serial.println(lickTrigReward);
+                return 1;
+        }
+        
         // t_stimONSET
         else if (variable_name == "t_stimONSET") {
                 t_stimONSET = variable_value.toInt();

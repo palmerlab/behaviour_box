@@ -2,7 +2,7 @@
 ||                  THE PROTOTYPES                        ||
 ++--------------------------------------------------------*/
 
-char ActiveDelay(unsigned long wait, bool break_on_lick = false);
+int ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
 bool deliver_reward(bool water);
 
@@ -33,12 +33,12 @@ _reward
 */
 
 
-char ActiveDelay(unsigned long wait, bool break_on_lick) {
+int ActiveDelay(unsigned long wait, bool break_on_lick) {
 
     unsigned long t_init = millis();
     unsigned long t = t_since(t_init);
 
-    char response = 0;
+    int count = 0;
 
     if (verbose) {
         Serial.print("#Enter `ActiveDelay`:\t");
@@ -47,15 +47,14 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
 
     while (t < wait) {
         t = t_since(t_init);
+        count += senseLick();
 
-        response = response? response : senseLick();
-
-        if (break_on_lick and response){
+        if (break_on_lick and (count>=minlickCount)){
             if (verbose) { 
                 Serial.print("#Exit `ActiveDelay`:\t");
                 Serial.println(t);
             }
-            return response;
+            return count;
         }
     }
     
@@ -63,15 +62,17 @@ char ActiveDelay(unsigned long wait, bool break_on_lick) {
         Serial.print("#Exit `ActiveDelay`:\t");
         Serial.println(t);
     }
-    return response;
+    return count;
 }
 
 bool deliver_reward(bool water) {
     /* Open the water port on `port` for a 
         duration defined by waterVol */
-    digitalWrite(waterPort, HIGH);
-    delay(waterVol);
-    digitalWrite(waterPort, LOW);
+    if (water){    
+        digitalWrite(waterPort, HIGH);
+        delay(waterVol);
+        digitalWrite(waterPort, LOW);
+    }
     
     if (verbose) { 
         Serial.print("Water:\t");

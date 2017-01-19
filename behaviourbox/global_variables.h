@@ -39,15 +39,14 @@ byte debounce = 5;         // a simple debounce method
 
 char mode = '-';                  //one of 'h'abituation, 'o'perant
 byte minlickCount = 5;
+bool lickTrigReward = 1;
+bool reward_nogo = 0;
 
 byte reward_count = 0;     // Globals to count number of continuous left and rights
 
 // stimulus parameters
 // -------------------
 
-int toneGood = 2000;              // Hz
-int toneBad = 500;                // Hz
-int toneDur = 100;                // Hz
 
 // Reward
 // ------
@@ -63,5 +62,4 @@ int lickThres = 450;
 byte Nports = 2;                  // flag for 2AFC vs GoNoGo
 bool verbose = true;
 bool break_wrongChoice = false;   // stop if the animal makes a mistake
-bool break_on_early = false;      // stop if the animal licks during the stimulus presentation
 bool punish_tone = false;
