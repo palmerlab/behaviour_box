@@ -4,7 +4,7 @@
 
 char ActiveDelay(unsigned long wait, bool break_on_lick = false);
 
-bool deliver_reward();
+bool deliver_reward(bool water);
 
 void punish(int del);
 

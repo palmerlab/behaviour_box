@@ -81,27 +81,27 @@ int UpdateGlobals(String input) {
         // lickThres
         if (variable_name == "lickThres") {
                 lickThres = variable_value.toInt();
-                Serial.print("lickThres:\t");
+                Serial.print("\tlickThres:");
                 Serial.println(lickThres);
                 return 1;
         }        // mode
         else if (variable_name == "mode") {
                 mode = variable_value[0];
-                Serial.print("mode:\t");
+                Serial.print("\tmode:");
                 Serial.println(mode);
                 return 1;
         }
         // trialType
         else if (variable_name == "trialType") {
                 trialType = variable_value[0];
-                Serial.print("trialType:\t");
+                Serial.print("\ttrialType:");
                 Serial.println(trialType);
                 return 1;
         }
                 // break_wrongChoice
         else if (variable_name == "break_wrongChoice") {
                 break_wrongChoice = bool(variable_value.toInt());
-                Serial.print("break_wrongChoice:\t");
+                Serial.print("\tbreak_wrongChoice:");
                 Serial.println(break_wrongChoice);
                 return 1;
         }
@@ -109,14 +109,14 @@ int UpdateGlobals(String input) {
         // break_on_early
         else if (variable_name == "break_on_early") {
                 break_on_early = bool(variable_value.toInt());
-                Serial.print("break_on_early:\t");
+                Serial.print("\tbreak_on_early:");
                 Serial.println(break_on_early);
                 return 1;
         }
         // minlickCount
         else if (variable_name == "minlickCount") {
                 minlickCount = variable_value.toInt();
-                Serial.print("minlickCount:\t");
+                Serial.print("\tminlickCount:");
                 Serial.println(minlickCount);
                 return 1;
         }
@@ -124,14 +124,14 @@ int UpdateGlobals(String input) {
         // t_noLickPer
         else if (variable_name == "t_noLickPer") {
                 t_noLickPer = variable_value.toInt();
-                Serial.print("t_noLickPer:\t");
+                Serial.print("\tt_noLickPer:");
                 Serial.println(t_noLickPer);
                 return 1;
         }
         // timeout
         else if (variable_name == "timeout") {
                 timeout = variable_value.toInt();
-                Serial.print("timeout:\t");
+                Serial.print("\ttimeout:");
                 Serial.println(timeout);
                 return 1;
         }
@@ -139,7 +139,7 @@ int UpdateGlobals(String input) {
         // t_stimONSET
         else if (variable_name == "t_stimONSET") {
                 t_stimONSET = variable_value.toInt();
-                Serial.print("t_stimONSET:\t");
+                Serial.print("\tt_stimONSET:");
                 Serial.println(t_stimONSET);
                 return 1;
         }
@@ -147,7 +147,7 @@ int UpdateGlobals(String input) {
         // t_stimDUR
         else if (variable_name == "t_stimDUR") {
                 t_stimDUR = variable_value.toInt();
-                Serial.print("t_stimDUR:\t");
+                Serial.print("\tt_stimDUR:");
                 Serial.println(t_stimDUR);
                 return 1;
         }
@@ -155,7 +155,7 @@ int UpdateGlobals(String input) {
         // t_rewardDEL
         else if (variable_name == "t_rewardDEL") {
                 t_rewardDEL = variable_value.toInt();
-                Serial.print("t_rewardDEL:\t");
+                Serial.print("\tt_rewardDEL:");
                 Serial.println(t_rewardDEL);
                 return 1;
         }
@@ -163,7 +163,7 @@ int UpdateGlobals(String input) {
         // t_rewardDUR
         else if (variable_name == "t_rewardDUR") {
                 t_rewardDUR = variable_value.toInt();
-                Serial.print("t_rewardDUR:\t");
+                Serial.print("\tt_rewardDUR:");
                 Serial.println(t_rewardDUR);
                 return 1;
         }
@@ -171,7 +171,7 @@ int UpdateGlobals(String input) {
         // t_trialDUR
         else if (variable_name == "t_trialDUR") {
                 t_trialDUR = variable_value.toInt();
-                Serial.print("t_trialDUR:\t");
+                Serial.print("\tt_trialDUR:");
                 Serial.println(t_trialDUR);
                 return 1;
         }
@@ -179,7 +179,7 @@ int UpdateGlobals(String input) {
         // waterVol
         else if (variable_name == "waterVol") {
                 waterVol = variable_value.toInt();
-                Serial.print("waterVol:\t");
+                Serial.print("\twaterVol:");
                 Serial.println(waterVol);
                 return 1;
         }
@@ -187,7 +187,7 @@ int UpdateGlobals(String input) {
         // Nports
         else if (variable_name == "Nports") {
                 Nports = variable_value.toInt();
-                Serial.print("Nports:\t");
+                Serial.print("\tNports:");
                 Serial.println(Nports);
                 return 1;
         }
@@ -195,7 +195,7 @@ int UpdateGlobals(String input) {
         // punish_tone
         else if (variable_name == "punish_tone") {
                 punish_tone = variable_value.toInt();
-                Serial.print("punish_tone:\t");
+                Serial.print("\tpunish_tone:");
                 Serial.println(punish_tone);
                 return 1;
         }
@@ -203,7 +203,7 @@ int UpdateGlobals(String input) {
         // debounce
         else if (variable_name == "debounce") {
                 debounce = variable_value.toInt();
-                Serial.print("debounce:\t");
+                Serial.print("\tdebounce:");
                 Serial.println(debounce);
                 return 1;
         }

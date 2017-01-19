@@ -34,7 +34,7 @@ void setup (){
     pinMode(speakerPin, OUTPUT);
     
 
-    Serial.println("-- Status: Ready --");
+    Serial.println("- Status: Ready");
 }
 
 void loop () {
@@ -51,7 +51,7 @@ void loop () {
 
             digitalWrite(bulbTrig, LOW);
             digitalWrite(recTrig, LOW);
-            Serial.println("-- Status: Ready --");
+            Serial.println("- Status: Ready");
         }
         else { 
             UpdateGlobals(input);

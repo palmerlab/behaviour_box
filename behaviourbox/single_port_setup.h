@@ -1,6 +1,14 @@
+/* -------------------------------------------------------++
+||                  THE PROTOTYPES                        ||
+++--------------------------------------------------------*/
+
 void Habituation();
 
 char runTrial();
+
+/*--------------------------------------------------------++
+||                   THE TRIAL MODES                      ||
+++--------------------------------------------------------*/
 
 char runTrial() { 
 
@@ -14,10 +22,11 @@ char runTrial() {
        increases from there. */ 
     unsigned long t;
     char response = 0;
-    float pre_count = 0;                  //number of licks
+    float pre_count = 0;                   //number of licks
     float post_count = 0;                  //number of licks
     int delta = 0;
-    int N_to;                       //number of timeouts
+    int N_to;                              //number of timeouts
+    bool water = 0;                        //internal flag to 
 
     // local time
     t_init = millis() + trial_delay;
@@ -41,13 +50,13 @@ char runTrial() {
 
         response = 'e';
 
-        Serial.print("response:\t");
+        Serial.print("\tresponse:");
         Serial.println(response);
 
-        Serial.println("delta:\tnan");
-        Serial.println("post_count:\tnan");
-        Serial.println("pre_count:\tnan");
-        Serial.println("t_stimDUR:\tnan");
+        Serial.println("\tdelta:nan");
+        Serial.println("\tpost_count:nan");
+        Serial.println("\tpre_count:nan");
+        Serial.println("\tt_stimDUR:nan");
 
         return response;
     }
@@ -80,14 +89,16 @@ char runTrial() {
         }
         else {
             response = '-';
-            Serial.println("Water:\t0");
+            Serial.print("\tWater:");
+            Serial.println(water);
         }
     }
     else if (trialType == 'N'){
         if (delta >= minlickCount) {
             punish(200);
             response = 'f';
-            Serial.println("Water:\t0");
+            Serial.print("\tWater:");
+            Serial.println(water);
 
             /*
             In the event that we are in the trial stimulus I want
@@ -98,34 +109,35 @@ char runTrial() {
 
             if (timeout) {
                 N_to = Timeout(timeout); //count the number of timeouts
-                Serial.print("N_timeouts:\t");
+                Serial.print("\tN_timeouts:");
                 Serial.println(N_to);
             }
-            
         }
         else {
             response = 'R';
-            Serial.println("Water:\t0");
+            Serial.print("\tWater:");
+            Serial.println(water);
         }
     }
     else {
         response = '?';
-        Serial.println("Water:\t0");
+        Serial.print("\tWater:");
+        Serial.println(water);
     }
 
-    Serial.print("response:\t");
+    Serial.print("\tresponse:");
     Serial.println(response);
     
-    Serial.print("delta:\t");
+    Serial.print("\tdelta:");
     Serial.println(delta);
     
-    Serial.print("pre_count:\t");
+    Serial.print("\tpre_count:");
     Serial.println(pre_count);
     
-    Serial.print("post_count:\t");
+    Serial.print("\tpost_count:");
     Serial.println(post_count);
     
-    Serial.print("t_stimDUR:\t");
+    Serial.print("\tt_stimDUR:");
     Serial.println(t_stimDUR);
 
     return response;
@@ -162,9 +174,9 @@ void Habituation(){
             ------- ------- --------
         */
 
-        Serial.print("t_stimDUR:\t");
+        Serial.print("\tt_stimDUR:");
         Serial.println(t_stimDUR);
-        Serial.print("reward_count:\t");
+        Serial.print("\treward_count:");
         Serial.println(int(reward_count));
 
         Serial.println("-- Status: Ready --");
