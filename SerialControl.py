@@ -368,9 +368,9 @@ def Serial_monitor(ser, logfile, show = True):
 
     if line:
 
-        fmt_line = "%s\t%s\t%s\t%s" %(timenow(), port, ID, line.strip())
+        fmt_line = "%s#\t%s\t%s\t%s" %(line.strip(), timenow(), port, ID)
 
-        if line.startswith("#"): 
+        if line.startswith("\t#"): 
             fmt_line = "#" + fmt_line
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
 
@@ -408,8 +408,8 @@ def update_bbox(ser, params, logfile, trial_df = {}):
 
             line = Serial_monitor(ser, logfile, False).strip()
 
-            if line[0] != "#" and line[0] != "-":
-                var, val = line.split(":\t")
+            if line[:2] not in ("\t#", "- "):
+                var, val = line.split(":")
                 trial_df[var] = num(val)
                 if var == name:
                     #pass
@@ -513,11 +513,11 @@ def habituation_run(df):
 
         trial_df['time'] = timenow()
 
-        while line.strip() != "-- Status: Ready --":
+        while line.strip() != "- Status: Ready":
             line = Serial_monitor(ser, logfile, False).strip()
             if line:
-                if line[0] != "#" and line[0] != "-":
-                    var, val = line.split(":\t")
+                if line[:2] not in ("\t#", "- "):
+                    var, val = line.split(":")
                     trial_df[var] = num(val)
             menu()
 
@@ -707,12 +707,12 @@ try:
                 noise = noise/ noise.min()
                 sd.play(noise*.5, 44100)
 
-                while line.strip() != "-- Status: Ready --":
+                while line.strip() != "- Status: Ready":
                     # keep running until arduino reports it has broken out of loop
                     line = Serial_monitor(ser, logfile, False).strip()
                     if line:
-                        if line[0] != "#" and line[0] != "-":
-                            var, val = line.split(":\t")
+                        if line[:2] not in ("\t#", "- "):
+                            var, val = line.split(":")
                             #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
                             trial_df[var] = num(val)
                          
