@@ -7,6 +7,7 @@ bool senseLick() {
     // 3. report if the state of lickOn has change
     
     bool CallSpike = false; // Who You Gonna Call?
+    bool spike = false;
     
     if (lickOn == false) { 
         CallSpike = true;
@@ -21,6 +22,11 @@ bool senseLick() {
         lickOn = false;
     }
     // if the sensor was off, and now it is on, return 1
-    return (CallSpike and lickOn);
+    spike = CallSpike and lickOn;
+    if (spike) {
+        tone(speakerPin, 10000, 5);
+    }
+    
+    return (spike);
 }
 

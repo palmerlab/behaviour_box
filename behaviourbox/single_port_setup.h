@@ -22,6 +22,8 @@ char runTrial() {
        increases from there. */ 
     unsigned long t;
     char response = 0;
+    int pre_count0 = 0;                   //number of licks
+    int pre_count1 = 0;                   //number of licks
     int pre_count = 0;                   //number of licks
     int post_count = 0;                  //number of licks
     int rew_count = 0;
@@ -41,13 +43,13 @@ char runTrial() {
     t = t_since(t_init);
     
     // wait 
-    pre_count += ActiveDelay(t_noLickPer, false);
+    pre_count0 += ActiveDelay(t_noLickPer, false);
     t = t_since(t_init);
-    pre_count += ActiveDelay(t_stimONSET - t, (t_noLickPer>0));
+    pre_count1 += ActiveDelay(t_stimONSET - t, (t_noLickPer>0));
     t = t_since(t_init);
   
 
-    if ((pre_count>0) and t_noLickPer){
+    if ((pre_count1>0) and t_noLickPer){
 
         response = 'e';
 
@@ -61,6 +63,8 @@ char runTrial() {
 
         return response;
     }
+    
+    pre_count = pre_count0+pre_count1;
 
     t = t_since(t_init);
 
@@ -68,6 +72,8 @@ char runTrial() {
     t = t_since(t_init);
     
     ActiveDelay(t_rewardDEL, false);
+    
+    tone(speakerPin, 15000, 50);
     
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);

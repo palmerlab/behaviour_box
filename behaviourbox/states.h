@@ -70,6 +70,7 @@ bool deliver_reward(bool water) {
         digitalWrite(waterPort, HIGH);
         delay(waterVol);
         digitalWrite(waterPort, LOW);
+        tone(speakerPin, 5000, 50);
     }
     
     if (verbose) { 
@@ -80,7 +81,8 @@ bool deliver_reward(bool water) {
 }
 
 void punish(int del) {
-
+    
+    tone(speakerPin, 20000, 50);
     digitalWrite(buzzerPin, HIGH);
     delay(del);
     digitalWrite(buzzerPin, LOW);

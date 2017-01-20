@@ -672,6 +672,8 @@ try:
                     'block'          : r,
                     'comment'        : comment,
                     'hitVmissVblank' : '%s:%s:%s' %(Ngo, Nngo, Nblank),
+                    'trial_noise'    : trial_noise,
+                    'audio_cues'     : True,
                 })
 
                 #checks the keys pressed during last iteration
@@ -717,7 +719,9 @@ try:
                             var, val = line.strip().split(":")
                             #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
                             trial_df[var] = num(val)
-                         
+
+                if trial_noise: sd.stop()
+                
                 for k in trial_df.keys():
                     if type(trial_df[k]) == list: 
                         trial_df[k] = trial_df[k][0]
@@ -753,6 +757,7 @@ try:
                     
                     df['cumWater'] = cumWater
                     df['trial_num'] = df.shape[0]
+                    
                     #TODO: calculate delta
                     
                     df.to_csv(datafile)
