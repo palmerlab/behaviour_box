@@ -73,7 +73,7 @@ char runTrial() {
     
     ActiveDelay(t_rewardDEL, false);
     
-    tone(speakerPin, 15000, 50);
+    tone(speakerPin, 15000, 100);
     
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
@@ -84,14 +84,13 @@ char runTrial() {
         response = 'H';
         rew_count += ActiveDelay((t_rewardDUR - (t_since(t_init) - t)) , 0);
     }
-    
-    if (trialType == 'G'){
+    else if (trialType == 'G'){
         if (post_count >= minlickCount) {
             response = 'H';
-            deliver_reward(!lickTrigReward);
+            deliver_reward(1);
         }
         else {
-            response = response == 'H'? response : '-';
+            response = '-';
             deliver_reward(0);
         }            
     }

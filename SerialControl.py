@@ -707,7 +707,8 @@ try:
                 line = Serial_monitor(ser, logfile, show = verbose).strip()
                 
                 if trial_noise:
-                    noise = band_limited_noise(5000, 20000, samples=int(44100*trialDur), samplerate=44100)
+                    # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
+                    noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
                     noise = noise/ noise.min()
                     sd.play(noise*.5, 44100)
 

@@ -70,7 +70,7 @@ bool deliver_reward(bool water) {
         digitalWrite(waterPort, HIGH);
         delay(waterVol);
         digitalWrite(waterPort, LOW);
-        tone(speakerPin, 5000, 50);
+        tone(speakerPin, 5000, 100);
     }
     
     if (verbose) { 
@@ -82,7 +82,7 @@ bool deliver_reward(bool water) {
 
 void punish(int del) {
     
-    tone(speakerPin, 20000, 50);
+    tone(speakerPin, 20000, 100);
     digitalWrite(buzzerPin, HIGH);
     delay(del);
     digitalWrite(buzzerPin, LOW);
@@ -146,7 +146,6 @@ void preTrial() {
         }
     }
     
-    //tone(speakerPin, 10000, 100); // cue tone
     digitalWrite(recTrig, LOW);
 
     if (verbose) {
