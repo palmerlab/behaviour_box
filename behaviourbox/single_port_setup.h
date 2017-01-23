@@ -118,10 +118,6 @@ char runTrial() {
     
     //continue trial till end (for the bulb trigger)
     t = t_since(t_init);
-    Serial.print("\tt:");
-    Serial.print(t_trialDUR - t);
-    Serial.print(',');
-    Serial.println(t);
     if (t < t_trialDUR){
         rew_count += ActiveDelay((t_trialDUR - t), 0);
     }
