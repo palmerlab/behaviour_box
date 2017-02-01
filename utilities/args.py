@@ -139,6 +139,12 @@ kwargs = {
                             "by default is "
                             r"R:\Andrew\161222_GOnoGO_Perception_III\%%YY%%MM%%DD",
                     },
+    ('-af', '--audio') :{
+                    'action' : 'store_true',
+                    'help' : "provides audio feedback during the trials"
+                               " this is not to be confused with the noise"
+                               " played to simulate / mask the scanners"
+                    },
                     
     ("--port", ) : {
                     'default' : "COM5", 

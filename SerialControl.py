@@ -80,6 +80,7 @@ t_stimONSET = args.t_stimONSET
 t_rewardDEL = args.t_rDELAY
 t_rewardDUR = args.t_rDUR
 trial_noise = args.noise
+audio = args.audio
 
 """
 --------------------------------------------------------------------
@@ -283,7 +284,8 @@ def write_out_config(params):
               'timeout',
               't_stimONSET',
               't_rewardDEL',
-              't_rewardDUR'
+              't_rewardDUR',
+              'audio',
               )
     
     with open('comms.ini','r+') as cfgfile:
@@ -603,6 +605,7 @@ try:
             't_trialDUR'        : trialDur * 1000,                    # converts to millis
             'lickTrigReward'    : int(lickTrigReward),
             'reward_nogo'       : int(reward_nogo),
+            'audio'             : int(audio),
         }
 
         trial_df = update_bbox(ser, params, logfile, {} )
@@ -673,7 +676,7 @@ try:
                     'comment'        : comment,
                     'hitVmissVblank' : '%s:%s:%s' %(Ngo, Nngo, Nblank),
                     'trial_noise'    : trial_noise,
-                    'audio_cues'     : True,
+                    'audio_cues'     : audio,
                 })
 
                 #checks the keys pressed during last iteration
@@ -834,8 +837,6 @@ except KeyboardInterrupt:
                 df = trial_df
 
             cumWater = df['Water'].cumsum()
-
-            
             df['cumWater'] = cumWater               
 
             df.to_csv(df_file)

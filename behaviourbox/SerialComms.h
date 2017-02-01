@@ -1,9 +1,3 @@
-String getSerialInput();
-
-int getSepIndex(String input, char seperator);
-
-int UpdateGlobals(String input);
-
 /*----------------------------------------------++
 ||                  Serial Coms                 ||
 ++----------------------------------------------*/
@@ -214,6 +208,14 @@ int UpdateGlobals(String input) {
                 debounce = variable_value.toInt();
                 Serial.print("\tdebounce:");
                 Serial.println(debounce);
+                return 1;
+        }
+        
+        // audio
+        else if (variable_name == "audio") {
+                audio = variable_value.toInt();
+                Serial.print("\taudio:");
+                Serial.println(audio);
                 return 1;
         }
    }

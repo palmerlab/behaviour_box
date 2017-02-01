@@ -1,25 +1,6 @@
-/* -------------------------------------------------------++
-||                  THE PROTOTYPES                        ||
-++--------------------------------------------------------*/
-
-int ActiveDelay(unsigned long wait, bool break_on_lick = false);
-
-bool deliver_reward(bool water);
-
-void punish(int del);
-
-int Timeout(unsigned long wait, int depth = 0);
-
-void preTrial();
-
-int count_responses(int duration);
-
-int TrialStimulus();
-
 /*--------------------------------------------------------++
 ||                THE STATE FUNCTIONS                     ||
 ++--------------------------------------------------------*/
-
 
 /*
 pre_trial baseline
@@ -29,7 +10,6 @@ delay
 response_period
 _reward
 */
-
 
 int ActiveDelay(unsigned long wait, bool break_on_lick) {
 
@@ -70,7 +50,7 @@ bool deliver_reward(bool water) {
         digitalWrite(waterPort, HIGH);
         delay(waterVol);
         digitalWrite(waterPort, LOW);
-        tone(speakerPin, 5000, 100);
+        conditional_tone(5000, 100);
     }
     
     if (verbose) { 
@@ -82,7 +62,7 @@ bool deliver_reward(bool water) {
 
 void punish(int del) {
     
-    tone(speakerPin, 20000, 100);
+    conditional_tone(20000, 100);
     digitalWrite(buzzerPin, HIGH);
     delay(del);
     digitalWrite(buzzerPin, LOW);
@@ -222,4 +202,12 @@ int TrialStimulus() {
         Serial.println(t);
     }
     return count;
+}
+
+
+void conditional_tone(int frequency, int duration) {
+    // wrapper function so I don't need to put a billion if statements
+    if (audio) {
+        tone(speakerPin, frequency, duration);
+    }
 }

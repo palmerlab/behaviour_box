@@ -1,11 +1,3 @@
-/* -------------------------------------------------------++
-||                  THE PROTOTYPES                        ||
-++--------------------------------------------------------*/
-
-void Habituation();
-
-char runTrial();
-
 /*--------------------------------------------------------++
 ||                   THE TRIAL MODES                      ||
 ++--------------------------------------------------------*/
@@ -73,7 +65,7 @@ char runTrial() {
     
     ActiveDelay(t_rewardDEL, false);
     
-    tone(speakerPin, 15000, 100);
+    conditional_tone(15000, 100);
     
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
@@ -81,11 +73,14 @@ char runTrial() {
     if ((t_since(t_init) - t) < t_rewardDUR) {
       // keeps counting even if the reward was triggered already
         deliver_reward(lickTrigReward and (trialType == 'G'));
-        response = 'H';
+        response = 1;
         rew_count += ActiveDelay((t_rewardDUR - (t_since(t_init) - t)) , 0);
     }
-    else if (trialType == 'G'){
-        if (post_count >= minlickCount) {
+    if (trialType == 'G'){
+        if (response) {
+            response = 'H';
+        }
+        else if (post_count >= minlickCount) {
             response = 'H';
             deliver_reward(1);
         }

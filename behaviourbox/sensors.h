@@ -1,5 +1,3 @@
-bool senseLick();
-
 bool senseLick() {
     // 1. check to see if the lick sensor has moved:
     //     if the sensor was in a low state, allow the calling of a rising edge.
@@ -24,7 +22,7 @@ bool senseLick() {
     // if the sensor was off, and now it is on, return 1
     spike = CallSpike and lickOn;
     if (spike) {
-        tone(speakerPin, 10000, 5);
+        conditional_tone(10000, 5);
     }
     
     return (spike);

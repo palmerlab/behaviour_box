@@ -1,14 +1,15 @@
 #include <Arduino.h>
 
 #include "global_variables.h"
+#include "prototypes.h"
 
 #include "timing.h"
-#include "sensors.h" 
+#include "sensors.h"
 #include "states.h"
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
-String version = "#BB_V3.0.20170123.6";
+String version = "#BB_V3.0.20170201.8";
 
 void setup (){
     // Open serial communications and wait for port to open:
