@@ -625,8 +625,9 @@ try:
             print trials
 
             # loop for number of trials in the list of random conditions
-
-            for trial_num, t_stimDUR in enumerate(trials):
+            trial_num = 0
+            while trial_num < len(trials):
+                t_stimDUR = trials[trial_num]
 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
@@ -634,7 +635,7 @@ try:
                     'trialType'         : 'N' if t_stimDUR in (0, ) else 'G' ,
                     't_stimDUR'         : t_stimDUR,
                 }
-                
+
                 try:
                     #if df.outcome[df.response != 'e'].values[-1] == 'FA':
                     #    params['t_stimDUR'] = 600
@@ -662,6 +663,7 @@ try:
                         
                 except:
                     pass
+
                 params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
@@ -739,7 +741,7 @@ try:
                     
                 with open(df_file, 'w') as datafile:
 
-                    df = df.append(pd.DataFrame(trial_df, index=[trial_num]), ignore_index = True)
+                    df = df.append(pd.DataFrame(trial_df, index=[df.shape[0]]), ignore_index = True)
 
                     cumWater = df['Water'].cumsum()
 
@@ -760,7 +762,7 @@ try:
                     
                     
                     df['cumWater'] = cumWater
-                    df['trial_num'] = df.shape[0]
+                    df['trial_num'] = trial_num
                     
                     #TODO: calculate delta
                     
@@ -801,7 +803,10 @@ try:
                     print "\r", 100 * " ", "\r                ", #clear the line 
 
                 comment = ""
-                trial_num += 1            
+                # don't iterate if the animal licked early!
+
+                if df.response.iloc[-1] != 'e':
+                    trial_num += 1
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
@@ -811,7 +816,6 @@ try:
                     print '\r',
                     while dur < trialDur:
                         dur = time.time() - start_time
-
 
                 wait = 0
                 print Style.BRIGHT, fc.GREEN,
