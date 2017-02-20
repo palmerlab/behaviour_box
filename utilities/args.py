@@ -126,12 +126,6 @@ kwargs = {
                      'action': 'store_true',
                      'help' : "Use to look up previous settings in the comms.ini file",
                     },
-    
-    ("-N", '--trial_num', ) : {
-                    'default' : 0, 
-                    'type' : int, 
-                    'help' : 'trial number to start at',
-                    },
 
     ('--datapath', ) : {
                     'default' : r"R:\Andrew\161222_GOnoGO_Perception_III", 

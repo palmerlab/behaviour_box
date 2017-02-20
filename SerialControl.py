@@ -1,23 +1,20 @@
 from __future__ import division
 
 import datetime
-import ConfigParser
+import ConfigParser         #library used for saving and loading ini files
 import time
 import os
 import sys
-import msvcrt as m
+import msvcrt as m          #library for dealing with keyboard events
 import random
 
-import serial
-import numpy as np
-import pandas as pd
+import serial               #allows us to open communications with arduino
+import numpy as np          #efficient array managment
+import pandas as pd         #data analysis pacakge for handling data frames
 from numpy.random import shuffle
-
-from itertools import product
 
 import colorama as color # makes things look nice
 from colorama import Fore as fc
-from colorama import Back as bc     
 from colorama import Style
 
 from utilities.args import args
@@ -26,32 +23,28 @@ from utilities.numerical import num, na_printr, unpack_table
 import sounddevice as sd
 
 
+#TODO Unpack the styling into a more readable format.
+color.Style.RESET_ALL
+color.Style.BRIGHT
+color.Style.NORMAL
+color.Style.DIM
 
-"""
-1. The program starts
-2. The program opens communications with available serial ports
-3. The program starts a block
-4. The program shuffles the stimuli (frequecies list)
-5. The program transmits the frequenices to the stimbox
-    -The stimbox cues the stimuli in memory
-6. The program initiates a trial by sending a mode flag to
-   the behaviour box.
-   - The behaviour box runs one trial at a time; waiting
-      for a flag from Serial each time
-   - This means that inter-trial intervals must be controlled
-     by the Serial controller. (this program)
-   - This means this program must know when there is a timeout
-     or not
-7. The program records the output from behaviorCOMs into a
-   behaviourdf.
-8. The program repeats sending mode flags until all stimuli have
-   been presented.
-9. The program calculates d_prime|any_stimuls; d`|rising; d`|falling
+color.Fore.RED
+color.Fore.GREEN
+color.Fore.BLUE
+color.Fore.YELLOW
+color.Fore.MAGENTA
+color.Fore.LIGHTBLUE_EX
 
---------------------------------------------------------------------
-Arguments
---------------------------------------------------------------------
-"""
+color.Back.BLACK
+color.Back.BLUE
+
+'''
+'''
+
+#--------------------------------------------------------------------
+#         Arguments
+#--------------------------------------------------------------------
 
 verbose = args.verbose                # this will be a command line parameter
 port = args.port                      # a command line parameter
@@ -59,7 +52,6 @@ ID = args.ID                          # the identity number of the animal
 repeats = args.repeats                # number of repetitions
 datapath = args.datapath              # a custom location to save data
 weight = args.weight                  # the weight of the animal
-trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
 ITI = args.ITI
 ratio = args.ratio
@@ -275,6 +267,11 @@ def menu():
 
 def write_out_config(params):
 
+    '''
+    writes a subset of parameters to an ini file which can then be
+    used to recover variable values.
+    '''
+
     write = ( 'mode',
               'lickThres',
               'break_wrongChoice',
@@ -304,6 +301,10 @@ def write_out_config(params):
         Config.write(cfgfile)
 
 def ConfigSectionMap(section, Config):
+    '''
+    Helper function for reading configuration objects to a dictionary
+    '''
+
     dict1 = {}
     options = Config.options(section)
     for option in options:
@@ -317,6 +318,13 @@ def ConfigSectionMap(section, Config):
     return dict1
 
 def restore_old_config():
+    '''
+    reads the old ini file.
+    checks to see if the current ID is in the ini sections
+    restores the varible values in the global namespace
+    (Hacky solution)
+    '''
+
     with open('comms.ini','r+') as cfgfile:
         Config = ConfigParser.ConfigParser()
         Config.read('comms.ini')
@@ -334,20 +342,28 @@ def restore_old_config():
         print 'No previous paramaters found'
 
 def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
+
+    '''
+    Generates noise within a particular band of frequencies
+    '''
+
+    def fftnoise(f):
+        '''?? filter used in band_limited_noise'''
+        f = np.array(f, dtype='complex')
+        Np = (len(f) - 1) // 2
+        phases = np.random.rand(Np) * 2 * np.pi
+        phases = np.cos(phases) + 1j * np.sin(phases)
+        f[1:Np+1] *= phases
+        f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
+        return np.fft.ifft(f).real
+
     freqs = np.abs(np.fft.fftfreq(samples, float(1)/samplerate))
     f = np.zeros(samples)
     idx = np.where(np.logical_and(freqs>=min_freq, freqs<=max_freq))[0]
     f[idx] = 1
     return fftnoise(f)
 
-def fftnoise(f):
-    f = np.array(f, dtype='complex')
-    Np = (len(f) - 1) // 2
-    phases = np.random.rand(Np) * 2 * np.pi
-    phases = np.cos(phases) + 1j * np.sin(phases)
-    f[1:Np+1] *= phases
-    f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
-    return np.fft.ifft(f).real
+
 
 def colour (x, 
     fc = color.Fore.WHITE, 
@@ -364,7 +380,10 @@ def today():
     return datetime.date.today().strftime('%y%m%d')
 
 def Serial_monitor(ser, logfile, show = True):
+    '''
+    Reads from the serial port one line at time.
     
+    '''
     line = ser.readline()
 
     if line:
@@ -374,15 +393,15 @@ def Serial_monitor(ser, logfile, show = True):
             fmt_line = "#" + fmt_line
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
         if not line.startswith("-"): 
-            fmt_line = '    ' + fmt_line
-        
+            #this adds a series of spaces to inset values in the log
+            fmt_line = 4*' ' + fmt_line 
         
         elif show: 
-            if line.startswith("port") == False:
+            if line.startswith("port") == False: #TODO remove this contingency, I don't think it is necessary
                 print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
                 print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
 
-        with open(logfile, 'a') as log:    
+        with open(logfile, 'a') as log:
             log.write(fmt_line + "\n")
 
     return line
