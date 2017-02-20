@@ -13,6 +13,7 @@ const byte lickSens = A0;
 
 const char waterPort = 10; // digital pins 10, 11 control water valve 
 
+const String end_trial_msg = "- Status: Ready";
 
 /*-----------------------------------------------------------------------------
 

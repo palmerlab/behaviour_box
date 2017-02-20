@@ -159,8 +159,6 @@ void Habituation(){
         TrialStimulus();
         deliver_reward(1);
 
-        ActiveDelay(3500u, false);
-
         /* Output should allow me to make the following table:
             stim0   stim1   response
             ------- ------- --------
@@ -171,6 +169,8 @@ void Habituation(){
         Serial.print("\treward_count:");
         Serial.println(int(reward_count));
 
-        Serial.println("-- Status: Ready --");
+        Serial.println(end_trial_msg);
+
+        ActiveDelay(3500u, false);
     }
 }

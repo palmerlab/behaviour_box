@@ -555,13 +555,8 @@ def habituation_run(df):
 
         trial_df['time'] = timenow()
 
-        while line.strip() != "- Status: Ready":
-            line = Serial_monitor(ser, logfile, False)
-            if line:
-                if line[:2] not in ("#", "\t#", "- "):
-                    var, val = line.strip().split(":")
-                    trial_df[var] = num(val)
-            menu()
+        trial_df.update(Continuous_monitor_arduino())
+        menu()
 
         if 'Water'  in trial_df.keys():
 
