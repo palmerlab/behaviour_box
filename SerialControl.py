@@ -46,33 +46,33 @@ color.Back.BLUE
 #         Arguments
 #--------------------------------------------------------------------
 
-verbose = args.verbose                # this will be a command line parameter
-port = args.port                      # a command line parameter
-ID = args.ID                          # the identity number of the animal
-repeats = args.repeats                # number of repetitions
-datapath = args.datapath              # a custom location to save data
-weight = args.weight                  # the weight of the animal
-trialDur = args.trialDur              # nominally the time to idle before resetting
-ITI = args.ITI
-ratio = args.ratio
-restore = args.restore
-trials = args.trials
+verbose    =     args.verbose       # this will be a command line parameter
+port       =     args.port          # a command line parameter
+ID         =     args.ID            # the identity number of the animal
+repeats    =     args.repeats       # number of repetitions
+datapath   =     args.datapath      # a custom location to save data
+weight     =     args.weight        # the weight of the animal
+trialDur   =     args.trialDur      # nominally the time to idle before resetting
+ITI        =     args.ITI
+ratio      =     args.ratio
+restore    =     args.restore
+trials     =     args.trials
 
 #----- shared paramaters -----
-lickThres = int((args.lickThres/5)*1024)
-mode = args.mode
-punish = args.punish
-timeout = args.timeout
-lcount = args.lcount
-noLick = args.noLick
+lickThres  =     int((args.lickThres/5)*1024)
+mode       =     args.mode
+punish     =     args.punish
+timeout    =     args.timeout
+lcount     =     args.lcount
+noLick     =     args.noLick
 lickTrigReward = args.lickTrigReward
 reward_nogo = args.reward_nogo
 
-t_stimONSET = args.t_stimONSET
-t_rewardDEL = args.t_rDELAY
-t_rewardDUR = args.t_rDUR
-trial_noise = args.noise
-audio = args.audio
+t_stimONSET =   args.t_stimONSET
+t_rewardDEL =   args.t_rDELAY
+t_rewardDUR =   args.t_rDUR
+trial_noise =   args.noise
+audio       =   args.audio
 
 """
 --------------------------------------------------------------------
@@ -97,6 +97,7 @@ def menu():
     if not m.kbhit():
         return {}
     
+    #This is a hacky way of updating the variables
     global punish
     global lickThres
     global lcount
@@ -128,19 +129,19 @@ def menu():
                     mode = "o"
                 print "Training mode:\t%s" %mode
                 
-            elif c in ("C","c"): #m,Ctrl-m
+            elif c in ("C", "c"): #m,Ctrl-m
                 comment = raw_input("Comment: ") + ''
                 with open(logfile, 'a') as log:
                     log.write("Comment:\t%s\n" %comment)
                 print "Choose...\r",
 
             #leftkey
-            elif c in '\xe0K':
+            elif c in ('\xe0K',):
                 t_stimDUR = 100.0
                 print "stimDUR:\t%s\r" %t_stimDUR,
             
             # right key
-            elif c in '\xe0M':
+            elif c in ('\xe0M',):
                 t_stimDUR = 600.0
                 print "stimDUR:\t%s\r" %t_stimDUR,
             
@@ -363,8 +364,6 @@ def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
     f[idx] = 1
     return fftnoise(f)
 
-
-
 def colour (x, 
     fc = color.Fore.WHITE, 
     bc = color.Back.BLACK, 
@@ -426,9 +425,7 @@ def Continuous_monitor_arduino(end_trial_msg = "- Status: Ready",
                     trial_dict[var] = num(val)
         
         return trial_dict
-    
-    
-    
+
 def update_bbox(ser, params, logfile, trial_df = {}):
     """
     Communicates the contents of the dict `params` through
@@ -558,25 +555,23 @@ def habituation_run(df):
         trial_df.update(Continuous_monitor_arduino())
         menu()
 
-        if 'Water'  in trial_df.keys():
+        with open(df_file, 'w') as datafile:
+            
+            #update the dictionary
+            trial_df.update(params)
+            
+            #convert to pandas dataframe
+            trial_df = pd.DataFrame(trial_df, index=[trial_num])
 
-            with open(df_file, 'w') as datafile:
+            #update the global dataframe
+            df = df.append(trial_df, ignore_index = True)
 
-                for k, v in params.iteritems():
-                    trial_df[k] = v
+            #save the changes
+            df.to_csv(datafile)
 
-                trial_df = pd.DataFrame(trial_df, index=[trial_num])
-
-
-                df = df.append(trial_df, ignore_index = True)
-
-
-                df.to_csv(datafile)
-
-            #Count percent L v R
-            hab_df = df[df['mode'] == 'h']
-            print colour("%s\t10 ul" %(timenow()), style = Style.BRIGHT)
-
+        #print out the times of each water delivery
+        hab_df = df[df['mode'] == 'h']
+        print colour("%s\t10 ul" %(timenow()), style = Style.BRIGHT)
 
 """
 ---------------------------------------------------------------------
@@ -589,19 +584,16 @@ color.init()
 datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
 
-#make a unique filename
-_ = 0
-df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
+df_file = '%s/%s_%s_000.csv' %(datapath, ID, today(),)
 df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': [], 'outcome':[]})
+
+#load the previous data if a session was already run for this animal, today
 if os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
-   
+
 df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
-
-# making the random condition in this way means 
-# there are never more than 3 in a row
 
 # load the old configs
 if restore:
@@ -621,7 +613,6 @@ try:
     
     trial_df = update_bbox(ser, params, logfile, {} )
 
-    
     if mode == 'h':
         habituation_run(df)
     elif mode == 'o':
@@ -648,8 +639,6 @@ try:
         # loop for r repeats
         for r in xrange(repeats):
 
-            Ngo, Nngo, Nblank = ratio
-            
             #trials = [0, 200, 50 , 100, 25, 150]
             #trials = [0, 0,0,200,200,200]
             #trials = [0, ] * 5
@@ -672,7 +661,6 @@ try:
 
                 params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
-                
 
                 # create an empty dictionary to store data in
                 trial_df.update({
@@ -687,9 +675,8 @@ try:
                     'audio_cues'     : audio,
                 })
 
-                #checks the keys pressed during last iteration
-                #adjusts options accordingly
-                
+                # check the keys pressed during last iteration
+                # adjusts options accordingly
                 params.update(menu())
                 
                 if params['trialType'] == 'N' and lcount == 0:
@@ -757,13 +744,10 @@ try:
                     outcome[correct_reject] = 'CR'
                     outcome[miss] = 'miss'
                     outcome[false_alarm] = 'FA'
+
                     df['outcome'] = outcome
-                    
-                    
                     df['cumWater'] = cumWater
                     df['trial_num'] = trial_num
-                    
-                    #TODO: calculate delta
 
                     df.to_csv(datafile)
 
@@ -789,6 +773,7 @@ try:
                         '-'  : Style.NORMAL + fc.YELLOW
                 }
 
+                # prints a pretty colourised table of the outcomes
                 if not pd.isnull(df['t_stimDUR'].iloc[-1]):
                     c = colors[df.outcome.values[-1]]
                     for k, label in table.iteritems():
@@ -799,6 +784,7 @@ try:
                     
                     print "\r", 100 * " ", "\r                ", #clear the line 
 
+                # clear the comment field
                 comment = ""
                 
                 # don't iterate if the animal licked early!
@@ -814,14 +800,14 @@ try:
 
                 wait = 0
                 print Style.BRIGHT, fc.CYAN,
-
+                
+                # implement the inter trial interval
                 wait = random.uniform(*ITI)
-
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
 
-
+#implement a clean shut down if ctrl-c is pressed
 except KeyboardInterrupt:
     if mode != 'o':
         update_bbox(ser, {'mode': 'o'}, logfile)
