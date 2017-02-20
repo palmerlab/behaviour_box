@@ -652,34 +652,6 @@ try:
                     't_stimDUR'         : t_stimDUR,
                 }
 
-                try:
-                    #if df.outcome[df.response != 'e'].values[-1] == 'FA':
-                    #    params['t_stimDUR'] = 600
-                    #if df.outcome[df.response != 'e'].values[-1] == 'CR':
-                    #    params['t_stimDUR'] = 200
-                    #if df.outcome[df.response != 'e'].values[-1] == 'miss':
-                    #    if df.outcome[df.response != 'e'].values[-2] == 'CR' or df.outcome[df.response != 'e'].values[-2] == 'miss':
-                    #        params['t_stimDUR'] = 200
-                    #if (df.outcome.values[-5:-1] == 'miss').sum() > 3:
-                    #    params['minlickCount'] = 0
-                    #else:
-                    #    params['minlickCount'] = lcount
-                    
-                    operant_trials = (df.minLickCount >= 1).values
-                    good_trials = (df.response != 'e').values
-                    hit_trials = (df.outcome == 'hit').values
-                    
-                    #if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
-                    #    print '\ngoing strong'
-                    #    t_rewardDUR -= 50
-                    #    params['t_rewardDUR'] = t_rewardDUR
-                    #elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
-                    #    t_rewardDUR = args.t_rDUR
-                    #    params['t_rewardDUR'] = t_rewardDUR
-                        
-                except:
-                    pass
-
                 params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
