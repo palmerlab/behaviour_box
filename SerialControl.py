@@ -411,7 +411,7 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     Communicates the contents of the dict `params` through
     the serial communications port. 
     
-    data is sent in the form: `dict[key] = value`  --> `key:value`
+    data is sent in the form: `parmas[key] = value`  --> `key:value`
     
     trail_df dictionary is updated to include the parameters 
     received from the arduino
@@ -443,9 +443,7 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     return trial_df
 
 def create_datapath(DATADIR = "", date = today()):
-    """
-    
-    """
+    """make a path to save the data based on today's date"""
 
     if not DATADIR: 
         DATADIR = os.path.join(os.getcwd(), date)
@@ -461,9 +459,8 @@ def create_datapath(DATADIR = "", date = today()):
     return DATADIR        
 
 def create_logfile(DATADIR = "", date = today()):
-    """
+    """make a logfile to save communications, based on today's date"""
     
-    """
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
     print colour("Saving log in:\t", fc = fc.GREEN, style=Style.BRIGHT),
