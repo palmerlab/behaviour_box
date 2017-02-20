@@ -1,6 +1,6 @@
 import ConfigParser         #library used for saving and loading ini files
 
-def write_out_config(params):
+def write_out_config(params, ID):
 
     '''
     writes a subset of parameters to an ini file which can then be
@@ -52,7 +52,7 @@ def ConfigSectionMap(section, Config):
             dict1[option] = None
     return dict1
 
-def restore_old_config():
+def restore_old_config(ID):
     '''
     reads the old ini file.
     checks to see if the current ID is in the ini sections

@@ -14,6 +14,8 @@ from numpy.random import shuffle
 import colorama as color # makes things look nice
 
 from utilities.args import args
+
+
 from utilities.numerical import *
 from utilities.colorama_wrapper import *
 from utilities.data_directories import *
@@ -247,7 +249,7 @@ def menu():
            'trialType'                 :    'N' if t_stimDUR in (600, 0) else 'G' ,
     }
     
-    return update_bbox(ser, params, logfile, trial_df)
+    return update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose)
 
 def habituation_run(df):
     #THE HANDSHAKE
@@ -258,7 +260,7 @@ def habituation_run(df):
                 't_stimDUR'     : 200,
     }
 
-    params = update_bbox(ser, params, logfile)
+    params = update_bbox(ser, params, logfile, ID = ID, verbose = verbose)
     
     print colour("trial count\n"
                  "----- -----", (fMAGENTA, sBRIGHT))
@@ -266,11 +268,11 @@ def habituation_run(df):
     while mode == 'h':
 
         trial_df = {}
-        line = Serial_monitor(ser, logfile, show = verbose).strip()
+        line = Serial_monitor(ser, logfile, show = verbose, ID = ID, verbose = verbose).strip()
 
         trial_df['time'] = timenow()
 
-        trial_df.update(Continuous_monitor_arduino())
+        trial_df.update(Continuous_monitor_arduino(ser, logfile = logfile, ID = ID, verbose = verbose))
         menu()
 
         with open(df_file, 'w') as datafile:
@@ -300,7 +302,7 @@ def habituation_run(df):
 color.init()
 
 datapath = create_datapath(datapath) #appends todays date to the datapath
-logfile = create_logfile(datapath) #creates a filepath for the logfile
+logfile = create_logfile(datapath, port = port, ID = ID) #creates a filepath for the logfile
 
 df_file = '%s/%s_%s_000.csv' %(datapath, ID, today(),)
 df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': [], 'outcome':[]})
@@ -315,7 +317,7 @@ comment = ""
 
 # load the old configs
 if restore:
-    restore_old_config()
+    restore_old_config(ID)
 
 try:
     #open a file to save data in
@@ -329,7 +331,7 @@ try:
         't_stimONSET'       : t_stimONSET,
     }
     
-    trial_df = update_bbox(ser, params, logfile, {} )
+    trial_df = update_bbox(ser, params, logfile, ID = ID , verbose = verbose)
 
     if mode == 'h':
         habituation_run(df)
@@ -351,7 +353,7 @@ try:
             'audio'             : int(audio),
         }
 
-        trial_df = update_bbox(ser, params, logfile, {} )
+        trial_df = update_bbox(ser, params, logfile, {}, ID = ID, verbose = verbose)
         df = df.append(pd.DataFrame(trial_df, index = [df.shape[0]+1]), ignore_index=True)
         
         # loop for r repeats
@@ -378,7 +380,7 @@ try:
                 }
 
                 params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
-                trial_df.update(update_bbox(ser, params, logfile, trial_df))
+                trial_df.update(update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose))
 
                 # create an empty dictionary to store data in
                 trial_df.update({
@@ -388,7 +390,6 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
-                    'hitVmissVblank' : '%s:%s:%s' %(Ngo, Nngo, Nblank),
                     'trial_noise'    : trial_noise,
                     'audio_cues'     : audio,
                 })
@@ -408,7 +409,7 @@ try:
 
                 trial_df['comment'] = comment
 
-                trial_df.update(update_bbox(ser, params, logfile, trial_df))
+                trial_df.update(update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose))
                 
                 print colour("C: %s" %params['trialType'], 
                                  style = (fMAGENTA, sBRIGHT)),
@@ -419,16 +420,16 @@ try:
                 start_time = time.time()
             
                 ser.write("GO")
-                line = Serial_monitor(ser, logfile, show = verbose).strip()
+                line = Serial_monitor(ser, logfile, show = verbose, ID = ID, verbose = verbose).strip()
                 
                 if trial_noise:
                     # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
                     noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
                     noise = noise / noise.min() #normalise so it isn't too loud
-                    sd.play(noise*.5, 44100)
+                    sd.play(noise, 44100)
 
                 #update the trial dictionary with ouptut from arduino
-                trial_df.update(Continuous_monitor_arduino())
+                trial_df.update(Continuous_monitor_arduino(ser, logfile = logfile, ID = ID, verbose = verbose))
 
                 if trial_noise: sd.stop()
                 
@@ -528,7 +529,7 @@ try:
 #implement a clean shut down if ctrl-c is pressed
 except KeyboardInterrupt:
     if mode != 'o':
-        update_bbox(ser, {'mode': 'o'}, logfile)
+        update_bbox(ser, {'mode': 'o'}, logfile, ID = ID, verbose = verbose)
     else:
         try:
             print "attempting to create DataFrame"

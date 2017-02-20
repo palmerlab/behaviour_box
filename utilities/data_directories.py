@@ -27,7 +27,7 @@ def create_datapath(DATADIR = "", date = today()):
     
     return DATADIR        
 
-def create_logfile(DATADIR = "", date = today()):
+def create_logfile(DATADIR = "", date = today(), port = None, ID = None):
     """make a logfile to save communications, based on today's date"""
     
     filename = "%s_%s_%s.log" %(port,ID,date)

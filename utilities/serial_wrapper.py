@@ -1,6 +1,16 @@
 import serial               #allows us to open communications with arduino
+import time
+import datetime
+from colorama_wrapper import *
+from config_loader import *
+from numerical import *
 
-def init_serialport(port, logfile = None):
+def timenow():
+    """provides the current time string in the form `HH:MM:SS`"""
+    return datetime.datetime.now().time().strftime('%H:%M:%S')      
+
+
+def init_serialport(port, logfile = None, ID = None):
     """
     Open communications with the arduino;
     quits the program if no communications are 
@@ -20,10 +30,10 @@ def init_serialport(port, logfile = None):
 
     try: 
         ser.open()
-        print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
+        print colour("\nContact", style = (fGREEN, sBRIGHT))
         
     except serial.serialutil.SerialException: 
-        print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
+        print colour("No communications on %s" %port,  style = (fRED, sBRIGHT))
         sys.exit(0)
     
     #IDLE while Arduino performs it's setup functions
@@ -39,11 +49,11 @@ def init_serialport(port, logfile = None):
     time.sleep(.5)
     # Log the debug info for the setup
     while ser.inWaiting(): 
-        Serial_monitor(ser, logfile, True)
+        Serial_monitor(ser, logfile, True, ID = ID)
 
     return ser
 
-def Serial_monitor(ser, logfile, show = True):
+def Serial_monitor(ser, logfile, show = True, ID = None, verbose = None):
     '''
     Reads from the serial port one line at time.
     '''
@@ -54,24 +64,27 @@ def Serial_monitor(ser, logfile, show = True):
         fmt_line = "%s,%s" %(line.strip(), timenow())
         if line.startswith("\t#"): 
             fmt_line = "#" + fmt_line
-            if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
+            if verbose: print colour(fmt_line, style = (fCYAN, sBRIGHT))
         if not line.startswith("-"): 
             #this adds a series of spaces to inset values in the log
             fmt_line = 4*' ' + fmt_line 
         
         elif show: 
-            if line.startswith("port") == False: #TODO remove this contingency, I don't think it is necessary
-                print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
-                print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
+            print colour("%s\t%s" %(timenow(), ID), style = (fWHITE,)),
+            print colour(line.strip(), style = (fYELLOW, sBRIGHT))
 
         with open(logfile, 'a') as log:
             log.write(fmt_line + "\n")
 
     return line
 
-def Continuous_monitor_arduino(end_trial_msg = "- Status: Ready", 
+def Continuous_monitor_arduino(ser, end_trial_msg = "- Status: Ready", 
                         sep = ':',
-                        debug_flags = (("#", "\t#", "- "))):
+                        debug_flags = (("#", "\t#", "- ")),
+                        ID = None,
+                        verbose = None,
+                        logfile = None,
+                        ):
 
         '''
         continously loops through messages from the serial monitor
@@ -79,11 +92,12 @@ def Continuous_monitor_arduino(end_trial_msg = "- Status: Ready",
         messages that are not preceded by debug_flags are stored in a
         dictionary which is returned by this function.
         '''
-
+        
+        line = Serial_monitor(ser, logfile, False, ID = ID, verbose = verbose)
         trial_dict = {}
         while line.strip() != end_trial_msg:
             # keep running until arduino reports it has broken out of loop
-            line = Serial_monitor(ser, logfile, False)
+            line = Serial_monitor(ser, logfile, False, ID = ID, verbose = verbose)
             if line:
                 if not line.startswith(debug_flags):
                     var, val = line.strip().split(sep)
@@ -91,7 +105,7 @@ def Continuous_monitor_arduino(end_trial_msg = "- Status: Ready",
         
         return trial_dict
 
-def update_bbox(ser, params, logfile, trial_df = {}):
+def update_bbox(ser, params, logfile, trial_df = {}, ID = None, verbose = None):
     """
     Communicates the contents of the dict `params` through
     the serial communications port. 
@@ -101,11 +115,11 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     trail_df dictionary is updated to include the parameters 
     received from the arduino
     """
-    write_out_config(params)
+    write_out_config(params, ID)
     
     for name, param in params.iteritems():
     
-        print fc.YELLOW, color.Style.BRIGHT, name[:2], "\r",
+        print fYELLOW, sBRIGHT, name[:2], "\r",
         ser.writelines("%s:%s" %(name, param))
         if verbose: print "%s:%s" %(name, param)
         
@@ -113,16 +127,16 @@ def update_bbox(ser, params, logfile, trial_df = {}):
         
         while ser.inWaiting():
 
-            line = Serial_monitor(ser, logfile, False)[:-1]
+            line = Serial_monitor(ser, logfile, False, ID = ID, verbose = verbose)[:-1]
             
             if line[:2] not in ("\t#", "- "):
                 var, val = line.strip().split(":")
                 trial_df[var] = num(val)
                 if var == name:
                     #pass
-                    print  "\r", fc.GREEN, "\t", var[:2], val, Style.RESET_ALL , "\r",
+                    print  "\r", fGREEN, "\t", var[:2], val, sRESET_ALL , "\r",
                 else:
-                    print  fc.RED, "\r", var, val, Style.RESET_ALL ,
+                    print  fRED, "\r", var, val, sRESET_ALL ,
                     quit()
 
     return trial_df
