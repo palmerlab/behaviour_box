@@ -1,46 +1,28 @@
 from __future__ import division
 
 import datetime
-import ConfigParser         #library used for saving and loading ini files
 import time
 import os
 import sys
 import msvcrt as m          #library for dealing with keyboard events
 import random
 
-import serial               #allows us to open communications with arduino
 import numpy as np          #efficient array managment
 import pandas as pd         #data analysis pacakge for handling data frames
 from numpy.random import shuffle
 
 import colorama as color # makes things look nice
-from colorama import Fore as fc
-from colorama import Style
 
 from utilities.args import args
-from utilities.numerical import num, na_printr, unpack_table
+from utilities.numerical import *
+from utilities.colorama_wrapper import *
+from utilities.data_directories import *
+from utilities.serial_wrapper import *
+from utilities.config_loader import *
+from utilities.audio import *
 
 import sounddevice as sd
 
-
-#TODO Unpack the styling into a more readable format.
-color.Style.RESET_ALL
-color.Style.BRIGHT
-color.Style.NORMAL
-color.Style.DIM
-
-color.Fore.RED
-color.Fore.GREEN
-color.Fore.BLUE
-color.Fore.YELLOW
-color.Fore.MAGENTA
-color.Fore.LIGHTBLUE_EX
-
-color.Back.BLACK
-color.Back.BLUE
-
-'''
-'''
 
 #--------------------------------------------------------------------
 #         Arguments
@@ -79,6 +61,7 @@ audio       =   args.audio
 END Arguments
 --------------------------------------------------------------------
 """
+
 def menu():
     """
     Reads the characters in the buffer and modifies the program
@@ -96,7 +79,7 @@ def menu():
     c = "\x00"
     if not m.kbhit():
         return {}
-    
+
     #This is a hacky way of updating the variables
     global punish
     global lickThres
@@ -230,7 +213,7 @@ def menu():
                     print 't_rDELAY must be numerals ONLY'
 
             elif c in ("h"):
-                print color.Fore.LIGHTBLUE_EX, "\r",
+                print fLIGHTBLUE_EX, "\r",
                 print "-----------------------------"
                 print "options       :"
                 print "  ...   H     : This menu"
@@ -248,7 +231,7 @@ def menu():
                 print "input rdur:%i : set the reward duration"
                 print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
-                print color.Style.RESET_ALL, '\r',
+                print sRESET_ALL, '\r',
 
             else:
                 print "SPACE or ENTER to unpause"
@@ -266,271 +249,6 @@ def menu():
     
     return update_bbox(ser, params, logfile, trial_df)
 
-def write_out_config(params):
-
-    '''
-    writes a subset of parameters to an ini file which can then be
-    used to recover variable values.
-    '''
-
-    write = ( 'mode',
-              'lickThres',
-              'break_wrongChoice',
-              'punish_tone',
-              'minlickCount',
-              't_noLickPer',
-              'timeout',
-              't_stimONSET',
-              't_rewardDEL',
-              't_rewardDUR',
-              'audio',
-              )
-    
-    with open('comms.ini','r+') as cfgfile:
-        Config = ConfigParser.ConfigParser()
-        Config.read('comms.ini')
-
-        if ID not in Config.sections():
-            Config.add_section(ID)
-        for key, value in params.iteritems():
-            if key not in write:
-                continue
-            if type(value) == str:
-                Config.set(ID, key, '"%s"' %value)
-            else:
-                Config.set(ID, key, value)
-        Config.write(cfgfile)
-
-def ConfigSectionMap(section, Config):
-    '''
-    Helper function for reading configuration objects to a dictionary
-    '''
-
-    dict1 = {}
-    options = Config.options(section)
-    for option in options:
-        try:
-            dict1[option] = Config.get(section, option)
-            if dict1[option] == -1:
-                DebugPrint("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
-
-def restore_old_config():
-    '''
-    reads the old ini file.
-    checks to see if the current ID is in the ini sections
-    restores the varible values in the global namespace
-    (Hacky solution)
-    '''
-
-    with open('comms.ini','r+') as cfgfile:
-        Config = ConfigParser.ConfigParser()
-        Config.read('comms.ini')
-
-    print Config.sections()
-    if ID in Config.sections():
-        print 'previous config found for', ID
-        exec_string = []
-        for name, value in ConfigSectionMap(ID, Config).iteritems():
-            print name, ':', value
-            exec_string.append('global {name}\n'.format(name = name, value = value) +
-                               '{name} = {value}\n'.format(name = name, value = value))
-        exec('\n'.join(exec_string))
-    else:
-        print 'No previous paramaters found'
-
-def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
-
-    '''
-    Generates noise within a particular band of frequencies
-    '''
-
-    def fftnoise(f):
-        '''?? filter used in band_limited_noise'''
-        f = np.array(f, dtype='complex')
-        Np = (len(f) - 1) // 2
-        phases = np.random.rand(Np) * 2 * np.pi
-        phases = np.cos(phases) + 1j * np.sin(phases)
-        f[1:Np+1] *= phases
-        f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
-        return np.fft.ifft(f).real
-
-    freqs = np.abs(np.fft.fftfreq(samples, float(1)/samplerate))
-    f = np.zeros(samples)
-    idx = np.where(np.logical_and(freqs>=min_freq, freqs<=max_freq))[0]
-    f[idx] = 1
-    return fftnoise(f)
-
-def colour (x, 
-    fc = color.Fore.WHITE, 
-    bc = color.Back.BLACK, 
-    style = color.Style.NORMAL):
-    return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
-
-def timenow():
-    """provides the current time string in the form `HH:MM:SS`"""
-    return datetime.datetime.now().time().strftime('%H:%M:%S')      
-
-def today():
-    """provides today's date as a string in the form YYMMDD"""
-    return datetime.date.today().strftime('%y%m%d')
-
-def Serial_monitor(ser, logfile, show = True):
-    '''
-    Reads from the serial port one line at time.
-    '''
-    line = ser.readline()
-
-    if line:
-
-        fmt_line = "%s,%s" %(line.strip(), timenow())
-        if line.startswith("\t#"): 
-            fmt_line = "#" + fmt_line
-            if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
-        if not line.startswith("-"): 
-            #this adds a series of spaces to inset values in the log
-            fmt_line = 4*' ' + fmt_line 
-        
-        elif show: 
-            if line.startswith("port") == False: #TODO remove this contingency, I don't think it is necessary
-                print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
-                print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
-
-        with open(logfile, 'a') as log:
-            log.write(fmt_line + "\n")
-
-    return line
-
-def Continuous_monitor_arduino(end_trial_msg = "- Status: Ready", 
-                        sep = ':',
-                        debug_flags = (("#", "\t#", "- "))):
-
-        '''
-        continously loops through messages from the serial monitor
-        until the end_trial_msg is recieved.
-        messages that are not preceded by debug_flags are stored in a
-        dictionary which is returned by this function.
-        '''
-
-        trial_dict = {}
-        while line.strip() != end_trial_msg:
-            # keep running until arduino reports it has broken out of loop
-            line = Serial_monitor(ser, logfile, False)
-            if line:
-                if not line.startswith(debug_flags):
-                    var, val = line.strip().split(sep)
-                    trial_dict[var] = num(val)
-        
-        return trial_dict
-
-def update_bbox(ser, params, logfile, trial_df = {}):
-    """
-    Communicates the contents of the dict `params` through
-    the serial communications port. 
-    
-    data is sent in the form: `parmas[key] = value`  --> `key:value`
-    
-    trail_df dictionary is updated to include the parameters 
-    received from the arduino
-    """
-    write_out_config(params)
-    
-    for name, param in params.iteritems():
-    
-        print fc.YELLOW, color.Style.BRIGHT, name[:2], "\r",
-        ser.writelines("%s:%s" %(name, param))
-        if verbose: print "%s:%s" %(name, param)
-        
-        time.sleep(0.1)
-        
-        while ser.inWaiting():
-
-            line = Serial_monitor(ser, logfile, False)[:-1]
-            
-            if line[:2] not in ("\t#", "- "):
-                var, val = line.strip().split(":")
-                trial_df[var] = num(val)
-                if var == name:
-                    #pass
-                    print  "\r", fc.GREEN, "\t", var[:2], val, Style.RESET_ALL , "\r",
-                else:
-                    print  fc.RED, "\r", var, val, Style.RESET_ALL ,
-                    quit()
-
-    return trial_df
-
-def create_datapath(DATADIR = "", date = today()):
-    """make a path to save the data based on today's date"""
-
-    if not DATADIR: 
-        DATADIR = os.path.join(os.getcwd(), date)
-    else: 
-        DATADIR = os.path.join(DATADIR, date)
-    
-    if not os.path.isdir(DATADIR):
-        os.makedirs((DATADIR))
-    
-    print colour("datapath:\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour(DATADIR, fc = fc.GREEN, style=Style.BRIGHT)
-    
-    return DATADIR        
-
-def create_logfile(DATADIR = "", date = today()):
-    """make a logfile to save communications, based on today's date"""
-    
-    filename = "%s_%s_%s.log" %(port,ID,date)
-    logfile = os.path.join(DATADIR, filename)
-    print colour("Saving log in:\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour("./$datapath$/%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
-    
-    return logfile
-                    
-def init_serialport(port, logfile = None):
-    """
-    Open communications with the arduino;
-    quits the program if no communications are 
-    found on port.
-    
-    If there are communications the script
-    waits 500 ms then reads all incoming
-    lines from the Serial port. These two
-    lines include the arduino code version 
-    and a string that says the arduino is online
-    """
-    
-    ser = serial.Serial()
-    ser.baudrate = 115200
-    ser.timeout = 1
-    ser.port = port
-
-    try: 
-        ser.open()
-        print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
-        
-    except serial.serialutil.SerialException: 
-        print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
-        sys.exit(0)
-    
-    #IDLE while Arduino performs it's setup functions
-    print "AWAITING ARDUINO: "
-    _ = 0
-    while not ser.inWaiting():
-        if not _%10000:
-            print "-"*int(_/10000),"\r",
-        _ += 1
-    print "\nARDUINO ONLINE"
-    
-    # Buffer for 500 ms to let Arduino finish it's setup
-    time.sleep(.5)
-    # Log the debug info for the setup
-    while ser.inWaiting(): 
-        Serial_monitor(ser, logfile, True)
-
-    return ser
-
 def habituation_run(df):
     #THE HANDSHAKE
     # send all current parameters to the arduino box to run the trial
@@ -543,7 +261,7 @@ def habituation_run(df):
     params = update_bbox(ser, params, logfile)
     
     print colour("trial count\n"
-                 "----- -----", fc.MAGENTA, style = Style.BRIGHT)
+                 "----- -----", (fMAGENTA, sBRIGHT))
 
     while mode == 'h':
 
@@ -571,7 +289,7 @@ def habituation_run(df):
 
         #print out the times of each water delivery
         hab_df = df[df['mode'] == 'h']
-        print colour("%s\t10 ul" %(timenow()), style = Style.BRIGHT)
+        print colour("%s\t10 ul" %(timenow()), style = (sBRIGHT,))
 
 """
 ---------------------------------------------------------------------
@@ -693,7 +411,7 @@ try:
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
                 print colour("C: %s" %params['trialType'], 
-                                fc.MAGENTA, style = Style.BRIGHT),
+                                 style = (fMAGENTA, sBRIGHT)),
 
                 trial_df['time'] = timenow()
                 
@@ -752,7 +470,7 @@ try:
                     df.to_csv(datafile)
 
                 #Print the important data and colour code for hits / misses  
-                print Style.BRIGHT, '\r', 
+                print sBRIGHT, '\r', 
 
                 table = {
                             'trial_num'    : 't', 
@@ -766,20 +484,20 @@ try:
                 }
 
                 colors = {
-                        'CR'  : Style.DIM + fc.GREEN,
-                        'hit' : fc.GREEN,
-                        'miss' : fc.YELLOW,
-                        'FA' : fc.RED,
-                        '-'  : Style.NORMAL + fc.YELLOW
+                        'CR'  : sDIM + fGREEN,
+                        'hit' : fGREEN,
+                        'miss' : fYELLOW,
+                        'FA' : fRED,
+                        '-'  : sNORMAL + fYELLOW
                 }
 
                 # prints a pretty colourised table of the outcomes
                 if not pd.isnull(df['t_stimDUR'].iloc[-1]):
                     c = colors[df.outcome.values[-1]]
                     for k, label in table.iteritems():
-                        print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, label, c, str(df[k].iloc[-1]).strip()),
+                        print '%s%s:%s%4s' %(fWHITE + sBRIGHT, label, c, str(df[k].iloc[-1]).strip()),
 
-                    print '\r', Style.RESET_ALL
+                    print '\r', sRESET_ALL
                     #calculate percentage success
                     
                     print "\r", 100 * " ", "\r                ", #clear the line 
@@ -799,11 +517,11 @@ try:
                         dur = time.time() - start_time
 
                 wait = 0
-                print Style.BRIGHT, fc.CYAN,
+                print sBRIGHT, fCYAN,
                 
                 # implement the inter trial interval
                 wait = random.uniform(*ITI)
-                print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
+                print "\rwait %2.2g s" %wait, sRESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
 
