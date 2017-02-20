@@ -382,7 +382,6 @@ def today():
 def Serial_monitor(ser, logfile, show = True):
     '''
     Reads from the serial port one line at time.
-    
     '''
     line = ser.readline()
 
@@ -406,6 +405,30 @@ def Serial_monitor(ser, logfile, show = True):
 
     return line
 
+def Continuous_monitor_arduino(end_trial_msg = "- Status: Ready", 
+                        sep = ':',
+                        debug_flags = (("#", "\t#", "- "))):
+
+        '''
+        continously loops through messages from the serial monitor
+        until the end_trial_msg is recieved.
+        messages that are not preceded by debug_flags are stored in a
+        dictionary which is returned by this function.
+        '''
+
+        trial_dict = {}
+        while line.strip() != end_trial_msg:
+            # keep running until arduino reports it has broken out of loop
+            line = Serial_monitor(ser, logfile, False)
+            if line:
+                if not line.startswith(debug_flags):
+                    var, val = line.strip().split(sep)
+                    trial_dict[var] = num(val)
+        
+        return trial_dict
+    
+    
+    
 def update_bbox(ser, params, logfile, trial_df = {}):
     """
     Communicates the contents of the dict `params` through
@@ -685,7 +708,6 @@ try:
 
                 trial_df['comment'] = comment
 
-
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
                 
                 print colour("C: %s" %params['trialType'], 
@@ -702,17 +724,11 @@ try:
                 if trial_noise:
                     # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
                     noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
-                    noise = noise/ noise.min()
+                    noise = noise / noise.min() #normalise so it isn't too loud
                     sd.play(noise*.5, 44100)
 
-                while line.strip() != "- Status: Ready":
-                    # keep running until arduino reports it has broken out of loop
-                    line = Serial_monitor(ser, logfile, False)
-                    if line:
-                        if line[:2] not in ("#", "\t#", "- "):
-                            var, val = line.strip().split(":")
-                            #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
-                            trial_df[var] = num(val)
+                #update the trial dictionary with ouptut from arduino
+                trial_df.update(Continuous_monitor_arduino())
 
                 if trial_noise: sd.stop()
                 
@@ -753,12 +769,12 @@ try:
                     df['trial_num'] = trial_num
                     
                     #TODO: calculate delta
-                    
+
                     df.to_csv(datafile)
-                
-                #Print the important data and coloured code for hits / misses  
+
+                #Print the important data and colour code for hits / misses  
                 print Style.BRIGHT, '\r', 
-                
+
                 table = {
                             'trial_num'    : 't', 
                             'trialType'    : 'type',
@@ -766,11 +782,10 @@ try:
                             'pre_count'    : 'pre_Lick', 
                             'post_count'   : 'post_Lick', 
                             'rew_count'    : 'rew_Lick',
-                            #'delta'        : 'lick change', 
                             'Water'        : 'water', 
                             't_stimDUR'    : 'dur',
                 }
-                
+
                 colors = {
                         'CR'  : Style.DIM + fc.GREEN,
                         'hit' : fc.GREEN,
@@ -778,7 +793,6 @@ try:
                         'FA' : fc.RED,
                         '-'  : Style.NORMAL + fc.YELLOW
                 }
-                
 
                 if not pd.isnull(df['t_stimDUR'].iloc[-1]):
                     c = colors[df.outcome.values[-1]]
@@ -791,25 +805,23 @@ try:
                     print "\r", 100 * " ", "\r                ", #clear the line 
 
                 comment = ""
+                
                 # don't iterate if the animal licked early!
-
-                if df.response.iloc[-1] != 'e':
-                    trial_num += 1
+                if df.response.iloc[-1] != 'e': trial_num += 1
                 
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
 
                 if trialDur: #allows fall though for a non trial
-                    #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
                     print '\r',
                     while dur < trialDur:
                         dur = time.time() - start_time
 
                 wait = 0
-                print Style.BRIGHT, fc.GREEN,
-                
+                print Style.BRIGHT, fc.CYAN,
+
                 wait = random.uniform(*ITI)
-                print fc.CYAN,
+
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
                 time.sleep(wait)
                 print "             \r",
