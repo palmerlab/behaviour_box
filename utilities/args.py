@@ -114,14 +114,8 @@ kwargs = {
                     'default' : [200,0], 
                     'type' : int, 
                     'help' : "durations to run on each trial",
-                    },    
-    
-    ('-ratio', ) : {
-                    'nargs' : 3, 
-                    'default' : [1,1,0], 
-                    'type' : int, 
-                    'help' : "number of go, nogo, and blank trials respectively",
                     },
+
     ('-restore', ) : {
                      'action': 'store_true',
                      'help' : "Use to look up previous settings in the comms.ini file",

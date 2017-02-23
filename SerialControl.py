@@ -38,7 +38,6 @@ datapath   =     args.datapath      # a custom location to save data
 weight     =     args.weight        # the weight of the animal
 trialDur   =     args.trialDur      # nominally the time to idle before resetting
 ITI        =     args.ITI
-ratio      =     args.ratio
 restore    =     args.restore
 trials     =     args.trials
 
