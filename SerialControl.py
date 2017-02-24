@@ -123,16 +123,16 @@ def menu():
             elif c in ('\xe0K',):
                 t_stimDUR = 100.0
                 print "stimDUR:\t%s\r" %t_stimDUR,
-            
+
             # right key
             elif c in ('\xe0M',):
                 t_stimDUR = 600.0
                 print "stimDUR:\t%s\r" %t_stimDUR,
-            
+
             elif c in ('\xe0P', '\xe0H'):
                 t_stimDUR = 0
                 print "stimDUR:\t%s\r" %t_stimDUR,
-            
+
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
                 punish = not punish
@@ -140,28 +140,28 @@ def menu():
                 print "Punish for wrong lick:\t%s" %punish
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
-            
+
             # adjust the no lick period
             elif c in (":", ";"):
                 noLick -= 10
                 print "noLick:\t%3d\r" %noLick,
-            
+
             elif c in ("\'", "\""):
                 noLick += 10
                 print "noLick:\t%3d\r" %noLick,
-            
+
             elif c in ("l", "L"):
                 print "noLick:\t%3d\r" %noLick,
-                
+
             # adjust the trial duration
             elif c in ("9", "("):
                 trialDur -= 1
                 print "trialDur:\t%3d\r" %trialDur,
-            
+
             elif c in ("0", ")"):
                 trialDur += 1
                 print "trialDur:\t%3d\r" %trialDur,
-            
+
             elif c in ("T", "t"):
                 print "TrialDur:\t%3d\r" %trialDur,
 
@@ -171,16 +171,16 @@ def menu():
                 else:
                     timeout = args.timeout
                 print "timeout:\t%3d\r" %timeout,
-                
+
             # adjust minLickCount
             elif c in ("[", "{"):
                 lcount -= 1
                 print "minLickCount: %3d\r" %lcount,
-            
+
             elif c in ("]", "}"):
                 lcount += 1
                 print "minLickCount: %3d\r" %lcount,
-                
+
             elif c in ("|", "\\"):
                 print "minLickCount: %3d\r" %lcount,
 
@@ -188,14 +188,14 @@ def menu():
             elif c in (",<"):
                 lickThres -= 25
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-            
+
             elif c in (".>"):
                 lickThres += 25
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-                
+
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-            
+
             elif 'rdur:' in c:
                 val = c.split(':')[1]
                 if val.strip().isdigit():
@@ -203,8 +203,8 @@ def menu():
                     print "t_rDUR:\t", t_rDUR
                 else:
                     print 't_rDUR must be numerals ONLY'
-                
-            
+
+
             elif 'rdel:' in c:
                 val = c.split(':')[1]
                 if val.strip().isdigit():
