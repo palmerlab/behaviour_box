@@ -5,14 +5,31 @@ link-citations: true
 Behaviour Box
 =============
 
+This repository contains a set of files to implement a Go-No-Go
+task using an Arduino and Python 2.7. By itself this collects some summary
+information for a behavioural trial, but is not a stand alone implementation.
+In addition to what is recorded here, I record the signal direct from the 
+lick sensor using an additional interface.
+
+The two components to this implementation are the Arduino code, found in
+`./behaviourbox/behaviourbox.ino` and a Python wrapper for communicating
+with this code `./SerialControl.py`.
+
+
+------------------------------------------------------------------------------
+
+
 ### TODO:
 
 Presently the new box compiles.
 
-- [ ] Make the thresholds for each sensor independent, and modifiable through python
+- [ ] Remove all deprecated features from this Read Me!
+- [ ] Make the thresholds for each sensor independent, 
+      and modifiable through python
 - [ ] Make a nice way to switch between GnG and 2AFC
 - [ ] Make a flag for the buzzer to turn on and off.
-- [ ] Make sure all existing / relevant variables can be accessed through python menu
+- [ ] Make sure all existing / relevant variables can be accessed through 
+      python menu
 - [ ] make the python menu accept a dict or something for general interfacing.
     - [ ] consider tab completion and raw_input to access all variables.
     - [ ] Have both a quick hotkey menu and tab completing complete interface.
@@ -67,54 +84,54 @@ usage: SerialControl.py [-h] [-b] [-lt LICKTHRES] [--verbose]
 Optional Arguments:
 -------------------
 
-```
+
 optional arguments:
-  -h, --help            show this help message and exit
-  -b, --blanks          include no stim trials
-  -lt LICKTHRES, --lickThres LICKTHRES
-                        set `lickThres` in arduino
-  --verbose             for debug this will print everything if enabled
-  --repeats REPEATS     the number of times this block should repeat, by
-                        default this is 1
-  -a, --auditory        switch to auditory stimulus instead of somatosensory
-  --port PORT           port that the Arduino is connected to
-  --t_stimDELAY T_STIMDELAY
-                        sets the time between succesive stimuli
-  --ITI ITI ITI         an interval for randomising between trials
-  -rdur T_RDUR, --t_rDUR T_RDUR
-                        set end time of reward epoch
-  --dur DUR DUR         Durations or to be passed to arduino as DUR_short and
-                        DUR_long
-  -m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
-                        look in the config table
-  --t_stimONSET T_STIMONSET
-                        sets the time after trigger to run the first stimulus
-  --datapath DATAPATH   path to save data to, by default is
-                        'C:/DATA/Andrew/wavesurfer/%YY%MM%DD'
-  -rs, --right_same     define the right port as correct for same stimulus
-  -i ID, --ID ID        identifier for this animal/run
-  -bc, --bias_correct   turn on the bias correction for the random number
-                        generator
-  -nlp NOLICK, --noLick NOLICK
-                        set `t_noLickPer` in arduino
-  -w WEIGHT, --weight WEIGHT
-                        weight of the animal in grams
-  -N TRIAL_NUM, --trial_num TRIAL_NUM
-                        trial number to start at
-  -td TRIALDUR, --trialDur TRIALDUR
-                        set minimum trial duration
-  -rdel T_RDELAY, --t_rDELAY T_RDELAY
-                        set start time of reward epoch
-  -p, --punish          sets `break_wrongChoice` to True, incorrect licks will
-                        end an operant trial early
-  -to TIMEOUT, --timeout TIMEOUT
-                        set the timeout duration for incorrect licks
-  -s, --single          use this flag for a single stimulus only
-  -lc LCOUNT, --lcount LCOUNT
-                        set `minlickCount` in arduino
-  -L, --left
-  -R, --right
-```
+-h, --help            show this help message and exit
+-b, --blanks          include no stim trials
+-lt LICKTHRES, --lickThres LICKTHRES
+                    set `lickThres` in arduino
+--verbose             for debug this will print everything if enabled
+--repeats REPEATS     the number of times this block should repeat, by
+                    default this is 1
+-a, --auditory        switch to auditory stimulus instead of somatosensory
+--port PORT           port that the Arduino is connected to
+--t_stimDELAY T_STIMDELAY
+                    sets the time between succesive stimuli
+--ITI ITI ITI         an interval for randomising between trials
+-rdur T_RDUR, --t_rDUR T_RDUR
+                    set end time of reward epoch
+--dur DUR DUR         Durations or to be passed to arduino as DUR_short and
+                    DUR_long
+-m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
+                    look in the config table
+--t_stimONSET T_STIMONSET
+                    sets the time after trigger to run the first stimulus
+--datapath DATAPATH   path to save data to, by default is
+                    'C:/DATA/Andrew/wavesurfer/%YY%MM%DD'
+-rs, --right_same     define the right port as correct for same stimulus
+-i ID, --ID ID        identifier for this animal/run
+-bc, --bias_correct   turn on the bias correction for the random number
+                    generator
+-nlp NOLICK, --noLick NOLICK
+                    set `t_noLickPer` in arduino
+-w WEIGHT, --weight WEIGHT
+                    weight of the animal in grams
+-N TRIAL_NUM, --trial_num TRIAL_NUM
+                    trial number to start at
+-td TRIALDUR, --trialDur TRIALDUR
+                    set minimum trial duration
+-rdel T_RDELAY, --t_rDELAY T_RDELAY
+                    set start time of reward epoch
+-p, --punish          sets `break_wrongChoice` to True, incorrect licks will
+                    end an operant trial early
+-to TIMEOUT, --timeout TIMEOUT
+                    set the timeout duration for incorrect licks
+-s, --single          use this flag for a single stimulus only
+-lc LCOUNT, --lcount LCOUNT
+                    set `minlickCount` in arduino
+-L, --left
+-R, --right
+
 
 See Also [list of rejected arguments](http://xkcd.com/1692/)
 
@@ -142,7 +159,6 @@ Interactive Options
 | input `rdel` |                                                  |
 | input `rdur` |                                                  |
 | ------------ | -------------------------------------------------|
-
 
 
 
