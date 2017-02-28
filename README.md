@@ -250,85 +250,76 @@ Global Variables
 
 | type                  |  name        |  value           |  description                                      |
 | ----                  |  ----        |  -----           |  -----------                                      |
-| `const char`{.cpp}    |  recTrig     |  `2`{.cpp}       |  digital pin 2 triggers ITC-18                    |
-| `const char`{.cpp}    |  stimulusPin |  `3`{.cpp}       |  digital pin 4 control whisker stimulation        |
-| `const char`{.cpp}    |  speakerPin  |  `8`{.cpp}       |  digital pin 8 control water valve                |
-| `const char`{.cpp}    |  statusLED   |  `13`{.cpp}      |  led connected to digital pin 13                  |
-| `const char[2]`{.cpp} |  waterPort   |  `{10,11}`{.cpp} |                                                   |
-| `const char`{.cpp}    |  lickRep     |  `13`{.cpp}      |                                                   |
-| `const char[2]`{.cpp} |  lickSens    |  `{A0,A1}`{.cpp} |  the piezos are connected to analog pins 0 and 1  |
+| `const char`cpp    |  recTrig     |  `2`cpp       |  digital pin 2 triggers ITC-18                    |
+| `const char`cpp    |  stimulusPin |  `3`cpp       |  digital pin 4 control whisker stimulation        |
+| `const char`cpp    |  speakerPin  |  `8`cpp       |  digital pin 8 control water valve                |
+| `const char`cpp    |  statusLED   |  `13`cpp      |  led connected to digital pin 13                  |
+| `const char[2]`cpp |  waterPort   |  `{10,11}`cpp |                                                   |
+| `const char`cpp    |  lickRep     |  `13`cpp      |                                                   |
+| `const char[2]`cpp |  lickSens    |  `{A0,A1}`cpp |  the piezos are connected to analog pins 0 and 1  |
 Table: connections      
 
 
 | type                     |   name         |   value   |    description  |
 | ----                     |   ----         |   -----   |    -----------  |
-| `unsigned long`{.cpp}    |   t_init       |           |                 |
-| `unsigned int`{.cpp}     |   t_noLickPer  |   1000    |      ms         |
-| `unsigned int`{.cpp}     |   trial_delay  |   500     |      ms         |
-| `unsigned int`{.cpp}     |   t_stimONSET  |   2000    |      ms         |
-| `unsigned int`{.cpp}     |   t_stimDELAY  |   150     |      ms         |
-| `unsigned int`{.cpp}     |   stimDUR      |   500     |      ms         |
-| `unsigned int`{.cpp}     |   t_rDELAY     |   2100    |      ms         |
-| `unsigned int`{.cpp}     |   t_rDUR       |   2000    |      ms         |
-| `unsigned int`{.cpp}     |   timeout      |   0       |                 |
+| `unsigned long`cpp    |   t_init       |           |                 |
+| `unsigned int`cpp     |   t_noLickPer  |   1000    |      ms         |
+| `unsigned int`cpp     |   trial_delay  |   500     |      ms         |
+| `unsigned int`cpp     |   t_stimONSET  |   2000    |      ms         |
+| `unsigned int`cpp     |   t_stimDELAY  |   150     |      ms         |
+| `unsigned int`cpp     |   stimDUR      |   500     |      ms         |
+| `unsigned int`cpp     |   t_rDELAY     |   2100    |      ms         |
+| `unsigned int`cpp     |   t_rDUR       |   2000    |      ms         |
+| `unsigned int`cpp     |   timeout      |   0       |                 |
 Table: timing parameters
 
 
 | type            | name         | value          |  description                                                           |
 | ----            | ----         | -----          |  -----------                                                           |
-| `char`{.cpp}    | mode         | `'-'`{.cpp}    |  one of `h`abituation, `o`perant                                       |
-| `char`{.cpp}    | rewardCond   | `'R'`{.cpp}    |  a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used |
-| `byte`{.cpp}    | minlickCount | `5`{.cpp}      |                                                                        |
-| `byte[2]`{.cpp} | reward_count | `{0, 0}`{.cpp} |  Globals to count number of continuous left and rights                 |
+| `char`cpp    | mode         | `'-'`cpp    |  one of `h`abituation, `o`perant                                       |
+| `char`cpp    | rewardCond   | `'R'`cpp    |  a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used |
+| `byte`cpp    | minlickCount | `5`cpp      |                                                                        |
+| `byte[2]`cpp | reward_count | `{0, 0}`cpp |  Globals to count number of continuous left and rights                 |
 Table: Misc
 
 
 | type              |  name        |  value                             | description |
 | ----              |  ----        |  -----                             | ----------- |
-| `bool`{.cpp}      |  single_stim |                                    |             |
-|                   |              |                                    |             |
-| `bool`{.cpp}      |  right_same  |                                    |             |
-|                   |              |                                    |             |
-| `int`{.cpp}       |  DUR_short   |  `100`{.cpp}                       |             |
-|                   |              |                                    |             |
-| `int`{.cpp}       |  DUR_long    |  `500`{.cpp}                       |             |
-|                   |              |                                    |             |
-| `int[2][2]`{.cpp} |  diff_DUR    |  `{{DUR_short, DUR_long}, `{.cpp}  |             |
-|                   |              |  `{  DUR_long, DUR_short}}`{.cpp}  |             |
-|                   |              |                                    |             |
-| `int[2][2]`{.cpp} |  same_DUR    |  `{{ DUR_long, DUR_long},  `{.cpp} |             |
-|                   |              |  `  {DUR_short, DUR_short}}`{.cpp} |             |
-|                   |              |                                    |             |
-| `bool`{.cpp}      |  right       |  `1`{.cpp}                         |             |
-|                   |              |                                    |             |
-| `bool`{.cpp}      |  left        |  `0`{.cpp}                         |             |
-|                   |              |                                    |             |
-| `int[2][2]`{.cpp} |  right_DUR   |                                    |             |
-|                   |              |                                    |             |
-| `int[2][2]`{.cpp} |  left_DUR    |                                    |             |
+| `bool`cpp      |  single_stim |                                    |             |
+| `bool`cpp      |  right_same  |                                    |             |
+| `int`cpp       |  DUR_short   |  `100`cpp                       |             |
+| `int`cpp       |  DUR_long    |  `500`cpp                       |             |
+| `int[2][2]`cpp |  diff_DUR    |  `{{DUR_short, DUR_long}, `cpp  |             |
+|                   |              |  `{  DUR_long, DUR_short}}`cpp  |             |
+| `int[2][2]`cpp |  same_DUR    |  `{{ DUR_long, DUR_long},  `cpp |             |
+|                   |              |  `  {DUR_short, DUR_short}}`cpp |             |
+| `bool`cpp      |  right       |  `1`cpp                         |             |
+| `bool`cpp      |  left        |  `0`cpp                         |             |
+| `int[2][2]`cpp |  right_DUR   |                                    |             |
+| `int[2][2]`cpp |  left_DUR    |                                    |             |
 
 Table: stimulus parameters
 
 
 | type         |  name          | value        | description                                     |
 | ----         |  ----          | -----        | -----------                                     |
-| `bool`{.cpp} |  auditory      | `0`{.cpp}    | Logical value. Runs in auditory mode when true  |
-| `int`{.cpp}  |  toneGoodLeft  | `6000`{.cpp} | Hz                                              |
-| `int`{.cpp}  |  toneGoodRight | `7000`{.cpp} | Hz                                              |
-| `int`{.cpp}  |  toneGood      | `2000`{.cpp} | Hz                                              |
-| `int`{.cpp}  |  toneBad       | `500`{.cpp}  | Hz                                              |
-| `int`{.cpp}  |  toneDur       | `100`{.cpp}  | ms                                              |
+| `bool`cpp |  auditory      | `0`cpp    | Logical value. Runs in auditory mode when true  |
+| `int`cpp  |  toneGoodLeft  | `6000`cpp | Hz                                              |
+| `int`cpp  |  toneGoodRight | `7000`cpp | Hz                                              |
+| `int`cpp  |  toneGood      | `2000`cpp | Hz                                              |
+| `int`cpp  |  toneBad       | `500`cpp  | Hz                                              |
+| `int`cpp  |  toneDur       | `100`cpp  | ms                                              |
 
 Table: audio
 
 type             | name               | value                  |  description
 ----             | ----               | -----                  |  -----------
-`byte[2]`{.cpp}  | count              | `{0,0}`{.cpp}          |  Global value to count the licks
-`char`{.cpp}     | waterVol           | `10`{.cpp}             |  uL per dispense
-`int`{.cpp}      | lickThres          | `450`{.cpp}            |            
-`bool[2]`{.cpp}  | lickOn             | `{false, false}`{.cpp} |            
-`bool`{.cpp}     | verbose            | `true`{.cpp}           |             
-`bool`{.cpp}     | break_wrongChoice  | `false`{.cpp}          |  stop if the animal makes a mistake
+`byte[2]`cpp  | count              | `{0,0}`cpp          |  Global value to count the licks
+`char`cpp     | waterVol           | `10`cpp             |  uL per dispense
+`int`cpp      | lickThres          | `450`cpp            |            
+`bool[2]`cpp  | lickOn             | `{false, false}`cpp |            
+`bool`cpp     | verbose            | `true`cpp           |             
+`bool`cpp     | break_wrongChoice  | `false`cpp          |  stop if the animal makes a mistake
 
 Table: Reward
 
@@ -435,13 +426,13 @@ do the following:
 `TrialReward()`
 : This function returns a character corresponding to the lick status
     
-    ----------- -------------------------------------
-    `'L'`{.cpp} correct hit on left port
-    `'R'`{.cpp} correct hit on right port
-    `'l'`{.cpp} incorrect lick on left port
-    `'r'`{.cpp} incorrect lick on right port
-    `0`{.cpp}   No lick detected during reward period
-    ----------- -------------------------------------
+| ----------- | -------------------------------------  |
+| `'L'`cpp | correct hit on left port               |
+| `'R'`cpp | correct hit on right port              |
+| `'l'`cpp | incorrect lick on left port            |
+| `'r'`cpp | incorrect lick on right port           |
+| `0`cpp   | No lick detected during reward period  |
+| ----------- | -------------------------------------  |
 
 Serial Input / Output
 ----------------------
@@ -465,7 +456,7 @@ adjustable parameters
 
 *or Poor mans introspection*
 
-```{.cpp}
+```cpp
 
 lickThres = variable_value.toInt();
 
