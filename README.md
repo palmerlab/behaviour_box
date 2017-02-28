@@ -2,26 +2,23 @@
 link-citations: true
 ---
 
-Andrew's Behaviour Box
-=======================
+Behaviour Box
+=============
 
-TODO:
------
+### TODO:
 
 Presently the new box compiles.
 
-[] Make the thresholds for each sensor independent, and modifiable through python
-[] Make a nice way to switch between GnG and 2AFC
-[] Make a flag for the buzzer to turn on and off.
-[] Make sure all existing / relevant variables can be accessed through python menu
-[] make the python menu accept a dict or something for general interfacing.
-    [] consider tab completion and raw_input to access all variables.
-    [] Have both a quick hotkey menu and tab completing complete interface.
+- [ ] Make the thresholds for each sensor independent, and modifiable through python
+- [ ] Make a nice way to switch between GnG and 2AFC
+- [ ] Make a flag for the buzzer to turn on and off.
+- [ ] Make sure all existing / relevant variables can be accessed through python menu
+- [ ] make the python menu accept a dict or something for general interfacing.
+    - [ ] consider tab completion and raw_input to access all variables.
+    - [ ] Have both a quick hotkey menu and tab completing complete interface.
 
-Version 3.0: Capacitive sensors
--------------------------------
-
-`BB_V3.0.20160629`
+Version 3.0.20170201.8
+----------------------
 
 Major changes in the last update.
 The behaviour box program is now split into a handful of modules. 
@@ -31,36 +28,18 @@ call the other components as necessary.
 
 This is the collection of files I use to run my behavioural experiments.
 
-This branch record the state of the first fairly stable version.
-It implements a frequency discrimination task, described by the 
-following diagram. 
-
 Operant Mode
 ------------
 
 ![Flow of the behavioural paradigm](./documentation/Flow_diagram.svg)
 
-
 The operant mode features the following conditions:
 
-1. Randomised selection of left or right trials
-    - If a run of three trials of the same type are detected the
-        program forces the next trial to be of the other type:
-        ie: 'Left - Left - Left - Left' will be replaced by
-        'Left - Left - Left - Right' before the fourth trial
-        runs. This is in line with @guo_procedures_2014
+1. 
 
-        This logic is over written if the bias correction is in
-        place.
-        
-    - In addition to the bias correction weighting, another bias
-        correction mechanism prevents the animal from having a
-        straight run of successes on one side. If 5 rewards are delivered
-        on one side, without any delivered on the other side, the system
-        will lock off that side. The associated stimulus will not be
-        presented until the animal gets at least three rewards from
-        the opposite port. This is in line with @guo_procedures_2014
 
+
+--------------------------------------------------------------------------------
 
 
 # SerialController.py
@@ -143,7 +122,6 @@ See Also [list of rejected arguments](http://xkcd.com/1692/)
 
 Interactive Options
 -------------------
-
 
 | key          | option                                           |
 | ------------ | -------------------------------------------------|
@@ -248,8 +226,8 @@ Table: Analog connections to lick controller
 Global Variables
 ----------------
 
-| type                  |  name        |  value           |  description                                      |
-| ----                  |  ----        |  -----           |  -----------                                      |
+| type            |  name        |  value     |  description                                      |
+| ----            |  ----        |  -----     |  -----------                                      |
 | `const char`    |  recTrig     |  `2`       |  digital pin 2 triggers ITC-18                    |
 | `const char`    |  stimulusPin |  `3`       |  digital pin 4 control whisker stimulation        |
 | `const char`    |  speakerPin  |  `8`       |  digital pin 8 control water valve                |
@@ -259,23 +237,23 @@ Global Variables
 | `const char[2]` |  lickSens    |  `{A0,A1}` |  the piezos are connected to analog pins 0 and 1  |
 Table: connections      
 
-
-| type                     |   name         |   value   |    description  |
-| ----                     |   ----         |   -----   |    -----------  |
-| `unsigned long`    |   t_init       |           |                 |
-| `unsigned int`     |   t_noLickPer  |   1000    |      ms         |
-| `unsigned int`     |   trial_delay  |   500     |      ms         |
-| `unsigned int`     |   t_stimONSET  |   2000    |      ms         |
-| `unsigned int`     |   t_stimDELAY  |   150     |      ms         |
-| `unsigned int`     |   stimDUR      |   500     |      ms         |
-| `unsigned int`     |   t_rDELAY     |   2100    |      ms         |
-| `unsigned int`     |   t_rDUR       |   2000    |      ms         |
-| `unsigned int`     |   timeout      |   0       |                 |
+                 
+| type               |   name         |   value   | description  |
+| ----               |   ----         |   -----   | -----------  |
+| `unsigned long`    |   t_init       |           |              |
+| `unsigned int`     |   t_noLickPer  |   1000    |   ms         |
+| `unsigned int`     |   trial_delay  |   500     |   ms         |
+| `unsigned int`     |   t_stimONSET  |   2000    |   ms         |
+| `unsigned int`     |   t_stimDELAY  |   150     |   ms         |
+| `unsigned int`     |   stimDUR      |   500     |   ms         |
+| `unsigned int`     |   t_rDELAY     |   2100    |   ms         |
+| `unsigned int`     |   t_rDUR       |   2000    |   ms         |
+| `unsigned int`     |   timeout      |   0       |              |
 Table: timing parameters
 
 
-| type            | name         | value          |  description                                                           |
-| ----            | ----         | -----          |  -----------                                                           |
+| type      | name         | value    |  description                                                           |
+| ----      | ----         | -----    |  -----------                                                           |
 | `char`    | mode         | `'-'`    |  one of `h`abituation, `o`perant                                       |
 | `char`    | rewardCond   | `'R'`    |  a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used |
 | `byte`    | minlickCount | `5`      |                                                                        |
@@ -283,18 +261,18 @@ Table: timing parameters
 Table: Misc
 
 
-| type              |  name        |  value                             | description |
-| ----              |  ----        |  -----                             | ----------- |
-| `bool`      |  single_stim |                                    |             |
-| `bool`      |  right_same  |                                    |             |
-| `int`       |  DUR_short   |  `100`                       |             |
-| `int`       |  DUR_long    |  `500`                       |             |
-| `int[2][2]` |  diff_DUR    |  `{{DUR_short, DUR_long}, {  DUR_long, DUR_short}}`  |             |
-| `int[2][2]` |  same_DUR    |  `{{ DUR_long, DUR_long}, {DUR_short, DUR_short}}` |             |
-| `bool`      |  right       |  `1`                         |             |
-| `bool`      |  left        |  `0`                         |             |
-| `int[2][2]` |  right_DUR   |                                    |             |
-| `int[2][2]` |  left_DUR    |                                    |             |
+| type        |  name        | value                             | description |
+| ----        |  ----        | -----                             | ----------- |
+| `bool`      |  single_stim |                                   |             |
+| `bool`      |  right_same  |                                   |             |
+| `int`       |  DUR_short   | `100`                             |             |
+| `int`       |  DUR_long    | `500`                             |             |
+| `int[2][2]` |  diff_DUR    | `{{DUR_short, DUR_long}, {  DUR_long, DUR_short}}`|             |
+| `int[2][2]` |  same_DUR    | `{{ DUR_long, DUR_long}, {DUR_short, DUR_short}}` |             |
+| `bool`      |  right       | `1`                               |             |
+| `bool`      |  left        | `0`                               |             |
+| `int[2][2]` |  right_DUR   |                                   |             |
+| `int[2][2]` |  left_DUR    |                                   |             |
 
 Table: stimulus parameters
 
