@@ -38,14 +38,17 @@ The basic hardware requirements
 4. a sensory stimulus. 
 
 * [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
-:   Connects to the main computer via USB serial
+
+    Connects to the main computer via USB serial
 
 * stimulus
-:   The stimulus needs to take 5 V digital signal, and be driven
+
+    The stimulus needs to take 5 V digital signal, and be driven
     by a square wave.
 
 * lick port
-:   I use peizo electric wafers, specifically a [0.6mm Range Piezo 
+
+    I use peizo electric wafers, specifically a [0.6mm Range Piezo 
     Bender Actuator](http://www.piezodriveonline.com/0-6mm-range-piezo-bender-actuator-ba3502/)
     from PiezoDrive Pty Ltd, (Callaghn NSW)
 
@@ -62,7 +65,7 @@ The basic hardware requirements
         
         ![Linear amplifier](documentation/Amplifier_circuit.svg)
 
-:   The reward delivery is controlled by a solenoid pinch valve 
+    The reward delivery is controlled by a solenoid pinch valve 
     ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
     Takasago Fluidic SysteSms, Nagoya, Japan).
 
@@ -73,6 +76,36 @@ The basic hardware requirements
 
 Centralized behavioural control by an Arduino microprocessor
 -----------------------------------------------------------
+
+
+
+Analog inputs
+:   The amplified signal from the lick sensor is sent to an 
+    analog input pin. 
+Digital outputs
+:   Four digital output pins are connected to 
+    1. sensory stimulator, 
+    2. punishment consisting of a TTL-triggered valve gating a pressurized air line, 
+    3. water valve, and 
+    4. recording trigger.
+
+    
+------------------
+
+### TODO:
+
+Presently the new box compiles.
+
+- [ ] Remove all deprecated features from this Read Me!
+- [ ] Make the thresholds for each sensor independent, 
+      and modifiable through python
+- [ ] Make a nice way to switch between GnG and 2AFC
+- [ ] Make a flag for the buzzer to turn on and off.
+- [ ] Make sure all existing / relevant variables can be accessed through 
+      python menu
+- [ ] make the python menu accept a dict or something for general interfacing.
+    - [ ] consider tab completion and raw_input to access all variables.
+    - [ ] Have both a quick hotkey menu and tab completing complete interface.
 
 What I would like is to report a matrix of times of lick events back to the
 python program.
@@ -100,32 +133,8 @@ the ultimate printout might be something like this:
         - event: [status, time]
         - event: [status, time]
 ```
+-----------------------
 
-
-Analog inputs
-:   The amplified signal from the lick sensor is sent to an 
-    analog input pin. 
-Digital outputs
-:   Four digital output pins are connected to 
-    1. sensory stimulator, 
-    2. punishment consisting of a TTL-triggered valve gating a pressurized air line, 
-    3. water valve, and 
-    4. recording trigger.
-
-### TODO:
-
-Presently the new box compiles.
-
-- [ ] Remove all deprecated features from this Read Me!
-- [ ] Make the thresholds for each sensor independent, 
-      and modifiable through python
-- [ ] Make a nice way to switch between GnG and 2AFC
-- [ ] Make a flag for the buzzer to turn on and off.
-- [ ] Make sure all existing / relevant variables can be accessed through 
-      python menu
-- [ ] make the python menu accept a dict or something for general interfacing.
-    - [ ] consider tab completion and raw_input to access all variables.
-    - [ ] Have both a quick hotkey menu and tab completing complete interface.
 
 Version 3.0.20170201.8
 ----------------------
@@ -185,7 +194,7 @@ Table: connections
 
 
 Files
----------
+-----
 
 The header files in the behaviourbox folder contain the functions required to
 run the behaviourbox code. 
@@ -198,50 +207,51 @@ There are currently 7 header files:
     6. "SerialComms.h"
     7. "single_port_setup.h"
 
-global_variables.h
-:    contains definitions of all variables that are used by multiple functions
-    and expected to have persistent values between the functions. These include
-    the initialisation time, the various timing parameters, as well as any 
-    additional options that I have decided to make available.
-    
-    | ---------------- | --------------------- |
-    | t_init           | not settable. This is the variable that the other times a measured relative to |
-    | t_noLickPer      | A time measured in milliseconds. After this amount of time the program will break out of a trial if a lick is detected before the stimulus. If the value is 0 then licks before the stimulus are ignored altogether.
-    | trial_delay      | Amount of time in milliseconds to delay the start of a trial |
-    | t_rewardDEL      | Amount of time in milliseconds to delay checking for licks after a stimulus |
-    | t_rewardDUR      | Amount of time in milliseconds to check for licks |
-    | t_trialDUR       | Total time in milliseconds that the trial should last |
-    | ---------------- | --------------------- |
-    |                  |                       |
-    | t_stimONSET      | The time in milliseconds, relative to the trial start time, that the stimulus turns on |
-    | t_stimDUR        | Amount of time in milliseconds to keep the stimulus on |
-    | ---------------- | --------------------- |
-    |                  |                       |
-    | timeout          | Boolean value. If True enable the recursive timeout punishment |
-    | ---------------- | --------------------- |
-    |                  |                       |
-    | debounce         | Number of milliseconds to delay between reading the lick sensor value. |
-    | lickThres        | The threshold on the licksensor required to call a lick. This is a number between 0 - 1024 (multiply by  5 V/1024 to get voltage) |
-    | ---------------- | --------------------- |
-    |                  |                       |
-    | minlickCount     | The number of licks required to count as a response, ie to open the water valve, or to deliver a punishment |
-    | lickTrigReward   | Boolean, set true to enable the reward to be delivered immediatly after the min licks are reached. If false the reward is deliverd at the end of the response duration |
-    | reward_nogo      | Boolean, set true if you want a correct rejection to be rewarded at the end on the reward period |
-    |                  |                       |
-    | ---------------- | --------------------- |
-    | mode             | {'-', 'O', 'H'} a character to represent the type of mode to run in. If the mode is 'H' the system will delver a stimulus and a reward in response to the animal's lick. If the mode is 'O' the system delivers a stimulus and listens for a response |
-    | ---------------- | --------------------- |
-    | reward_count     | deprecated |
-    |                  |                       |
-    | ---------------- | --------------------- |
-    | waterVol         | Amount of time in milliseconds to hold the water valve open for |
-    | trialType        | character code to determine if this is a go or no go trial. This is used to determine if the water valve will open on a given trial |
-    | ---------------- | --------------------- |
-    | Nports           |  deprecated           |
-    | verbose          |  Boolean, if True will enable full debug printing...(might be deprecated?) |
-    | break_wrongChoice | Boolean, deprecated  |
-    | punish_tone      | deprecated            |
-    | audio            | Boolean, enables auditory cues for the response period |
+### global_variables.h
+
+contains definitions of all variables that are used by multiple functions
+and expected to have persistent values between the functions. These include
+the initialisation time, the various timing parameters, as well as any 
+additional options that I have decided to make available.
+
+| ---------------- | --------------------- |
+| t_init           | not settable. This is the variable that the other times a measured relative to |
+| t_noLickPer      | A time measured in milliseconds. After this amount of time the program will break out of a trial if a lick is detected before the stimulus. If the value is 0 then licks before the stimulus are ignored altogether.
+| trial_delay      | Amount of time in milliseconds to delay the start of a trial |
+| t_rewardDEL      | Amount of time in milliseconds to delay checking for licks after a stimulus |
+| t_rewardDUR      | Amount of time in milliseconds to check for licks |
+| t_trialDUR       | Total time in milliseconds that the trial should last |
+| ---------------- | --------------------- |
+|                  |                       |
+| t_stimONSET      | The time in milliseconds, relative to the trial start time, that the stimulus turns on |
+| t_stimDUR        | Amount of time in milliseconds to keep the stimulus on |
+| ---------------- | --------------------- |
+|                  |                       |
+| timeout          | Boolean value. If True enable the recursive timeout punishment |
+| ---------------- | --------------------- |
+|                  |                       |
+| debounce         | Number of milliseconds to delay between reading the lick sensor value. |
+| lickThres        | The threshold on the licksensor required to call a lick. This is a number between 0 - 1024 (multiply by  5 V/1024 to get voltage) |
+| ---------------- | --------------------- |
+|                  |                       |
+| minlickCount     | The number of licks required to count as a response, ie to open the water valve, or to deliver a punishment |
+| lickTrigReward   | Boolean, set true to enable the reward to be delivered immediatly after the min licks are reached. If false the reward is deliverd at the end of the response duration |
+| reward_nogo      | Boolean, set true if you want a correct rejection to be rewarded at the end on the reward period |
+|                  |                       |
+| ---------------- | --------------------- |
+| mode             | {'-', 'O', 'H'} a character to represent the type of mode to run in. If the mode is 'H' the system will delver a stimulus and a reward in response to the animal's lick. If the mode is 'O' the system delivers a stimulus and listens for a response |
+| ---------------- | --------------------- |
+| reward_count     | deprecated |
+|                  |                       |
+| ---------------- | --------------------- |
+| waterVol         | Amount of time in milliseconds to hold the water valve open for |
+| trialType        | character code to determine if this is a go or no go trial. This is used to determine if the water valve will open on a given trial |
+| ---------------- | --------------------- |
+| Nports           |  deprecated           |
+| verbose          |  Boolean, if True will enable full debug printing...(might be deprecated?) |
+| break_wrongChoice | Boolean, deprecated  |
+| punish_tone      | deprecated            |
+| audio            | Boolean, enables auditory cues for the response period |
 
 
 
