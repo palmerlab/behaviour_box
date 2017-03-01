@@ -15,7 +15,6 @@ The two components to this implementation are the Arduino code, found in
 `./behaviourbox/behaviourbox.ino` and a Python wrapper for communicating
 with this code `./SerialControl.py`.
 
-
 ------------------------------------------------------------------------------
 
 System overview
@@ -33,64 +32,48 @@ The Arduino triggers external devices.
 The basic hardware requirements
 
 1. a microcontroller
+    * [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+
+        Connects to the main computer via USB serial
+
 2. a delivery system for water reward, 
+    * The reward delivery is controlled by a solenoid pinch valve 
+        ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
+        Takasago Fluidic SysteSms, Nagoya, Japan).
+
+        - I use a 24 V pinch valve. This is in many ways over kill, a 3V valve
+          would be much better, because it would not require an additional gated
+          power supply.
+
 3. a lick sensor
+    * lick port
+
+        I use peizo electric wafers, specifically a [0.6mm Range Piezo 
+        Bender Actuator](http://www.piezodriveonline.com/0-6mm-range-piezo-bender-actuator-ba3502/)
+        from PiezoDrive Pty Ltd, (Callaghn NSW)
+
+        - The signal from these are very small. The piezos require a linear
+            amplifier so that the arduino can detect the signal they produce.
+            I use custom made linear amplifiers that each take 5V DC input
+            and output in a range from 0-3 V. The amplifiers come are from Larkum
+            lab designs.
+
+        - ([LM358N](http://www.ti.com/product/LM358-N), Texas Instruments)
+            This signal is then amplified using a simple operational amplifier 
+            circuit to ensure the Ardunio microcontroller detects the lick-evoked 
+            voltage changes.
+            
+            ![Linear amplifier](documentation/Amplifier_circuit.svg)
+
 4. a sensory stimulus. 
+    * The stimulus needs to take 5 V digital signal.
 
-* [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+5. A speaker
 
-    Connects to the main computer via USB serial
-
-* stimulus
-
-    The stimulus needs to take 5 V digital signal, and be driven
-    by a square wave.
-
-* lick port
-
-    I use peizo electric wafers, specifically a [0.6mm Range Piezo 
-    Bender Actuator](http://www.piezodriveonline.com/0-6mm-range-piezo-bender-actuator-ba3502/)
-    from PiezoDrive Pty Ltd, (Callaghn NSW)
-
-    - The signal from these are very small. The piezos require a linear
-        amplifier so that the arduino can detect the signal they produce.
-        I use custom made linear amplifiers that each take 5V DC input
-        and output in a range from 0-3 V. The amplifiers come are from Larkum
-        lab designs.
-
-    - ([LM358N](http://www.ti.com/product/LM358-N), Texas Instruments)
-        This signal is then amplified using a simple operational amplifier 
-        circuit to ensure the Ardunio microcontroller detects the lick-evoked 
-        voltage changes.
-        
-        ![Linear amplifier](documentation/Amplifier_circuit.svg)
-
-    The reward delivery is controlled by a solenoid pinch valve 
-    ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
-    Takasago Fluidic SysteSms, Nagoya, Japan).
-
-    - I use a 24 V pinch valve. This is in many ways over kill, a 3V valve
-      would be much better, because it would not require an additional gated
-      power supply.
+6. Recording devices
 
 
-Centralized behavioural control by an Arduino microprocessor
------------------------------------------------------------
-
-
-
-Analog inputs
-:   The amplified signal from the lick sensor is sent to an 
-    analog input pin. 
-Digital outputs
-:   Four digital output pins are connected to 
-    1. sensory stimulator, 
-    2. punishment consisting of a TTL-triggered valve gating a pressurized air line, 
-    3. water valve, and 
-    4. recording trigger.
-
-    
-------------------
+-------------------------------------------------------------------------------
 
 ### TODO:
 
@@ -107,32 +90,33 @@ Presently the new box compiles.
     - [ ] consider tab completion and raw_input to access all variables.
     - [ ] Have both a quick hotkey menu and tab completing complete interface.
 
-What I would like is to report a matrix of times of lick events back to the
-python program.
 
-Conceptually to do this I would replace the constant print outs
-with a single boiler plate variable which contains all the relevant values.
+- [] What I would like is to report a matrix of times of lick events back to the
+     python program.
 
-the ultimate printout might be something like this:
-```yaml
-- trial: 03d
-    #These values all got printed in one hit before commencing a trial
-    - parameters:
-        - variable: value
-        - variable: value
-        - variable: value
-        - variable: value
-    
-    #These get printed in a stream as the licksensor runs...
-    - licks: [t, ..., t]
-    
-    #These values would all be printed at the end of the 
-    - events:
-        - event: [status, time]
-        - event: [status, time]
-        - event: [status, time]
-        - event: [status, time]
-```
+    Conceptually to do this I would replace the constant print outs
+    with a single boiler plate variable which contains all the relevant values.
+    the ultimate printout might be something like this:
+
+    ```yaml
+    - trial: 03d
+        #These values all got printed in one hit before commencing a trial
+        - parameters:
+            - variable: value
+            - variable: value
+            - variable: value
+            - variable: value
+        
+        #These get printed in a stream as the licksensor runs...
+        - licks: [t, ..., t]
+        
+        #These values would all be printed at the end of the 
+        - events:
+            - event: [status, time]
+            - event: [status, time]
+            - event: [status, time]
+            - event: [status, time]
+    ```
 -----------------------
 
 
@@ -147,14 +131,9 @@ call the other components as necessary.
 
 This is the collection of files I use to run my behavioural experiments.
 
-Operant Mode
-------------
 
-![Flow of the behavioural paradigm](documentation/Flow_diagram.svg)
+![Flow of the behavioural paradigm (very old)](documentation/Flow_diagram.svg)
 
-The operant mode features the following conditions:
-
-1. 
 
 
 
@@ -199,13 +178,13 @@ Files
 The header files in the behaviourbox folder contain the functions required to
 run the behaviourbox code. 
 There are currently 7 header files:
-    1. "global_variables.h"
-    2. "prototypes.h"
-    3. "timing.h"
-    4. "sensors.h"
-    5. "states.h"
-    6. "SerialComms.h"
-    7. "single_port_setup.h"
+1. "global_variables.h"
+2. "prototypes.h"
+3. "timing.h"
+4. "sensors.h"
+5. "states.h"
+6. "SerialComms.h"
+7. "single_port_setup.h"
 
 ### global_variables.h
 
