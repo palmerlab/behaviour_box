@@ -216,7 +216,7 @@ additional options that I have decided to make available.
 
 | ---------------- | --------------------- |
 | t_init           | not settable. This is the variable that the other times a measured relative to |
-| t_noLickPer      | A time measured in milliseconds. After this amount of time the program will break out of a trial if a lick is detected before the stimulus. If the value is 0 then licks before the stimulus are ignored altogether.
+| t_noLickPer      | A time measured in milliseconds. After this amount of time the program will break out of a trial if a lick is detected before the stimulus. If the value is 0 then licks before the stimulus are ignored altogether. |
 | trial_delay      | Amount of time in milliseconds to delay the start of a trial |
 | t_rewardDEL      | Amount of time in milliseconds to delay checking for licks after a stimulus |
 | t_rewardDUR      | Amount of time in milliseconds to check for licks |
@@ -241,7 +241,7 @@ additional options that I have decided to make available.
 | ---------------- | --------------------- |
 | mode             | {'-', 'O', 'H'} a character to represent the type of mode to run in. If the mode is 'H' the system will delver a stimulus and a reward in response to the animal's lick. If the mode is 'O' the system delivers a stimulus and listens for a response |
 | ---------------- | --------------------- |
-| reward_count     | deprecated |
+| reward_count     | deprecated            |
 |                  |                       |
 | ---------------- | --------------------- |
 | waterVol         | Amount of time in milliseconds to hold the water valve open for |
@@ -252,6 +252,7 @@ additional options that I have decided to make available.
 | break_wrongChoice | Boolean, deprecated  |
 | punish_tone      | deprecated            |
 | audio            | Boolean, enables auditory cues for the response period |
+| ---------------- | --------------------- |
 
 
 
