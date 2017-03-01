@@ -214,6 +214,7 @@ and expected to have persistent values between the functions. These include
 the initialisation time, the various timing parameters, as well as any 
 additional options that I have decided to make available.
 
+| variable         | description           |
 | ---------------- | --------------------- |
 | t_init           | not settable. This is the variable that the other times a measured relative to |
 | t_noLickPer      | A time measured in milliseconds. After this amount of time the program will break out of a trial if a lick is detected before the stimulus. If the value is 0 then licks before the stimulus are ignored altogether. |
@@ -222,27 +223,21 @@ additional options that I have decided to make available.
 | t_rewardDUR      | Amount of time in milliseconds to check for licks |
 | t_trialDUR       | Total time in milliseconds that the trial should last |
 | ---------------- | --------------------- |
-|                  |                       |
 | t_stimONSET      | The time in milliseconds, relative to the trial start time, that the stimulus turns on |
 | t_stimDUR        | Amount of time in milliseconds to keep the stimulus on |
 | ---------------- | --------------------- |
-|                  |                       |
 | timeout          | Boolean value. If True enable the recursive timeout punishment |
 | ---------------- | --------------------- |
-|                  |                       |
 | debounce         | Number of milliseconds to delay between reading the lick sensor value. |
 | lickThres        | The threshold on the licksensor required to call a lick. This is a number between 0 - 1024 (multiply by  5 V/1024 to get voltage) |
 | ---------------- | --------------------- |
-|                  |                       |
 | minlickCount     | The number of licks required to count as a response, ie to open the water valve, or to deliver a punishment |
 | lickTrigReward   | Boolean, set true to enable the reward to be delivered immediatly after the min licks are reached. If false the reward is deliverd at the end of the response duration |
 | reward_nogo      | Boolean, set true if you want a correct rejection to be rewarded at the end on the reward period |
-|                  |                       |
 | ---------------- | --------------------- |
 | mode             | {'-', 'O', 'H'} a character to represent the type of mode to run in. If the mode is 'H' the system will delver a stimulus and a reward in response to the animal's lick. If the mode is 'O' the system delivers a stimulus and listens for a response |
 | ---------------- | --------------------- |
 | reward_count     | deprecated            |
-|                  |                       |
 | ---------------- | --------------------- |
 | waterVol         | Amount of time in milliseconds to hold the water valve open for |
 | trialType        | character code to determine if this is a go or no go trial. This is used to determine if the water valve will open on a given trial |
