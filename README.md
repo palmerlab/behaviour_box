@@ -91,7 +91,7 @@ Presently the new box compiles.
     - [ ] Have both a quick hotkey menu and tab completing complete interface.
 
 
-- [] What I would like is to report a matrix of times of lick events back to the
+- [ ] What I would like is to report a matrix of times of lick events back to the
      python program.
 
     Conceptually to do this I would replace the constant print outs
@@ -117,7 +117,7 @@ Presently the new box compiles.
             - event: [status, time]
             - event: [status, time]
     ```
------------------------
+--------------------------------------------------------------------------------
 
 
 Version 3.0.20170201.8
