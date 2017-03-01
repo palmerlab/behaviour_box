@@ -18,6 +18,99 @@ with this code `./SerialControl.py`.
 
 ------------------------------------------------------------------------------
 
+System overview
+---------------
+
+
+The Arduino repeatedly monitors the signals from 
+the lick sensor and controls the timing of water and stimulus delivery. 
+
+The Arduino triggers external devices.
+
+
+### Hardware
+
+The basic hardware requirements
+
+1. a microcontroller
+2. a delivery system for water reward, 
+3. a lick sensor
+4. a sensory stimulus. 
+
+* [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
+:   Connects to the main computer via USB serial
+
+* stimulus
+:   The stimulus needs to take 5 V digital signal, and be driven
+    by a square wave.
+
+* lick port
+:   I use peizo electric wafers, specifically a [0.6mm Range Piezo 
+    Bender Actuator](http://www.piezodriveonline.com/0-6mm-range-piezo-bender-actuator-ba3502/)
+    from PiezoDrive Pty Ltd, (Callaghn NSW)
+
+    - The signal from these are very small. The piezos require a linear
+        amplifier so that the arduino can detect the signal they produce.
+        I use custom made linear amplifiers that each take 5V DC input
+        and output in a range from 0-3 V. The amplifiers come are from Larkum
+        lab designs.
+
+    - ([LM358N](http://www.ti.com/product/LM358-N), Texas Instruments)
+        This signal is then amplified using a simple operational amplifier 
+        circuit to ensure the Ardunio microcontroller detects the lick-evoked 
+        voltage changes.
+        
+        ![Linear amplifier](documentation/Amplifier_circuit.svg)
+
+:   The reward delivery is controlled by a solenoid pinch valve 
+    ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
+    Takasago Fluidic SysteSms, Nagoya, Japan).
+
+    - I use a 24 V pinch valve. This is in many ways over kill, a 3V valve
+      would be much better, because it would not require an additional gated
+      power supply.
+
+
+Centralized behavioural control by an Arduino microprocessor
+-----------------------------------------------------------
+
+What I would like is to report a matrix of times of lick events back to the
+python program.
+
+Conceptually to do this I would replace the constant print outs
+with a single boiler plate variable which contains all the relevant values.
+
+the ultimate printout might be something like this:
+```yaml
+- trial: 03d
+    #These values all got printed in one hit before commencing a trial
+    - parameters:
+        - variable: value
+        - variable: value
+        - variable: value
+        - variable: value
+    
+    #These get printed in a stream as the licksensor runs...
+    - licks: [t, ..., t]
+    
+    #These values would all be printed at the end of the 
+    - events:
+        - event: [status, time]
+        - event: [status, time]
+        - event: [status, time]
+        - event: [status, time]
+```
+
+
+Analog inputs
+:   The amplified signal from the lick sensor is sent to an 
+    analog input pin. 
+Digital outputs
+:   Four digital output pins are connected to 
+    1. sensory stimulator, 
+    2. punishment consisting of a TTL-triggered valve gating a pressurized air line, 
+    3. water valve, and 
+    4. recording trigger.
 
 ### TODO:
 
@@ -48,7 +141,7 @@ This is the collection of files I use to run my behavioural experiments.
 Operant Mode
 ------------
 
-![Flow of the behavioural paradigm](./documentation/Flow_diagram.svg)
+![Flow of the behavioural paradigm](documentation/Flow_diagram.svg)
 
 The operant mode features the following conditions:
 
@@ -58,82 +151,204 @@ The operant mode features the following conditions:
 
 --------------------------------------------------------------------------------
 
+behaviourbox.ino
+================
 
-# SerialController.py
+This program delivers sensory stimulation and opens water 
+valve when the animal touches the licking sensor within a 
+certain time window.
 
+### Requirements
+
+Setup connections:
+------------------
+
+
+Table: Analog connections to lick controller
+
+
+Global Variables
+----------------
+
+|  name        |  value     | description                              |
+|  ----        |  -----     | -----------                              |
+|  recTrig     |  `3`       | short recording trigger                  |
+|  bulbTrig    |  `4`       | full trial duration signal               |
+|  stimulusPin |  `5`       | pin for stimulus                         |
+|  buzzerPin   |  `6`       | pin for punishment                       |
+|  statusLED   |  `13`      | led connected to digital pin 13          |
+| speakerPin   |  `7`       | output to auditory cue speaker           |
+|  waterPort   |  10        |                                          |
+|  lickSens    |  A0 | the piezos are connected to analog pins 0 and 1 |
+Table: connections
+
+
+
+Files
+---------
+
+The header files in the behaviourbox folder contain the functions required to
+run the behaviourbox code. 
+There are currently 7 header files:
+    1. "global_variables.h"
+    2. "prototypes.h"
+    3. "timing.h"
+    4. "sensors.h"
+    5. "states.h"
+    6. "SerialComms.h"
+    7. "single_port_setup.h"
+
+global_variables.h
+:    contains definitions of all variables that are used by multiple functions
+    and expected to have persistent values between the functions. These include
+    the initialisation time, the various timing parameters, as well as any 
+    additional options that I have decided to make available.
+    
+    | ---------------- | --------------------- |
+    | t_init           | not settable. This is the variable that the other times a measured relative to |
+    | t_noLickPer      | A time measured in milliseconds. After this amount of time the program will break out of a trial if a lick is detected before the stimulus. If the value is 0 then licks before the stimulus are ignored altogether.
+    | trial_delay      | Amount of time in milliseconds to delay the start of a trial |
+    | t_rewardDEL      | Amount of time in milliseconds to delay checking for licks after a stimulus |
+    | t_rewardDUR      | Amount of time in milliseconds to check for licks |
+    | t_trialDUR       | Total time in milliseconds that the trial should last |
+    | ---------------- | --------------------- |
+    |                  |                       |
+    | t_stimONSET      | The time in milliseconds, relative to the trial start time, that the stimulus turns on |
+    | t_stimDUR        | Amount of time in milliseconds to keep the stimulus on |
+    | ---------------- | --------------------- |
+    |                  |                       |
+    | timeout          | Boolean value. If True enable the recursive timeout punishment |
+    | ---------------- | --------------------- |
+    |                  |                       |
+    | debounce         | Number of milliseconds to delay between reading the lick sensor value. |
+    | lickThres        | The threshold on the licksensor required to call a lick. This is a number between 0 - 1024 (multiply by  5 V/1024 to get voltage) |
+    | ---------------- | --------------------- |
+    |                  |                       |
+    | minlickCount     | The number of licks required to count as a response, ie to open the water valve, or to deliver a punishment |
+    | lickTrigReward   | Boolean, set true to enable the reward to be delivered immediatly after the min licks are reached. If false the reward is deliverd at the end of the response duration |
+    | reward_nogo      | Boolean, set true if you want a correct rejection to be rewarded at the end on the reward period |
+    |                  |                       |
+    | ---------------- | --------------------- |
+    | mode             | {'-', 'O', 'H'} a character to represent the type of mode to run in. If the mode is 'H' the system will delver a stimulus and a reward in response to the animal's lick. If the mode is 'O' the system delivers a stimulus and listens for a response |
+    | ---------------- | --------------------- |
+    | reward_count     | deprecated |
+    |                  |                       |
+    | ---------------- | --------------------- |
+    | waterVol         | Amount of time in milliseconds to hold the water valve open for |
+    | trialType        | character code to determine if this is a go or no go trial. This is used to determine if the water valve will open on a given trial |
+    | ---------------- | --------------------- |
+    | Nports           |  deprecated           |
+    | verbose          |  Boolean, if True will enable full debug printing...(might be deprecated?) |
+    | break_wrongChoice | Boolean, deprecated  |
+    | punish_tone      | deprecated            |
+    | audio            | Boolean, enables auditory cues for the response period |
+
+
+
+--------------------------------------------------------------------------------
+
+
+SerialController.py
+===================
+
+This python script is a wrapper for communicating with the Arduino program.
+At it's heart is a simple loop that reads data transmitted through a serial
+connection. This is not a necessary component, however I wrote it to make 
+running trials a lot easier.
+
+call signature
 ```
-usage: SerialControl.py [-h] [-b] [-lt LICKTHRES] [--verbose]
-                        [--repeats REPEATS] [-a] [--port PORT]
-                        [--t_stimDELAY T_STIMDELAY] [--ITI ITI ITI]
-                        [-rdur T_RDUR] [--dur DUR DUR] [-m MODE]
-                        [--t_stimONSET T_STIMONSET] [--datapath DATAPATH]
-                        [-rs] [-i ID] [-bc] [-nlp NOLICK] [-w WEIGHT]
-                        [-N TRIAL_NUM] [-td TRIALDUR] [-rdel T_RDELAY] [-p]
-                        [-to TIMEOUT] [-s] [-lc LCOUNT] [-L | -R]
+usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
+                        [-lt LICKTHRES] [--verbose] [-restore]
+                        [--repeats REPEATS] [--port PORT] [--ITI ITI ITI]
+                        [-rdur T_RDUR] [-ltr] [--t_stimONSET T_STIMONSET]
+                        [--datapath DATAPATH] [-i ID] [-m MODE] [-to TIMEOUT]
+                        [-nlp NOLICK] [-w WEIGHT] [-td TRIALDUR]
+                        [-rdel T_RDELAY] [-p] [-noise] [-rng] [-lc LCOUNT]
 ```
 
 ### Requires
 
 * [Windows 7](https://www.microsoft.com/en-au/software-download/windows7)
-* [Pandas](http://pandas.pydata.org)
-* [Numpy](http://www.numpy.org/)
-* [Pyserial](https://github.com/pyserial/pyserial)
-* [Colorama](https://pypi.python.org/pypi/colorama)
+* [Pandas (0.19.0)](http://pandas.pydata.org)
+* [Numpy (1.11.2+mkl)](http://www.numpy.org/)
+* [Pyserial (2.7)](https://github.com/pyserial/pyserial)
+* [Colorama (0.3.7)](https://pypi.python.org/pypi/colorama)
+* [sounddevice (0.3.5)](http://python-sounddevice.readthedocs.io/en/0.3.5/)
+* ConfigParser
+* argparse
 * An Arduino running `behaviourbox.ino` connected to the same computer
 
 Optional Arguments:
 -------------------
 
-
 optional arguments:
+
 -h, --help            show this help message and exit
--b, --blanks          include no stim trials
+
+-af, --audio          provides audio feedback during the trials this is not
+                    to be confused with the noise played to simulate /
+                    mask the scanners
+
+--trials [TRIALS [TRIALS ...]]
+                    durations to run on each trial
+
 -lt LICKTHRES, --lickThres LICKTHRES
                     set `lickThres` in arduino
+
 --verbose             for debug this will print everything if enabled
+
+-restore              Use to look up previous settings in the comms.ini file
+
 --repeats REPEATS     the number of times this block should repeat, by
                     default this is 1
--a, --auditory        switch to auditory stimulus instead of somatosensory
+
 --port PORT           port that the Arduino is connected to
---t_stimDELAY T_STIMDELAY
-                    sets the time between succesive stimuli
+
 --ITI ITI ITI         an interval for randomising between trials
+
 -rdur T_RDUR, --t_rDUR T_RDUR
                     set end time of reward epoch
---dur DUR DUR         Durations or to be passed to arduino as DUR_short and
-                    DUR_long
--m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
-                    look in the config table
+
+-ltr, --lickTrigReward
+                    flag to allow licks to trigger the reward immediatly
+
 --t_stimONSET T_STIMONSET
                     sets the time after trigger to run the first stimulus
+
 --datapath DATAPATH   path to save data to, by default is
-                    'C:/DATA/Andrew/wavesurfer/%YY%MM%DD'
--rs, --right_same     define the right port as correct for same stimulus
+                    R:\Andrew\161222_GOnoGO_Perception_III\%YY%MM%DD
+
 -i ID, --ID ID        identifier for this animal/run
--bc, --bias_correct   turn on the bias correction for the random number
-                    generator
--nlp NOLICK, --noLick NOLICK
-                    set `t_noLickPer` in arduino
--w WEIGHT, --weight WEIGHT
-                    weight of the animal in grams
--N TRIAL_NUM, --trial_num TRIAL_NUM
-                    trial number to start at
--td TRIALDUR, --trialDur TRIALDUR
-                    set minimum trial duration
--rdel T_RDELAY, --t_rDELAY T_RDELAY
-                    set start time of reward epoch
--p, --punish          sets `break_wrongChoice` to True, incorrect licks will
-                    end an operant trial early
+
+-m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
+                    look in the config table
+
 -to TIMEOUT, --timeout TIMEOUT
                     set the timeout duration for incorrect licks
--s, --single          use this flag for a single stimulus only
+
+-nlp NOLICK, --noLick NOLICK
+                    set `t_noLickPer` in arduino
+
+-w WEIGHT, --weight WEIGHT
+                    weight of the animal in grams
+
+-td TRIALDUR, --trialDur TRIALDUR
+                    set minimum trial duration
+
+-rdel T_RDELAY, --t_rDELAY T_RDELAY
+                    set start time of reward epoch
+
+-p, --punish          sets `break_wrongChoice` to True, incorrect licks will
+                    end an operant trial early
+
+-noise                plays a noise during trials
+
+-rng, --reward_nogo   flag to allow a water delivery following no lick of a
+                    no go stim
+
 -lc LCOUNT, --lcount LCOUNT
                     set `minlickCount` in arduino
--L, --left
--R, --right
-
-
-See Also [list of rejected arguments](http://xkcd.com/1692/)
 
 
 
@@ -150,7 +365,7 @@ Interactive Options
 |      [ ]     | lickcount                                        |
 |      \\      | show lickcount                                   |
 |      tab     | toggle mode                                      |
-|      : \"    |  adjust noLick period                            |
+|      :  "    |  adjust noLick period                            |
 |      L       | show noLick period                               |
 |      ( )     | adjust trial duration                            |
 |      T       | show trial duration period                       |
@@ -165,7 +380,7 @@ Interactive Options
 1. The program starts
 2. The program opens communications with available serial port
     The program waits until it gets the arduino is active, and prints all output
-    until the ready signal is transmitted. Which is `-- Status: Ready --`
+    until the ready signal is transmitted. Which is `- Status: Ready`
     
 3. The program starts a block
 5. The program transmits the dict `params`, which holds all parameters 
@@ -185,308 +400,6 @@ Interactive Options
 8. The program repeats sending mode flags until all stimuli combinations have
    been run through.
 
-
-
-# behaviourbox.ino
-
-This program delivers sensory stimulation and opens water 
-valve when the animal touches the licking sensor within a 
-certain time window.
-
-### Requirements
-
-* [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
-    :   Connects to the main computer via USB serial
-
-* stimulus
-    :   The stimulus needs to take 3.3V digital signal, and be driven
-        by a square wave.
-
-* 2×lick ports
-    :   I use peizo electric wafers, specifically a [0.6mm Range Piezo 
-        Bender Actuator](http://www.piezodriveonline.com/0-6mm-range-piezo-bender-actuator-ba3502/)
-        from PiezoDrive Pty Ltd, (Callaghn NSW)
-
-        - The signal from these are very small. The piezos require a linear
-            amplifier so that the arduino can detect the signal they produce.
-            I use 2× custom made linear amplifiers that each take 5V DC input
-            and output in a range from 0-3V. The amplifiers come are from Larkum
-            lab designs.
-            
-           
-
-Setup connections:
-------------------
-
-|  DIGITAL  | output             | variable        |
-| --------- | ------------------ | --------------- |                               
-| pin 3     | recording trigger  | `recTrig`       |
-| pin 4     | bulb style trigger | `bulbTrig`      |
-| pin 5     | stimulus           | `stimulusPin`   |
-| pin 6     | Punishment Buzzer  | `buzzerPin`     |
-| pin 7     | speaker            | `speakerPin`    |
-| pin 10    | left water valve   | `waterValve[0]` |
-| pin 11    | right water valve  | `waterValve[1]` |
-
-Table: Digital connections to lick controller
-
-
-| ANALOG    | input             |                 |
-| --------- | ----------------- | --------------- |
-| A0        | left  lick sensor | `lickSens[0]`   |
-| A1        | right lick sensor | `lickSens[1]`   |
-
-Table: Analog connections to lick controller
-
-
-Global Variables
-----------------
-
-| type            |  name        |  value     |  description                                      |
-| ----            |  ----        |  -----     |  -----------                                      |
-| `const char`    |  recTrig     |  `2`       |  digital pin 2 triggers ITC-18                    |
-| `const char`    |  stimulusPin |  `3`       |  digital pin 4 control whisker stimulation        |
-| `const char`    |  speakerPin  |  `8`       |  digital pin 8 control water valve                |
-| `const char`    |  statusLED   |  `13`      |  led connected to digital pin 13                  |
-| `const char[2]` |  waterPort   |  `{10,11}` |                                                   |
-| `const char`    |  lickRep     |  `13`      |                                                   |
-| `const char[2]` |  lickSens    |  `{A0,A1}` |  the piezos are connected to analog pins 0 and 1  |
-Table: connections      
-
-                 
-| type               |   name         |   value   | description  |
-| ----               |   ----         |   -----   | -----------  |
-| `unsigned long`    |   t_init       |           |              |
-| `unsigned int`     |   t_noLickPer  |   1000    |   ms         |
-| `unsigned int`     |   trial_delay  |   500     |   ms         |
-| `unsigned int`     |   t_stimONSET  |   2000    |   ms         |
-| `unsigned int`     |   t_stimDELAY  |   150     |   ms         |
-| `unsigned int`     |   stimDUR      |   500     |   ms         |
-| `unsigned int`     |   t_rDELAY     |   2100    |   ms         |
-| `unsigned int`     |   t_rDUR       |   2000    |   ms         |
-| `unsigned int`     |   timeout      |   0       |              |
-Table: timing parameters
-
-
-| type      | name         | value    |  description                                                           |
-| ----      | ----         | -----    |  -----------                                                           |
-| `char`    | mode         | `'-'`    |  one of `h`abituation, `o`perant                                       |
-| `char`    | rewardCond   | `'R'`    |  a value that is 'L' 'R', 'B' or 'N' to represent lick port to be used |
-| `byte`    | minlickCount | `5`      |                                                                        |
-| `byte[2]` | reward_count | `{0, 0}` |  Globals to count number of continuous left and rights                 |
-Table: Misc
-
-
-| type        |  name        | value                             | description |
-| ----        |  ----        | -----                             | ----------- |
-| `bool`      |  single_stim |                                   |             |
-| `bool`      |  right_same  |                                   |             |
-| `int`       |  DUR_short   | `100`                             |             |
-| `int`       |  DUR_long    | `500`                             |             |
-| `int[2][2]` |  diff_DUR    | `{{DUR_short, DUR_long}, {  DUR_long, DUR_short}}`|             |
-| `int[2][2]` |  same_DUR    | `{{ DUR_long, DUR_long}, {DUR_short, DUR_short}}` |             |
-| `bool`      |  right       | `1`                               |             |
-| `bool`      |  left        | `0`                               |             |
-| `int[2][2]` |  right_DUR   |                                   |             |
-| `int[2][2]` |  left_DUR    |                                   |             |
-
-Table: stimulus parameters
-
-
-| type         |  name          | value        | description                                     |
-| ----         |  ----          | -----        | -----------                                     |
-| `bool` |  auditory      | `0`    | Logical value. Runs in auditory mode when true  |
-| `int`  |  toneGoodLeft  | `6000` | Hz                                              |
-| `int`  |  toneGoodRight | `7000` | Hz                                              |
-| `int`  |  toneGood      | `2000` | Hz                                              |
-| `int`  |  toneBad       | `500`  | Hz                                              |
-| `int`  |  toneDur       | `100`  | ms                                              |
-
-Table: audio
-
-type             | name               | value                  |  description
-----             | ----               | -----                  |  -----------
-`byte[2]`  | count              | `{0,0}`          |  Global value to count the licks
-`char`     | waterVol           | `10`             |  uL per dispense
-`int`      | lickThres          | `450`            |            
-`bool[2]`  | lickOn             | `{false, false}` |            
-`bool`     | verbose            | `true`           |             
-`bool`     | break_wrongChoice  | `false`          |  stop if the animal makes a mistake
-
-Table: Reward
-
-
-
-Start program
---------------
-
-The arduino program is a little complicated; but in principle a simple
-setup. The main method is `runTrial` which on initialisation:
-
-1. Waits a period of ms defined by `trial_delay`. In this period the timer counts
-   up to zero; and the sensors detect licks. 10 ms before zero, a pulse is sent to
-   the `recTrig` to trigger the recording
-2. Next two periods of `ActiveDelay` are intialised in sequence. Two are used 
-   so that if I decide the set a `noLickPer` time, I can have that come on a
-   short time after the trigger. `ActiveDelay` has the condition `break_on_lick`
-   as it's second argument. If `true` the program will exit the function before
-   it reaches the time that it is set to delay until.
-3. Two stimuli are delivered, separated by an `ActiveDelay` method.
-4. After another `ActiveDelay` the program enters the `TrialReward` period, if
-   `rewardCond` is not `'N'`, which stands for neither port giving water. During
-   the `TrialReward` phase, if the `mode` is `c` then water is dispensed 
-   immediately from the associated port.
-5. The program delays again, and then exits the `runTrial` function. Resulting in
-   the program sending the ready string to the Serial controller.
-
-Now also includes a mode switch. Using `<tab>` you can switch between
-operant and habituation modes. In habituation the animal is delivered
-a pair of randomly selected stimuli, which match the reward condition
-when it licks the water ports. Following the stimulus delivery a reward
-is dispensed on the port that the animal licked. 
-In this mode an  upper limit on the number of contiguous successful
-trials on the same side is used (Thanks to Conrad Lee from ANU). A counter
-keeps track of the number of licks, and if the counter reaches 10
-the associated port becomes inactive. Licking the other port subtracts
-1 from the counter. In this way the animal must balance it's attention on
-both ports.
-
-Functions
----------
-   
-In addition to the basic functionality the program also features modules that
-do the following:
-
-`t_now(t_init)`
-: Returns the number of milliseconds since `t_init`. `t_init` is a global
-    unsigned long. It takes the value of `millis()` at the start of a run;
-    which in turn is the number of milliseconds since the Arduino was turned on.
-  
-`senseLickChange(bool sensor)`  
-: `sensor`
-    is a Boolean, because I only have implemented two lick sensors, which can
-    be 0 or 1, for the left and right sensors respectively. This function
-    reads the value of the analog input defined by `lickSens[sensor]`. If this
-    is greater than the threshold the function returns true, and sets the
-    `lickRep[sensor]` pin to ON.
-  
-    In addition this function includes a line to set the speaker to be ON or OFF
-    at random. This is how the auditory masking noise is produced. 
-    A consequence of this is that each state the controller gets in has
-    a different timbre. The obvious solution is to use a PC speaker to go to
-    `youtube>10 hours of white noise` instead of this tangled solution!
-    
-`getSerialInput()`
-: Returns data from the serial port as a string. `while Serial.available()`
-
-`getSepIndex(string, sep)`
-: Returns the first index at which the character `sep` is found in `string`.
-    If no separator is present this function will return 0. 
-    
-    (Possible source of bugs, it would be better to uses -1 and to check that
-    the output is valid on call!)
-
-`flutter(off)`
-: This function runs single square pulse on `stim_pin` which is high
-    for the duration `on`, defined in microseconds. The `off` value gives
-    a delay in which the pin is in low state such that by stringing multiple 
-    of these together I can generate a square wave.
-    
-`ActiveDelay(wait, break_on_lick = false, verbose = true)`
-: Returns true if a lick is detected in the period defined by `wait`. `wait` is
-    some time relative to the time that the trial started (`t_init`).
-    
-    if `break_on_lick` is set true, this function will return before the end 
-    of the delay period.
-    
-    TODO: It would be best to make the return value depend on whether or not
-    an early break has happened!
-
-`preTrial(verbose = true)`
-: While the trial has not started 
-    1. update the time
-    2. check for licks
-    4. trigger the recording by putting recTrig -> HIGH
-    5. flash the LED each second.
-
-`UpdateGlobals(input)`
-: This function parses an `input` string and uses it to set the value
-   of global paramaters. If the input is of the form `variablename : value`
-   `variablename` will be updated to be equal to `value`
-
-
-`TrialReward()`
-: This function returns a character corresponding to the lick status
-    
-| ----------- | -------------------------------------  |
-| `'L'` | correct hit on left port               |
-| `'R'` | correct hit on right port              |
-| `'l'` | incorrect lick on left port            |
-| `'r'` | incorrect lick on right port           |
-| `0`   | No lick detected during reward period  |
-| ----------- | -------------------------------------  |
-
-Serial Input / Output
-----------------------
-
-adjustable parameters
-:    + `lickThres`
-    + `mode`
-    + `trialType`
-    + `break_wrongChoice`
-    + `minlickCount`
-    + `t_noLickPer`
-    + `OFF`
-    + `ON`
-    + `auditory`
-    + `timeout`
-    + `t_stimONSET`
-    + `t_stimDUR`
-    + `t_rewardDEL`
-    + `t_rewardDUR`
-    + `waterVol`
-
-*or Poor mans introspection*
-
-```
-
-lickThres = variable_value.toInt();
-
-mode = variable_value[0];
-
-rewardCond = variable_value[0];
-
-break_wrongChoice = bool(variable_value.toInt());
-
-minlickCount = variable_value.toInt();
-
-t_noLickPer = variable_value.toInt();
-
-right_same = bool(variable_value.toInt());
-
-auditory = bool(variable_value.toInt());
-
-single_stim = bool(variable_value.toInt());
-
-timeout = variable_value.toInt();
-
-t_stimDUR = variable_value.toInt();
-
-t_stimONSET = variable_value.toInt();
-
-t_rDELAY = variable_value.toInt();
-
-t_rDUR = variable_value.toInt();
-
-waterVol = variable_value.toInt();
-
-DUR_short = variable_value.toInt();
-
-DUR_long = variable_value.toInt();
-
-OFF = variable_value.toInt();
-
-```
 
 plot_stats.py
 ==============
