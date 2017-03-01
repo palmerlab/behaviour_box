@@ -19,15 +19,15 @@ def na_printr(s):
     try: return "%3d" %s
     except: return "%03s" %s
 
-    
-import csv
 
 def unpack_table(filename):
     """
     Reads a transposed csv, 
     Where the first column contains the header
     """
-    
+
+    import csv
+
     reader = csv.reader(open(filename, 'r'), delimiter = "\t")
     d = {}
     for row in reader:
