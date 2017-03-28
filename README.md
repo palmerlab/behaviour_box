@@ -38,8 +38,8 @@ The basic hardware requirements
         ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
         Takasago Fluidic SysteSms, Nagoya, Japan).
        
-         The pinch valve is wired to a gated 24 V power supply, which accepts 5 V logic
-         to switch on and off. 
+         The pinch valve is wired to a gated 24 V power supply, which accepts 
+         5 V logic to switch on and off. 
          
         - I use a 24 V pinch valve. This is in many ways over kill, a 3 V valve
           would be much better, because it would not require an additional gated
@@ -53,17 +53,15 @@ The basic hardware requirements
         from PiezoDrive Pty Ltd, (Callaghn NSW)
 
         - The signal from these are very small. The piezos require a linear
-            amplifier so that the arduino can detect the signal they produce.
-            I use custom made linear amplifiers that each take 5V DC input
-            and output in a range from 0-3 V. The amplifiers come are from Larkum
-            lab designs.
+          amplifier so that the arduino can detect the signal they produce.
+          I use custom made linear amplifiers that each take 5V DC input
+          and output in a range from 0-3 V. The amplifiers come are from Larkum
+          lab designs.
 
         - ([LM358N](http://www.ti.com/product/LM358-N), Texas Instruments)
-            This signal is then amplified using a simple operational amplifier 
-            circuit to ensure the Ardunio microcontroller detects the lick-evoked 
-            voltage changes.
-            
-            ![Linear amplifier](documentation/Amplifier_circuit.svg)
+          This signal is then amplified using a simple operational amplifier 
+          circuit to ensure the Ardunio microcontroller detects the lick-evoked 
+          voltage changes.
 
 4. a sensory stimulus. 
     * The stimulus needs to take 5 V digital signal.
@@ -112,15 +110,15 @@ Table: Analog connections to lick controller
 Global Variables
 ----------------
 
-|  Variable Name |  pin     | Physical connection                                            |
-|  ----        |  -----     | -------------------------------------------------------------- |
-|  recTrig     |  `3`       | short recording trigger (10ms TTL pulse )                      |
-|  bulbTrig    |  `4`       | full trial duration signal (bulb style trigger)                |
-|  stimulusPin |  `5`       | Connect to Stimulus device, outputs a variable duration pulse  |
-|  buzzerPin   |  `6`       | Connect to punishment device, (TTL trigger)                    |
-| speakerPin   |  `7`       | output to auditory cue speaker                                 |
-|  waterPort   |  `10`      | Connect to water valve power supply                            |
-|  lickSens    |  `A0`      | The Piezo Amplifier is connected to the analog input |
+| Variable Name | pin  | Physical connection                                            |
+| ----          | ---- | -------------------------------------------------------------- |
+| recTrig       | `3`  | short recording trigger (10ms TTL pulse )                      |
+| bulbTrig      | `4`  | full trial duration signal (bulb style trigger)                |
+| stimulusPin   | `5`  | Connect to Stimulus device, outputs a variable duration pulse  |
+| buzzerPin     | `6`  | Connect to punishment device, (TTL trigger)                    |
+| speakerPin    | `7`  | output to auditory cue speaker                                 |
+| waterPort     | `10` | Connect to water valve power supply                            |
+| lickSens      | `A0` | The Piezo Amplifier is connected to the analog input           |
 
 Table: connections
 
@@ -194,16 +192,25 @@ At it's heart is a simple loop that reads data transmitted through a serial
 connection. This is not a necessary component, however I wrote it to make 
 running trials a lot easier.
 
-call signature
-```
-usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
-                        [-lt LICKTHRES] [--verbose] [-restore]
-                        [--repeats REPEATS] [--port PORT] [--ITI ITI ITI]
-                        [-rdur T_RDUR] [-ltr] [--t_stimONSET T_STIMONSET]
-                        [--datapath DATAPATH] [-i ID] [-m MODE] [-to TIMEOUT]
-                        [-nlp NOLICK] [-w WEIGHT] [-td TRIALDUR]
-                        [-rdel T_RDELAY] [-p] [-noise] [-rng] [-lc LCOUNT]
-```
+The script runs on the command line. The 
+
+### Install
+
+- get git [https://git-scm.com/docs/git-svn]
+- Clone this repository
+- Be an administrator
+- Install Arduino IDE [https://www.arduino.cc/en/Main/Software]
+- Install Arduino windows drivers (see Arduino website)
+- Compile and upload `behaviour_box.ino`
+- Install python 2.7 for windows
+    - check add python to path
+    - check install setup tools
+- Download additional packages from http://www.lfd.uci.edu/~gohlke/pythonlibs/
+    - Follow specific instructions for installing numpy+mkl. (This system 
+      doesn't necessarily require the speed of the mkl version, but it is a 
+      nice thing to have)
+    - Use pip to install all packages from and elevated command prompt
+
 
 ### Requires
 
@@ -217,76 +224,130 @@ usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
 * argparse
 * An Arduino running `behaviourbox.ino` connected to the same computer
 
+To install numpy follow the instructions at http://www.lfd.uci.edu/~gohlke/pythonlibs/
+I used version 1.11.2+mkl for this, however the Chris Gohlke doesn't seem to
+archive older versions. TODO: test upgrading numpy.
+
+`pip install pandas==0.19.0 pyserial==2.7 Colorama==0.3.7 sounddevice==0.35`
+
+
+call signature
+```
+usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
+                        [-lt LICKTHRES] [--verbose] [-restore]
+                        [--repeats REPEATS] [--port PORT] [--ITI ITI ITI]
+                        [-rdur T_RDUR] [-ltr] [--t_stimONSET T_STIMONSET]
+                        [--datapath DATAPATH] [-i ID] [-m MODE] [-to TIMEOUT]
+                        [-nlp NOLICK] [-w WEIGHT] [-td TRIALDUR]
+                        [-rdel T_RDELAY] [-p] [-noise] [-rng] [-lc LCOUNT]
+```
+
 Optional Arguments:
 -------------------
 
 optional arguments:
 
--h, --help            show this help message and exit
+#### -h, --help            
 
--af, --audio          provides audio feedback during the trials this is not
-                    to be confused with the noise played to simulate /
-                    mask the scanners
+show this help message and exit
 
---trials [TRIALS [TRIALS ...]]
-                    durations to run on each trial
+#### -af, --audio          
 
--lt LICKTHRES, --lickThres LICKTHRES
-                    set `lickThres` in arduino
+ provides audio feedback during the trials this is not
+ to be confused with the noise played to simulate /
+mask the scanners
 
---verbose             for debug this will print everything if enabled
+#### --trials [TRIALS [TRIALS ...]]
 
--restore              Use to look up previous settings in the comms.ini file
+durations to run on each trial
 
---repeats REPEATS     the number of times this block should repeat, by
-                    default this is 1
+#### -lt LICKTHRES, --lickThres LICKTHRES
 
---port PORT           port that the Arduino is connected to
+set `lickThres` in arduino
 
---ITI ITI ITI         an interval for randomising between trials
+#### --verbose
+ 
+ for debug this will print everything if enabled
 
--rdur T_RDUR, --t_rDUR T_RDUR
-                    set end time of reward epoch
+#### -restore
 
--ltr, --lickTrigReward
-                    flag to allow licks to trigger the reward immediatly
+Use to look up previous settings in the comms.ini file
 
---t_stimONSET T_STIMONSET
-                    sets the time after trigger to run the first stimulus
+#### --repeats REPEATS
 
---datapath DATAPATH   path to save data to, by default is
-                    R:\Andrew\161222_GOnoGO_Perception_III\%YY%MM%DD
+the number of times this block should repeat, by
+default this is 1
 
--i ID, --ID ID        identifier for this animal/run
+#### --port PORT
 
--m MODE, --mode MODE  the mode `h`abituaton or `o`perant, by default will
-                    look in the config table
+port that the Arduino is connected to
 
--to TIMEOUT, --timeout TIMEOUT
-                    set the timeout duration for incorrect licks
+#### --ITI ITI ITI
 
--nlp NOLICK, --noLick NOLICK
-                    set `t_noLickPer` in arduino
+an interval for randomising between trials
 
--w WEIGHT, --weight WEIGHT
-                    weight of the animal in grams
+#### -rdur T_RDUR, --t_rDUR T_RDUR
 
--td TRIALDUR, --trialDur TRIALDUR
-                    set minimum trial duration
+set end time of reward epoch
 
--rdel T_RDELAY, --t_rDELAY T_RDELAY
-                    set start time of reward epoch
+#### -ltr, --lickTrigReward
 
--p, --punish          sets `break_wrongChoice` to True, incorrect licks will
-                    end an operant trial early
+flag to allow licks to trigger the reward immediatly
 
--noise                plays a noise during trials
+#### --t_stimONSET T_STIMONSET
 
--rng, --reward_nogo   flag to allow a water delivery following no lick of a
-                    no go stim
+sets the time after trigger to run the first stimulus
 
--lc LCOUNT, --lcount LCOUNT
-                    set `minlickCount` in arduino
+#### --datapath DATAPATH
+
+path to save data to, by default is
+R:\Andrew\161222_GOnoGO_Perception_III\%YY%MM%DD
+
+#### -i ID, --ID ID
+
+identifier for this animal/run
+
+#### -m MODE, --mode MODE
+
+the mode `h`abituaton or `o`perant, by default will
+look in the config table
+
+#### -to TIMEOUT, --timeout TIMEOUT
+
+set the timeout duration for incorrect licks
+
+#### -nlp NOLICK, --noLick NOLICK
+
+set `t_noLickPer` in arduino
+
+#### -w WEIGHT, --weight WEIGHT
+
+weight of the animal in grams
+
+#### -td TRIALDUR, --trialDur TRIALDUR
+
+set minimum trial duration
+
+#### -rdel T_RDELAY, --t_rDELAY T_RDELAY
+
+set start time of reward epoch
+
+#### -p, --punish
+
+sets `break_wrongChoice` to True, incorrect licks will
+end an operant trial early
+
+#### -noise
+
+plays a noise during trials
+
+#### -rng, --reward_nogo   
+
+flag to allow a water delivery following no lick of a no go stim
+
+#### -lc LCOUNT, --lcount LCOUNT
+
+set `minlickCount` in arduino
 
 
 
