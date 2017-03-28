@@ -1,3 +1,5 @@
+This is the collection of files I use to run my behavioural experiments.
+
 Behaviour Box
 =============
 
@@ -5,7 +7,7 @@ This repository contains a set of files to implement a Go-No-Go
 task using an Arduino and Python 2.7. By itself this collects some summary
 information for a behavioural trial, but is not a stand alone implementation.
 In addition to what is recorded here, I record the signal direct from the 
-lick sensor using an additional interface.
+lick sensor using  [Wavesurfer](https://github.com/JaneliaSciComp/Wavesurfer).
 
 The two components to this implementation are the Arduino code, found in
 `./behaviourbox/behaviourbox.ino` and a Python wrapper for communicating
@@ -15,7 +17,6 @@ with this code `./SerialControl.py`.
 
 System overview
 ---------------
-
 
 The Arduino repeatedly monitors the signals from 
 the lick sensor and controls the timing of water and stimulus delivery. 
@@ -36,8 +37,11 @@ The basic hardware requirements
     * The reward delivery is controlled by a solenoid pinch valve 
         ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
         Takasago Fluidic SysteSms, Nagoya, Japan).
-
-        - I use a 24 V pinch valve. This is in many ways over kill, a 3V valve
+       
+         The pinch valve is wired to a gated 24 V power supply, which accepts 5 V logic
+         to switch on and off. 
+         
+        - I use a 24 V pinch valve. This is in many ways over kill, a 3 V valve
           would be much better, because it would not require an additional gated
           power supply.
 
@@ -65,8 +69,16 @@ The basic hardware requirements
     * The stimulus needs to take 5 V digital signal.
 
 5. A speaker
+   * I have wired my speaker up directly to the Arduino. Ideally you should wire the
+   speaker through a resistor to protect the Arduino.
 
 6. Recording devices
+
+
+### Software
+
+
+
 
 
 Version 3.0.20170201.8
@@ -77,13 +89,6 @@ The behaviour box program is now split into a handful of modules.
 Each module is mostly holding utility functions for the box as a whole.
 The behaviour box itself only contains `setup` and `loop` functions, which
 call the other components as necessary.
-
-This is the collection of files I use to run my behavioural experiments.
-
-
-![Flow of the behavioural paradigm (very old)](documentation/Flow_diagram.svg)
-
-
 
 
 --------------------------------------------------------------------------------
@@ -107,18 +112,17 @@ Table: Analog connections to lick controller
 Global Variables
 ----------------
 
-|  name        |  value     | description                              |
-|  ----        |  -----     | -----------                              |
-|  recTrig     |  `3`       | short recording trigger                  |
-|  bulbTrig    |  `4`       | full trial duration signal               |
-|  stimulusPin |  `5`       | pin for stimulus                         |
-|  buzzerPin   |  `6`       | pin for punishment                       |
-|  statusLED   |  `13`      | led connected to digital pin 13          |
-| speakerPin   |  `7`       | output to auditory cue speaker           |
-|  waterPort   |  10        |                                          |
-|  lickSens    |  A0 | the piezos are connected to analog pins 0 and 1 |
-Table: connections
+|  Variable Name |  pin     | Physical connection                                            |
+|  ----        |  -----     | -------------------------------------------------------------- |
+|  recTrig     |  `3`       | short recording trigger (10ms TTL pulse )                      |
+|  bulbTrig    |  `4`       | full trial duration signal (bulb style trigger)                |
+|  stimulusPin |  `5`       | Connect to Stimulus device, outputs a variable duration pulse  |
+|  buzzerPin   |  `6`       | Connect to punishment device, (TTL trigger)                    |
+| speakerPin   |  `7`       | output to auditory cue speaker                                 |
+|  waterPort   |  `10`      | Connect to water valve power supply                            |
+|  lickSens    |  `A0`      | The Piezo Amplifier is connected to the analog input |
 
+Table: connections
 
 
 Files
