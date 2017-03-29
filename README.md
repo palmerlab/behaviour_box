@@ -245,8 +245,6 @@ usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
 Optional Arguments:
 -------------------
 
-optional arguments:
-
 #### -h, --help            
 
 show this help message and exit
