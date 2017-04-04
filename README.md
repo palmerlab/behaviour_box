@@ -118,7 +118,7 @@ additional options that I have decided to make available.
 | reward_count     | deprecated            |
 | ---------------- | --------------------- |
 | waterVol         | Amount of time in milliseconds to hold the water valve open for |
-| trialType        | character code to determine if this is a go or no go trial. This is used to determine if the water valve will open on a given trial |
+| trialType        | character code {'G' or 'N'} to determine if this is a go or no go trial. This is used to determine if the water valve will open in response to animal's lick |
 | ---------------- | --------------------- |
 | Nports           |  deprecated           |
 | verbose          |  Boolean, if True will enable full debug printing...(might be deprecated?) |
@@ -277,9 +277,6 @@ Interactive Options
 |      T       | show trial duration period                       |
 |      Y       | toggle timeout (requires punish to take effect)  |
 |      B       | toggle bias correction                           |
-| input `rdel` |                                                  |
-| input `rdur` |                                                  |
-| ------------ | -------------------------------------------------|
 
 
 
