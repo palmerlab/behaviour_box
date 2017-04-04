@@ -1,6 +1,8 @@
 import serial               #allows us to open communications with arduino
 import time
 import datetime
+import sys
+
 from colorama_wrapper import *
 from config_loader import *
 from numerical import *
