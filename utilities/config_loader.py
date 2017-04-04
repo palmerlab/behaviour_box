@@ -1,4 +1,5 @@
 import ConfigParser         #library used for saving and loading ini files
+import os
 
 def write_out_config(params, ID):
 
@@ -20,7 +21,7 @@ def write_out_config(params, ID):
               'audio',
               )
     
-    with open('comms.ini','r+') as cfgfile:
+    with open('comms.ini','a') as cfgfile:
         Config = ConfigParser.ConfigParser()
         Config.read('comms.ini')
 
@@ -59,6 +60,9 @@ def restore_old_config(ID):
     restores the varible values in the global namespace
     (Hacky solution)
     '''
+
+    if not os.path.exists('comms.ini'):
+        return
 
     with open('comms.ini','r+') as cfgfile:
         Config = ConfigParser.ConfigParser()

@@ -2,3 +2,5 @@
 *.tab
 *.pyc
 *.css
+*.ini
+./datapath/*
