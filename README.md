@@ -22,16 +22,14 @@ which call the other components as necessary.
 
 --------------------------------------------------------------------------------
 
-Installation
-============
-
-See the [installation guide](../../wiki/Installation-Instructions)
+[Installation](../../wiki/Installation-Instructions)
+-------------
 
 
 
 
-
-
+[Usage](../../wiki/usage)
+------------
 
 
 --------------------------------------------------------------------------------
@@ -168,7 +166,7 @@ mask the scanners
 
 #### --trials [TRIALS [TRIALS ...]]
 
-stimulus durations to run on each trial. 
+stimulus durations to run on each trial.
 That is, the duration of the stimulus pulse.
 
 #### -lt LICKTHRES, --lickThres LICKTHRES
