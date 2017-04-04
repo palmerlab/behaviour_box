@@ -142,15 +142,6 @@ At it's heart is a simple loop that reads data transmitted through a serial
 connection. This is not a necessary component, however I wrote it to make
 running trials a lot easier.
 
-The script runs on the command line. The
-
-To install numpy follow the instructions at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-I used version 1.11.2+mkl for this, however the Chris Gohlke doesn't seem to
-archive older versions. TODO: test upgrading numpy.
-
-`pip install pandas==0.19.0 pyserial==2.7 Colorama==0.3.7 sounddevice==0.35`
-
-
 call signature
 ```
 usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
@@ -177,7 +168,8 @@ mask the scanners
 
 #### --trials [TRIALS [TRIALS ...]]
 
-durations to run on each trial
+stimulus durations to run on each trial. 
+That is, the duration of the stimulus pulse.
 
 #### -lt LICKTHRES, --lickThres LICKTHRES
 
@@ -218,8 +210,7 @@ sets the time after trigger to run the first stimulus
 
 #### --datapath DATAPATH
 
-path to save data to, by default is
-R:\Andrew\161222_GOnoGO_Perception_III\%YY%MM%DD
+path to save data to, by default is the current working directory
 
 #### -i ID, --ID ID
 
@@ -316,17 +307,6 @@ Interactive Options
 
 8. The program repeats sending mode flags until all stimuli combinations have
    been run through.
-
-
-plot_stats.py
-==============
-
-### Requires
-
-* [Bokeh](http://bokeh.pydata.org)
-* [Pandas](http://pandas.pydata.org)
-* [Numpy](http://www.numpy.org/)
-
 
 References
 ==========
