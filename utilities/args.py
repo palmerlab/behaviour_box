@@ -6,7 +6,7 @@ p = argparse.ArgumentParser(description="This program controls the Arduino "
 
 kwargs = {
     ("-i", "--ID", ) : {
-                    'default' : "", 
+                    'default' : "_", 
                     'help' : "identifier for this animal/run",
                     },
 
@@ -96,7 +96,8 @@ kwargs = {
     ('-rng', '--reward_nogo', ) : {
                     'action' : 'store_true', 
                     'help' : 'flag to allow a water delivery following no lick of a no go stim'
-                    },    
+                    },
+  
     ('-noise', ) : {
                     'action' : 'store_true', 
                     'help' : 'plays a noise during trials'
@@ -122,11 +123,11 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"R:\Andrew\161222_GOnoGO_Perception_III", 
+                    'default' : r".", 
                     'help' : "path to save data to, " 
-                            "by default is "
-                            r"R:\Andrew\161222_GOnoGO_Perception_III\%%YY%%MM%%DD",
+                            "by default it is the current directory",
                     },
+  
     ('-af', '--audio') :{
                     'action' : 'store_true',
                     'help' : "provides audio feedback during the trials"

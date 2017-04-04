@@ -1,101 +1,51 @@
-This is the collection of files I use to run my behavioural experiments.
-
 Behaviour Box
 =============
 
 This repository contains a set of files to implement a Go-No-Go
 task using an Arduino and Python 2.7. By itself this collects some summary
 information for a behavioural trial, but is not a stand alone implementation.
-In addition to what is recorded here, I record the signal direct from the 
+In addition to what is recorded here, I record the signal direct from the
 lick sensor using  [Wavesurfer](https://github.com/JaneliaSciComp/Wavesurfer).
 
 The two components to this implementation are the Arduino code, found in
 `./behaviourbox/behaviourbox.ino` and a Python wrapper for communicating
 with this code `./SerialControl.py`.
 
-------------------------------------------------------------------------------
-
-System overview
----------------
-
-The Arduino repeatedly monitors the signals from 
-the lick sensor and controls the timing of water and stimulus delivery. 
-
-The Arduino triggers external devices.
-
-
-### Hardware
-
-The basic hardware requirements
-
-1. a microcontroller
-    * [Arduino uno Rev3](https://www.arduino.cc/en/Main/ArduinoBoardUno)
-
-        Connects to the main computer via USB serial
-
-2. a delivery system for water reward, 
-    * The reward delivery is controlled by a solenoid pinch valve 
-        ([24 V DC PS-1615NC](http://www.takasago-fluidics.com/p/valve/s/pinch/PS/), 
-        Takasago Fluidic SysteSms, Nagoya, Japan).
-       
-         The pinch valve is wired to a gated 24 V power supply, which accepts 
-         5 V logic to switch on and off. 
-         
-        - I use a 24 V pinch valve. This is in many ways over kill, a 3 V valve
-          would be much better, because it would not require an additional gated
-          power supply.
-
-3. a lick sensor
-    * lick port
-
-        I use peizo electric wafers, specifically a [0.6mm Range Piezo 
-        Bender Actuator](http://www.piezodriveonline.com/0-6mm-range-piezo-bender-actuator-ba3502/)
-        from PiezoDrive Pty Ltd, (Callaghn NSW)
-
-        - The signal from these are very small. The piezos require a linear
-          amplifier so that the arduino can detect the signal they produce.
-          I use custom made linear amplifiers that each take 5V DC input
-          and output in a range from 0-3 V. The amplifiers come are from Larkum
-          lab designs.
-
-        - ([LM358N](http://www.ti.com/product/LM358-N), Texas Instruments)
-          This signal is then amplified using a simple operational amplifier 
-          circuit to ensure the Ardunio microcontroller detects the lick-evoked 
-          voltage changes.
-
-4. a sensory stimulus. 
-    * The stimulus needs to take 5 V digital signal.
-
-5. A speaker
-   * I have wired my speaker up directly to the Arduino. Ideally you should wire the
-   speaker through a resistor to protect the Arduino.
-
-6. Recording devices
-
-
-### Software
-
-
-
-
 
 Version 3.0.20170201.8
 ----------------------
 
-Major changes in the last update.
-The behaviour box program is now split into a handful of modules. 
+The behaviour box program is now split into a handful of modules.
 Each module is mostly holding utility functions for the box as a whole.
-The behaviour box itself only contains `setup` and `loop` functions, which
-call the other components as necessary.
+The `behaviourbox.ino` itself only contains `setup` and `loop` functions,
+which call the other components as necessary.
+
+--------------------------------------------------------------------------------
+
+Installation
+============
+
+See the [installation guide](../../wiki/Installation-Instructions)
+
+
+
+
+
+
 
 
 --------------------------------------------------------------------------------
 
+
+
+Software
+========
+
 behaviourbox.ino
 ================
 
-This program delivers sensory stimulation and opens water 
-valve when the animal touches the licking sensor within a 
+This program delivers sensory stimulation and opens water
+valve when the animal touches the licking sensor within a
 certain time window.
 
 ### Requirements
@@ -127,7 +77,7 @@ Files
 -----
 
 The header files in the behaviourbox folder contain the functions required to
-run the behaviourbox code. 
+run the behaviourbox code.
 There are currently 7 header files:
 1. "global_variables.h"
 2. "prototypes.h"
@@ -141,7 +91,7 @@ There are currently 7 header files:
 
 contains definitions of all variables that are used by multiple functions
 and expected to have persistent values between the functions. These include
-the initialisation time, the various timing parameters, as well as any 
+the initialisation time, the various timing parameters, as well as any
 additional options that I have decided to make available.
 
 | variable         | description           |
@@ -189,47 +139,8 @@ SerialController.py
 
 This python script is a wrapper for communicating with the Arduino program.
 At it's heart is a simple loop that reads data transmitted through a serial
-connection. This is not a necessary component, however I wrote it to make 
+connection. This is not a necessary component, however I wrote it to make
 running trials a lot easier.
-
-The script runs on the command line. The 
-
-### Install
-
-- get git [https://git-scm.com/docs/git-svn]
-- Clone this repository
-- Be an administrator
-- Install Arduino IDE [https://www.arduino.cc/en/Main/Software]
-- Install Arduino windows drivers (see Arduino website)
-- Compile and upload `behaviour_box.ino`
-- Install python 2.7 for windows
-    - check add python to path
-    - check install setup tools
-- Download additional packages from http://www.lfd.uci.edu/~gohlke/pythonlibs/
-    - Follow specific instructions for installing numpy+mkl. (This system 
-      doesn't necessarily require the speed of the mkl version, but it is a 
-      nice thing to have)
-    - Use pip to install all packages from and elevated command prompt
-
-
-### Requires
-
-* [Windows 7](https://www.microsoft.com/en-au/software-download/windows7)
-* [Pandas (0.19.0)](http://pandas.pydata.org)
-* [Numpy (1.11.2+mkl)](http://www.numpy.org/)
-* [Pyserial (2.7)](https://github.com/pyserial/pyserial)
-* [Colorama (0.3.7)](https://pypi.python.org/pypi/colorama)
-* [sounddevice (0.3.5)](http://python-sounddevice.readthedocs.io/en/0.3.5/)
-* ConfigParser
-* argparse
-* An Arduino running `behaviourbox.ino` connected to the same computer
-
-To install numpy follow the instructions at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-I used version 1.11.2+mkl for this, however the Chris Gohlke doesn't seem to
-archive older versions. TODO: test upgrading numpy.
-
-`pip install pandas==0.19.0 pyserial==2.7 Colorama==0.3.7 sounddevice==0.35`
-
 
 call signature
 ```
@@ -245,8 +156,6 @@ usage: SerialControl.py [-h] [-af] [--trials [TRIALS [TRIALS ...]]]
 Optional Arguments:
 -------------------
 
-optional arguments:
-
 #### -h, --help            
 
 show this help message and exit
@@ -259,14 +168,15 @@ mask the scanners
 
 #### --trials [TRIALS [TRIALS ...]]
 
-durations to run on each trial
+stimulus durations to run on each trial. 
+That is, the duration of the stimulus pulse.
 
 #### -lt LICKTHRES, --lickThres LICKTHRES
 
 set `lickThres` in arduino
 
 #### --verbose
- 
+
  for debug this will print everything if enabled
 
 #### -restore
@@ -300,8 +210,7 @@ sets the time after trigger to run the first stimulus
 
 #### --datapath DATAPATH
 
-path to save data to, by default is
-R:\Andrew\161222_GOnoGO_Perception_III\%YY%MM%DD
+path to save data to, by default is the current working directory
 
 #### -i ID, --ID ID
 
@@ -380,16 +289,16 @@ Interactive Options
 2. The program opens communications with available serial port
     The program waits until it gets the arduino is active, and prints all output
     until the ready signal is transmitted. Which is `- Status: Ready`
-    
+
 3. The program starts a block
-5. The program transmits the dict `params`, which holds all parameters 
+5. The program transmits the dict `params`, which holds all parameters
     for a single trial. The condition values get updated; based on the
     frequencies being sent, all contents of `params` are transmitted to
     the behaviour controller.
-    
+
 6. The program prints the frequencies and the condition to the screen and a
    random timeout is started.
-6. The program initiates a trial by sending a literal `"GO"` to the 
+6. The program initiates a trial by sending a literal `"GO"` to the
     behaviour box.
     - The behaviour box runs one trial, with the parameters set previously
 
@@ -398,17 +307,6 @@ Interactive Options
 
 8. The program repeats sending mode flags until all stimuli combinations have
    been run through.
-
-
-plot_stats.py
-==============
-
-### Requires 
-
-* [Bokeh](http://bokeh.pydata.org)
-* [Pandas](http://pandas.pydata.org)
-* [Numpy](http://www.numpy.org/)
-
 
 References
 ==========
