@@ -69,14 +69,14 @@ def menu():
     """
     Reads the characters in the buffer and modifies the program
     parameters accordingly
-    
+
     TODO: On pause show current settings
     TODO: Allow an input mechanism to access all possible values
-    TODO: make menu accept a dictionary or something and have it 
+    TODO: make menu accept a dictionary or something and have it
           return one as well!
-            - Use the keys of the dictionary to allow tab 
+            - Use the keys of the dictionary to allow tab
               completion and scrolling of the inputs as well
-                
+
     """
     print '\r                 \r',
     c = "\x00"
@@ -101,20 +101,20 @@ def menu():
     while paused:
         while m.kbhit():
             c = m.getch()
-            if c == '\xe0': 
+            if c == '\xe0':
                 c = c + m.getch()
 
             if c in ("\r", " "):
                 paused = False
-            
+
             # Toggle condition
             elif c in ("\t"):
-                if mode == "o": 
+                if mode == "o":
                     mode = "h"
-                elif mode == "h": 
+                elif mode == "h":
                     mode = "o"
                 print "Training mode:\t%s" %mode
-                
+
             elif c in ("C", "c"): #m,Ctrl-m
                 comment = raw_input("Comment: ") + ''
                 with open(logfile, 'a') as log:
@@ -221,10 +221,10 @@ def menu():
                 print "options       :"
                 print "  ...   H     : This menu"
                 print "  ...   P     : Punish"
-                print "  ...   < >   : lick threshold" 
-                print "  ...   ?     : show threshold" 
+                print "  ...   < >   : lick threshold"
+                print "  ...   ?     : show threshold"
                 print "  ...   [ ]   : lickcount"
-                print "  ...   \\     : show lickcount" 
+                print "  ...   \\     : show lickcount"
                 print "  ...   tab   : toggle mode"
                 print "  ...   : \"   : adjust noLick period"
                 print "  ...   L     : show noLick period"
@@ -249,7 +249,7 @@ def menu():
            't_stimDUR'                 :    t_stimDUR,
            'trialType'                 :    'N' if t_stimDUR in (600, 0) else 'G' ,
     }
-    
+
     return update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose)
 
 def habituation_run(df):
@@ -262,7 +262,7 @@ def habituation_run(df):
     }
 
     params = update_bbox(ser, params, logfile, ID = ID, verbose = verbose)
-    
+
     print colour("trial count\n"
                  "----- -----", (fMAGENTA, sBRIGHT))
 
@@ -277,10 +277,10 @@ def habituation_run(df):
         menu()
 
         with open(df_file, 'w') as datafile:
-            
+
             #update the dictionary
             trial_df.update(params)
-            
+
             #convert to pandas dataframe
             trial_df = pd.DataFrame(trial_df, index=[trial_num])
 
@@ -298,7 +298,7 @@ def habituation_run(df):
 ---------------------------------------------------------------------
                        MAIN FUNCTION HERE
 ---------------------------------------------------------------------
-"""    
+"""
 
 color.init()
 
@@ -331,7 +331,7 @@ try:
         'minlickCount'      : lcount,
         't_stimONSET'       : t_stimONSET,
     }
-    
+
     trial_df = update_bbox(ser, params, logfile, ID = ID , verbose = verbose)
 
     if mode == 'h':
@@ -356,15 +356,10 @@ try:
 
         trial_df = update_bbox(ser, params, logfile, {}, ID = ID, verbose = verbose)
         df = df.append(pd.DataFrame(trial_df, index = [df.shape[0]+1]), ignore_index=True)
-        
+
         # loop for r repeats
         for r in xrange(repeats):
 
-            #trials = [0, 200, 50 , 100, 25, 150]
-            #trials = [0, 0,0,200,200,200]
-            #trials = [0, ] * 5
-            #trials.append(200)
-            
             shuffle(trials)
             print trials
 
@@ -398,34 +393,36 @@ try:
                 # check the keys pressed during last iteration
                 # adjusts options accordingly
                 params.update(menu())
-                
+
                 if params['trialType'] == 'N' and lcount == 0:
                     params['minlickCount'] = 1
                     params['break_wrongChoice'] = int(1)
                 elif params['trialType'] == 'G' and lcount == 0:
                     params['minlickCount'] = 0
-                
+
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified
 
                 trial_df['comment'] = comment
 
                 trial_df.update(update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose))
-                
-                print colour("C: %s" %params['trialType'], 
+
+                print colour("C: %s" %params['trialType'],
                                  style = (fMAGENTA, sBRIGHT)),
 
                 trial_df['time'] = timenow()
-                
+
                 # Send the literal GO symbol
                 start_time = time.time()
-            
+
                 ser.write("GO")
                 line = Serial_monitor(ser, logfile, show = verbose, ID = ID, verbose = verbose).strip()
-                
+
                 if trial_noise:
                     # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
-                    noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
+                    noise = band_limited_noise(14000, 500000,
+                                                samples=int(44100*trialDur),
+                                                samplerate=44100)
                     noise = noise / noise.min() #normalise so it isn't too loud
                     sd.play(noise, 44100)
 
@@ -433,55 +430,51 @@ try:
                 trial_df.update(Continuous_monitor_arduino(ser, logfile = logfile, ID = ID, verbose = verbose))
 
                 if trial_noise: sd.stop()
-                
+
                 for k in trial_df.keys():
-                    if type(trial_df[k]) == list: 
+                    if type(trial_df[k]) == list:
                         trial_df[k] = trial_df[k][0]
-               
+
                 """
                 THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
                 """
                 """
                 #Save the data to a data frame / Save to a file
                 """
-                    
+
                 with open(df_file, 'w') as datafile:
 
-                    df = df.append(pd.DataFrame(trial_df, index=[df.shape[0]]), ignore_index = True)
+                    # Append the dataframe with the dict of the last trial
+                    df = df.append(pd.DataFrame(trial_df,
+                                        index=[df.shape[0]]),
+                                        ignore_index = True)
 
+                    #calculate the cumualtive water recieved
                     cumWater = df['Water'].cumsum()
 
-                    df['outcome'] = '-'
-                    
-                    outcome = df.outcome.copy()
-                    
-                    hit = (df.response == 'H').values
-                    miss = (df.response == '-').values
-                    correct_reject = (df.response == 'R')
-                    false_alarm = (df.response == 'f').values
-                    
-                    outcome[hit] = 'hit'
-                    outcome[correct_reject] = 'CR'
-                    outcome[miss] = 'miss'
-                    outcome[false_alarm] = 'FA'
+                    df['outcome'] = None
 
-                    df['outcome'] = outcome
+                    df.outcome.loc[df.response == 'H'] = 'hit'
+                    df.outcome.loc[df.response == 'R'] = 'CR'
+                    df.outcome.loc[df.response == '-'] = 'miss'
+                    df.outcome.loc[df.response == 'f'] = 'FA'
+
                     df['cumWater'] = cumWater
                     df['trial_num'] = trial_num
 
                     df.to_csv(datafile)
 
-                #Print the important data and colour code for hits / misses  
-                print sBRIGHT, '\r', 
+                #Print the important data and colour code for hits / misses
+                print sBRIGHT, '\r',
 
                 table = {
-                            'trial_num'    : 't', 
+                            'trial_num'    : 't',
                             'trialType'    : 'type',
-                            'outcome'      : 'outcome', 
-                            'pre_count'    : 'pre_Lick', 
-                            'post_count'   : 'post_Lick', 
+                            'outcome'      : 'outcome',
+                            'pre_count'    : 'pre_Lick',
+                            'post_count'   : 'post_Lick',
                             'rew_count'    : 'rew_Lick',
-                            'Water'        : 'water', 
+                            'Water'        : 'water',
                             't_stimDUR'    : 'dur',
                 }
 
@@ -501,15 +494,15 @@ try:
 
                     print '\r', sRESET_ALL
                     #calculate percentage success
-                    
-                    print "\r", 100 * " ", "\r                ", #clear the line 
+
+                    print "\r", 100 * " ", "\r                ", #clear the line
 
                 # clear the comment field
                 comment = ""
-                
+
                 # don't iterate if the animal licked early!
                 if df.response.iloc[-1] != 'e': trial_num += 1
-                
+
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
 
@@ -520,7 +513,7 @@ try:
 
                 wait = 0
                 print sBRIGHT, fCYAN,
-                
+
                 # implement the inter trial interval
                 wait = random.uniform(*ITI)
                 print "\rwait %2.2g s" %wait, sRESET_ALL,"\r",
@@ -535,14 +528,14 @@ except KeyboardInterrupt:
         try:
             print "attempting to create DataFrame"
             trial_df = pd.DataFrame(trial_df, index=[trial_num])
-            
-            try: 
+
+            try:
                 df = df.append(trial_df, ignore_index = True)
             except NameError:
                 df = trial_df
 
             cumWater = df['Water'].cumsum()
-            df['cumWater'] = cumWater               
+            df['cumWater'] = cumWater
 
             df.to_csv(df_file)
         except NameError:
