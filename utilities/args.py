@@ -123,9 +123,9 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r".", 
+                    'default' : r"datapath", 
                     'help' : "path to save data to, " 
-                            "by default it is the current directory",
+                            "by default it is the current directory + 'datapath'",
                     },
   
     ('-af', '--audio') :{
