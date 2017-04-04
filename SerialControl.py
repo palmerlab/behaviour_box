@@ -198,23 +198,6 @@ def menu():
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
 
-            elif 'rdur:' in c:
-                val = c.split(':')[1]
-                if val.strip().isdigit():
-                    t_rDUR = val
-                    print "t_rDUR:\t", t_rDUR
-                else:
-                    print 't_rDUR must be numerals ONLY'
-
-
-            elif 'rdel:' in c:
-                val = c.split(':')[1]
-                if val.strip().isdigit():
-                    t_rDELAY = val
-                    print "t_rDELAY:\t", t_rDELAY
-                else:
-                    print 't_rDELAY must be numerals ONLY'
-
             elif c in ("h"):
                 print fLIGHTBLUE_EX, "\r",
                 print "-----------------------------"
@@ -231,8 +214,6 @@ def menu():
                 print "  ...   ( )   : adjust trial duration"
                 print "  ...   T     : show trial duration period"
                 print "  ...   Y     : toggle timeout (requires punish to take effect)"
-                print "input rdur:%i : set the reward duration"
-                print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
                 print sRESET_ALL, '\r',
 
@@ -452,12 +433,12 @@ try:
                     #calculate the cumualtive water recieved
                     cumWater = df['Water'].cumsum()
 
+                    #Create and set an outcome column
                     df['outcome'] = None
-
-                    df.outcome.loc[df.response == 'H'] = 'hit'
-                    df.outcome.loc[df.response == 'R'] = 'CR'
-                    df.outcome.loc[df.response == '-'] = 'miss'
-                    df.outcome.loc[df.response == 'f'] = 'FA'
+                    df.loc[df.response == 'H', 'outcome'] = 'hit'
+                    df.loc[df.response == 'R', 'outcome'] = 'CR'
+                    df.loc[df.response == '-', 'outcome'] = 'miss'
+                    df.loc[df.response == 'f', 'outcome'] = 'FA'
 
                     df['cumWater'] = cumWater
                     df['trial_num'] = trial_num
