@@ -25,7 +25,7 @@ which call the other components as necessary.
 Installation
 ============
 
-See the [installation guide](../wiki/Installation-Instructions)
+See the [installation guide](./wiki/Installation-Instructions)
 
 
 
