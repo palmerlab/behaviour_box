@@ -11,6 +11,9 @@ The two components to this implementation are the Arduino code, found in
 `./behaviourbox/behaviourbox.ino` and a Python wrapper for communicating
 with this code `./SerialControl.py`.
 
+Note: *The python wrapper is not written in a cross platform way, it relies 
+on specific bindings for windows keyboard events.*
+
 
 Version 3.0.20170201.8
 ----------------------
