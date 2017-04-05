@@ -118,12 +118,9 @@ additional options that I have decided to make available.
 | ---------------- | --------------------- |
 | mode             | {'-', 'O', 'H'} a character to represent the type of mode to run in. If the mode is 'H' the system will delver a stimulus and a reward in response to the animal's lick. If the mode is 'O' the system delivers a stimulus and listens for a response |
 | ---------------- | --------------------- |
-| reward_count     | deprecated            |
-| ---------------- | --------------------- |
 | waterVol         | Amount of time in milliseconds to hold the water valve open for |
 | trialType        | character code {'G' or 'N'} to determine if this is a go or no go trial. This is used to determine if the water valve will open in response to animal's lick |
 | ---------------- | --------------------- |
-| Nports           |  deprecated           |
 | verbose          |  Boolean, if True will enable full debug printing...(might be deprecated?) |
 | break_wrongChoice | Boolean, deprecated  |
 | punish_tone      | deprecated            |
