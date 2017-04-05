@@ -58,7 +58,6 @@ char trialType = 'G';             // 'G' or 'N'
 
 int lickThres = 450;
 
-byte Nports = 2;                  // flag for 2AFC vs GoNoGo
 bool verbose = true;
 bool break_wrongChoice = false;   // stop if the animal makes a mistake
 bool punish_tone = false;
