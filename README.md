@@ -25,6 +25,9 @@ which call the other components as necessary.
 
 --------------------------------------------------------------------------------
 
+[Hardware List and Build Guide](../../wiki/Hardware)
+-------------------------------------------
+
 [Installation](../../wiki/Installation-Instructions)
 -------------
 
