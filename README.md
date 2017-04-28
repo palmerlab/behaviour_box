@@ -195,19 +195,24 @@ port that the Arduino is connected to
 
 #### --ITI ITI ITI
 
-an interval for randomising between trials
+an interval for randomising between trials. Two numbers to define the maximum and minumum
+amount of time in seconds to wait between trails.
 
 #### -rdur T_RDUR, --t_rDUR T_RDUR
 
-set end time of reward epoch
+The duration in milliseconds of the response duration. That is the time the program
+listens for licks.
 
 #### -ltr, --lickTrigReward
 
-flag to allow licks to trigger the reward immediatly
+flag to allow licks to trigger the reward immediatly. The default behaviour is for
+the program to wait until the end of the response period to deliver the reward.
+Setting this flag will have a lick in the response period trigger the immediate
+delivery of the reward.
 
 #### --t_stimONSET T_STIMONSET
 
-sets the time after trigger to run the first stimulus
+sets the time after trigger to run the first stimulus, in milliseconds
 
 #### --datapath DATAPATH
 
