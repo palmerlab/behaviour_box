@@ -8,14 +8,15 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="712.80719"
-   height="270.45038"
-   viewBox="0 0 712.80718 270.45037"
+   height="379.36536"
+   viewBox="0 0 712.80718 379.36534"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.1 r15371"
    sodipodi:docname="Flow_diagram.svg">
   <style
      id="style3">
@@ -104,8 +105,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0191445"
-     inkscape:cx="317.68939"
-     inkscape:cy="116.26206"
+     inkscape:cx="439.47841"
+     inkscape:cy="119.44256"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -128,7 +129,13 @@
      borderlayer="false"
      inkscape:snap-object-midpoints="true"
      inkscape:snap-nodes="true"
-     inkscape:snap-page="false" />
+     inkscape:snap-page="false">
+    <sodipodi:guide
+       position="82.96173,153.20498"
+       orientation="1,0"
+       id="guide274"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -147,7 +154,7 @@
      id="layer1"
      transform="translate(-50.737793,-743.45148)">
     <rect
-       class="Node_box left"
+       class="Node_box left GO"
        x="552.87354"
        y="745.95148"
        width="80.461731"
@@ -156,26 +163,6 @@
        ry="10"
        pointer-events="none"
        id="rect3491" />
-    <rect
-       class="Node_box left"
-       x="553.68884"
-       y="943.73608"
-       width="80.461731"
-       height="67.665787"
-       rx="10"
-       ry="10"
-       pointer-events="none"
-       id="rect3493" />
-    <rect
-       id="rect3495"
-       pointer-events="none"
-       ry="10"
-       rx="10"
-       height="67.665787"
-       width="80.461731"
-       y="867.19226"
-       x="553.63885"
-       class="Node_box left" />
     <path
        style="stroke-miterlimit:10"
        class="left  pointer head"
@@ -187,26 +174,28 @@
     <rect
        id="rect3524"
        pointer-events="none"
-       ry="2.7971666"
+       ry="15.475506"
        rx="10"
-       height="67.665771"
+       height="374.3653"
        width="80.461731"
-       y="826.58752"
+       y="745.95148"
        x="53.237793"
-       class="Node_box start" />
+       class="Node_box start"
+       style="stroke-width:0.99999994" />
     <text
        transform="scale(0.99891828,1.0010829)"
        id="text3526"
-       y="863.95746"
+       y="936.59253"
        x="93.972626"
-       class="labels">Pre Trial</text>
+       class="labels"
+       style="line-height:0%">Pre Trial</text>
     <path
        style="stroke-miterlimit:10"
        class="left  pointer line"
        id="path3528"
        pointer-events="none"
        stroke-miterlimit="10"
-       d="m 250.36904,860.42041 31.08236,0"
+       d="M 250.36904,860.42041 H 281.4514"
        inkscape:connector-curvature="0" />
     <path
        style="stroke-miterlimit:10"
@@ -225,13 +214,14 @@
        width="80.461731"
        y="826.58752"
        x="169.90732"
-       class="Node_box left" />
+       class="Node_box left GO" />
     <text
        transform="scale(0.99891828,1.0010829)"
        id="text3534"
        y="862.07446"
        x="210.76848"
-       class="labels">Stimulus 1</text>
+       class="labels"
+       style="line-height:0%">Stimulus 1</text>
     <rect
        id="rect3544"
        pointer-events="none"
@@ -241,63 +231,14 @@
        width="110.91945"
        y="826.58752"
        x="286.57681"
-       class="Node_box left" />
-    <path
-       style="stroke-miterlimit:10"
-       inkscape:connector-curvature="0"
-       d="m 634.13991,904.77029 16.09234,0 0,72.57248 -10.96693,0"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3600"
-       class="left  pointer line" />
-    <path
-       style="stroke-miterlimit:10"
-       inkscape:connector-curvature="0"
-       d="m 553.67817,977.34277 -16.7642,0 0,-72.57248 11.63879,0"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3602"
-       sodipodi:nodetypes="cccc"
-       class="left  pointer line" />
-    <path
-       style="stroke-miterlimit:10"
-       inkscape:connector-curvature="0"
-       d="m 650.23225,937.02472 14.99003,0"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3604"
-       class="left  pointer line" />
-    <path
-       style="stroke-miterlimit:10"
-       inkscape:connector-curvature="0"
-       d="m 669.54303,937.02472 -5.63232,5.64452 1.40808,-5.64452 -1.40808,-5.64453 z"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3607"
-       class="head left  pointer" />
-    <path
-       style="stroke-miterlimit:10"
-       class="head left  pointer"
-       id="path3609"
-       pointer-events="none"
-       stroke-miterlimit="10"
-       d="m 633.33527,977.34273 5.63232,5.64453 -1.40808,-5.64453 1.40808,-5.64452 z"
-       inkscape:connector-curvature="0" />
-    <path
-       style="stroke-miterlimit:10"
-       inkscape:connector-curvature="0"
-       d="m 551.97239,904.77029 -5.63232,5.64453 1.40808,-5.64453 -1.40808,-5.64452 z"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3611"
-       class="head left  pointer" />
+       class="Node_box left GO" />
     <path
        style="stroke-miterlimit:10"
        class="left  pointer line"
        id="path3613"
        pointer-events="none"
        stroke-miterlimit="10"
-       d="m 342.03654,826.5875 0,-46.80318 89.04208,0"
+       d="m 342.03654,826.5875 v -46.80318 h 89.04208"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccc" />
     <path
@@ -314,7 +255,7 @@
        id="path3617"
        pointer-events="none"
        stroke-miterlimit="10"
-       d="m 397.49626,860.42041 33.58237,0"
+       d="m 397.49626,860.42041 h 33.58237"
        inkscape:connector-curvature="0" />
     <path
        style="stroke-miterlimit:10"
@@ -327,27 +268,10 @@
     <path
        style="stroke-miterlimit:10"
        class="left  pointer line"
-       id="path3621"
-       pointer-events="none"
-       stroke-miterlimit="10"
-       d="m 342.03654,894.25329 0,46.80321 89.04208,0"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccc" />
-    <path
-       style="stroke-miterlimit:10"
-       class="left  pointer head"
-       id="path3623"
-       pointer-events="none"
-       stroke-miterlimit="10"
-       d="m 436.20407,941.0565 -5.63233,5.64453 1.40808,-5.64453 -1.40808,-5.64453 z"
-       inkscape:connector-curvature="0" />
-    <path
-       style="stroke-miterlimit:10"
-       class="left  pointer line"
        id="path3625"
        pointer-events="none"
        stroke-miterlimit="10"
-       d="m 516.66578,779.78432 31.08237,0"
+       d="m 516.66578,779.78432 h 31.08237"
        inkscape:connector-curvature="0" />
     <path
        style="stroke-miterlimit:10"
@@ -366,20 +290,21 @@
        width="80.461731"
        y="745.95148"
        x="436.20407"
-       class="Node_box left" />
+       class="Node_box left GO" />
     <text
        transform="scale(0.99891828,1.0010829)"
        id="text3631"
        y="781.59875"
        x="477.35364"
-       class="labels">Lick Left</text>
+       class="labels"
+       style="line-height:0%">Lick</text>
     <path
        style="stroke-miterlimit:10"
        class="left  pointer line"
        id="path3633"
        pointer-events="none"
        stroke-miterlimit="10"
-       d="m 516.66578,860.42041 147.75188,0"
+       d="M 516.66578,860.42041 H 664.41766"
        inkscape:connector-curvature="0" />
     <path
        style="stroke-miterlimit:10"
@@ -398,30 +323,32 @@
        width="80.461731"
        y="826.58752"
        x="436.20407"
-       class="Node_box left" />
+       class="Node_box left GO" />
     <rect
        id="rect3639"
        pointer-events="none"
-       ry="4.8411102"
+       ry="6.8274302"
        rx="10"
-       height="265.45038"
+       height="374.36536"
        width="80.461731"
        y="745.95148"
        x="669.54303"
-       class="Node_box end" />
+       class="Node_box end"
+       style="stroke-width:1" />
     <text
        transform="scale(0.99891828,1.0010829)"
        id="text3641"
-       y="882.19397"
+       y="936.59253"
        x="710.94531"
-       class="labels">End Trial</text>
+       class="labels"
+       style="line-height:0%">End Trial</text>
     <path
        style="stroke-miterlimit:10"
        class="left  pointer line"
        id="path3643"
        pointer-events="none"
        stroke-miterlimit="10"
-       d="m 633.33529,779.78432 31.08237,0"
+       d="m 633.33529,779.78432 h 31.08237"
        inkscape:connector-curvature="0" />
     <path
        style="stroke-miterlimit:10"
@@ -431,92 +358,34 @@
        stroke-miterlimit="10"
        d="m 669.54303,779.78431 -5.63232,5.64454 1.40808,-5.64454 -1.40808,-5.64452 z"
        inkscape:connector-curvature="0" />
-    <path
-       style="stroke-miterlimit:10"
-       class="left pointer line"
-       inkscape:connector-curvature="0"
-       d="m 517.4704,937.02474 19.44357,0 0,-32.25445 11.63879,0"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3687"
-       sodipodi:nodetypes="cccc" />
-    <path
-       style="stroke-miterlimit:10"
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       d="m 634.13991,929.33005 16.09235,0"
-       stroke-miterlimit="10"
-       pointer-events="none"
-       id="path3705" />
-    <rect
-       id="rect3713"
-       pointer-events="none"
-       ry="10"
-       rx="10"
-       height="67.665787"
-       width="80.461731"
-       y="907.22363"
-       x="436.20407"
-       class="Node_box left" />
-    <text
-       transform="scale(0.99891828,1.0010829)"
-       id="text3715"
-       y="943.62628"
-       x="476.5481"
-       class="labels">Lick right</text>
-    <text
-       transform="scale(0.99891828,1.0010829)"
-       id="text3723"
-       y="973.22485"
-       x="594.53101"
-       class="labels"
-       xml:space="preserve"><tspan
-         y="973.22485"
-         x="594.53101"
-         id="tspan3725"
-         sodipodi:role="line">Check for</tspan><tspan
-         id="tspan3727"
-         y="988.22485"
-         x="594.53101"
-         sodipodi:role="line">Lick</tspan></text>
-    <text
-       transform="scale(0.99891828,1.0010829)"
-       id="text3729"
-       y="896.30933"
-       x="594.47363"
-       class="labels"
-       xml:space="preserve"><tspan
-         y="896.30933"
-         x="594.47363"
-         id="tspan3731"
-         sodipodi:role="line">Time out </tspan><tspan
-         id="tspan3733"
-         y="911.30933"
-         x="594.47363"
-         sodipodi:role="line">(+ 2-5 s)</tspan></text>
     <text
        xml:space="preserve"
        class="labels"
        x="593.17297"
        y="759.42786"
        id="text3735"
-       transform="scale(0.99891828,1.0010829)"><tspan
+       transform="scale(0.99891828,1.0010829)"
+       style="line-height:0%"><tspan
          sodipodi:role="line"
          id="tspan3737"
          x="593.17297"
-         y="759.42786">Dispense </tspan><tspan
+         y="759.42786"
+         style="line-height:1.25">Dispense </tspan><tspan
          sodipodi:role="line"
          x="593.17297"
          y="774.42786"
-         id="tspan3739">Water </tspan><tspan
+         id="tspan3739"
+         style="line-height:1.25">Water </tspan><tspan
          sodipodi:role="line"
          x="593.17297"
          y="789.42786"
-         id="tspan3741">~ 10 ul </tspan><tspan
+         id="tspan3741"
+         style="line-height:1.25">~ 10 ul </tspan><tspan
          sodipodi:role="line"
          x="593.17297"
          y="804.42786"
-         id="tspan3743">(+ 1.5 s)</tspan></text>
+         id="tspan3743"
+         style="line-height:1.25">(+ 1.5 s)</tspan></text>
     <g
        id="g3745"
        transform="translate(0.8139916,941.71731)">
@@ -525,13 +394,31 @@
          x="476.53876"
          y="-83.809059"
          id="text3747"
-         transform="scale(0.99891828,1.0010829)">No</text>
+         transform="scale(0.99891828,1.0010829)"
+         style="line-height:0%">No</text>
       <text
          transform="scale(0.99891828,1.0010829)"
          id="text3749"
          y="-72.096413"
          x="476.53876"
-         class="labels">Response</text>
+         class="labels"
+         style="line-height:0%">Response</text>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#text3747"
+         id="use204"
+         transform="translate(0,108.91488)"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#text3749"
+         id="use206"
+         transform="translate(0,108.91488)"
+         width="100%"
+         height="100%" />
     </g>
     <g
        id="g3763"
@@ -541,21 +428,282 @@
          id="text3765"
          y="266.70081"
          x="384.05624"
-         class="labels">Window</text>
+         class="labels"
+         style="line-height:0%">Window</text>
       <text
          class="labels"
          x="383.75107"
          y="253.71379"
          id="text3767"
-         transform="scale(0.99891828,1.0010829)">Response</text>
+         transform="scale(0.99891828,1.0010829)"
+         style="line-height:0%">Response</text>
     </g>
     <path
        inkscape:connector-curvature="0"
-       d="m 134.60071,860.42041 31.08236,0"
+       d="m 133.69952,860.42041 h 31.98354"
        stroke-miterlimit="10"
        pointer-events="none"
        id="path3797"
        class="left  pointer line"
+       style="stroke-width:0.99999994;stroke-miterlimit:10" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3518"
+       id="use132"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3528"
+       id="use134"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3530"
+       id="use136"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#rect3532"
+       id="use138"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%"
+       class="Node_box NOGO" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#text3534"
+       id="use140"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <path
+       class="left  pointer line"
+       id="use144"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 634.13991,1013.6852 h 16.09234 v 72.5725 h -10.96693"
+       inkscape:connector-curvature="0"
        style="stroke-miterlimit:10" />
+    <path
+       class="left  pointer line"
+       sodipodi:nodetypes="cccc"
+       id="use146"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 553.67817,1086.2577 h -16.7642 v -72.5725 h 11.63879"
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
+    <path
+       class="left  pointer line"
+       id="use148"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 650.23225,1045.9396 h 14.99003"
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
+    <path
+       class="head left  pointer"
+       id="use150"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 669.54303,1045.9396 -5.63232,5.6446 1.40808,-5.6446 -1.40808,-5.6445 z"
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
+    <path
+       inkscape:connector-curvature="0"
+       d="m 633.33527,1086.2576 5.63232,5.6446 -1.40808,-5.6446 1.40808,-5.6445 z"
+       stroke-miterlimit="10"
+       pointer-events="none"
+       id="use152"
+       class="head left  pointer"
+       style="stroke-miterlimit:10" />
+    <path
+       class="head left  pointer"
+       id="use154"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 551.97239,1013.6852 -5.63232,5.6445 1.40808,-5.6445 -1.40808,-5.6445 z"
+       inkscape:connector-curvature="0"
+       style="stroke-miterlimit:10" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3617"
+       id="use160"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3619"
+       id="use162"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <path
+       sodipodi:nodetypes="ccc"
+       inkscape:connector-curvature="0"
+       d="m 342.03654,1003.1682 v 46.8032 h 89.04208"
+       stroke-miterlimit="10"
+       pointer-events="none"
+       id="use164"
+       class="left  pointer line"
+       style="stroke-miterlimit:10" />
+    <path
+       inkscape:connector-curvature="0"
+       d="m 436.20407,1049.9714 -5.63233,5.6445 1.40808,-5.6445 -1.40808,-5.6445 z"
+       stroke-miterlimit="10"
+       pointer-events="none"
+       id="use166"
+       class="left  pointer head"
+       style="stroke-miterlimit:10" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3633"
+       id="use176"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3635"
+       id="use178"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <path
+       sodipodi:nodetypes="cccc"
+       id="use190"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 517.4704,1045.9396 h 19.44357 v -32.2544 h 11.63879"
+       inkscape:connector-curvature="0"
+       class="left pointer line"
+       style="stroke-miterlimit:10" />
+    <path
+       id="use192"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 634.13991,1038.245 h 16.09235"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       style="stroke-miterlimit:10" />
+    <text
+       style="line-height:0%"
+       class="labels"
+       x="476.5481"
+       y="1052.4235"
+       id="use196"
+       transform="scale(0.99891828,1.0010829)">Lick</text>
+    <text
+       style="line-height:0%"
+       xml:space="preserve"
+       class="labels"
+       x="594.53101"
+       y="1082.022"
+       id="use198"
+       transform="scale(0.99891828,1.0010829)"><tspan
+         style="line-height:1.25"
+         sodipodi:role="line"
+         id="tspan214"
+         x="594.53101"
+         y="1082.022">Check for</tspan><tspan
+         style="line-height:1.25"
+         sodipodi:role="line"
+         x="594.53101"
+         y="1097.022"
+         id="tspan216">Lick</tspan></text>
+    <text
+       style="line-height:0%"
+       xml:space="preserve"
+       class="labels"
+       x="594.47363"
+       y="1005.1064"
+       id="use200"
+       transform="scale(0.99891828,1.0010829)"><tspan
+         style="line-height:1.25"
+         sodipodi:role="line"
+         id="tspan242"
+         x="594.47363"
+         y="1005.1064">Time out </tspan><tspan
+         style="line-height:1.25"
+         sodipodi:role="line"
+         x="594.47363"
+         y="1020.1064"
+         id="tspan244">(+ 2-5 s)</tspan></text>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g3763"
+       id="use208"
+       transform="translate(0,108.91488)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use138"
+       id="use254"
+       transform="matrix(1.378537,0,0,1,52.35328,0)"
+       width="100%"
+       height="100%"
+       style="stroke-width:0.85170811" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use254"
+       id="use258"
+       transform="matrix(0.72540645,0,0,1,228.31941,0)"
+       width="100%"
+       height="100%"
+       style="stroke-width:1.17411137" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use258"
+       id="use260"
+       transform="translate(-3.8622861e-6,80.636111)"
+       width="100%"
+       height="100%" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use260"
+       id="use264"
+       transform="matrix(1.0212004,0,0,0.8,106.52062,173.70808)"
+       width="100%"
+       height="100%"
+       style="stroke-width:1.10636783" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use264"
+       id="use266"
+       transform="matrix(1,0,0,0.8,1.7057807,275.30954)"
+       width="100%"
+       height="100%"
+       style="stroke-width:1.11803401" />
+    <path
+       style="stroke-width:1;stroke-miterlimit:10"
+       class="left  pointer line"
+       id="path272"
+       pointer-events="none"
+       stroke-miterlimit="10"
+       d="m 133.69953,969.33531 h 31.98355"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
