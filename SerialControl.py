@@ -231,8 +231,6 @@ def menu():
                 print "  ...   ( )   : adjust trial duration"
                 print "  ...   T     : show trial duration period"
                 print "  ...   Y     : toggle timeout (requires punish to take effect)"
-                print "input rdur:%i : set the reward duration"
-                print "input rdel:%i : set the reward delay"
                 print "-----------------------------"
                 print sRESET_ALL, '\r',
 
