@@ -92,14 +92,6 @@ int UpdateGlobals(String input) {
                 Serial.println(trialType);
                 return 1;
         }
-        // break_wrongChoice
-        else if (variable_name == "break_wrongChoice") {
-                break_wrongChoice = bool(variable_value.toInt());
-                Serial.print("\tbreak_wrongChoice:");
-                Serial.println(break_wrongChoice);
-                return 1;
-        }
-
         // minlickCount
         else if (variable_name == "minlickCount") {
                 minlickCount = variable_value.toInt();

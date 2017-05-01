@@ -59,6 +59,5 @@ char trialType = 'G';             // 'G' or 'N'
 int lickThres = 450;
 
 bool verbose = true;
-bool break_wrongChoice = false;   // stop if the animal makes a mistake
 bool punish_tone = false;
 bool audio = false;               // flag for audio feed back

@@ -135,14 +135,6 @@ def menu():
                 t_stimDUR = 0
                 print "stimDUR:\t%s\r" %t_stimDUR,
 
-            # Toggle punishment
-            elif c in ("P", "p", "\x10"):
-                punish = not punish
-                #noLick = args.noLick if punish else 0
-                print "Punish for wrong lick:\t%s" %punish
-                with open(logfile, 'a') as log:
-                    log.write("Punish for wrong lick:\t%s\n" %punish)
-
             # adjust the no lick period
             elif c in (":", ";"):
                 noLick -= 10
@@ -220,7 +212,6 @@ def menu():
                 print "-----------------------------"
                 print "options       :"
                 print "  ...   H     : This menu"
-                print "  ...   P     : Punish"
                 print "  ...   < >   : lick threshold" 
                 print "  ...   ?     : show threshold" 
                 print "  ...   [ ]   : lickcount"
@@ -238,7 +229,6 @@ def menu():
                 print "SPACE or ENTER to unpause"
 
     params = {
-           'break_wrongChoice'         :    int(punish) if lcount > 0 else 0, # don't punish the animal if not counting licks
            'lickThres'                 :    lickThres,
            'minlickCount'              :    lcount,
            'mode'                      :    mode,
@@ -338,7 +328,6 @@ try:
         params = {
             'mode'              : mode,
             'lickThres'         : lickThres,
-            'break_wrongChoice' : int(punish) if lcount > 0 else 0,   #Converts to binary
             'punish_tone'       : int(0),
             'minlickCount'      : lcount,
             't_noLickPer'       : noLick,
