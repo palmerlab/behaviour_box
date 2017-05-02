@@ -168,7 +168,7 @@ Audio
 .. function:: band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1)
 
 
-Generates noise within a particular band of frequencies
+    Generates noise within a particular band of frequencies
 
 
 .. function:: fftnoise(f)
@@ -275,20 +275,13 @@ serial_wrapper
 numerical
 -----------
 
+Previously held functions to help with numerical 
+handling, these have mostly been replaced, now contains a
+function for general conversion of strings to numbers
+
 .. function:: num(s)
 
     First attempts to convert string s to an integer.
     If that gives a ValueError then it attempts to return s
     as a float. Finally if s cannot be converted to a float or
     an int, the string is returned unchanged.
-
-
-.. function:: na_printr(s)
-
-    prints nans as strings if necessary
-
-
-.. function:: unpack_table(filename)
-
-    Reads a transposed csv,
-    Where the first column contains the header
