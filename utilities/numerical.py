@@ -13,25 +13,3 @@ def num(s):
             return float(s)
         except ValueError:
             return s
-            
-def na_printr(s):
-    "prints nans as strings if necessary"
-    try: return "%3d" %s
-    except: return "%03s" %s
-
-
-def unpack_table(filename):
-    """
-    Reads a transposed csv, 
-    Where the first column contains the header
-    """
-
-    import csv
-
-    reader = csv.reader(open(filename, 'r'), delimiter = "\t")
-    d = {}
-    for row in reader:
-       k, v = row
-       d[k] = v
-    
-    return d
