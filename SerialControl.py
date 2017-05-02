@@ -308,6 +308,14 @@ comment = ""
 if restore:
     restore_old_config(ID)
 
+# If a port hasn't been specified search for arduinos
+if not port:
+    try:
+        port = get_arduino_port()
+    except IOError:
+        print fRED + "No Arduinos detected!"
+        sys.exit(0)
+
 try:
     #open a file to save data in
     ser = init_serialport(port, logfile)

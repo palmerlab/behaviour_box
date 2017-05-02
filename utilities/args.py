@@ -1,9 +1,11 @@
 import argparse
 
+# create the argument parsing object
 p = argparse.ArgumentParser(description="This program controls the Arduino " 
                                            "and reads from it too"
                                             )
 
+# construct a dictionary of program parameters
 kwargs = {
     ("-i", "--ID", ) : {
                     'default' : "_", 
@@ -136,12 +138,15 @@ kwargs = {
                     },
                     
     ("--port", ) : {
-                    'default' : "COM5", 
+                    'default' : None,
+                    'type' : str,
                     'help' : "port that the Arduino is connected to",
                     },
 }
 
+# load the argument parser with the parameters specified
 for k, v in kwargs.iteritems():
     p.add_argument(*k, **v)
 
+# read the command line arguments
 args = p.parse_args()

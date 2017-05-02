@@ -11,6 +11,35 @@ def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')      
 
+    
+def get_arduino_port():
+
+    '''
+    This function selects the first arduino that is plugged into the
+    serial port. If multiple Arduinos are detected it will select the first and
+    warn the user.
+    If no arduinos are present it will raise an IOError
+    
+    The code is from: http://stackoverflow.com/a/40531041/2727632
+    '''
+
+    import warnings
+    import serial
+    import serial.tools.list_ports
+
+    arduino_ports = [
+        p.device
+        for p in serial.tools.list_ports.comports()
+        if 'Arduino' in p.description
+    ]
+    if not arduino_ports:
+        raise IOError("No Arduino found")
+    if len(arduino_ports) > 1:
+        warnings.warn('Multiple Arduinos found - using the first')
+        print 'Ardunio ports:', *arduino_ports
+        
+
+    return arduino_ports[0]
 
 def init_serialport(port, logfile = None, ID = None):
     """
