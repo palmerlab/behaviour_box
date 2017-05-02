@@ -4,18 +4,6 @@ Install
 Many of the steps described here require administrator privileges on the
 PC that you are using.
 
-The code referred to here can be found at the following
-source repository: `<https://github.com/palmerlab/behaviour_box>`_.
-The easiest way to get this code is to follow the link and select
-the **Clone or download** button. The recommended way is to install
-git-svn, (`a Windows installer can be found 
-here  <https://git-scm.com/download/win>`__) and to use the command::
-
-    >> git clone https://github.com/palmerlab/behaviour_box
-    
-This will allow you to easily stay up to date with any future changes, 
-if you choose.
-
 Arduino
 -------
 
@@ -34,10 +22,9 @@ Note the the port that the Arduino is connected to (It'll be labeled
 Python
 ------
 
-.. note::
-    This system was written using python 2.7 on Windows 7. 
-    You can download python from
-    `here <https://www.python.org/downloads/release/python-2713/>`__
+This system was written using python 2.7 on Windows 7. You can download
+python from
+`here <https://www.python.org/downloads/release/python-2713/>`__
 
 Because this is a command line interface it helps to have python
 available from the system path, in addition you should have the python

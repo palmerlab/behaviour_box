@@ -1,0 +1,24 @@
+.. SerialComms.function::  getSerialInput(){
+
+      This function reads the data from the serial
+      connection and returns it as a string.
+
+      This is used later to update the values
+
+.. SerialComms.function:: getSepIndex(String input, char separator)
+
+      Returns the index of the separator character
+      in a string.
+
+
+.. SerialComms.function:: UpdateGlobals(String input)
+
+    This is a big ugly function which compares the
+    input string to the names of variables that I have
+    stored in memory; This is very much not the `C`
+    way to do things...
+
+    I think this could be a hash table. I haven't
+    learned enough about hash table implementation
+    yet and I know this works, so for the moment:
+    *If it ain't broke*...

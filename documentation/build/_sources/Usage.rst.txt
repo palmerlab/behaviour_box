@@ -1,0 +1,47 @@
+Usage
+=====
+
+A set of trials are run through the ``SerialController.py`` script. At
+the windows command prompt cd to the root directory of the
+behaviour\_box repository.
+
+When the program runs the first thing it does is make a new folder to
+save the logs in. The base of the new directory can be specified by
+``--datapath`` and the new folder is always the current date is in the
+format YYMMDD.
+
+In addition it also creates two files, a raw log file which stores all
+time stamped communications sent and received by the program, and a csv
+file which contains the same data in tabulated form. The name pattern
+for the csv is ``{ID}_{date}_000.csv`` where ID is given with the
+``-ID`` argument and date is in the format YYMMDD.
+
+*It is important to note that the data files will be appended to each
+time the program is run over the course of the day, unless a new ID is
+specified.*
+
+Next the program checks the serial port specified by the ``--port``
+argument. On Windows the serial ports are specified by ``COMx`` where
+``x`` is some integer. In my case my Arduino always occupies ``COM5``,
+so I have set that as the default port to check. *More about adjusting
+defaults in a bit*. If no communications are found the program will
+exit.
+
+When the connection has been established the program first transmits a
+number of configuration variables to the arduino, such as the lick
+threshold, and timing information. These can be updated online later,
+but it saves time to avoid sending them on each trial if they are
+unchanged.
+
+The program then begins to loop through the ``trials`` variable, which
+is an iterable list of the stimulus durations. On each loop the program
+tells the Arduino what duration to play, and weather or not to reward a
+lick.
+
+At this point the program sends the ``START`` message to the Arduino and
+the trial begins. As the trial runs the program monitors the Arduino
+status messages as they come in.
+
+At the end of the trial the program collects all the status messages and
+formats them into a Pandas DataFrame, which is then saved into
+``{ID}_{date}_000.csv``

@@ -1,0 +1,25 @@
+################
+Overview
+################
+
+``Version 3.0.20170201.8``
+
+This repository contains a set of files to implement a Go-No-Go task
+using an Arduino and Python 2.7. By itself this collects some summary
+information for a behavioural trial, but is not a stand alone
+implementation. In addition to what is recorded here, I record the
+signal direct from the lick sensor using
+`Wavesurfer <https://github.com/JaneliaSciComp/Wavesurfer>`__.
+
+The two components to this implementation are the Arduino code, found in
+``./behaviourbox/behaviourbox.ino`` and a Python wrapper for
+communicating with this code ``./SerialControl.py``.
+
+Note: *The python wrapper is not written in a cross platform way, it
+relies on specific bindings for windows keyboard events.*
+
+The behaviour box program is now split into a handful of modules. Each
+module is mostly holding utility functions for the box as a whole. The
+``behaviourbox.ino`` itself only contains ``setup`` and ``loop``
+functions, which call the other components as necessary.
+

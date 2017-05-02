@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Documentation for palmerlab\\behaviour_box
-==========================================
+Welcome to behaviour_box's documentation!
+=========================================
 
 ``Version 3.0.20170201.8``
 
@@ -25,12 +25,8 @@ trial at a time. The Python wrapper is used for running a series of trials,
 it automates the selection of trial variables and reads the Arduino messages,
 logging the results of each trial and saving these in a ``.csv`` file.
 
-.. note:: 
-    The Python script was written on Windows and implements some basic
-    interaction through Windows specific key bindings.
-    
-    In addition this was written on Python 2.7 and relies heavily on 
-    the way byte strings are handled by default in that version
+Note: *The Python script was written on Windows and implements some basic
+interaction through Windows specific key bindings.*
 
 The behaviour box program is split into a handful of modules. Each
 module mostly holds utility functions for the box as a whole. The file
