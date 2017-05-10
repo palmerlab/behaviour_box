@@ -15,7 +15,7 @@ source repository: `<https://github.com/palmerlab/behaviour_box>`_.
 The repository contains a set of files to implement a Go -- No-Go task
 using an Arduino and Python 2.7. 
 
-This software is made up of two complimentary components. 
+This software is made up of two complementary components. 
 
 The two components to this implementation are the Arduino code, found in
 ``./behaviourbox/behaviourbox.ino`` and a Python wrapper for
@@ -23,14 +23,13 @@ communicating with this code ``./SerialControl.py``.
 The Arduino code is a simple module that implements a single Go -- No-Go
 trial at a time. The Python wrapper is used for running a series of trials,
 it automates the selection of trial variables and reads the Arduino messages,
-logging the results of each trial and saving these in a ``.csv`` file.
+logging the results of each trial and saves these in a ``.csv`` file.
 
 .. note:: 
     The Python script was written on Windows and implements some basic
     interaction through Windows specific key bindings.
-    
-    In addition this was written on Python 2.7 and relies heavily on 
-    the way byte strings are handled by default in that version
+    In addition, the Python script was written using Python 2.7 and 
+    relies heavily on this version's language (ie how byte strings are handled).
 
 The behaviour box program is split into a handful of modules. Each
 module mostly holds utility functions for the box as a whole. The file
@@ -44,6 +43,7 @@ functions, which call the other components as necessary.
    Installation
    hardware
    Usage
+   Output
    details
    code
    
