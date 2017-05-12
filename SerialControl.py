@@ -442,27 +442,31 @@ try:
                     
                 with open(df_file, 'w') as datafile:
 
+                    trial_df['trial_num'] = trial_num
+                    
+                    # make a quick lookup table of the outcome codes
+                    outcome = { 'H' : 'hit', '-' : 'miss',
+                                'R' : 'CR', 'f' : 'FA',}
+                    try:
+                        trial_df['outcome'] = outcome[trial_df['response']]
+                    except KeyError:
+                        trial_df['outcome'] = 'nan'
+                    
                     df = df.append(pd.DataFrame(trial_df, index=[df.shape[0]]), ignore_index = True)
 
                     cumWater = df['Water'].cumsum()
-
-                    df['outcome'] = '-'
                     
-                    outcome = df.outcome.copy()
-                    
-                    hit = (df.response == 'H').values
-                    miss = (df.response == '-').values
-                    correct_reject = (df.response == 'R')
-                    false_alarm = (df.response == 'f').values
-                    
-                    outcome[hit] = 'hit'
-                    outcome[correct_reject] = 'CR'
-                    outcome[miss] = 'miss'
-                    outcome[false_alarm] = 'FA'
-
-                    df['outcome'] = outcome
                     df['cumWater'] = cumWater
-                    df['trial_num'] = trial_num
+                    
+                    df = df.loc[['ID', 'N_timeouts', 'Water', 'audio', 'block', 
+                             'comment', 'lickThres', 'lickTrigReward', 
+                             'minlickCount', 'mode', 'post_count', 'pre_count', 
+                             'punish_tone', 'response', 'rew_count', 
+                             'reward_nogo', 't_noLickPer', 
+                             't_rewardDEL', 't_rewardDUR', 't_stimDUR', 
+                             't_stimONSET', 't_trialDUR', 'time', 'timeout', 
+                             'trialType', 'trial_noise',
+                             ]]
 
                     df.to_csv(datafile)
 

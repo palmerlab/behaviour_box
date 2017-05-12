@@ -111,30 +111,32 @@ def Serial_monitor(ser, logfile, show = True, ID = None, verbose = None):
 
 def Continuous_monitor_arduino(ser, end_trial_msg = "- Status: Ready", 
                         sep = ':',
-                        debug_flags = (("#", "\t#", "- ")),
+                        debug_flags = ("#",),
                         ID = None,
                         verbose = None,
                         logfile = None,
                         ):
 
-        '''
-        continously loops through messages from the serial monitor
-        until the end_trial_msg is recieved.
-        messages that are not preceded by debug_flags are stored in a
-        dictionary which is returned by this function.
-        '''
-        
+    '''
+    continously loops through messages from the serial monitor
+    until the end_trial_msg is recieved.
+    messages that are not preceded by debug_flags are stored in a
+    dictionary which is returned by this function.
+    '''
+    
+    line = Serial_monitor(ser, logfile, False, ID = ID, verbose = verbose)
+    trial_dict = {}
+    while line.strip() != end_trial_msg:
+        # keep running until arduino reports it has broken out of loop
         line = Serial_monitor(ser, logfile, False, ID = ID, verbose = verbose)
-        trial_dict = {}
-        while line.strip() != end_trial_msg:
-            # keep running until arduino reports it has broken out of loop
-            line = Serial_monitor(ser, logfile, False, ID = ID, verbose = verbose)
-            if line:
-                if not line.startswith(debug_flags):
-                    var, val = line.strip().split(sep)
-                    trial_dict[var] = num(val)
-        
-        return trial_dict
+        if line:
+            if any([d in line for d in debug_flags]):
+                continue
+                
+            var, val = line.strip().split(sep)
+            trial_dict[var] = num(val)
+    
+    return trial_dict
 
 def update_bbox(ser, params, logfile, trial_df = {}, ID = None, verbose = None):
     """

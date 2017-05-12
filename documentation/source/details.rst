@@ -69,10 +69,10 @@ files:
 global_variables.h
 ------------------
 
-contains definitions of all variables that are used by multiple
+Contains definitions of all variables that are used by multiple
 functions and expected to have persistent values between the functions.
 These include the initialisation time, the various timing parameters, as
-well as any additional options that I have decided to make available.
+well as any additional options that are available.
 
 +------------------+------------------------+
 | variable         | description            |
@@ -217,17 +217,16 @@ well as any additional options that I have decided to make available.
 SerialController.py
 ===================
 
-This python script is a wrapper for communicating with the Arduino
-program. At it's heart is a simple loop that reads data transmitted
-through a serial connection. This is not a necessary component, however
-I wrote it to make running trials a lot easier.
+This python script is a wrapper for communicating with the Arduino program. 
+It is a simple loop that reads data transmitted through a serial connection. 
+Note, this is not a necessary component, however it makes running trials a 
+lot easier.
 
 
 1. The program starts
 2. The program opens communications with available serial port The
    program waits until it gets the arduino is active, and prints all
-   output until the ready signal is transmitted. Which is
-   ``- Status: Ready``
+   output until the ready signal is transmitted.
 
 3. The program starts a block
 4. The program transmits the dict ``params``, which holds all parameters
@@ -237,8 +236,8 @@ I wrote it to make running trials a lot easier.
 
 5. The program prints the frequencies and the condition to the screen
    and a random timeout is started.
-6. The program initiates a trial by sending a literal ``"GO"`` to the
-   behaviour box.
+6. The program initiates a trial by sending a literal ``"START"`` message to
+   the behaviour box.
 
    -  The behaviour box runs one trial, with the parameters set
       previously
@@ -424,40 +423,7 @@ the appropriate value in ``utilities/args.py``, see :ref:`adjust-defaults`.
 
     set ``minlickCount`` in arduino
 
-Interactive Options
--------------------
 
-+-------+---------------------------------------------------+
-| key   | option                                            |
-+=======+===================================================+
-| H     | This menu                                         |
-+-------+---------------------------------------------------+
-| P     | Punish                                            |
-+-------+---------------------------------------------------+
-| S     | toggle single stimulus                            |
-+-------+---------------------------------------------------+
-| < >   | lick threshold                                    |
-+-------+---------------------------------------------------+
-| ?     | show threshold                                    |
-+-------+---------------------------------------------------+
-| [ ]   | lickcount                                         |
-+-------+---------------------------------------------------+
-| \\    | show lickcount                                    |
-+-------+---------------------------------------------------+
-| tab   | toggle mode                                       |
-+-------+---------------------------------------------------+
-| : "   | adjust noLick period                              |
-+-------+---------------------------------------------------+
-| L     | show noLick period                                |
-+-------+---------------------------------------------------+
-| ( )   | adjust trial duration                             |
-+-------+---------------------------------------------------+
-| T     | show trial duration period                        |
-+-------+---------------------------------------------------+
-| Y     | toggle timeout (requires punish to take effect)   |
-+-------+---------------------------------------------------+
-| B     | toggle bias correction                            |
-+-------+---------------------------------------------------+
 
 
 References

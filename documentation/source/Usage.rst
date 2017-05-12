@@ -56,6 +56,7 @@ At the end of the trial the program collects all the status messages and
 formats them into a Pandas DataFrame, which is then saved into
 ``{ID}_{date}_000.csv``
 
+.. _interactivity:
 
 Interactive Options
 -------------------
@@ -66,19 +67,50 @@ and recompile. With animal experimentation in mind it was decided that it
 would be best to avoid editing the control code during a run. The Arduino
 exposes a number of relevant variables to the Serial Communications port,
 which the Python wrapper reads and writes to.
- 
-The interactive options currently provided allow the following variables to be 
-altered online:
 
-* lick threshold
-* show threshold
-* lick count
-* show lick count
-* toggle mode
-* adjust no lick Period
-* show no Lick Period
-* adjust trial duration
-* toggle time out
+Pressing any key (except for ``SPACE`` or ``Enter``) while the SerialComms.py
+script is running will pause the program loop. Pressing ``Enter`` or ``SPACE``
+will resume the program.
+
+In addition a subset of relevant variables can be modified using key presses
+outlined in the following table.
+
++--------+---------------------------------------------------+
+| key    | option                                            |
++========+===================================================+
+| ``H``  | This menu                                         |
++--------+---------------------------------------------------+
+| ``P``  | Punish                                            |
++--------+---------------------------------------------------+
+| ``<`` /| increase / decrease the lick threshold            |
+| ``>``  |                                                   |
++--------+---------------------------------------------------+
+| ``?``  | show threshold                                    |
++--------+---------------------------------------------------+
+| ``[`` /| increase / decrease the minimum number of licks   |
+| ``]``  | required to get a reward                          |
++--------+---------------------------------------------------+
+| ``\``  | show lickcount                                    |
++--------+---------------------------------------------------+
+|``tab`` | toggle mode                                       |
++--------+---------------------------------------------------+
+| ``:`` /| increase / decrease the time prior to a stimulus  |
+| ``"``  | in which a lick will end the trial                |
++--------+---------------------------------------------------+
+| ``L``  | show noLick period                                |
++--------+---------------------------------------------------+
+| ``(`` /| increase / decrease the duration of a trial       |
+| ``)``  |                                                   |
++--------+---------------------------------------------------+
+| ``T``  | show trial duration period                        |
++--------+---------------------------------------------------+
+| ``Y``  | toggle timeout (requires punish to take effect)   |
++--------+---------------------------------------------------+
+
+
+
+
+
 
 .. _adjust-defaults:
 
@@ -128,8 +160,11 @@ the ``'default'`` key of any of these parameters will set the value that the
 program loads with if no value for that parameter has been supplied at the
 command line.
 
-For instance, on my system, my Arduino is always located on the port ``"COM5"``,
-therefore my file looks something like this::
+For example, here the Arduino is always located on the port ``"COM5"``,
+therefore the args.py file is modified as follows:
+
+.. code-block:: python
+    :emphasize-lines: 20-25
 
     import argparse
     

@@ -139,26 +139,13 @@ States
 Python Code
 ============
 
-.. py:function:: enumerate(sequence[, start=0])
-
-   Return an iterator that yields tuples of an index and an item of the
-   *sequence*. (And so on.)
-
-
-
 
 .. function:: menu()
 
     Reads the characters in the buffer and modifies the program
     parameters accordingly
-
-    TODO: On pause show current settings
-    TODO: Allow an input mechanism to access all possible values
-    TODO: make menu accept a dictionary or something and have it
-          return one as well!
-            - Use the keys of the dictionary to allow tab
-              completion and scrolling of the inputs as well
-
+    
+    see :ref:`interactivity`
 
 
 -----------
@@ -173,7 +160,7 @@ Audio
 
 .. function:: fftnoise(f)
 
-    ?? filter used in band_limited_noise
+    filter used in band_limited_noise
 
 ----------------------
 config_loader
@@ -206,13 +193,17 @@ data_directories
 .. function:: timenow()
 
     provides the current time string in the form `HH:MM:SS`
-
-
+    
+    :return: the current time in the form `HH:MM:SS`
+    :rtype: str
+    
 .. function:: today()
 
     provides today's date as a string in the form YYMMDD
-
-
+    
+    :return: the date as a string in the form YYMMDD
+    :rtype: str
+    
 .. function:: create_datapath(DATADIR = "", date = today())
 
     make a path to save the data based on today's date

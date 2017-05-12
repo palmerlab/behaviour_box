@@ -3,7 +3,7 @@ Hardware
 
 The basic hardware requirements
 
-Full parts
+Parts List
 ----------
 
 +-------+------------------------------------------------------------------------------------------------------------------------+
@@ -35,17 +35,23 @@ Full parts
 +-------+------------------------------------------------------------------------------------------------------------------------+
 | 1 ×   | blunted 24 G needle                                                                                                    |
 +-------+------------------------------------------------------------------------------------------------------------------------+
-|       | **Water Delivery**                                                                                                     |
+|       | **Water Delivery / Air Puffer**                                                                                        |
 +-------+------------------------------------------------------------------------------------------------------------------------+
-| 1 ×   | `24 V DC Solenoid pinch valve PS-1615NC <http://www.takasago-fluidics.com/p/valve/s/pinch/PS/>`__                      |
+| 2 ×   | `24 V DC Solenoid pinch valve PS-1615NC <http://www.takasago-fluidics.com/p/valve/s/pinch/PS/>`__                      |
 +-------+------------------------------------------------------------------------------------------------------------------------+
-| 1 ×   | TTL gated 24 V DC power supply                                                                                         |
+| 2 ×   | `MOSFET RFP30N06LE <https://www.sparkfun.com/products/10213>`__                                                        |
++-------+------------------------------------------------------------------------------------------------------------------------+
+| 2 ×   | 1N4001 diode                                                                                                           |
++-------+------------------------------------------------------------------------------------------------------------------------+
+| 2 ×   | 10 KΩ resistors                                                                                                        |
 +-------+------------------------------------------------------------------------------------------------------------------------+
 |       | **Speaker**                                                                                                            |
 +-------+------------------------------------------------------------------------------------------------------------------------+
-|       | **Air Puffer**                                                                                                         |
+| 1 ×   | `speaker 8Ω 2W  <https://www.digikey.com/product-detail/en/pui-audio-inc/AS07008PO-2-R/668-1191-ND/1738484>`__         |
 +-------+------------------------------------------------------------------------------------------------------------------------+
 |       | **Stimulus**                                                                                                           |
++-------+------------------------------------------------------------------------------------------------------------------------+
+| 1 ×   | `LRA 8mm (precision microdrives) <https://www.precisionmicrodrives.com/product/308-100-8mm-vibration-motor-3mm-type>`__|
 +-------+------------------------------------------------------------------------------------------------------------------------+
 |       | BNC headers                                                                                                            |
 +-------+------------------------------------------------------------------------------------------------------------------------+
@@ -55,7 +61,24 @@ Wiring of the Amplifier
 
 
 .. image:: images/Amplifier_circuit.svg
-   
+   :align: center
+
+Wiring Solenoids
+----------------
+
+The air puffer and water delivery system can both be constructed
+with the following circuit. This circuit is described in `this blog post from
+bildr <http://bildr.org/2012/03/rfp30n06le-arduino/>`__.
+
+Both the air-puffer and water delivery system can be constructed using
+solenoid pinch valves. The valves listed above require 24 V DC power supply,
+which exceeds that supplied by the Arduino logic pins. This circuit uses a
+MOSFET (RFP30N06LE) to gate the solenoid. A 10 KΩ  resistor and diode 
+(1N4001) are included to prevent voltage surges from shorting the Arduino.
+
+.. image:: images/Solenoid_wiring.svg
+   :align: center
+
 
 Wiring the Arduino
 ------------------
