@@ -265,9 +265,17 @@ def habituation_run(df):
     
     print colour("trial count\n"
                  "----- -----", (fMAGENTA, sBRIGHT))
-
+    
+    trial_num = 0
+    
+    if trial_noise:
+        # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
+        noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
+        noise = noise / noise.min() #normalise so it isn't too loud
+        sd.play(noise, 44100, loop = True)
+    
     while mode == 'h':
-
+    
         trial_df = {}
         line = Serial_monitor(ser, logfile, show = verbose, ID = ID, verbose = verbose).strip()
 
@@ -289,6 +297,7 @@ def habituation_run(df):
 
             #save the changes
             df.to_csv(datafile)
+            trial_num += 1
 
         #print out the times of each water delivery
         hab_df = df[df['mode'] == 'h']
@@ -301,6 +310,13 @@ def habituation_run(df):
 """    
 
 color.init()
+
+#generate the noise to mimic the scabbeners
+if trial_noise:
+    # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
+    noise = band_limited_noise(14000, 500000, samples=int(44100*20), samplerate=44100)
+    noise = noise / noise.min() #normalise so it isn't too loud
+
 
 datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath, port = port, ID = ID) #creates a filepath for the logfile
@@ -425,9 +441,7 @@ try:
                 
                 if trial_noise:
                     # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
-                    noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
-                    noise = noise / noise.min() #normalise so it isn't too loud
-                    sd.play(noise, 44100)
+                    sd.play(noise, 44100, loop = True)
 
                 #update the trial dictionary with ouptut from arduino
                 trial_df.update(Continuous_monitor_arduino(ser, logfile = logfile, ID = ID, verbose = verbose))

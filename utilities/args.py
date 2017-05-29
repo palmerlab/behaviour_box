@@ -59,7 +59,7 @@ kwargs = {
                     },
 
     ('-td', '--trialDur', ) : {
-                    'default' : 0,
+                    'default' : 10,
                     'type' : float,
                     'help' : 'set minimum trial duration'
                     },
@@ -123,7 +123,7 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"datapath", 
+                    'default' : r"R:\Andrew\170426_GOnoGO_Perception_APV", 
                     'help' : "path to save data to, " 
                             "by default it is the current directory + 'datapath'",
                     },
