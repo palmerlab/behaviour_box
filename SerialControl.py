@@ -387,6 +387,11 @@ try:
             # loop for number of trials in the list of random conditions
             trial_num = 0
             while trial_num < len(trials):
+                # check the keys pressed during last iteration
+                # adjusts options accordingly
+                params.update(menu())
+
+
                 t_stimDUR = trials[trial_num]
 
                 #THE HANDSHAKE
@@ -397,7 +402,7 @@ try:
                 }
 
                 params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
-                trial_df.update(update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose))
+                #trial_df.update(update_bbox(ser, params, logfile, trial_df, ID = ID, verbose = verbose))
 
                 # create an empty dictionary to store data in
                 trial_df.update({
@@ -411,9 +416,6 @@ try:
                     'audio_cues'     : audio,
                 })
 
-                # check the keys pressed during last iteration
-                # adjusts options accordingly
-                params.update(menu())
                 
                 if params['trialType'] == 'N' and lcount == 0:
                     params['minlickCount'] = 1
