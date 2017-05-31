@@ -273,66 +273,6 @@ def menu():
     
     return update_bbox(ser, params, logfile, trial_df)
 
-def write_out_config(params):
-
-    write = ( 'mode',
-              'lickThres',
-              'break_wrongChoice',
-              'punish_tone',
-              'minlickCount',
-              't_noLickPer',
-              'timeout',
-              't_stimONSET',
-              't_rewardDEL',
-              't_rewardDUR',
-              'audio',
-              )
-    
-    with open('comms.ini','r+') as cfgfile:
-        Config = ConfigParser.ConfigParser()
-        Config.read('comms.ini')
-
-        if ID not in Config.sections():
-            Config.add_section(ID)
-        for key, value in params.iteritems():
-            if key not in write:
-                continue
-            if type(value) == str:
-                Config.set(ID, key, '"%s"' %value)
-            else:
-                Config.set(ID, key, value)
-        Config.write(cfgfile)
-
-def ConfigSectionMap(section, Config):
-    dict1 = {}
-    options = Config.options(section)
-    for option in options:
-        try:
-            dict1[option] = Config.get(section, option)
-            if dict1[option] == -1:
-                DebugPrint("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
-
-def restore_old_config():
-    with open('comms.ini','r+') as cfgfile:
-        Config = ConfigParser.ConfigParser()
-        Config.read('comms.ini')
-
-    print Config.sections()
-    if ID in Config.sections():
-        print 'previous config found for', ID
-        exec_string = []
-        for name, value in ConfigSectionMap(ID, Config).iteritems():
-            print name, ':', value
-            exec_string.append('global {name}\n'.format(name = name, value = value) +
-                               '{name} = {value}\n'.format(name = name, value = value))
-        exec('\n'.join(exec_string))
-    else:
-        print 'No previous paramaters found'
-
 def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
     freqs = np.abs(np.fft.fftfreq(samples, float(1)/samplerate))
     f = np.zeros(samples)
@@ -397,7 +337,6 @@ def update_bbox(ser, params, logfile, trial_df = {}):
     trail_df dictionary is updated to include the parameters 
     received from the arduino
     """
-    write_out_config(params)
     
     for name, param in params.iteritems():
     
@@ -555,6 +494,11 @@ color.init()
 datapath = create_datapath(datapath) #appends todays date to the datapath
 logfile = create_logfile(datapath) #creates a filepath for the logfile
 
+#save a record of the call signature in the logfile
+with open(logfile, 'a') as f:
+    f.write('- call: >\n  - ' + '\n  - '.join(sys.argv) + '\n')
+
+
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
@@ -566,12 +510,6 @@ df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
 
-# making the random condition in this way means 
-# there are never more than 3 in a row
-
-# load the old configs
-if restore:
-    restore_old_config()
 
 try:
     #open a file to save data in

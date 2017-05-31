@@ -134,10 +134,10 @@ kwargs = {
                     },
 
     ('--datapath', ) : {
-                    'default' : r"R:\Andrew\161222_GOnoGO_Perception_III", 
+                    'default' : r"R:\Andrew\170426_GOnoGO_Perception_APV", 
                     'help' : "path to save data to, " 
                             "by default is "
-                            r"R:\Andrew\161222_GOnoGO_Perception_III\%%YY%%MM%%DD",
+                            r"R:\Andrew\170426_GOnoGO_Perception_APV\%%YY%%MM%%DD",
                     },
     ('-af', '--audio') :{
                     'action' : 'store_true',
