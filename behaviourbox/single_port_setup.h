@@ -65,7 +65,7 @@ char runTrial() {
     
     ActiveDelay(t_rewardDEL, false);
     
-    conditional_tone(15000, 100);
+    conditional_tone(7000, 100);
     
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
