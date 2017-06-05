@@ -749,7 +749,7 @@ try:
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
 
-                if trialDur: #allows fall though for a non trial
+                if trialDur and df.response.iloc[-1] != 'e': #allows fall though for a non trial
                     #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
                     print '\r',
                     while dur < trialDur:
