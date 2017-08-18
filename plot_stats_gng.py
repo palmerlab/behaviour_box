@@ -92,12 +92,12 @@ def read_data(df = pd.DataFrame([])):
                 return df, False
 
         df = df.drop_duplicates()
-        df = df.dropna(subset = ['t_stimDUR'])
+        df = df.dropna(subset = ['frequency'])
         df.minlickCount = df.minlickCount.fillna(method = 'ffill')
         #df = df[df.minlickCount > 0]
 
-        #df.loc[df.t_stimDUR == 100, 'trialType'] = 'G'
-        #df.loc[df.t_stimDUR != 100, 'trialType'] = 'N'
+        #df.loc[df.frequency == 100, 'trialType'] = 'G'
+        #df.loc[df.frequency != 100, 'trialType'] = 'N'
         
         if 'time' in df.columns:
             df = df.drop_duplicates(subset  = 'time')

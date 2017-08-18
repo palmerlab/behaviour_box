@@ -147,11 +147,11 @@ int UpdateGlobals(String input) {
                 return 1;
         }
 
-        // t_stimDUR
-        else if (variable_name == "t_stimDUR") {
-                t_stimDUR = variable_value.toInt();
-                Serial.print("\tt_stimDUR:");
-                Serial.println(t_stimDUR);
+        // frequency
+        else if (variable_name == "frequency") {
+                frequency = variable_value.toInt();
+                Serial.print("\tfrequency:");
+                Serial.println(frequency);
                 return 1;
         }
 

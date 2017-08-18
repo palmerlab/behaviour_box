@@ -269,7 +269,7 @@ type                        name            value       description
 `unsigned int`{.cpp}        trial_delay     500           ms
 `unsigned int`{.cpp}        t_stimONSET     2000          ms
 `unsigned int`{.cpp}        t_stimDELAY     150           ms
-`unsigned int`{.cpp}        stimDUR         500           ms
+`unsigned int`{.cpp}        frequency         500           ms
 `unsigned int`{.cpp}        t_rDELAY        2100          ms
 `unsigned int`{.cpp}        t_rDUR          2000          ms
 `unsigned int`{.cpp}        timeout         0
@@ -464,7 +464,7 @@ adjustable parameters
     + `auditory`
     + `timeout`
     + `t_stimONSET`
-    + `t_stimDUR`
+    + `frequency`
     + `t_rewardDEL`
     + `t_rewardDUR`
     + `waterVol`
@@ -493,7 +493,7 @@ single_stim = bool(variable_value.toInt());
 
 timeout = variable_value.toInt();
 
-t_stimDUR = variable_value.toInt();
+frequency = variable_value.toInt();
 
 t_stimONSET = variable_value.toInt();
 

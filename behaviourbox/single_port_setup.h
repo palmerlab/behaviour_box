@@ -51,7 +51,7 @@ char runTrial() {
         Serial.println("\tpost_count:nan");
         Serial.println("\tpre_count:nan");
         Serial.println("\trew_count:nan");
-        Serial.println("\tt_stimDUR:nan");
+        Serial.println("\tfrequency:nan");
 
         return response;
     }
@@ -59,13 +59,16 @@ char runTrial() {
     pre_count = pre_count0+pre_count1;
 
     t = t_since(t_init);
-
+    
+    
+    
     post_count = TrialStimulus();
     t = t_since(t_init);
     
     ActiveDelay(t_rewardDEL, false);
     
-    conditional_tone(7000, 100);
+    //conditional_tone(7000, 1000);
+    //ActiveDelay(1000, false);
     
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
@@ -76,6 +79,11 @@ char runTrial() {
         response = 1;
         rew_count += ActiveDelay((t_rewardDUR - (t_since(t_init) - t)) , 0);
     }
+    
+    
+    conditional_tone(7000, 200);
+    
+    
     if (trialType == 'G'){
         if (response) {
             response = 'H';
@@ -109,8 +117,12 @@ char runTrial() {
     else {
             response = '?';
             deliver_reward(0);
+            
+           
+   
     }//switch
-    
+   
+ 
     //continue trial till end (for the bulb trigger)
     t = t_since(t_init);
     if (t < t_trialDUR){
@@ -129,8 +141,8 @@ char runTrial() {
     Serial.print("\trew_count:");
     Serial.println(rew_count);
     
-    Serial.print("\tt_stimDUR:");
-    Serial.println(t_stimDUR);
+    Serial.print("\tfrequency:");
+    Serial.println(frequency);
 
     return response;
 }
@@ -166,8 +178,8 @@ void Habituation(){
             ------- ------- --------
         */
 
-        Serial.print("\tt_stimDUR:");
-        Serial.println(t_stimDUR);
+        Serial.print("\tfrequency:");
+        Serial.println(frequency);
         Serial.print("\treward_count:");
         Serial.println(int(reward_count));
 

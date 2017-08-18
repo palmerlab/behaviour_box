@@ -67,7 +67,7 @@ lcount = args.lcount
 noLick = args.noLick
 
 t_stimONSET = args.t_stimONSET
-t_stimDUR = args.t_stimDUR
+frequency = args.frequency
 t_rewardDEL = args.t_rDELAY
 t_rewardDUR = args.t_rDUR
 
@@ -424,7 +424,7 @@ def habituation_run():
     params = {
                 'mode'          : mode,
                 'lickThres'     : lickThres,
-                't_stimDUR'     : 100,
+                'frequency'     : 100,
     }
 
     params = update_bbox(ser, params, logfile)

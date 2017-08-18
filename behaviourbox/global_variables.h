@@ -29,7 +29,7 @@ unsigned long t_init;             // ms
 unsigned int t_noLickPer = 1000;  // ms
 unsigned int trial_delay = 500;   // ms
 unsigned int t_stimONSET = 2000;  // ms
-unsigned int t_stimDUR = 500;     // ms
+unsigned int frequency = 500;     // ms
 unsigned int t_rewardDEL = 150;   // ms
 unsigned int t_rewardDUR = 2000;  // ms
 unsigned int t_trialDUR = 5000;  // ms

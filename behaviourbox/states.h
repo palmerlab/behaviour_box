@@ -28,14 +28,14 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
         count += senseLick();
 
         if (break_on_lick and (count>=minlickCount)){
-            if (verbose) { 
+            if (verbose) {
                 Serial.print("#Exit `ActiveDelay`:\t");
                 Serial.println(t);
             }
             return count;
         }
     }
-    
+
     if (verbose) {
         Serial.print("#Exit `ActiveDelay`:\t");
         Serial.println(t);
@@ -44,16 +44,16 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
 }
 
 bool deliver_reward(bool water) {
-    /* Open the water port on `port` for a 
+    /* Open the water port on `port` for a
         duration defined by waterVol */
-    if (water){    
+    if (water){
         digitalWrite(waterPort, HIGH);
         delay(waterVol);
         digitalWrite(waterPort, LOW);
         conditional_tone(5000, 100);
     }
-    
-    if (verbose) { 
+
+    if (verbose) {
         Serial.print("Water:");
         Serial.println(water);
     }
@@ -61,7 +61,7 @@ bool deliver_reward(bool water) {
 }
 
 void punish(int del) {
-    
+
     conditional_tone(20000, 100);
     digitalWrite(buzzerPin, HIGH);
     delay(del);
@@ -75,7 +75,7 @@ int Timeout(unsigned long wait, int depth) {
 
    //delay(500); // Delay prevents punishing continued licking
     punish(500);
-    
+
     while (t < wait) {
         t = t_since(t_init);
 
@@ -94,8 +94,8 @@ int Timeout(unsigned long wait, int depth) {
     return depth;
 }
 
-void preTrial() {   
-    /* while the trial has not started 
+void preTrial() {
+    /* while the trial has not started
        1. update the time
        2. check for licks
        4. trigger the recording by putting recTrig -> HIGH
@@ -125,17 +125,17 @@ void preTrial() {
             digitalWrite(bulbTrig, HIGH);
         }
     }
-    
+
     digitalWrite(recTrig, LOW);
 
     if (verbose) {
         Serial.print("#Exit `preTrial`:\t");
         Serial.println(t);
     }
-} 
+}
 
 int count_responses(int duration, bool lickTrig) {
-    
+
     /*
     Counts the number of hits on the lick sensor over `duration`
     of milliseconds.
@@ -156,7 +156,7 @@ int count_responses(int duration, bool lickTrig) {
         t = t_since(t_init);
         lick = senseLick();
         count += lick;
-        
+
         if ((count >= minlickCount) and (lickTrig) and (!water)){
             deliver_reward(1);
             water = 1;
@@ -182,28 +182,44 @@ int TrialStimulus() {
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t");
-        Serial.println(t_since(t_init));    
-        Serial.print("#\tt_stimDUR:\t");
-        Serial.println(t_stimDUR);
-    }
+        Serial.println(t_since(t_init));
+        Serial.print("#\tfrequency:\t");
+        Serial.println(frequency);
+        if (not frequency){
+            Serial.print("#Exit `TrialStimulus`:\t");
+            Serial.println(t);
+            return count;
+        }
+        //flutter code HERE
+        if (frequency == 200) { // do flutter 1 for 500ms
 
-    if (not t_stimDUR){
-        Serial.print("#Exit `TrialStimulus`:\t");
-        Serial.println(t);
-        return count;
-    }
-    
-    digitalWrite(stimulusPin, HIGH);    
-    delay(t_stimDUR);
-    digitalWrite(stimulusPin, LOW); //this is a safety catch
+          digitalWrite(stimulusPin, HIGH);
+          delay(500);
+          digitalWrite(stimulusPin,LOW);
+         
+        }
 
+        else if (frequency == 20) {// do flutter 2 for 500ms
+
+          int high_in_millisecond = 15;  // how long 5V is sent (in ms)
+          int low_in_millisecond = 5; // how long 0V is sent (in ms)
+          int nb_of_iterations = 25; // nb of pulse repetition
+
+                for (int i=0; i < nb_of_iterations; i++){
+                    digitalWrite(stimulusPin, HIGH);
+                    delay(high_in_millisecond);
+                    digitalWrite(stimulusPin, LOW);
+                    delay(low_in_millisecond);
+              }
+
+        }
     if (verbose) {
         Serial.print("#Exit `TrialStimulus`:\t");
         Serial.println(t);
     }
     return count;
 }
-
+}
 
 void conditional_tone(int frequency, int duration) {
     // wrapper function so I don't need to put a billion if statements
