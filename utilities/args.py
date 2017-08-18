@@ -53,7 +53,7 @@ kwargs = {
                     },
 
     ('-nlp', '--noLick', ) : {
-                    'default' : 1000,
+                    'default' : 0,
                     'type' : int,
                     'help' : 'set `t_noLickPer` in arduino'
                     },
@@ -71,7 +71,7 @@ kwargs = {
                     },
 
     ('-rdel', '--t_rDELAY', ) : {
-                    'default' : 0,
+                    'default' : 1000,
                     'type' : int,
                     'help' : 'set start time of reward epoch in ms'
                     },

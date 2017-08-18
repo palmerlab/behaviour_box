@@ -62,16 +62,16 @@ char runTrial() {
     
     
     
-    post_count = TrialStimulus();
+    TrialStimulus();
     t = t_since(t_init);
     
     ActiveDelay(t_rewardDEL, false);
     
-    //conditional_tone(7000, 1000);
-    //ActiveDelay(1000, false);
+    conditional_tone(7000, 200);
+    ActiveDelay(200, false);
     
     t = t_since(t_init);
-    post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
+    post_count = ActiveDelay(t_rewardDUR, lickTrigReward);
     
     if ((t_since(t_init) - t) < t_rewardDUR) {
       // keeps counting even if the reward was triggered already
@@ -81,7 +81,7 @@ char runTrial() {
     }
     
     
-    conditional_tone(7000, 200);
+    
     
     
     if (trialType == 'G'){
