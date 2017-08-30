@@ -14,8 +14,8 @@ _reward
 int ActiveDelay(unsigned long wait, bool break_on_lick,
                                   bool print_resp_time ) {
 
-    unsigned long t_init = millis();
-    unsigned long t = t_since(t_init);
+    unsigned long _t0 = millis();
+    unsigned long t = t_since(_t0);
 
     int count = 0;
 
@@ -25,12 +25,12 @@ int ActiveDelay(unsigned long wait, bool break_on_lick,
     }
 
     while (t < wait) {
-        t = t_since(t_init);
+        t = t_since(_t0);
         count += senseLick();
 
         if (print_resp_time  and (count>=minlickCount)){
             Serial.print("response_time:\t");
-            Serial.println(t);
+            Serial.println(t_since(t_init));
         }
 
         if (break_on_lick and (count>=minlickCount)){
