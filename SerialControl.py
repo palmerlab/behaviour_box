@@ -429,9 +429,8 @@ try:
 
                 if trial_noise: sd.stop()
 
-                for k in trial_df.keys():
-                    if type(trial_df[k]) == list:
-                        trial_df[k] = trial_df[k][0]
+                trial_df = {k: v if type(trial_df[k]) != list else v[0]
+                                        for k,v in trial_df.iteritmes()}
 
                 """
                 THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
