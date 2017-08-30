@@ -68,7 +68,7 @@ char runTrial() {
     conditional_tone(15000, 100);
 
     t = t_since(t_init);
-    post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
+    post_count += ActiveDelay(t_rewardDUR, lickTrigReward, true);
 
     if ((t_since(t_init) - t) < t_rewardDUR) {
       // keeps counting even if the reward was triggered already
