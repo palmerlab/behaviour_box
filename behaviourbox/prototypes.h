@@ -18,8 +18,6 @@ int Timeout(unsigned long wait, int depth = 0);
 
 void preTrial();
 
-int count_responses(int duration);
-
 int TrialStimulus();
 
 void conditional_tone(int frequency, int duration);

@@ -116,12 +116,6 @@ States
        3. trigger the recording by putting recTrig -> HIGH
 
 
-.. c:function:: count_responses(int duration, bool lickTrig) {
-
-    Counts the number of hits on the lick sensor over `duration`
-    of milliseconds.
-
-
 .. c:function:: TrialStimulus()
 
     runs the trial stimulus
@@ -144,7 +138,7 @@ Python Code
 
     Reads the characters in the buffer and modifies the program
     parameters accordingly
-    
+
     see :ref:`interactivity`
 
 
@@ -193,17 +187,17 @@ data_directories
 .. function:: timenow()
 
     provides the current time string in the form `HH:MM:SS`
-    
+
     :return: the current time in the form `HH:MM:SS`
     :rtype: str
-    
+
 .. function:: today()
 
     provides today's date as a string in the form YYMMDD
-    
+
     :return: the date as a string in the form YYMMDD
     :rtype: str
-    
+
 .. function:: create_datapath(DATADIR = "", date = today())
 
     make a path to save the data based on today's date
@@ -266,7 +260,7 @@ serial_wrapper
 numerical
 -----------
 
-Previously held functions to help with numerical 
+Previously held functions to help with numerical
 handling, these have mostly been replaced, now contains a
 function for general conversion of strings to numbers
 

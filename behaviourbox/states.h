@@ -28,14 +28,14 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
         count += senseLick();
 
         if (break_on_lick and (count>=minlickCount)){
-            if (verbose) { 
+            if (verbose) {
                 Serial.print("#Exit `ActiveDelay`:\t");
                 Serial.println(t);
             }
             return count;
         }
     }
-    
+
     if (verbose) {
         Serial.print("#Exit `ActiveDelay`:\t");
         Serial.println(t);
@@ -44,16 +44,16 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
 }
 
 bool deliver_reward(bool water) {
-    /* Open the water port on `port` for a 
+    /* Open the water port on `port` for a
         duration defined by waterVol */
-    if (water){    
+    if (water){
         digitalWrite(waterPort, HIGH);
         delay(waterVol);
         digitalWrite(waterPort, LOW);
         conditional_tone(5000, 100);
     }
-    
-    if (verbose) { 
+
+    if (verbose) {
         Serial.print("Water:");
         Serial.println(water);
     }
@@ -61,7 +61,7 @@ bool deliver_reward(bool water) {
 }
 
 void punish(int del) {
-    
+
     conditional_tone(20000, 100);
     digitalWrite(buzzerPin, HIGH);
     delay(del);
@@ -75,7 +75,7 @@ int Timeout(unsigned long wait, int depth) {
 
    //delay(500); // Delay prevents punishing continued licking
     punish(500);
-    
+
     while (t < wait) {
         t = t_since(t_init);
 
@@ -94,8 +94,8 @@ int Timeout(unsigned long wait, int depth) {
     return depth;
 }
 
-void preTrial() {   
-    /* while the trial has not started 
+void preTrial() {
+    /* while the trial has not started
        1. update the time
        2. check for licks
        4. trigger the recording by putting recTrig -> HIGH
@@ -125,7 +125,7 @@ void preTrial() {
             digitalWrite(bulbTrig, HIGH);
         }
     }
-    
+
     digitalWrite(recTrig, LOW);
 
     if (verbose) {
@@ -133,43 +133,6 @@ void preTrial() {
         Serial.println(t);
     }
 } 
-
-int count_responses(int duration, bool lickTrig) {
-    
-    /*
-    Counts the number of hits on the lick sensor over `duration`
-    of milliseconds.
-    */
-
-    int t0 = t_since(t_init);
-    int t = t0;
-    bool lick = 0;
-    int count = 0;
-    bool water = 0;
-
-    if (verbose) {
-        Serial.print("#Enter `count_responses`:\t");
-        Serial.println(t);
-    }
-
-    while (t < (t0 + duration)) {
-        t = t_since(t_init);
-        lick = senseLick();
-        count += lick;
-        
-        if ((count >= minlickCount) and (lickTrig) and (!water)){
-            deliver_reward(1);
-            water = 1;
-        }
-    }
-
-    if (verbose) {
-        Serial.print("#Exit `count_responses`:\t");
-        Serial.println(t);
-    }
-
-    return count;
-}
 
 int TrialStimulus() {
 
@@ -182,7 +145,7 @@ int TrialStimulus() {
     if (verbose) {
         // TODO make verbosity a scale instead of Boolean
         Serial.print("#Enter `TrialStimulus`:\t");
-        Serial.println(t_since(t_init));    
+        Serial.println(t_since(t_init));
         Serial.print("#\tt_stimDUR:\t");
         Serial.println(t_stimDUR);
     }
@@ -192,8 +155,8 @@ int TrialStimulus() {
         Serial.println(t);
         return count;
     }
-    
-    digitalWrite(stimulusPin, HIGH);    
+
+    digitalWrite(stimulusPin, HIGH);
     delay(t_stimDUR);
     digitalWrite(stimulusPin, LOW); //this is a safety catch
 
