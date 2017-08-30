@@ -11,7 +11,8 @@ response_period
 _reward
 */
 
-int ActiveDelay(unsigned long wait, bool break_on_lick) {
+int ActiveDelay(unsigned long wait, bool break_on_lick,
+                                  bool print_resp_time ) {
 
     unsigned long t_init = millis();
     unsigned long t = t_since(t_init);
@@ -26,6 +27,11 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t < wait) {
         t = t_since(t_init);
         count += senseLick();
+
+        if (print_resp_time  and (count>=minlickCount)){
+            Serial.print("response_time:\t");
+            Serial.println(t);
+        }
 
         if (break_on_lick and (count>=minlickCount)){
             if (verbose) {
@@ -132,7 +138,7 @@ void preTrial() {
         Serial.print("#Exit `preTrial`:\t");
         Serial.println(t);
     }
-} 
+}
 
 int TrialStimulus() {
 

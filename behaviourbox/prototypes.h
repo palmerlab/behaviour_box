@@ -8,7 +8,8 @@ bool senseLick();
 ||                       states.h                         ||
 ++--------------------------------------------------------*/
 
-int ActiveDelay(unsigned long wait, bool break_on_lick = false);
+int ActiveDelay(unsigned long wait, bool break_on_lick = false,
+                  bool print_resp_time = false );
 
 bool deliver_reward(bool water);
 
