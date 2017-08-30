@@ -60,7 +60,7 @@ char runTrial() {
 
     t = t_since(t_init);
 
-    post_count = TrialStimulus();
+    TrialStimulus();
     t = t_since(t_init);
 
     ActiveDelay(t_rewardDEL, false);
