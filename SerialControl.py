@@ -387,6 +387,7 @@ try:
                     'comment'        : comment,
                     'trial_noise'    : trial_noise,
                     'audio_cues'     : audio,
+                    'response_time'  : 'nan',
                 })
 
                 # check the keys pressed during last iteration
