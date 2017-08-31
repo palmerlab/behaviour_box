@@ -457,16 +457,6 @@ try:
 
                     df['cumWater'] = cumWater
 
-                    df = df.loc[['ID', 'N_timeouts', 'Water', 'audio', 'block',
-                             'comment', 'lickThres', 'lickTrigReward',
-                             'minlickCount', 'mode', 'post_count', 'pre_count',
-                             'punish_tone', 'response', 'rew_count',
-                             'reward_nogo', 't_noLickPer',
-                             't_rewardDEL', 't_rewardDUR', 't_stimDUR',
-                             't_stimONSET', 't_trialDUR', 'time', 'timeout',
-                             'trialType', 'trial_noise',
-                             ]]
-
                     df.to_csv(datafile)
 
                 #Print the important data and colour code for hits / misses
