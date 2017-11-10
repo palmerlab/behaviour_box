@@ -17,15 +17,13 @@ from itertools import product
 
 import colorama as color # makes things look nice
 from colorama import Fore as fc
-from colorama import Back as bc     
+from colorama import Back as bc
 from colorama import Style
 
 from utilities.args import args
 from utilities.numerical import num, na_printr, unpack_table
 
 import sounddevice as sd
-
-
 
 """
 1. The program starts
@@ -62,7 +60,6 @@ weight = args.weight                  # the weight of the animal
 trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
 trialDur = args.trialDur              # nominally the time to idle before resetting
 ITI = args.ITI
-ratio = args.ratio
 restore = args.restore
 trials = args.trials
 
@@ -91,20 +88,20 @@ def menu():
     """
     Reads the characters in the buffer and modifies the program
     parameters accordingly
-    
+
     TODO: On pause show current settings
     TODO: Allow an input mechanism to access all possible values
-    TODO: make menu accept a dictionary or something and have it 
+    TODO: make menu accept a dictionary or something and have it
           return one as well!
-            - Use the keys of the dictionary to allow tab 
+            - Use the keys of the dictionary to allow tab
               completion and scrolling of the inputs as well
-                
+
     """
     print '\r                 \r',
     c = "\x00"
     if not m.kbhit():
         return {}
-    
+
     global punish
     global lickThres
     global lcount
@@ -122,20 +119,20 @@ def menu():
     while paused:
         while m.kbhit():
             c = m.getch()
-            if c == '\xe0': 
+            if c == '\xe0':
                 c = c + m.getch()
 
             if c in ("\r", " "):
                 paused = False
-            
+
             # Toggle condition
             elif c in ("\t"):
-                if mode == "o": 
+                if mode == "o":
                     mode = "h"
-                elif mode == "h": 
+                elif mode == "h":
                     mode = "o"
                 print "Training mode:\t%s" %mode
-                
+
             elif c in ("C","c"): #m,Ctrl-m
                 comment = raw_input("Comment: ") + ''
                 with open(logfile, 'a') as log:
@@ -146,16 +143,16 @@ def menu():
             elif c in '\xe0K':
                 t_stimDUR = 100.0
                 print "stimDUR:\t%s\r" %t_stimDUR,
-            
+
             # right key
             elif c in '\xe0M':
                 t_stimDUR = 600.0
                 print "stimDUR:\t%s\r" %t_stimDUR,
-            
+
             elif c in ('\xe0P', '\xe0H'):
                 t_stimDUR = 0
                 print "stimDUR:\t%s\r" %t_stimDUR,
-            
+
             # Toggle punishment
             elif c in ("P", "p", "\x10"):
                 punish = not punish
@@ -163,28 +160,28 @@ def menu():
                 print "Punish for wrong lick:\t%s" %punish
                 with open(logfile, 'a') as log:
                     log.write("Punish for wrong lick:\t%s\n" %punish)
-            
+
             # adjust the no lick period
             elif c in (":", ";"):
                 noLick -= 10
                 print "noLick:\t%3d\r" %noLick,
-            
+
             elif c in ("\'", "\""):
                 noLick += 10
                 print "noLick:\t%3d\r" %noLick,
-            
+
             elif c in ("l", "L"):
                 print "noLick:\t%3d\r" %noLick,
-                
+
             # adjust the trial duration
             elif c in ("9", "("):
                 trialDur -= 1
                 print "trialDur:\t%3d\r" %trialDur,
-            
+
             elif c in ("0", ")"):
                 trialDur += 1
                 print "trialDur:\t%3d\r" %trialDur,
-            
+
             elif c in ("T", "t"):
                 print "TrialDur:\t%3d\r" %trialDur,
 
@@ -194,16 +191,16 @@ def menu():
                 else:
                     timeout = args.timeout
                 print "timeout:\t%3d\r" %timeout,
-                
+
             # adjust minLickCount
             elif c in ("[", "{"):
                 lcount -= 1
                 print "minLickCount: %3d\r" %lcount,
-            
+
             elif c in ("]", "}"):
                 lcount += 1
                 print "minLickCount: %3d\r" %lcount,
-                
+
             elif c in ("|", "\\"):
                 print "minLickCount: %3d\r" %lcount,
 
@@ -211,14 +208,14 @@ def menu():
             elif c in (",<"):
                 lickThres -= 25
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-            
+
             elif c in (".>"):
                 lickThres += 25
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-                
+
             elif c in ("/?"):
                 print "lickThres: %4d .... %5.2f V\r" %(lickThres, (lickThres / 1024)*5),
-            
+
             elif 'rdur:' in c:
                 val = c.split(':')[1]
                 if val.strip().isdigit():
@@ -226,8 +223,8 @@ def menu():
                     print "t_rDUR:\t", t_rDUR
                 else:
                     print 't_rDUR must be numerals ONLY'
-                
-            
+
+
             elif 'rdel:' in c:
                 val = c.split(':')[1]
                 if val.strip().isdigit():
@@ -242,10 +239,10 @@ def menu():
                 print "options       :"
                 print "  ...   H     : This menu"
                 print "  ...   P     : Punish"
-                print "  ...   < >   : lick threshold" 
-                print "  ...   ?     : show threshold" 
+                print "  ...   < >   : lick threshold"
+                print "  ...   ?     : show threshold"
                 print "  ...   [ ]   : lickcount"
-                print "  ...   \\     : show lickcount" 
+                print "  ...   \\     : show lickcount"
                 print "  ...   tab   : toggle mode"
                 print "  ...   : \"   : adjust noLick period"
                 print "  ...   L     : show noLick period"
@@ -270,7 +267,7 @@ def menu():
            't_stimDUR'                 :    t_stimDUR,
            'trialType'                 :    'N' if t_stimDUR in (600, 0) else 'G' ,
     }
-    
+
     return update_bbox(ser, params, logfile, trial_df)
 
 def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
@@ -289,40 +286,40 @@ def fftnoise(f):
     f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
     return np.fft.ifft(f).real
 
-def colour (x, 
-    fc = color.Fore.WHITE, 
-    bc = color.Back.BLACK, 
+def colour (x,
+    fc = color.Fore.WHITE,
+    bc = color.Back.BLACK,
     style = color.Style.NORMAL):
     return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
 
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
-    return datetime.datetime.now().time().strftime('%H:%M:%S')      
+    return datetime.datetime.now().time().strftime('%H:%M:%S')
 
 def today():
     """provides today's date as a string in the form YYMMDD"""
     return datetime.date.today().strftime('%y%m%d')
 
 def Serial_monitor(ser, logfile, show = True):
-    
+
     line = ser.readline()
 
     if line:
 
         fmt_line = "%s,%s" %(line.strip(), timenow())
-        if line.startswith("\t#"): 
+        if line.startswith("\t#"):
             fmt_line = "#" + fmt_line
             if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
-        if not line.startswith("-"): 
+        if not line.startswith("-"):
             fmt_line = '    ' + fmt_line
-        
-        
-        elif show: 
+
+
+        elif show:
             if line.startswith("port") == False:
                 print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
                 print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
 
-        with open(logfile, 'a') as log:    
+        with open(logfile, 'a') as log:
             log.write(fmt_line + "\n")
 
     return line
@@ -330,26 +327,26 @@ def Serial_monitor(ser, logfile, show = True):
 def update_bbox(ser, params, logfile, trial_df = {}):
     """
     Communicates the contents of the dict `params` through
-    the serial communications port. 
-    
+    the serial communications port.
+
     data is sent in the form: `dict[key] = value`  --> `key:value`
-    
-    trail_df dictionary is updated to include the parameters 
+
+    trail_df dictionary is updated to include the parameters
     received from the arduino
     """
-    
+
     for name, param in params.iteritems():
-    
+
         print fc.YELLOW, color.Style.BRIGHT, name[:2], "\r",
         ser.writelines("%s:%s" %(name, param))
         if verbose: print "%s:%s" %(name, param)
-        
+
         time.sleep(0.1)
-        
+
         while ser.inWaiting():
 
             line = Serial_monitor(ser, logfile, False)[:-1]
-            
+
             if line[:2] not in ("\t#", "- "):
                 var, val = line.strip().split(":")
                 trial_df[var] = num(val)
@@ -364,59 +361,59 @@ def update_bbox(ser, params, logfile, trial_df = {}):
 
 def create_datapath(DATADIR = "", date = today()):
     """
-    
+
     """
 
-    if not DATADIR: 
+    if not DATADIR:
         DATADIR = os.path.join(os.getcwd(), date)
-    else: 
+    else:
         DATADIR = os.path.join(DATADIR, date)
-    
+
     if not os.path.isdir(DATADIR):
         os.makedirs((DATADIR))
-    
+
     print colour("datapath:\t", fc = fc.GREEN, style=Style.BRIGHT),
     print colour(DATADIR, fc = fc.GREEN, style=Style.BRIGHT)
-    
-    return DATADIR        
+
+    return DATADIR
 
 def create_logfile(DATADIR = "", date = today()):
     """
-    
+
     """
     filename = "%s_%s_%s.log" %(port,ID,date)
     logfile = os.path.join(DATADIR, filename)
     print colour("Saving log in:\t", fc = fc.GREEN, style=Style.BRIGHT),
     print colour("./$datapath$/%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
-    
+
     return logfile
-                    
+
 def init_serialport(port, logfile = None):
     """
     Open communications with the arduino;
-    quits the program if no communications are 
+    quits the program if no communications are
     found on port.
-    
+
     If there are communications the script
     waits 500 ms then reads all incoming
     lines from the Serial port. These two
-    lines include the arduino code version 
+    lines include the arduino code version
     and a string that says the arduino is online
     """
-    
+
     ser = serial.Serial()
     ser.baudrate = 115200
     ser.timeout = 1
     ser.port = port
 
-    try: 
+    try:
         ser.open()
         print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
-        
-    except serial.serialutil.SerialException: 
+
+    except serial.serialutil.SerialException:
         print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
         sys.exit(0)
-    
+
     #IDLE while Arduino performs it's setup functions
     print "AWAITING ARDUINO: "
     _ = 0
@@ -425,11 +422,11 @@ def init_serialport(port, logfile = None):
             print "-"*int(_/10000),"\r",
         _ += 1
     print "\nARDUINO ONLINE"
-    
+
     # Buffer for 500 ms to let Arduino finish it's setup
     time.sleep(.5)
     # Log the debug info for the setup
-    while ser.inWaiting(): 
+    while ser.inWaiting():
         Serial_monitor(ser, logfile, True)
 
     return ser
@@ -444,7 +441,7 @@ def habituation_run(df):
     }
 
     params = update_bbox(ser, params, logfile)
-    
+
     print colour("trial count\n"
                  "----- -----", fc.MAGENTA, style = Style.BRIGHT)
 
@@ -487,7 +484,7 @@ def habituation_run(df):
 ---------------------------------------------------------------------
                        MAIN FUNCTION HERE
 ---------------------------------------------------------------------
-"""    
+"""
 
 color.init()
 
@@ -505,7 +502,7 @@ df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
 df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': [], 'outcome':[]})
 if os.path.isfile(df_file):
     df = df.append(pd.read_csv(df_file, index_col = 0))
-   
+
 df = df.dropna(subset = ['time'])
 df = df.drop_duplicates('time')
 comment = ""
@@ -522,10 +519,10 @@ try:
         'minlickCount'      : lcount,
         't_stimONSET'       : t_stimONSET,
     }
-    
+
     trial_df = update_bbox(ser, params, logfile, {} )
 
-    
+
     if mode == 'h':
         habituation_run(df)
     elif mode == 'o':
@@ -548,17 +545,15 @@ try:
 
         trial_df = update_bbox(ser, params, logfile, {} )
         df = df.append(pd.DataFrame(trial_df, index = [df.shape[0]+1]), ignore_index=True)
-        
+
         # loop for r repeats
         for r in xrange(repeats):
 
-            Ngo, Nngo, Nblank = ratio
-            
             #trials = [0, 200, 50 , 100, 25, 150]
             #trials = [0, 0,0,200,200,200]
             #trials = [0, ] * 5
             #trials.append(200)
-            
+
             shuffle(trials)
             print trials
 
@@ -586,11 +581,11 @@ try:
                     #    params['minlickCount'] = 0
                     #else:
                     #    params['minlickCount'] = lcount
-                    
+
                     operant_trials = (df.minLickCount >= 1).values
                     good_trials = (df.response != 'e').values
                     hit_trials = (df.outcome == 'hit').values
-                    
+
                     #if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
                     #    print '\ngoing strong'
                     #    t_rewardDUR -= 50
@@ -598,13 +593,13 @@ try:
                     #elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
                     #    t_rewardDUR = args.t_rDUR
                     #    params['t_rewardDUR'] = t_rewardDUR
-                        
+
                 except:
                     pass
 
                 params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
-                
+
 
                 # create an empty dictionary to store data in
                 trial_df.update({
@@ -614,22 +609,21 @@ try:
                     'weight'         : weight,
                     'block'          : r,
                     'comment'        : comment,
-                    'hitVmissVblank' : '%s:%s:%s' %(Ngo, Nngo, Nblank),
                     'trial_noise'    : trial_noise,
                     'audio_cues'     : audio,
                 })
 
                 #checks the keys pressed during last iteration
                 #adjusts options accordingly
-                
+
                 params.update(menu())
-                
+
                 if params['trialType'] == 'N' and lcount == 0:
                     params['minlickCount'] = 1
                     params['break_wrongChoice'] = int(1)
                 elif params['trialType'] == 'G' and lcount == 0:
                     params['minlickCount'] = 0
-                
+
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified
 
@@ -637,18 +631,18 @@ try:
 
 
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
-                
-                print colour("C: %s" %params['trialType'], 
+
+                print colour("C: %s" %params['trialType'],
                                 fc.MAGENTA, style = Style.BRIGHT),
 
                 trial_df['time'] = timenow()
-                
+
                 # Send the literal GO symbol
                 start_time = time.time()
-            
+
                 ser.write("GO")
                 line = Serial_monitor(ser, logfile, show = verbose).strip()
-                
+
                 if trial_noise:
                     # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
                     noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
@@ -665,18 +659,18 @@ try:
                             trial_df[var] = num(val)
 
                 if trial_noise: sd.stop()
-                
+
                 for k in trial_df.keys():
-                    if type(trial_df[k]) == list: 
+                    if type(trial_df[k]) == list:
                         trial_df[k] = trial_df[k][0]
-               
+
                 """
                 THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
                 """
                 """
                 #Save the data to a data frame / Save to a file
                 """
-                    
+
                 with open(df_file, 'w') as datafile:
 
                     df = df.append(pd.DataFrame(trial_df, index=[df.shape[0]]), ignore_index = True)
@@ -684,43 +678,43 @@ try:
                     cumWater = df['Water'].cumsum()
 
                     df['outcome'] = '-'
-                    
+
                     outcome = df.outcome.copy()
-                    
+
                     hit = (df.response == 'H').values
                     miss = (df.response == '-').values
                     correct_reject = (df.response == 'R')
                     false_alarm = (df.response == 'f').values
-                    
+
                     outcome[hit] = 'hit'
                     outcome[correct_reject] = 'CR'
                     outcome[miss] = 'miss'
                     outcome[false_alarm] = 'FA'
                     df['outcome'] = outcome
-                    
-                    
+
+
                     df['cumWater'] = cumWater
                     df['trial_num'] = trial_num
-                    
+
                     #TODO: calculate delta
-                    
+
                     df.to_csv(datafile)
-                
-                #Print the important data and coloured code for hits / misses  
-                print Style.BRIGHT, '\r', 
-                
+
+                #Print the important data and coloured code for hits / misses
+                print Style.BRIGHT, '\r',
+
                 table = {
-                            'trial_num'    : 't', 
+                            'trial_num'    : 't',
                             'trialType'    : 'type',
-                            'outcome'      : 'outcome', 
-                            'pre_count'    : 'pre_Lick', 
-                            'post_count'   : 'post_Lick', 
+                            'outcome'      : 'outcome',
+                            'pre_count'    : 'pre_Lick',
+                            'post_count'   : 'post_Lick',
                             'rew_count'    : 'rew_Lick',
-                            #'delta'        : 'lick change', 
-                            'Water'        : 'water', 
+                            #'delta'        : 'lick change',
+                            'Water'        : 'water',
                             't_stimDUR'    : 'dur',
                 }
-                
+
                 colors = {
                         'CR'  : Style.DIM + fc.GREEN,
                         'hit' : fc.GREEN,
@@ -728,7 +722,7 @@ try:
                         'FA' : fc.RED,
                         '-'  : Style.NORMAL + fc.YELLOW
                 }
-                
+
 
                 if not pd.isnull(df['t_stimDUR'].iloc[-1]):
                     c = colors[df.outcome.values[-1]]
@@ -737,15 +731,15 @@ try:
 
                     print '\r', Style.RESET_ALL
                     #calculate percentage success
-                    
-                    print "\r", 100 * " ", "\r                ", #clear the line 
+
+                    print "\r", 100 * " ", "\r                ", #clear the line
 
                 comment = ""
                 # don't iterate if the animal licked early!
 
                 if df.response.iloc[-1] != 'e':
                     trial_num += 1
-                
+
                 # creates a set trial time if a duration has been flagged
                 dur = time.time() - start_time
 
@@ -757,7 +751,7 @@ try:
 
                 wait = 0
                 print Style.BRIGHT, fc.GREEN,
-                
+
                 wait = random.uniform(*ITI)
                 print fc.CYAN,
                 print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
@@ -772,14 +766,14 @@ except KeyboardInterrupt:
         try:
             print "attempting to create DataFrame"
             trial_df = pd.DataFrame(trial_df, index=[trial_num])
-            
-            try: 
+
+            try:
                 df = df.append(trial_df, ignore_index = True)
             except NameError:
                 df = trial_df
 
             cumWater = df['Water'].cumsum()
-            df['cumWater'] = cumWater               
+            df['cumWater'] = cumWater
 
             df.to_csv(df_file)
         except NameError:
