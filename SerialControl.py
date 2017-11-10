@@ -495,7 +495,6 @@ logfile = create_logfile(datapath) #creates a filepath for the logfile
 with open(logfile, 'a') as f:
     f.write('- call: >\n  - ' + '\n  - '.join(sys.argv) + '\n')
 
-
 #make a unique filename
 _ = 0
 df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
@@ -549,10 +548,16 @@ try:
         # loop for r repeats
         for r in xrange(repeats):
 
-            #trials = [0, 200, 50 , 100, 25, 150]
-            #trials = [0, 0,0,200,200,200]
-            #trials = [0, ] * 5
-            #trials.append(200)
+            #   | stimulus duration | light_stim | light_resp |
+            trials = [  [200, 0, 0],
+                        [200, 1, 0],
+                        [200, 1, 1],
+                        [  0, 0, 0],
+                        [  0, 0, 1],
+                        [  0, 1, 0],
+                        [  0, 1, 1],
+                        [200, 0, 1],]
+
 
             shuffle(trials)
             print trials
@@ -560,46 +565,18 @@ try:
             # loop for number of trials in the list of random conditions
             trial_num = 0
             while trial_num < len(trials):
-                t_stimDUR = trials[trial_num]
+                t_stimDUR, light_stim, light_resp = trials[trial_num]
 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
                     'trialType'         : 'N' if t_stimDUR in (0, ) else 'G' ,
                     't_stimDUR'         : t_stimDUR,
+                    'light_stim'        : light_stim,
+                    'light_resp'        : light_resp,
                 }
 
-                try:
-                    #if df.outcome[df.response != 'e'].values[-1] == 'FA':
-                    #    params['t_stimDUR'] = 600
-                    #if df.outcome[df.response != 'e'].values[-1] == 'CR':
-                    #    params['t_stimDUR'] = 200
-                    #if df.outcome[df.response != 'e'].values[-1] == 'miss':
-                    #    if df.outcome[df.response != 'e'].values[-2] == 'CR' or df.outcome[df.response != 'e'].values[-2] == 'miss':
-                    #        params['t_stimDUR'] = 200
-                    #if (df.outcome.values[-5:-1] == 'miss').sum() > 3:
-                    #    params['minlickCount'] = 0
-                    #else:
-                    #    params['minlickCount'] = lcount
-
-                    operant_trials = (df.minLickCount >= 1).values
-                    good_trials = (df.response != 'e').values
-                    hit_trials = (df.outcome == 'hit').values
-
-                    #if t_rewardDUR > 500 and hit_trials[good_trials & operant_trials][-20:-1].sum() > 18:
-                    #    print '\ngoing strong'
-                    #    t_rewardDUR -= 50
-                    #    params['t_rewardDUR'] = t_rewardDUR
-                    #elif hit_trials[good_trials & operant_trials][-20:-1].sum() < 10:
-                    #    t_rewardDUR = args.t_rDUR
-                    #    params['t_rewardDUR'] = t_rewardDUR
-
-                except:
-                    pass
-
-                params['trialType'] = 'N' if params['t_stimDUR'] in (0,) else 'G'
                 trial_df.update(update_bbox(ser, params, logfile, trial_df))
-
 
                 # create an empty dictionary to store data in
                 trial_df.update({
