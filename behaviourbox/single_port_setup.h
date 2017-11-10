@@ -2,7 +2,7 @@
 ||                   THE TRIAL MODES                      ||
 ++--------------------------------------------------------*/
 
-char runTrial() { 
+char runTrial() {
 
     // returns 0 if the stimulus was applied
     // returns 1 if a timeout is required
@@ -10,8 +10,8 @@ char runTrial() {
 
     // local variables and initialisation of the trial
     /* t_init is initialised such that t_since
-       returns 0 at the start of the trial, and 
-       increases from there. */ 
+       returns 0 at the start of the trial, and
+       increases from there. */
     unsigned long t;
     char response = 0;
     int pre_count0 = 0;                   //number of licks
@@ -25,7 +25,7 @@ char runTrial() {
     t = t_since(t_init);
 
     /*trial_phase0
-    while the trial has not started 
+    while the trial has not started
        1. update the time
        2. check for licks
        3. trigger the recording by putting recTrig -> HIGH
@@ -33,14 +33,14 @@ char runTrial() {
 
     preTrial();
     t = t_since(t_init);
-    
-    // wait 
+
+    // wait
     pre_count0 += ActiveDelay(t_noLickPer, false);
     t = t_since(t_init);
     pre_count1 += ActiveDelay(t_stimONSET - t, (t_noLickPer>0));
     t = t_since(t_init);
-  
 
+    // Break out on early lick
     if ((pre_count1>0) and t_noLickPer){
 
         response = 'e';
@@ -55,21 +55,21 @@ char runTrial() {
 
         return response;
     }
-    
+
     pre_count = pre_count0+pre_count1;
 
     t = t_since(t_init);
 
     post_count = TrialStimulus();
     t = t_since(t_init);
-    
+
     ActiveDelay(t_rewardDEL, false);
-    
+
     conditional_tone(7000, 100);
-    
+
     t = t_since(t_init);
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
-    
+
     if ((t_since(t_init) - t) < t_rewardDUR) {
       // keeps counting even if the reward was triggered already
         deliver_reward(lickTrigReward and (trialType == 'G'));
@@ -87,7 +87,7 @@ char runTrial() {
         else {
             response = '-';
             deliver_reward(0);
-        }            
+        }
     }
     else if (trialType == 'N') {
         if (post_count >= minlickCount) {
@@ -110,7 +110,7 @@ char runTrial() {
             response = '?';
             deliver_reward(0);
     }//switch
-    
+
     //continue trial till end (for the bulb trigger)
     t = t_since(t_init);
     if (t < t_trialDUR){
@@ -119,16 +119,16 @@ char runTrial() {
 
     Serial.print("\tresponse:");
     Serial.println(response);
-    
+
     Serial.print("\tpre_count:");
     Serial.println(pre_count);
-    
+
     Serial.print("\tpost_count:");
     Serial.println(post_count);
-    
+
     Serial.print("\trew_count:");
     Serial.println(rew_count);
-    
+
     Serial.print("\tt_stimDUR:");
     Serial.println(t_stimDUR);
 
@@ -142,15 +142,15 @@ void Habituation(){
     // Check the lick sensor
     if (senseLick()) {
 
-        /* 
+        /*
         1. Determine the appropriate stimulus
-        2. set active port 
+        2. set active port
         3. counts number of sequential licks
             - Uses the C ternary operator, which has the form:
               `A = boolean ? assignment if true : assignment if false;`
               the active port count gets incremented to a maximum of ten,
               while the non-active port count gets decremented to a minimum
-              of zero. This is an important caveat as the counts are 
+              of zero. This is an important caveat as the counts are
               made with unsigned variables, meaning that one less than zero
               is actually 255!
         */
