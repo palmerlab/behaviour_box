@@ -31,6 +31,9 @@ char runTrial() {
        3. trigger the recording by putting recTrig -> HIGH
     */
 
+    /* -----------------------------------------------------------------------
+                               START OF THE TRIAL
+      -----------------------------------------------------------------------*/
     preTrial();
     t = t_since(t_init);
 
@@ -60,14 +63,36 @@ char runTrial() {
 
     t = t_since(t_init);
 
+
+    /* -----------------------------------------------------------------------
+                                  STIMULUS
+      -----------------------------------------------------------------------*/
+
+    if (light_stim){
+      digitalWrite(lightPin, HIGH);
+    }
     post_count = TrialStimulus();
+    digitalWrite(lightPin, LOW);
     t = t_since(t_init);
+
+    /* -----------------------------------------------------------------------
+                               POST STIM DELAY
+      -----------------------------------------------------------------------*/
+
 
     ActiveDelay(t_rewardDEL, false);
 
+    /* -----------------------------------------------------------------------
+                              RESPONSE PERIOD
+      -----------------------------------------------------------------------*/
+
+    if (light_resp){
+      digitalWrite(lightPin, HIGH);
+    }
     conditional_tone(7000, 100);
 
     t = t_since(t_init);
+
     post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
 
     if ((t_since(t_init) - t) < t_rewardDUR) {
@@ -111,11 +136,21 @@ char runTrial() {
             deliver_reward(0);
     }//switch
 
+    digitalWrite(lightPin, LOW);
+
+    /* -----------------------------------------------------------------------
+                          POST RESPONSE BASELINE
+      -----------------------------------------------------------------------*/
+
     //continue trial till end (for the bulb trigger)
     t = t_since(t_init);
     if (t < t_trialDUR){
         rew_count += ActiveDelay((t_trialDUR - t), 0);
     }
+
+    /* -----------------------------------------------------------------------
+                        END TRIAL COMMUNICATIONS
+      -----------------------------------------------------------------------*/
 
     Serial.print("\tresponse:");
     Serial.println(response);

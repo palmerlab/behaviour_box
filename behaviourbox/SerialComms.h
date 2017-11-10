@@ -92,7 +92,7 @@ int UpdateGlobals(String input) {
                 Serial.println(trialType);
                 return 1;
         }
-                // break_wrongChoice
+        // break_wrongChoice
         else if (variable_name == "break_wrongChoice") {
                 break_wrongChoice = bool(variable_value.toInt());
                 Serial.print("\tbreak_wrongChoice:");
@@ -210,6 +210,21 @@ int UpdateGlobals(String input) {
                 Serial.println(audio);
                 return 1;
         }
+        // light_stim
+        else if (variable_name == "light_stim") {
+                light_stim = variable_value.toInt();
+                Serial.print("\tlight_stim:");
+                Serial.println(light_stim);
+                return 1;
+        }
+        // light_resp
+        else if (variable_name == "light_resp") {
+                light_resp = variable_value.toInt();
+                Serial.print("\tlight_resp:");
+                Serial.println(light_resp);
+                return 1;
+        }
+
    }
    return 0;
 }
