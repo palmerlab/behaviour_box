@@ -9,22 +9,17 @@
 #include "SerialComms.h"
 #include "single_port_setup.h"
 
-String version = "#BB_V3.0.20170201.8";
+String version = "#BB_V4.0";
+
 
 void setup (){
     // Open serial communications and wait for port to open:
     // This requires RX and TX channels (pins 0 and 1)
     // wait for serial port to connect. Needed for native USB port only
     Serial.begin(115200);
-    while (!Serial) {
-        ;
-    }
+    while (!Serial) {;}
     //Confirm connection and telegraph the code version
-
-    Serial.println("#Arduino online");
-    Serial.println  (version);
-    
-    randomSeed(analogRead(5));
+    Serial.println(version);
 
     // declare the digital out pins as OUTPUTs
     pinMode(recTrig, OUTPUT);
@@ -33,9 +28,6 @@ void setup (){
     pinMode(buzzerPin, OUTPUT);
     pinMode(stimulusPin, OUTPUT);
     pinMode(speakerPin, OUTPUT);
-    
-
-    Serial.println("- Status: Ready");
 }
 
 void loop () {
@@ -44,7 +36,12 @@ void loop () {
 
     if (Serial.available()){
 
-        String input = getSerialInput();
+        byte input = Serial.read();
+        if (input < 8) {
+          Serial.write(input);
+        }
+
+        //String input = getSerialInput();
 
         if ((mode == 'o') and (input == "GO")){
 
@@ -54,8 +51,8 @@ void loop () {
             digitalWrite(recTrig, LOW);
             Serial.println("- Status: Ready");
         }
-        else { 
-            UpdateGlobals(input);
+        else {
+            UpdateGlobals(String(input));
         }
     }
     else if (mode == 'h'){
