@@ -26,26 +26,6 @@ from utilities.numerical import num, na_printr, unpack_table
 import sounddevice as sd
 
 """
-1. The program starts
-2. The program opens communications with available serial ports
-3. The program starts a block
-4. The program shuffles the stimuli (frequecies list)
-5. The program transmits the frequenices to the stimbox
-    -The stimbox cues the stimuli in memory
-6. The program initiates a trial by sending a mode flag to
-   the behaviour box.
-   - The behaviour box runs one trial at a time; waiting
-      for a flag from Serial each time
-   - This means that inter-trial intervals must be controlled
-     by the Serial controller. (this program)
-   - This means this program must know when there is a timeout
-     or not
-7. The program records the output from behaviorCOMs into a
-   behaviourdf.
-8. The program repeats sending mode flags until all stimuli have
-   been presented.
-9. The program calculates d_prime|any_stimuls; d`|rising; d`|falling
-
 --------------------------------------------------------------------
 Arguments
 --------------------------------------------------------------------
