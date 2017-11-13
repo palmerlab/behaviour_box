@@ -91,9 +91,8 @@ def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')
 
-def today():
-    """provides today's date as a string in the form YYMMDD"""
-    return datetime.date.today().strftime('%y%m%d')
+# today's date as a string in the form YYMMDD
+today = datetime.date.today().strftime('%y%m%d')
 
 def Serial_monitor(ser, logfile, show = True):
 
