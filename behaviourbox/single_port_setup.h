@@ -21,7 +21,7 @@ char runTrial() {
     int rew_count = 0;
     int N_to;                              //number of timeouts
     // local time
-    t_init = millis() + trial_delay;
+    t_init = millis();
     t = t_since(t_init);
 
     /*trial_phase0
@@ -38,13 +38,13 @@ char runTrial() {
     t = t_since(t_init);
 
     // wait
-    pre_count0 += ActiveDelay(t_noLickPer, false);
+    pre_count0 += ActiveDelay(noLickDUR, false);
     t = t_since(t_init);
-    pre_count1 += ActiveDelay(t_stimONSET - t, (t_noLickPer>0));
+    pre_count1 += ActiveDelay(stimONSET - t, (noLickDUR>0));
     t = t_since(t_init);
 
     // Break out on early lick
-    if ((pre_count1>0) and t_noLickPer){
+    if ((pre_count1>0) and noLickDUR){
 
         response = 'e';
 
@@ -54,7 +54,7 @@ char runTrial() {
         Serial.println("\tpost_count:nan");
         Serial.println("\tpre_count:nan");
         Serial.println("\trew_count:nan");
-        Serial.println("\tt_stimDUR:nan");
+        Serial.println("\tstimDUR:nan");
 
         return response;
     }
@@ -80,7 +80,7 @@ char runTrial() {
       -----------------------------------------------------------------------*/
 
 
-    ActiveDelay(t_rewardDEL, false);
+    ActiveDelay(respDEL, false);
 
     /* -----------------------------------------------------------------------
                               RESPONSE PERIOD
@@ -93,19 +93,19 @@ char runTrial() {
 
     t = t_since(t_init);
 
-    post_count += ActiveDelay(t_rewardDUR, lickTrigReward);
+    post_count += ActiveDelay(respDUR, lickTrigReward);
 
-    if ((t_since(t_init) - t) < t_rewardDUR) {
+    if ((t_since(t_init) - t) < respDUR) {
       // keeps counting even if the reward was triggered already
         deliver_reward(lickTrigReward and (trialType == 'G'));
         response = 1;
-        rew_count += ActiveDelay((t_rewardDUR - (t_since(t_init) - t)) , 0);
+        rew_count += ActiveDelay((respDUR - (t_since(t_init) - t)) , 0);
     }
     if (trialType == 'G'){
         if (response) {
             response = 'H';
         }
-        else if (post_count >= minlickCount) {
+        else if (post_count >= lickCount) {
             response = 'H';
             deliver_reward(1);
         }
@@ -115,7 +115,7 @@ char runTrial() {
         }
     }
     else if (trialType == 'N') {
-        if (post_count >= minlickCount) {
+        if (post_count >= lickCount) {
             response = 'f';
             punish(200);
             deliver_reward(0);
@@ -144,8 +144,8 @@ char runTrial() {
 
     //continue trial till end (for the bulb trigger)
     t = t_since(t_init);
-    if (t < t_trialDUR){
-        rew_count += ActiveDelay((t_trialDUR - t), 0);
+    if (t < trialDUR){
+        rew_count += ActiveDelay((trialDUR - t), 0);
     }
 
     /* -----------------------------------------------------------------------
@@ -164,8 +164,8 @@ char runTrial() {
     Serial.print("\trew_count:");
     Serial.println(rew_count);
 
-    Serial.print("\tt_stimDUR:");
-    Serial.println(t_stimDUR);
+    Serial.print("\tstimDUR:");
+    Serial.println(stimDUR);
 
     return response;
 }
@@ -201,8 +201,8 @@ void Habituation(){
             ------- ------- --------
         */
 
-        Serial.print("\tt_stimDUR:");
-        Serial.println(t_stimDUR);
+        Serial.print("\tstimDUR:");
+        Serial.println(stimDUR);
         Serial.print("\treward_count:");
         Serial.println(int(reward_count));
 

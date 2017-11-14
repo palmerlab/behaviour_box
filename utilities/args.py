@@ -49,13 +49,13 @@ kwargs = {
     ('-lc', '--lcount', ) : {
                     'default' : 2,
                     'type' : int,
-                    'help' : 'set `minlickCount` in arduino'
+                    'help' : 'set `lickCount` in arduino'
                     },
 
     ('-nlp', '--noLick', ) : {
                     'default' : 1500,
                     'type' : int,
-                    'help' : 'set `t_noLickPer` in arduino'
+                    'help' : 'set `noLickDUR` in arduino'
                     },
 
     ('-td', '--trialDur', ) : {
@@ -64,7 +64,7 @@ kwargs = {
                     'help' : 'set minimum trial duration'
                     },
 
-    ('--t_stimONSET',) : {
+    ('--stimONSET',) : {
                     'default' : 2000,
                     'type' : int,
                     'help' : 'sets the time after trigger to run the first stimulus'

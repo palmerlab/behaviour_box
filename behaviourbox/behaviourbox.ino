@@ -1,16 +1,15 @@
 #include <Arduino.h>
 
-#include "global_variables.h"
 #include "prototypes.h"
+#include "global_variables.h"
 
+#include "SerialComms.h"
 #include "timing.h"
 #include "sensors.h"
 #include "states.h"
-#include "SerialComms.h"
-#include "single_port_setup.h"
+#include "opto_simple.h"
 
 String version = "#BB_V4.0";
-
 
 void setup (){
     // Open serial communications and wait for port to open:
@@ -28,36 +27,28 @@ void setup (){
     pinMode(buzzerPin, OUTPUT);
     pinMode(stimulusPin, OUTPUT);
     pinMode(speakerPin, OUTPUT);
+    pinMode(lightPin, OUTPUT);
 
-    Output_params();
+    Send_params();
+
 }
 
 void loop () {
 
-    t_init = millis();
-
     if (Serial.available()){
 
         byte input = Serial.read();
-        if (input < 8) {
-          Serial.write(input);
-        }
 
-        //String input = getSerialInput();
+        //if (input < 8) {
 
-        if ((mode == 'o') and (input == "GO")){
+          Serial.write(int(input));
+          delay(100);
 
-            runTrial();
+          run_opto_trial(input);
+          Serial.write(long(0));
 
-            digitalWrite(bulbTrig, LOW);
-            digitalWrite(recTrig, LOW);
-            Serial.println("- Status: Ready");
-        }
-        else {
-            UpdateGlobals(String(input));
-        }
-    }
-    else if (mode == 'h'){
-            Habituation();
+
+          //Send_status();
+        //}
     }
 }

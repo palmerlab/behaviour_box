@@ -4,7 +4,6 @@ import serial
 import time
 
 import numpy as np
-
 from itertools import product
 
 port = 'COM4'
@@ -17,10 +16,6 @@ port = 'COM4'
 
 #open Serial port
 ser = serial.Serial(port = port, baudrate = 115200, timeout = 1,)
-
-
-#connect to arduino
-#ser.open()
 
 #IDLE while Arduino performs it's setup functions
 print("awaiting arduino: ", end='\b')
@@ -40,6 +35,13 @@ print(line)
 
 #Serial monitor
 #line = ser.readline()
+
+"""
+--------------------------------------------------------------------------------
+                    [TODO]    R E A D    S E T U P
+"""
+
+
 
 """
 --------------------------------------------------------------------------------
@@ -76,8 +78,20 @@ where St = Stim; Ls = Light_stim; Lr = Light_response
 for (st, ls, lr) in trials:
 
     trial_code = (st << 2) | (ls << 1) | lr
+
+
     print(trial_code, end=':')
-    ser.write(chr(trial_code)) # send trial_code as a byte
-    print(ser.read()) # recieve
+    ser.write(chr(trial_code))
+
+    msg = None
+
+    try:
+        while msg != 0:
+        # # send trial_code as a byte
+            msg = ser.read(4)
+            msg, = np.fromstring(msg, dtype='i4')
+            print(msg, end=' ') # recieve
+    except:
+        pass
 
 ser.close()

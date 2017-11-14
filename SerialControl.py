@@ -53,9 +53,9 @@ noLick = args.noLick
 lickTrigReward = args.lickTrigReward
 reward_nogo = args.reward_nogo
 
-t_stimONSET = args.t_stimONSET
-t_rewardDEL = args.t_rDELAY
-t_rewardDUR = args.t_rDUR
+stimONSET = args.stimONSET
+respDEL = args.t_rDELAY
+respDUR = args.t_rDUR
 trial_noise = args.noise
 audio = args.audio
 
@@ -231,7 +231,7 @@ def habituation_run(df):
     params = {
                 'mode'          : mode,
                 'lickThres'     : lickThres,
-                't_stimDUR'     : 200,
+                'stimDUR'     : 200,
     }
 
     params = update_bbox(ser, params, logfile)
@@ -309,8 +309,8 @@ try:
     params = {
         'mode'              : mode,
         'lickThres'         : lickThres,
-        'minlickCount'      : lcount,
-        't_stimONSET'       : t_stimONSET,
+        'lickCount'      : lcount,
+        'stimONSET'       : stimONSET,
     }
 
     trial_df = update_bbox(ser, params, logfile, {} )
@@ -324,13 +324,13 @@ try:
             'lickThres'         : lickThres,
             'break_wrongChoice' : int(punish) if lcount > 0 else 0,   #Converts to binary
             'punish_tone'       : int(0),
-            'minlickCount'      : lcount,
-            't_noLickPer'       : noLick,
+            'lickCount'      : lcount,
+            'noLickDUR'       : noLick,
             'timeout'           : timeout,                            #Converts back to millis
-            't_stimONSET'       : t_stimONSET,
-            't_rewardDEL'       : t_rewardDEL,
-            't_rewardDUR'       : t_rewardDUR,
-            't_trialDUR'        : trialDur * 1000,                    # converts to millis
+            'stimONSET'       : stimONSET,
+            'respDEL'       : respDEL,
+            'respDUR'       : respDUR,
+            'trialDUR'        : trialDur * 1000,                    # converts to millis
             'lickTrigReward'    : int(lickTrigReward),
             'reward_nogo'       : int(reward_nogo),
             'audio'             : int(audio),
@@ -359,13 +359,13 @@ try:
             # loop for number of trials in the list of random conditions
             trial_num = 0
             while trial_num < len(trials):
-                t_stimDUR, light_stim, light_resp = trials[trial_num]
+                stimDUR, light_stim, light_resp = trials[trial_num]
 
                 #THE HANDSHAKE
                 # send all current parameters to the arduino box to run the trial
                 params = {
-                    'trialType'         : 'N' if t_stimDUR in (0, ) else 'G' ,
-                    't_stimDUR'         : t_stimDUR,
+                    'trialType'         : 'N' if stimDUR in (0, ) else 'G' ,
+                    'stimDUR'         : stimDUR,
                     'light_stim'        : light_stim,
                     'light_resp'        : light_resp,
                 }
@@ -390,10 +390,10 @@ try:
                 params.update(menu())
 
                 if params['trialType'] == 'N' and lcount == 0:
-                    params['minlickCount'] = 1
+                    params['lickCount'] = 1
                     params['break_wrongChoice'] = int(1)
                 elif params['trialType'] == 'G' and lcount == 0:
-                    params['minlickCount'] = 0
+                    params['lickCount'] = 0
 
                 # apply the over-ride to the reward condition
                 # if the over-ride has been specified
@@ -483,7 +483,7 @@ try:
                             'rew_count'    : 'rew_Lick',
                             #'delta'        : 'lick change',
                             'Water'        : 'water',
-                            't_stimDUR'    : 'dur',
+                            'stimDUR'    : 'dur',
                 }
 
                 colors = {
@@ -495,7 +495,7 @@ try:
                 }
 
 
-                if not pd.isnull(df['t_stimDUR'].iloc[-1]):
+                if not pd.isnull(df['stimDUR'].iloc[-1]):
                     c = colors[df.outcome.values[-1]]
                     for k, label in table.iteritems():
                         print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, label, c, str(df[k].iloc[-1]).strip()),
