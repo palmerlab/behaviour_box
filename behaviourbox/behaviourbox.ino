@@ -28,6 +28,8 @@ void setup (){
     pinMode(buzzerPin, OUTPUT);
     pinMode(stimulusPin, OUTPUT);
     pinMode(speakerPin, OUTPUT);
+
+    Output_params();
 }
 
 void loop () {
