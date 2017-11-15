@@ -19,7 +19,6 @@ const byte waterPort = 10;        // digital pins 10, 11 control water valve
 // timing parameters
 // -----------------
 
-unsigned long t_init;             // ms
 unsigned int noLickDUR = 1000;  // ms
 unsigned int stimONSET = 2000;  // ms
 unsigned int stimDUR = 500;     // ms
@@ -28,9 +27,8 @@ unsigned int respDUR = 2000;  // ms
 unsigned int trialDUR = 5000;  // ms
 unsigned int timeout = 0;         // ms
 
-
-// Lick paramaters
-/*
+/* THE LICK PARAMETERS
+----------------------
 The licking is defined by three paramaters:
 - **lickThres**
   The threshold is an integer number from 0 - 1023, and represents the minimmum
@@ -48,33 +46,10 @@ The licking is defined by three paramaters:
 int lickThres = 1.5 / (5.0/1024);
 byte lickWidth = 5;
 byte lickCount = 0;
+//------------------------------------------------------------------------------
 
 // If 1 the reward is given on lick, if 0 the reward is given
 // at the end of the reward period
 bool lickTrigReward = 1;
-bool reward_nogo = 0;
 byte waterVol = 10;               // ms the valve is open for
 bool audio = true;               // flag for audio feed back
-
-/*==============================================================================
-||                           TRIAL INPUT VARIABLES
-||                               set over serial
-++=============================================================================*/
-
-bool stimulus = false;
-bool light_stim = false;          // flags for opto-stimulation
-bool light_resp = false;
-
-/*==============================================================================
-||                           SYSTEM OUTPUT VARIABLES
-||                               not to be set
-++=============================================================================*/
-
-char response;
-int pre_count0;                   //number of licks
-int pre_count1;                   //number of licks
-int pre_count;                   //number of licks
-int post_count;                  //number of licks
-int rew_count;
-int N_to;                        //number of timeouts
-bool reward;

@@ -4,24 +4,16 @@ bool senseLick() {
     // 2. check if the sensor is above threshold
     // 3. report if the state of lickOn has change
 
-    bool CallSpike = false; // Who You Gonna Call?
-
-    if (lickOn == false) {
-        CallSpike = true;
-    }
+    bool lick = false; // Who You Gonna Call?
 
     if (analogRead(lickSens) >= lickThres){
         delay(lickWidth);
-        lickOn = (analogRead(lickSens) >= lickThres);
-    }
-
-    else {
-        lickOn = false;
+        lick = (analogRead(lickSens) >= lickThres);
     }
     // if the sensor was off, and now it is on, return 1
-    if (CallSpike and lickOn) {
+    if (lick) {
         conditional_tone(10000, 5);
-        Serial.write(long(t_since(t_init)));
+        Send_time(lickSens);
     }
-    return (spike);
+    return (lick);
 }

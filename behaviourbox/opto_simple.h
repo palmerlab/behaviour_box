@@ -1,58 +1,50 @@
-/*--------------------------------------------------------++
-||                   THE TRIAL MODES                      ||
-++--------------------------------------------------------*/
-
-void run_opto_trial(byte trial_code) {
-
-    // flush all output variables
-    unsigned long t;
-    response = 0;     //
-    pre_count0 = 0;   //
-    pre_count1 = 0;   //
-    pre_count = 0;    //
-    post_count = 0;   //
-    rew_count = 0;    //
-    N_to = 0;         //
-    reward = 0;       //
-
+void init_trial (byte trial_code) {
     // set the dynamic variables based on the trial code
     stimulus   = (trial_code >> 2) & 1;
     light_stim = (trial_code >> 1) & 1;
     light_resp = (trial_code >> 0) & 1;
+}
 
-    printer("stimulus", String(stimulus));
-    printer("light_stim", String(light_stim));
-    printer("light_resp", String(light_resp));
+void run_opto_trial() {
 
+    // flush all output variables
+    unsigned long t;  // the local time
+    response = 0;     //
+    N_to = 0;         //
+    reward = 0;       //
+
+    //tmp variables
+    int nolickcount = 0;
+    unsigned int _lickcount = 0;
     /* -----------------------------------------------------------------------
     ||                         START OF THE TRIAL
     ++-----------------------------------------------------------------------*/
     t_init = millis();
+    loggedWrite(bulbTrig, HIGH);
+
     t = t_since(t_init);
 
     // wait
-    pre_count0 += ActiveDelay(noLickDUR, false);
+    nolickcount += ActiveDelay(stimONSET - noLickDUR, false);
     t = t_since(t_init);
-    pre_count1 += ActiveDelay(stimONSET - t, (noLickDUR>0));
+    ActiveDelay(stimONSET - t, (noLickDUR > 0));
     t = t_since(t_init);
 
     // Break out on early lick
-    if ((pre_count1>0) and noLickDUR){
+    if ((nolickcount > 0) and noLickDUR){
         response = 'e';
+        loggedWrite(bulbTrig, LOW);
+        Send_stop();
         return;
     }
-
-    pre_count = pre_count0+pre_count1;
-
-    t = t_since(t_init);
 
     /* -----------------------------------------------------------------------
     ||                            STIMULUS
     ++-----------------------------------------------------------------------*/
 
-    digitalWrite(lightPin, light_stim?1:0);
+    loggedWrite(lightPin, light_stim?1:0);
     TrialStimulus();
-    digitalWrite(lightPin, LOW);
+    loggedWrite(lightPin, LOW);
     t = t_since(t_init);
 
     /* -----------------------------------------------------------------------
@@ -65,25 +57,25 @@ void run_opto_trial(byte trial_code) {
     ||                        RESPONSE PERIOD
     ++-----------------------------------------------------------------------*/
 
-    digitalWrite(lightPin, light_resp?1:0);
+    loggedWrite(lightPin, light_resp?1:0);
     conditional_tone(7000, 100);
 
     t = t_since(t_init);
 
-    post_count += ActiveDelay(respDUR, lickTrigReward);
+    _lickcount += ActiveDelay(respDUR, lickTrigReward);
 
     if ((t_since(t_init) - t) < respDUR) {
       // keeps counting even if the reward was triggered already
         deliver_reward(lickTrigReward and (stimulus));
         response = 1;
-        rew_count += ActiveDelay((respDUR - (t_since(t_init) - t)) , 0);
+        ActiveDelay((respDUR - (t_since(t_init) - t)) , 0);
     }
 
     if (stimulus){
         if (response) {
             response = 'H';
         }
-        else if (post_count >= lickCount) {
+        else if (_lickcount >= lickCount) {
             response = 'H';
             deliver_reward(1);
         }
@@ -92,7 +84,7 @@ void run_opto_trial(byte trial_code) {
         }
     }
     else {
-        if (post_count >= lickCount) {
+        if (_lickcount >= lickCount) {
             response = 'f';
             punish(200);
 
@@ -102,28 +94,27 @@ void run_opto_trial(byte trial_code) {
         }
         else {
             response = 'R';
-            deliver_reward(reward_nogo);
         }
     }
 
-    digitalWrite(lightPin, LOW);
+    loggedWrite(lightPin, LOW);
 
-    /* -----------------------------------------------------------------------
-    ||                    POST RESPONSE BASELINE
-    ++-----------------------------------------------------------------------*/
+    /* -----------------------------------------------------------------------++
+    ||                        POST RESPONSE BASELINE                          ||
+    ++------------------------------------------------------------------------*/
 
     //continue trial till end (for the bulb trigger)
     t = t_since(t_init);
     if (t < trialDUR){
-        rew_count += ActiveDelay((trialDUR - t), 0);
+        ActiveDelay((trialDUR - t), 0);
     }
 
-    digitalWrite(bulbTrig, LOW);
-    digitalWrite(recTrig, LOW);
-
+    loggedWrite(bulbTrig, LOW);
     /* -----------------------------------------------------------------------
     ||                             END TRIAL
     ++-----------------------------------------------------------------------*/
+    //Send 4 null bytes to signal end of trial
+    Send_stop();
 
     return;
 }

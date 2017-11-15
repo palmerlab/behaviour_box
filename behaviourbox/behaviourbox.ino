@@ -1,7 +1,8 @@
 #include <Arduino.h>
 
 #include "prototypes.h"
-#include "global_variables.h"
+#include "hidden_variables.h"
+#include "USER_variables.h"
 
 #include "SerialComms.h"
 #include "timing.h"
@@ -9,7 +10,7 @@
 #include "states.h"
 #include "opto_simple.h"
 
-String version = "#BB_V4.0";
+String version = "BB_V4.0";
 
 void setup (){
     // Open serial communications and wait for port to open:
@@ -21,13 +22,13 @@ void setup (){
     Serial.println(version);
 
     // declare the digital out pins as OUTPUTs
-    pinMode(recTrig, OUTPUT);
     pinMode(bulbTrig, OUTPUT);
     pinMode(waterPort, OUTPUT);
     pinMode(buzzerPin, OUTPUT);
     pinMode(stimulusPin, OUTPUT);
     pinMode(speakerPin, OUTPUT);
     pinMode(lightPin, OUTPUT);
+    pinMode(lickSens, INPUT);
 
     Send_params();
 
@@ -38,17 +39,15 @@ void loop () {
     if (Serial.available()){
 
         byte input = Serial.read();
+        Serial.write(input);
 
-        //if (input < 8) {
+        if (input < 8) {
 
-          Serial.write(int(input));
-          delay(100);
+          init_trial (input);
 
-          run_opto_trial(input);
-          Serial.write(long(0));
-
-
-          //Send_status();
-        //}
+          t_init = millis();
+          run_opto_trial();
+          Send_status();
+        }
     }
 }

@@ -69,10 +69,10 @@ char runTrial() {
       -----------------------------------------------------------------------*/
 
     if (light_stim){
-      digitalWrite(lightPin, HIGH);
+      loggedWrite(lightPin, HIGH);
     }
     post_count = TrialStimulus();
-    digitalWrite(lightPin, LOW);
+    loggedWrite(lightPin, LOW);
     t = t_since(t_init);
 
     /* -----------------------------------------------------------------------
@@ -87,7 +87,7 @@ char runTrial() {
       -----------------------------------------------------------------------*/
 
     if (light_resp){
-      digitalWrite(lightPin, HIGH);
+      loggedWrite(lightPin, HIGH);
     }
     conditional_tone(7000, 100);
 
@@ -136,7 +136,7 @@ char runTrial() {
             deliver_reward(0);
     }//switch
 
-    digitalWrite(lightPin, LOW);
+    loggedWrite(lightPin, LOW);
 
     /* -----------------------------------------------------------------------
                           POST RESPONSE BASELINE
