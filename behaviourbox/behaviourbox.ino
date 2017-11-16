@@ -10,7 +10,7 @@
 #include "states.h"
 #include "opto_simple.h"
 
-String version = "BB_V4.0";
+String version = "BB_V:4.0";
 
 void setup (){
     // Open serial communications and wait for port to open:

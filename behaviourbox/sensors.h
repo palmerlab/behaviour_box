@@ -12,7 +12,7 @@ bool senseLick() {
     }
     // if the sensor was off, and now it is on, return 1
     if (lick) {
-        conditional_tone(10000, 5);
+        if (audio) {tone(speakerPin, 10000, 5);} //conditional_tone()
         Send_time(lickSens);
     }
     return (lick);

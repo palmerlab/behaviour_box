@@ -15,6 +15,7 @@ void Send_status() {
     printer("response", String(response));
     printer("reward", String(reward));
     printer("N_timeouts", String(N_to));
+    Send_stop();
 }
 
 void Send_params() {
@@ -34,17 +35,18 @@ void Send_params() {
     printer("waterVol", String(waterVol));
     printer("lickWidth", String(lickWidth));
     printer("audio", String(audio));
+    Send_stop();
 }
 
 
 void Send_time(byte chan) {
 
-    unsigned long time = t_since(t_init);
+    unsigned int time = t_since(t_init);
     byte buff[3] = {0, 0, 0};
 
-    buff[0] = (chan >>  0) & 255;
-    buff[1] = (time >>  8) & 255;
-    buff[2] = (time >> 16) & 255;
+    buff[0] = chan;
+    buff[1] = (time >>  0) & 255;
+    buff[2] = (time >>  8) & 255;
 
     Serial.write(buff, 3);
 }
@@ -56,7 +58,7 @@ void Send_stop() {
 }
 
 void loggedWrite(byte pin, bool state) {
-    byte chan = (-1 * state) * pin;
+    byte chan = state? pin : -pin;
     digitalWrite(pin, state);
     Send_time(chan);
 }
