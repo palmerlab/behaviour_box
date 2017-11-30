@@ -1,12 +1,30 @@
----
-link-citations: true
----
-
-Andrew's Behaviour Box
+Behaviour Box
 =======================
 
-TODO:
+Usage
 -----
+
+1. Update the variables in `behaviourbox\USER_variables.h`
+
+   1. Confirm that the pins are correct
+   2. Decide on timing variables 
+
+![](documentation\trial_diagram.svg)
+
+2.  Set the trial parameters you want to randomise:
+
+   1. For the opto you have 3:  `{stimulus}{light_stim}{light_resp}`
+      Each of these is encoded in a binary variable, so can take the value 0 or 1.
+      ​
+
+   2. ​
+
+      ​
+
+   ​
+
+####                                                                     TODO:                                                            ####
+
 
 Making some major revisions to run the bbox without a digitizer. I'm going to change the way that the bbox outputs to be more inline with what is in the `TODO.md` file. 
 

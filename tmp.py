@@ -56,6 +56,8 @@ def main():
                 _ = run_trial(ser, trial_code)
                 echo_tc, tstamp, timings, trial_results = _
 
+                if trial_results['response'] = 'e': continue
+
                 trial_data.update(trial_results)
                 trial_data['code'] = echo_tc
                 trial_data['time'] = tstamp
@@ -64,6 +66,7 @@ def main():
 
                 df_long.append(trial_data)
                 df_sparse.append(timings)
+                j += 1
 
 
 '''
