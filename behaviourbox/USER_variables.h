@@ -1,31 +1,25 @@
-/*============================================================================++
-||                                IO port settings:                           ||
-++===========================================================================++*/
-
-const byte bulbTrig = 4;          // Bulb mode trigger for ThorImage
-const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
-const byte buzzerPin = 6;         // punishment buzzer
-const byte speakerPin = 7;        // reward / cue tone
-const byte statusLED = 13;        // led connected to digital pin 13
-const byte lightPin = 2;          // Plug into Opto LED
-const byte lickSens = 14;         // This is Analog 0
-const byte waterPort = 10;        // digital pins 10, 11 control water valve
-
 /*==============================================================================
 ||                           USER ADJUSTABLE VARIABLES
 ||                              adjust these HERE
 ++=============================================================================*/
 
+// 1. set threshold
+int lickThres = 1.5 //V
+                / (5.0/1024); //the conversion
+                
 // timing parameters
 // -----------------
 
-unsigned int noLickDUR = 1000;  // ms
+unsigned int noLickDUR = 0;  // ms   {{0, 1000 for later sessions}}
+unsigned int respDEL = 50;   // ms  {{50, 150, 250, 500}}
+unsigned int respDUR = 1000;  // ms {{2000}}
+unsigned int timeout = 0;         // ms  {{0, 2500}}
+
+
+unsigned int stimDUR = 200;     // ms
 unsigned int stimONSET = 2000;  // ms
-unsigned int stimDUR = 500;     // ms
-unsigned int respDEL = 150;   // ms
-unsigned int respDUR = 2000;  // ms
 unsigned int trialDUR = 5000;  // ms
-unsigned int timeout = 0;         // ms
+
 
 /* THE LICK PARAMETERS
 ----------------------
@@ -42,13 +36,32 @@ The licking is defined by three paramaters:
     number of licks required to give a reward 2 is a good number, 0 makes for 
     a conditioning trial
 */
-int lickThres = 1.5 / (5.0/1024);
-byte lickWidth = 5;
-byte lickCount = 0;
+
+byte lickWidth = 5; // {{5 - 100}}
+byte lickCount = 0;  
 //------------------------------------------------------------------------------
 
-// If 1 the reward is given on lick, if 0 the reward is given
+// If `true` the reward is given on lick, if `false` the reward is given
 // at the end of the reward period
-bool lickTrigReward = true;
+bool lickTrigReward = true; 
 byte waterVol = 10;               // ms the valve is open for
 bool audio = true;                // flag for audio feed back
+
+
+
+
+/*============================================================================++
+||                                IO port settings:                           ||
+++===========================================================================++*/
+
+const byte bulbTrig = 4;          // Bulb mode trigger for ThorImage
+const byte stimulusPin = 5;       // digital pin 3 control whisker stimulation
+const byte buzzerPin = 6;         // punishment buzzer
+const byte speakerPin = 7;        // reward / cue tone
+const byte statusLED = 13;        // led connected to digital pin 13
+const byte lightPin = 2;          // Plug into Opto LED
+const byte lickSens = 14;         // This is Analog 0
+const byte waterPort = 10;        // digital pins 10, 11 control water valve
+
+///
+

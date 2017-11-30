@@ -13,13 +13,15 @@ from itertools import product
    ===========================================================================++
 """
 
-port = 'COM4'         # port arduino is connected to
-Stim       = (0,1)    # use to `(1,)` or `(0,)` for always on, or always off
-Light_stim = (0,1)    # use to `(1,)` or `(0,)` for always on, or always off
-Light_resp = (0,1)    # use to `(1,)` or `(0,)` for always on, or always off
+Stim       = (1,)    # use to `(1,)` or `(0,)` for always on, or always off
+Light_stim = (0,)    # use to `(1,)` or `(0,)` for always on, or always off
+Light_resp = (0,)    # use to `(1,)` or `(0,)` for always on, or always off
 
-repeats = 1           # number of times to run through trials
-STOP = '\x00\x00\x00'
+repeats = 5           # number of times to run through trials
+
+
+port = 'COM6'         # port arduino is connected to
+STOP = '\x00\x00\x00' # DONT TOUCH THIS
 """===========================================================================++
                          M A I N    F U N C T I O N                           ||
    ===========================================================================++
@@ -56,7 +58,7 @@ def main():
                 _ = run_trial(ser, trial_code)
                 echo_tc, tstamp, timings, trial_results = _
 
-                if trial_results['response'] = 'e': continue
+                if trial_results['response'] == 'e': continue
 
                 trial_data.update(trial_results)
                 trial_data['code'] = echo_tc
@@ -67,7 +69,8 @@ def main():
                 df_long.append(trial_data)
                 df_sparse.append(timings)
                 j += 1
-
+			
+	return settings, df_sparse, df_long, i,j
 
 '''
 save the shit:
@@ -160,3 +163,8 @@ def read_dict(ser):
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')
+
+	
+if __name__ == '__main__':
+	print('party time')
+	main();
