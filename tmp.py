@@ -1,25 +1,7 @@
 """===========================================================================++
-                         C O N F I G U R A T I O N                            ||
-   ===========================================================================++
-"""
-
-Stim       = (1,)     # use to `(1,)` or `(0,)` for always on, or always off
-Light_stim = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
-Light_resp = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
-
-repeats = 5           # number of times to run through trials
-
-ITI = 2, 5            # range of the inter trial interval
-port = 'COM6'         # port arduino is connected to
-
-"""-------------------------- hidden globals --------------------------------"""
-STOP = '\x00\x00\x00' # DONT TOUCH this is the bbox termination pattern
-
-"""===========================================================================++
                                 I M P O R T S                                 ||
    ===========================================================================++
 """
-
 from __future__ import print_function, division
 
 import serial
@@ -31,6 +13,23 @@ from numpy.random import shuffle
 from itertools import product
 
 from utilities.args import args
+"""===========================================================================++
+                         C O N F I G U R A T I O N                            ||
+   ===========================================================================++
+"""
+
+Stim       = (1,)     # use to `(1,)` or `(0,)` for always on, or always off
+Light_stim = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
+Light_resp = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
+
+repeats = 5           # number of times to run through trials
+
+ITI = 2, 5            # range of the inter trial interval
+port = 'COM7'         # port arduino is connected to
+
+"""-------------------------- hidden globals --------------------------------"""
+STOP = '\x00\x00\x00' # DONT TOUCH this is the bbox termination pattern
+
 
 """===========================================================================++
                          M A I N    F U N C T I O N                           ||
@@ -52,8 +51,9 @@ def main(**kwargs):
         #   | stimulus duration | light_stim | light_resp |
         _gt = product(Stim, Light_stim, Light_resp)
         trials = np.array([trial for trial in _gt], dtype=bool)
-
+        print('ready go')
         for i in range(repeats):
+            print(i)
             shuffle(trials)
 
             j = 0
@@ -64,11 +64,11 @@ def main(**kwargs):
 
                 trial_data = settings.copy()
 
-                'run the trial'
+                print('run the trial')
 
                 tc, tstamp, timings, result = run_trial(ser, trial_code)
 
-                if trial_results['response'] == 'e': continue
+                if trial_results['response'] == 'e': print('e');continue
 
                 trial_data.update(result)
                 trial_data['code'] = tc
@@ -80,6 +80,7 @@ def main(**kwargs):
                 [print(k,':',v) for k,v in trial_data.items()];
                 df_sparse.append(timings)
                 j += 1
+                print(j, end = ', ')
 
 	return settings, df_sparse, df_long, i,j
 
@@ -123,12 +124,14 @@ def run_trial(ser, trial_code):
 
     msg = None
     msgs = []
+    _ = 0;
     while msg != STOP:
         #timestamp the first message
         if msg is None: tstamp = timenow()
-        if not ser.inWaiting(): continue
+        if not ser.inWaiting(): print(r'-+*+-'[_%4], end='\b'); _+=1; continue
         msg = ser.read(3)
-        if msg == STOP: break
+        if msg == STOP: print('STOP'); break
+        print(r'-\|/'[_%3], end='\b'); _+=1
         #print(msg)
         msgs.append(msg) # recieve
 
@@ -177,7 +180,7 @@ def timenow():
 
 
 if __name__ == '__main__':
-	print('party time')
+    print('party time')
 
     kwargs = vars(args) # grab the commandline arguments into a dictionary,
-	main(**kwargs);     # and feed to main
+    main(**kwargs);     # and feed to main
