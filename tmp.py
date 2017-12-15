@@ -36,56 +36,11 @@ STOP = '\x00\x00\x00' # DONT TOUCH this is the bbox termination pattern
    ===========================================================================++
 """
 
-def main(**kwargs):
+#def main(**kwargs):
     #open Serial port
-    ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
 
-    df_long = []
-    df_sparse = []
-    with serial.Serial(**ser_params) as ser:
-        'initialisiation'
-        settings = startup(ser)
-        # makes a list of all the settngs
-        # Theses are the adjustable paramaters from USER_variables.h
 
-        #   | stimulus duration | light_stim | light_resp |
-        _gt = product(Stim, Light_stim, Light_resp)
-        trials = np.array([trial for trial in _gt], dtype=bool)
-        print('ready go')
-        for i in range(repeats):
-            print(i)
-            shuffle(trials)
-
-            j = 0
-            print('\ntrials :', trials, '\n')
-            while j <= len(trials):
-                # pack the 3 bits into a single number
-                st, ls, lr = trials[j]
-                trial_code = (st << 2) | (ls << 1) | lr
-
-                trial_data = settings.copy()
-
-                print('run the trial')
-
-                tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
-
-                if result['response'] == 'e': print('e'); continue
-
-                trial_data.update(result)
-                trial_data['code'] = tc
-                trial_data['time'] = tstamp
-                trial_data['block'] = i
-                trial_data['trial'] = j
-
-                df_long.append(trial_data)
-                with open('this.yaml', 'a') as sf:
-                    print('---', file=sf)
-                    [print(k,':',v, file=sf) for k,v in trial_data.items()]
-                df_sparse.append(timings)
-                j += 1
-                print(j, end = ', ')
-
-	return settings, df_sparse, df_long
+	#return settings, df_sparse, df_long
 
 '''
 save the shit:
@@ -196,3 +151,54 @@ if __name__ == '__main__':
 
     #kwargs = vars(args) # grab the commandline arguments into a dictionary,
     #main(**kwargs);     # and feed to main
+
+
+
+ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
+
+df_long = []
+df_sparse = []
+with serial.Serial(**ser_params) as ser:
+    'initialisiation'
+    settings = startup(ser)
+    # makes a list of all the settngs
+    # Theses are the adjustable paramaters from USER_variables.h
+
+    #   | stimulus duration | light_stim | light_resp |
+    _gt = product(Stim, Light_stim, Light_resp)
+    trials = np.array([trial for trial in _gt], dtype=bool)
+    print('ready go')
+    for i in range(repeats):
+        print(i)
+        shuffle(trials)
+
+        j = 0
+        print('\ntrials :', trials, '\n')
+        while j < len(trials):
+            # pack the 3 bits into a single number
+            st, ls, lr = trials[j]
+            trial_code = (st << 2) | (ls << 1) | lr
+
+            trial_data = settings.copy()
+
+            print('run the trial')
+
+            tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
+
+            if result['response'] == 'e': print('e'); continue
+
+            trial_data.update(result)
+            trial_data['code'] = tc
+            trial_data['time'] = tstamp
+            trial_data['block'] = i
+            trial_data['trial'] = j
+
+            #df_long.append(trial_data)
+
+            with open('this.yaml', 'a') as sf:
+                print('---', file=sf)
+                [print(k,':',v, file=sf) for k,v in trial_data.items()]
+
+            df_sparse.append(timings)
+            j += 1
+            print(j, end = ', ')
