@@ -7,6 +7,8 @@ from __future__ import print_function, division
 import serial
 import time
 import datetime
+import json
+import os
 
 import numpy as np
 from numpy.random import shuffle
@@ -24,6 +26,9 @@ Light_resp = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
 
 repeats = 5           # number of times to run through trials
 
+datapath = '.'        # location to save files
+fname = ''            # name to append to the files
+
 ITI = 2, 5            # range of the inter trial interval
 port = 'COM7'         # port arduino is connected to
 
@@ -36,23 +41,67 @@ STOP = '\x00\x00\x00' # DONT TOUCH this is the bbox termination pattern
    ===========================================================================++
 """
 
-#def main(**kwargs):
-    #open Serial port
+def main(repeats=repeats, ITI=ITI, ID='',
+         Stim=Stim, Light_stim=Light_stim, Light_resp=Light_resp,
+         port=port, datapath=datapath, fname=fname, **kwargs):
 
+         if not os.path.exists(datapath):
+             os.makedirs(datapath)
 
-	#return settings, df_sparse, df_long
+         if not fname:
+             fname = '_'.join((ID, today))
 
-'''
-save the shit:
+         ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
 
-dataframe with trial results
-[block, trial, time, trial_code, *trial_results]
-- ...
-- ...
-- ...
+         with serial.Serial(**ser_params) as ser:
+             'initialisiation'
+             settings = startup(ser)
+             # makes a list of all the settngs
+             # Theses are the adjustable paramaters from USER_variables.h
 
-'''
+             #   | stimulus duration | light_stim | light_resp |
+             _gt = product(Stim, Light_stim, Light_resp)
+             trials = np.array([trial for trial in _gt], dtype=bool)
+             print('ready go')
+             for i in range(repeats):
+                 print(i)
+                 shuffle(trials)
 
+                 j = 0
+                 print('\ntrials :', trials, '\n')
+                 while j < len(trials):
+                     # pack the 3 bits into a single number
+                     st, ls, lr = trials[j]
+                     trial_code = (st << 2) | (ls << 1) | lr
+
+                     trial_data = settings.copy()
+
+                     '''run the trial'''
+
+                     tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
+
+                     if result['response'] == 'e': continue
+
+                     trial_data.update(result)
+                     trial_data['code'] = tc
+                     trial_data['time'] = tstamp
+                     trial_data['block'] = i
+                     trial_data['trial'] = j
+
+                     sp = '/'.join((datapath, fname + '.yaml'))
+                     with open(sp, 'a') as f:
+                         print('---', file=f)
+                         [print(k,':',v, file=f) for k,v in trial_data.items()]
+                         print('...', file=f)
+
+                     sp = '/'.join((datapath, fname + '.json'))
+                     with open(sp, 'a') as f:
+                         s = json.dumps(timings)
+                         print(tstamp, file=f)
+                         print(s, file=f)
+
+                     j += 1
+                     print(j, end = ', ')
 
 """ Trial Codes:
            St  Ls  Lr         |
@@ -92,24 +141,26 @@ def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
         if not ser.inWaiting(): print('-+*+-'[_%4], end='\b'); _+=1; continue
 
         msg = ser.read(3)
-        if msg == STOP: print('STOP'); break
+        if msg == STOP: break
         print(r'-\|/'[_%3], end='\b'); _+=1
         #print(msg)
         msgs.append(msg) # recieve
 
         # check the time
         dur = (time.time() - start_time) * 1000
-        if dur >= trialDUR: print('OUT OF TIME:', dur); break
+        if dur >= trialDUR: break
 
-    #channames = [bulbTrig, stimulusPin, buzzerPin, speakerPin, statusLED,
-                    #lightPin, lickSens, waterPort]
+    channames = ['bulbTrig', 'stimulusPin', 'buzzerPin', 'speakerPin',
+                    'statusLED', 'lightPin', 'lickSens', 'waterPort']
     chans = [4, 5, 6, 7, 13, 2, 14, 10, ]
-    timings = {k:[] for k in chans}
+    chan_dict = dict(zip(chans, channames))
+
+    timings = {chan_dict[k]:[] for k in chans}
 
     for msg in msgs:
         chan, = np.fromstring(msg[0], dtype='b')
         t, = np.fromstring(msg[1:], dtype='u2')
-        timings[abs(chan)].append((t, chan > 0))
+        timings[chan_dict[abs(chan)]].append((int(t), int(chan > 0)))
 
     results = read_dict(ser)
 
@@ -136,7 +187,6 @@ def read_dict(ser):
         msg = ser.readline()
         if msg == STOP: break
         else:
-            print(msg)
             k,v = msg.strip().split(':')
             _dict[k] = v
     return _dict
@@ -145,60 +195,51 @@ def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')
 
+today = datetime.date.today().strftime('%y%m%d')
 
 if __name__ == '__main__':
     print('party time')
 
-    #kwargs = vars(args) # grab the commandline arguments into a dictionary,
-    #main(**kwargs);     # and feed to main
+    kwargs = vars(args) # grab the commandline arguments into a dictionary,
+    main(**kwargs);     # and feed to main
 
+'''
+df_sparse
+df_sparse[0]
+chans = {}
+channames = ['bulbTrig', 'stimulusPin', 'buzzerPin', 'speakerPin',
+                    'statusLED', 'lightPin', 'lickSens', 'waterPort']
+chans = [4, 5, 6, 7, 13, 2, 14, 10, ]
+chan_dict = dict(channames, chans)
+chan_dict = dict(zip(channames, chans))
+chan_dict
+df_sparse[0].keys()
+sparse = df_sparse[0]
+#for k,v in df_sparse.items()}
+chan_dict = dict(zip(chans, channames))
+sparse_l = {chan_dict[k]:v for k,v in df_sparse.items()}
+sparse_l = {chan_dict[k]:v for k,v in sparse.items()}
+sparse_l
+import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.pyplot as plt
+sparse_l.keys()
+sparse_l['lickSens']
+[t for t, _ in sparse_l['lickSens'] if _]
+raster = [t for t, _ in sparse_l['lickSens'] if _]
+fig = plt.figure()
+fig, ax = plt.subplots()
+[ax.vlines(i / 1000) for i in raster]
+[ax.vlines(0, 1, i / 1000) for i in raster]
+[ax.vlines(0, 1, i / 1000) for i in raster];
+plt.savefig('tmp.pdf')
+[ax.vlines(0, 1, i / 1000.0) for i in raster];
+plt.savefig('tmp.pdf')
+[ax.vlines(0, 1, i / 1000.0) for i in raster];
+ax.vlines?
+[ax.vlines(i / 1000.0, 0, 1) for i in raster];
+plt.savefig('tmp.pdf')
+hist
+'''
 
-
-ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
-
-df_long = []
-df_sparse = []
-with serial.Serial(**ser_params) as ser:
-    'initialisiation'
-    settings = startup(ser)
-    # makes a list of all the settngs
-    # Theses are the adjustable paramaters from USER_variables.h
-
-    #   | stimulus duration | light_stim | light_resp |
-    _gt = product(Stim, Light_stim, Light_resp)
-    trials = np.array([trial for trial in _gt], dtype=bool)
-    print('ready go')
-    for i in range(repeats):
-        print(i)
-        shuffle(trials)
-
-        j = 0
-        print('\ntrials :', trials, '\n')
-        while j < len(trials):
-            # pack the 3 bits into a single number
-            st, ls, lr = trials[j]
-            trial_code = (st << 2) | (ls << 1) | lr
-
-            trial_data = settings.copy()
-
-            print('run the trial')
-
-            tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
-
-            if result['response'] == 'e': print('e'); continue
-
-            trial_data.update(result)
-            trial_data['code'] = tc
-            trial_data['time'] = tstamp
-            trial_data['block'] = i
-            trial_data['trial'] = j
-
-            #df_long.append(trial_data)
-
-            with open('this.yaml', 'a') as sf:
-                print('---', file=sf)
-                [print(k,':',v, file=sf) for k,v in trial_data.items()]
-
-            df_sparse.append(timings)
-            j += 1
-            print(j, end = ', ')
+''
