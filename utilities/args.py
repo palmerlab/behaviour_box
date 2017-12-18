@@ -51,7 +51,24 @@ kwargs = {
                     'default' : "o",
                     'help' : "mode of trial to run",
                     },
-
+    ('-Stim', '-s',) : {
+                    'nargs' : '+',
+                    'default' : (1,),
+                    'type' : int,
+                    'help' : "",
+                    },
+    ('-Light_resp', '-lr') : {
+                    'nargs' : '+',
+                    'default' : (0,),
+                    'type' : int,
+                    'help' : "",
+                    },
+    ('-Light_stim', '-ls') : {
+                    'nargs' : '+',
+                    'default' : (0,),
+                    'type' : int,
+                    'help' : "",
+                    },
 }
 
 for k, v in kwargs.iteritems():
