@@ -119,7 +119,6 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
              j += 1
              print(j, end = ', ')
 
-
 def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
     c_water = 0
     ser.write('h')
@@ -143,7 +142,6 @@ def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
         with open(sp, 'a') as f:
             print(tstamp, '~', c_water,'uL')
             print(tstamp, c_water, sep = ',', file=f)
-
 
 """ Trial Codes:
            St  Ls  Lr         |
@@ -184,7 +182,6 @@ def run_habituation(ser):
     timings = package_sparse(msgs)
 
     return tstamp, timings
-
 
 def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
     # Handshake
@@ -227,7 +224,7 @@ def startup(ser):
     while not ser.inWaiting():
         print(r'-\|/'[_%3], end='\b'); _+=1
         time.sleep(.05)
-    print(" ONLINE", end=' ')
+    print(" ONLINE")
     # Buffer for 500 ms to let Arduino finish it's setup
     time.sleep(2)
 
