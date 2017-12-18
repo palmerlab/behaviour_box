@@ -13,7 +13,7 @@ void loop() {
   // print out the value you read:
   Serial.println(sensorValue);//(sensorValue/1024.0) * 5); // display output in V
   //Serial.println((sensorValue/1024.0) * 5); // display output in V
-  delay(0);        // delay in between reads for stability
+  delay(2);        // delay in between reads for stability
 
   if (sensorValue >= 150) {
     digitalWrite(4, HIGH);
