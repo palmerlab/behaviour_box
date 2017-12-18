@@ -47,6 +47,10 @@ kwargs = {
                     'default' : "COM7",
                     'help' : "port that the Arduino is connected to",
                     },
+    ("-m", "--mode", ) : {
+                    'default' : "o",
+                    'help' : "mode of trial to run",
+                    },
 
 }
 

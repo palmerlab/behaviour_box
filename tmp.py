@@ -32,76 +32,115 @@ fname = ''            # name to append to the files
 ITI = 2, 5            # range of the inter trial interval
 port = 'COM7'         # port arduino is connected to
 
+mode = 'o'
 """-------------------------- hidden globals --------------------------------"""
+
 STOP = '\x00\x00\x00' # DONT TOUCH this is the bbox termination pattern
 
+chan_dict = {4: 'bulbTrig',  5: 'stimulusPin',  6: 'buzzerPin',
+             7: 'speakerPin', 13: 'statusLED',  2: 'lightPin',
+             14: 'lickSens', 10: 'waterPort'}
+
+today = datetime.date.today().strftime('%y%m%d')
 
 """===========================================================================++
-                         M A I N    F U N C T I O N                           ||
+                         M A I N    F U N C T I O N S                         ||
    ===========================================================================++
 """
 
-def main(repeats=repeats, ITI=ITI, ID='',
+def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
+    if not os.path.exists(datapath):
+        os.makedirs(datapath)
+
+    if not fname:
+        fname = '_'.join((ID, today))
+
+        ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
+
+    with serial.Serial(**ser_params) as ser:
+        'initialisiation'
+        settings = startup(ser)
+        # makes a list of all the settngs
+        # Theses are the adjustable paramaters from USER_variables.h
+
+        if mode == 'o':
+            operant(ser, settings=settings, **kwargs)
+        elif mode == 'h':
+            habituation(ser, datapath=datapath, fname=fname, settings=settings, **kwargs)
+    return
+
+def operant(ser, settings={}, repeats=repeats, ITI=ITI,
          Stim=Stim, Light_stim=Light_stim, Light_resp=Light_resp,
          port=port, datapath=datapath, fname=fname, **kwargs):
 
-         if not os.path.exists(datapath):
-             os.makedirs(datapath)
+     #   | stimulus duration | light_stim | light_resp |
+     _gt = product(Stim, Light_stim, Light_resp)
+     trials = np.array([trial for trial in _gt], dtype=bool)
+     print('ready go')
+     for i in range(repeats):
 
-         if not fname:
-             fname = '_'.join((ID, today))
+         shuffle(trials)
 
-         ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
+         j = 0
+         print('\ntrials :', trials, '\n')
+         while j < len(trials):
+             # pack the 3 bits into a single number
+             st, ls, lr = trials[j]
+             trial_code = (st << 2) | (ls << 1) | lr
 
-         with serial.Serial(**ser_params) as ser:
-             'initialisiation'
-             settings = startup(ser)
-             # makes a list of all the settngs
-             # Theses are the adjustable paramaters from USER_variables.h
+             trial_data = settings.copy()
 
-             #   | stimulus duration | light_stim | light_resp |
-             _gt = product(Stim, Light_stim, Light_resp)
-             trials = np.array([trial for trial in _gt], dtype=bool)
-             print('ready go')
-             for i in range(repeats):
-                 print(i)
-                 shuffle(trials)
+             '''run the trial'''
 
-                 j = 0
-                 print('\ntrials :', trials, '\n')
-                 while j < len(trials):
-                     # pack the 3 bits into a single number
-                     st, ls, lr = trials[j]
-                     trial_code = (st << 2) | (ls << 1) | lr
+             tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
 
-                     trial_data = settings.copy()
+             if result['response'] == 'e': continue
 
-                     '''run the trial'''
+             trial_data.update(result)
+             trial_data['code'] = tc
+             trial_data['time'] = tstamp
+             trial_data['block'] = i
+             trial_data['trial'] = j
 
-                     tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
+             sp = '/'.join((datapath, fname + '.yaml'))
+             with open(sp, 'a') as f:
+                 print('---', file=f)
+                 [print(k,':',v, file=f) for k,v in trial_data.items()]
+                 print('...', file=f)
 
-                     if result['response'] == 'e': continue
+             sp = '/'.join((datapath, fname + '.json'))
+             with open(sp, 'a') as f:
+                 s = json.dumps(timings)
+                 print(tstamp, file=f)
+                 print(s, file=f)
 
-                     trial_data.update(result)
-                     trial_data['code'] = tc
-                     trial_data['time'] = tstamp
-                     trial_data['block'] = i
-                     trial_data['trial'] = j
+             j += 1
+             print(j, end = ', ')
 
-                     sp = '/'.join((datapath, fname + '.yaml'))
-                     with open(sp, 'a') as f:
-                         print('---', file=f)
-                         [print(k,':',v, file=f) for k,v in trial_data.items()]
-                         print('...', file=f)
 
-                     sp = '/'.join((datapath, fname + '.json'))
-                     with open(sp, 'a') as f:
-                         s = json.dumps(timings)
-                         print(tstamp, file=f)
-                         print(s, file=f)
+def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
+    c_water = 0
+    ser.write('h')
+    while not ser.inWaiting(): pass
+    echo_tc = ord(ser.read(1))
 
-                     j += 1
-                     print(j, end = ', ')
+    trial_data = settings.copy()
+
+    '''run the trial'''
+    while True:
+        tstamp, timings = run_habituation(ser)
+        c_water += 10
+
+        sp = '/'.join((datapath, fname + '.json'))
+        with open(sp, 'a') as f:
+            s = json.dumps(timings)
+            print(tstamp, file=f)
+            print(s, file=f)
+
+            print(tstamp, '~', c_water,'uL')
+
+
+
 
 """ Trial Codes:
            St  Ls  Lr         |
@@ -120,6 +159,29 @@ def main(repeats=repeats, ITI=ITI, ID='',
                             in order of importance                            ||
    ===========================================================================++
 """
+
+def run_habituation(ser):
+
+    start_time = time.time()
+
+    msg = None
+    msgs = []
+    _ = 0;
+    while True:#msg != STOP:
+        #timestamp the first message
+        if msg is None: tstamp = timenow()
+        if not ser.inWaiting(): print('-+*+-'[_%4], end='\b'); _+=1; continue
+
+        msg = ser.read(3)
+        if msg == STOP: break
+        print(r'-\|/'[_%3], end='\b'); _+=1
+        #print(msg)
+        msgs.append(msg) # recieve
+
+    timings = package_sparse(msgs)
+
+    return tstamp, timings
+
 
 def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
     # Handshake
@@ -150,18 +212,7 @@ def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
         dur = (time.time() - start_time) * 1000
         if dur >= trialDUR: break
 
-    channames = ['bulbTrig', 'stimulusPin', 'buzzerPin', 'speakerPin',
-                    'statusLED', 'lightPin', 'lickSens', 'waterPort']
-    chans = [4, 5, 6, 7, 13, 2, 14, 10, ]
-    chan_dict = dict(zip(chans, channames))
-
-    timings = {chan_dict[k]:[] for k in chans}
-
-    for msg in msgs:
-        chan, = np.fromstring(msg[0], dtype='b')
-        t, = np.fromstring(msg[1:], dtype='u2')
-        timings[chan_dict[abs(chan)]].append((int(t), int(chan > 0)))
-
+    timings = package_sparse(msgs)
     results = read_dict(ser)
 
     return echo_tc, tstamp, timings, results
@@ -191,55 +242,24 @@ def read_dict(ser):
             _dict[k] = v
     return _dict
 
+def package_sparse(msgs):
+
+    timings = {chan_dict[k]:[] for k in chan_dict}
+
+    for msg in msgs:
+        chan, = np.fromstring(msg[0], dtype='b')
+        t, = np.fromstring(msg[1:], dtype='u2')
+        timings[chan_dict[abs(chan)]].append((int(t), int(chan > 0)))
+
+    return timings
+
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')
-
-today = datetime.date.today().strftime('%y%m%d')
 
 if __name__ == '__main__':
     print('party time')
 
     kwargs = vars(args) # grab the commandline arguments into a dictionary,
+
     main(**kwargs);     # and feed to main
-
-'''
-df_sparse
-df_sparse[0]
-chans = {}
-channames = ['bulbTrig', 'stimulusPin', 'buzzerPin', 'speakerPin',
-                    'statusLED', 'lightPin', 'lickSens', 'waterPort']
-chans = [4, 5, 6, 7, 13, 2, 14, 10, ]
-chan_dict = dict(channames, chans)
-chan_dict = dict(zip(channames, chans))
-chan_dict
-df_sparse[0].keys()
-sparse = df_sparse[0]
-#for k,v in df_sparse.items()}
-chan_dict = dict(zip(chans, channames))
-sparse_l = {chan_dict[k]:v for k,v in df_sparse.items()}
-sparse_l = {chan_dict[k]:v for k,v in sparse.items()}
-sparse_l
-import matplotlib.pyplot as plt
-import matplotlib
-import matplotlib.pyplot as plt
-sparse_l.keys()
-sparse_l['lickSens']
-[t for t, _ in sparse_l['lickSens'] if _]
-raster = [t for t, _ in sparse_l['lickSens'] if _]
-fig = plt.figure()
-fig, ax = plt.subplots()
-[ax.vlines(i / 1000) for i in raster]
-[ax.vlines(0, 1, i / 1000) for i in raster]
-[ax.vlines(0, 1, i / 1000) for i in raster];
-plt.savefig('tmp.pdf')
-[ax.vlines(0, 1, i / 1000.0) for i in raster];
-plt.savefig('tmp.pdf')
-[ax.vlines(0, 1, i / 1000.0) for i in raster];
-ax.vlines?
-[ax.vlines(i / 1000.0, 0, 1) for i in raster];
-plt.savefig('tmp.pdf')
-hist
-'''
-
-''

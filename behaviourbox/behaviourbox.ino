@@ -42,12 +42,17 @@ void loop () {
         Serial.write(input);
 
         if (input < 8) {
-
           init_trial (input);
-
           t_init = millis();
           run_opto_trial();
           Send_status();
+        }
+        // run habituation until told to stop
+        else if (input == 'h') {
+          t_init = millis();
+          while (!Serial.available()){
+            run_habituation();
+          }
         }
     }
 }

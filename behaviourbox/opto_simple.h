@@ -118,3 +118,15 @@ void run_opto_trial() {
 
     return;
 }
+
+void run_habituation(){
+    // Check the lick sensor
+    stimulus = true;
+    if (senseLick()) {
+
+        TrialStimulus();
+        deliver_reward(1);
+        ActiveDelay(3500u, false);
+        Send_stop();
+    }
+}

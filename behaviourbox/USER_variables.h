@@ -47,9 +47,6 @@ bool lickTrigReward = true;
 byte waterVol = 10;               // ms the valve is open for
 bool audio = true;                // flag for audio feed back
 
-
-
-
 /*============================================================================++
 ||                                IO port settings:                           ||
 ++===========================================================================++*/
