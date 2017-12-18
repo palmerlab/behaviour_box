@@ -9,6 +9,7 @@ import time
 import datetime
 import json
 import os
+import sys
 
 import numpy as np
 from numpy.random import shuffle
@@ -64,7 +65,7 @@ def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
         # Theses are the adjustable paramaters from USER_variables.h
 
         if mode == 'o':
-            operant(ser, settings=settings, **kwargs)
+            operant(ser, settings=settings, datapath=datapath, fname=fname, **kwargs)
         elif mode == 'h':
             habituation(ser, datapath=datapath, fname=fname, settings=settings, **kwargs)
     return
@@ -101,6 +102,7 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
              trial_data['time'] = tstamp
              trial_data['block'] = i
              trial_data['trial'] = j
+             trial_data['mode'] = 'operant'
 
              sp = '/'.join((datapath, fname + '.yaml'))
              with open(sp, 'a') as f:
@@ -137,9 +139,10 @@ def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
             print(tstamp, file=f)
             print(s, file=f)
 
+        sp = '/'.join((datapath, fname + '_habit.csv'))
+        with open(sp, 'a') as f:
             print(tstamp, '~', c_water,'uL')
-
-
+            print(tstamp, c_water, sep = ',', file=f)
 
 
 """ Trial Codes:
@@ -262,4 +265,7 @@ if __name__ == '__main__':
 
     kwargs = vars(args) # grab the commandline arguments into a dictionary,
 
-    main(**kwargs);     # and feed to main
+    try:
+        main(**kwargs);     # and feed to main
+    except KeyboardInterrupt:
+        quit()
