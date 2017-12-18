@@ -1,557 +1,271 @@
-from __future__ import division
-
-import datetime
-import ConfigParser
-import time
-import os
-import sys
-import msvcrt as m
-import random
+"""===========================================================================++
+                                I M P O R T S                                 ||
+   ===========================================================================++
+"""
+from __future__ import print_function, division
 
 import serial
-import numpy as np
-import pandas as pd
-from numpy.random import shuffle
+import time
+import datetime
+import json
+import os
+import sys
 
+import numpy as np
+from numpy.random import shuffle
 from itertools import product
 
-import colorama as color # makes things look nice
-from colorama import Fore as fc
-from colorama import Back as bc
-from colorama import Style
-
 from utilities.args import args
-from utilities.numerical import num, na_printr, unpack_table
-
-import sounddevice as sd
-
-"""
---------------------------------------------------------------------
-Arguments
---------------------------------------------------------------------
+"""===========================================================================++
+                         C O N F I G U R A T I O N                            ||
+   ===========================================================================++
 """
 
-verbose = args.verbose                # this will be a command line parameter
-port = args.port                      # a command line parameter
-ID = args.ID                          # the identity number of the animal
-repeats = args.repeats                # number of repetitions
-datapath = args.datapath              # a custom location to save data
-weight = args.weight                  # the weight of the animal
-trial_num = args.trial_num            # deprecated; for use if this continues a set of trials
-trialDur = args.trialDur              # nominally the time to idle before resetting
-ITI = args.ITI
-restore = args.restore
-trials = args.trials
+Stim       = (1,)     # use to `(1,)` or `(0,)` for always on, or always off
+Light_stim = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
+Light_resp = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
 
-#----- shared paramaters -----
-lickThres = int((args.lickThres/5)*1024)
-mode = args.mode
-punish = args.punish
-timeout = args.timeout
-lcount = args.lcount
-noLick = args.noLick
-lickTrigReward = args.lickTrigReward
-reward_nogo = args.reward_nogo
+repeats = 5           # number of times to run through trials
 
-stimONSET = args.stimONSET
-respDEL = args.t_rDELAY
-respDUR = args.t_rDUR
-trial_noise = args.noise
-audio = args.audio
+datapath = '.'        # location to save files
+fname = ''            # name to append to the files
 
-"""
---------------------------------------------------------------------
-END Arguments
---------------------------------------------------------------------
+ITI = 2, 5            # range of the inter trial interval
+port = 'COM7'         # port arduino is connected to
+
+mode = 'o'
+"""-------------------------- hidden globals --------------------------------"""
+
+STOP = '\x00\x00\x00' # DONT TOUCH this is the bbox termination pattern
+
+chan_dict = {4: 'bulbTrig',  5: 'stimulusPin',  6: 'buzzerPin',
+             7: 'speakerPin', 13: 'statusLED',  2: 'lightPin',
+             14: 'lickSens', 10: 'waterPort'}
+
+today = datetime.date.today().strftime('%y%m%d')
+
+"""===========================================================================++
+                         M A I N    F U N C T I O N S                         ||
+   ===========================================================================++
 """
 
-def band_limited_noise(min_freq, max_freq, samples=1024, samplerate=1):
-    freqs = np.abs(np.fft.fftfreq(samples, float(1)/samplerate))
-    f = np.zeros(samples)
-    idx = np.where(np.logical_and(freqs>=min_freq, freqs<=max_freq))[0]
-    f[idx] = 1
-    return fftnoise(f)
+def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
+    if not os.path.exists(datapath):
+        os.makedirs(datapath)
 
-def fftnoise(f):
-    f = np.array(f, dtype='complex')
-    Np = (len(f) - 1) // 2
-    phases = np.random.rand(Np) * 2 * np.pi
-    phases = np.cos(phases) + 1j * np.sin(phases)
-    f[1:Np+1] *= phases
-    f[-1:-1-Np:-1] = np.conj(f[1:Np+1])
-    return np.fft.ifft(f).real
+    if not fname:
+        fname = '_'.join((ID, today))
 
-def colour (x,
-    fc = color.Fore.WHITE,
-    bc = color.Back.BLACK,
-    style = color.Style.NORMAL):
-    return "%s%s%s%s%s" %(fc, bc, style, x , color.Style.RESET_ALL)
+        ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
+
+    with serial.Serial(**ser_params) as ser:
+        'initialisiation'
+        settings = startup(ser)
+        # makes a list of all the settngs
+        # Theses are the adjustable paramaters from USER_variables.h
+
+        if mode == 'o':
+            operant(ser, settings=settings, datapath=datapath, fname=fname, **kwargs)
+        elif mode == 'h':
+            habituation(ser, datapath=datapath, fname=fname, settings=settings, **kwargs)
+    return
+
+def operant(ser, settings={}, repeats=repeats, ITI=ITI,
+         Stim=Stim, Light_stim=Light_stim, Light_resp=Light_resp,
+         port=port, datapath=datapath, fname=fname, **kwargs):
+
+     #   | stimulus duration | light_stim | light_resp |
+     _gt = product(Stim, Light_stim, Light_resp)
+     trials = np.array([trial for trial in _gt], dtype=bool)
+     print('ready go')
+     for i in range(repeats):
+
+         shuffle(trials)
+
+         j = 0
+         print('\ntrials :', trials, '\n')
+         while j < len(trials):
+             # pack the 3 bits into a single number
+             st, ls, lr = trials[j]
+             trial_code = (st << 2) | (ls << 1) | lr
+
+             trial_data = settings.copy()
+
+             '''run the trial'''
+
+             tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
+
+             if result['response'] == 'e': continue
+
+             trial_data.update(result)
+             trial_data['code'] = tc
+             trial_data['time'] = tstamp
+             trial_data['block'] = i
+             trial_data['trial'] = j
+             trial_data['mode'] = 'operant'
+
+             sp = '/'.join((datapath, fname + '.yaml'))
+             with open(sp, 'a') as f:
+                 print('---', file=f)
+                 [print(k,':',v, file=f) for k,v in trial_data.items()]
+                 print('...', file=f)
+
+             sp = '/'.join((datapath, fname + '.json'))
+             with open(sp, 'a') as f:
+                 s = json.dumps(timings)
+                 print(tstamp, file=f)
+                 print(s, file=f)
+
+             j += 1
+             print(j, end = ', ')
+
+
+def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
+    c_water = 0
+    ser.write('h')
+    while not ser.inWaiting(): pass
+    echo_tc = ord(ser.read(1))
+
+    trial_data = settings.copy()
+
+    '''run the trial'''
+    while True:
+        tstamp, timings = run_habituation(ser)
+        c_water += 10
+
+        sp = '/'.join((datapath, fname + '.json'))
+        with open(sp, 'a') as f:
+            s = json.dumps(timings)
+            print(tstamp, file=f)
+            print(s, file=f)
+
+        sp = '/'.join((datapath, fname + '_habit.csv'))
+        with open(sp, 'a') as f:
+            print(tstamp, '~', c_water,'uL')
+            print(tstamp, c_water, sep = ',', file=f)
+
+
+""" Trial Codes:
+           St  Ls  Lr         |
+    0       0   0   0         | where St = Stim; Ls = Light_stim;
+    1       0   0   1         | Lr = Light_response.
+    2       0   1   0         | These settings are sent in an 8 bit character,
+    3       0   1   1         | where the payload is on the last 3 bits.
+    4       1   0   0         |              * * *
+    5       1   0   1         |  0 0 0 0   0 0 0 0
+    6       1   1   0         |
+    7       1   1   1         |
+"""
+
+"""===========================================================================++
+                              F U N C T I O N S                               ||
+                            in order of importance                            ||
+   ===========================================================================++
+"""
+
+def run_habituation(ser):
+
+    start_time = time.time()
+
+    msg = None
+    msgs = []
+    _ = 0;
+    while True:#msg != STOP:
+        #timestamp the first message
+        if msg is None: tstamp = timenow()
+        if not ser.inWaiting(): print('-+*+-'[_%4], end='\b'); _+=1; continue
+
+        msg = ser.read(3)
+        if msg == STOP: break
+        print(r'-\|/'[_%3], end='\b'); _+=1
+        #print(msg)
+        msgs.append(msg) # recieve
+
+    timings = package_sparse(msgs)
+
+    return tstamp, timings
+
+
+def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
+    # Handshake
+    ser.write(chr(trial_code))
+    while not ser.inWaiting(): pass
+    echo_tc = ord(ser.read(1))
+
+    trialDUR = int(trialDUR)
+
+    #params = [ser.readline() for i in range(3)]
+    start_time = time.time()
+
+    msg = None
+    msgs = []
+    _ = 0;
+    while True:#msg != STOP:
+        #timestamp the first message
+        if msg is None: tstamp = timenow()
+        if not ser.inWaiting(): print('-+*+-'[_%4], end='\b'); _+=1; continue
+
+        msg = ser.read(3)
+        if msg == STOP: break
+        print(r'-\|/'[_%3], end='\b'); _+=1
+        #print(msg)
+        msgs.append(msg) # recieve
+
+        # check the time
+        dur = (time.time() - start_time) * 1000
+        if dur >= trialDUR: break
+
+    timings = package_sparse(msgs)
+    results = read_dict(ser)
+
+    return echo_tc, tstamp, timings, results
+
+def startup(ser):
+    #IDLE while Arduino performs it's setup functions
+    print("awaiting arduino: ", end='\b')
+    _ = 0;
+    while not ser.inWaiting():
+        print(r'-\|/'[_%3], end='\b'); _+=1
+        time.sleep(.05)
+    print(" ONLINE", end=' ')
+    # Buffer for 500 ms to let Arduino finish it's setup
+    time.sleep(2)
+
+    return read_dict(ser)
+
+def read_dict(ser):
+    msg = None
+    _dict = {}
+    while msg != STOP:
+        if not ser.inWaiting(): continue
+        msg = ser.readline()
+        if msg == STOP: break
+        else:
+            k,v = msg.strip().split(':')
+            _dict[k] = v
+    return _dict
+
+def package_sparse(msgs):
+
+    timings = {chan_dict[k]:[] for k in chan_dict}
+
+    for msg in msgs:
+        chan, = np.fromstring(msg[0], dtype='b')
+        t, = np.fromstring(msg[1:], dtype='u2')
+        timings[chan_dict[abs(chan)]].append((int(t), int(chan > 0)))
+
+    return timings
 
 def timenow():
     """provides the current time string in the form `HH:MM:SS`"""
     return datetime.datetime.now().time().strftime('%H:%M:%S')
 
-# today's date as a string in the form YYMMDD
-today = datetime.date.today().strftime('%y%m%d')
+if __name__ == '__main__':
+    print('party time')
 
-def Serial_monitor(ser, logfile, show = True):
-
-    line = ser.readline()
-
-    if line:
-
-        fmt_line = "%s,%s" %(line.strip(), timenow())
-        if line.startswith("\t#"):
-            fmt_line = "#" + fmt_line
-            if verbose: print colour(fmt_line, fc.CYAN, style = Style.BRIGHT)
-        if not line.startswith("-"):
-            fmt_line = '    ' + fmt_line
-
-
-        elif show:
-            if line.startswith("port") == False:
-                print colour("%s\t%s\t%s" %(timenow(), port, ID), fc.WHITE),
-                print colour(line.strip(), fc.YELLOW, style =  Style.BRIGHT)
-
-        with open(logfile, 'a') as log:
-            log.write(fmt_line + "\n")
-
-    return line
-
-def update_bbox(ser, params, logfile, trial_df = {}):
-    """
-    Communicates the contents of the dict `params` through
-    the serial communications port.
-
-    data is sent in the form: `dict[key] = value`  --> `key:value`
-
-    trail_df dictionary is updated to include the parameters
-    received from the arduino
-    """
-
-    for name, param in params.iteritems():
-
-        print fc.YELLOW, color.Style.BRIGHT, name[:2], "\r",
-        ser.writelines("%s:%s" %(name, param))
-        if verbose: print "%s:%s" %(name, param)
-
-        time.sleep(0.1)
-
-        while ser.inWaiting():
-
-            line = Serial_monitor(ser, logfile, False)[:-1]
-
-            if line[:2] not in ("\t#", "- "):
-                var, val = line.strip().split(":")
-                trial_df[var] = num(val)
-                if var == name:
-                    #pass
-                    print  "\r", fc.GREEN, "\t", var[:2], val, Style.RESET_ALL , "\r",
-                else:
-                    print  fc.RED, "\r", var, val, Style.RESET_ALL ,
-                    quit()
-
-    return trial_df
-
-def create_datapath(DATADIR = "", date = today()):
-    """
-
-    """
-
-    if not DATADIR:
-        DATADIR = os.path.join(os.getcwd(), date)
-    else:
-        DATADIR = os.path.join(DATADIR, date)
-
-    if not os.path.isdir(DATADIR):
-        os.makedirs((DATADIR))
-
-    print colour("datapath:\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour(DATADIR, fc = fc.GREEN, style=Style.BRIGHT)
-
-    return DATADIR
-
-def create_logfile(DATADIR = "", date = today()):
-    """
-
-    """
-    filename = "%s_%s_%s.log" %(port,ID,date)
-    logfile = os.path.join(DATADIR, filename)
-    print colour("Saving log in:\t", fc = fc.GREEN, style=Style.BRIGHT),
-    print colour("./$datapath$/%s" %filename, fc = fc.GREEN, style=Style.BRIGHT)
-
-    return logfile
-
-def init_serialport(port, logfile = None):
-    """
-    Open communications with the arduino;
-    quits the program if no communications are
-    found on port.
-
-    If there are communications the script
-    waits 500 ms then reads all incoming
-    lines from the Serial port. These two
-    lines include the arduino code version
-    and a string that says the arduino is online
-    """
-
-    ser = serial.Serial()
-    ser.baudrate = 115200
-    ser.timeout = 1
-    ser.port = port
+    kwargs = vars(args) # grab the commandline arguments into a dictionary,
 
     try:
-        ser.open()
-        print colour("\nContact", fc.GREEN, style = Style.BRIGHT)
-
-    except serial.serialutil.SerialException:
-        print colour("No communications on %s" %port, fc.RED, style = Style.BRIGHT)
-        sys.exit(0)
-
-    #IDLE while Arduino performs it's setup functions
-    print "AWAITING ARDUINO: "
-    _ = 0
-    while not ser.inWaiting():
-        if not _%10000:
-            print "-"*int(_/10000),"\r",
-        _ += 1
-    print "\nARDUINO ONLINE"
-
-    # Buffer for 500 ms to let Arduino finish it's setup
-    time.sleep(.5)
-    # Log the debug info for the setup
-    while ser.inWaiting():
-        Serial_monitor(ser, logfile, True)
-
-    return ser
-
-def habituation_run(df):
-    #THE HANDSHAKE
-    # send all current parameters to the arduino box to run the trial
-    params = {
-                'mode'          : mode,
-                'lickThres'     : lickThres,
-                'stimDUR'     : 200,
-    }
-
-    params = update_bbox(ser, params, logfile)
-
-    print colour("trial count\n"
-                 "----- -----", fc.MAGENTA, style = Style.BRIGHT)
-
-    while mode == 'h':
-
-        trial_df = {}
-        line = Serial_monitor(ser, logfile, show = verbose).strip()
-
-        trial_df['time'] = timenow()
-
-        while line.strip() != "- Status: Ready":
-            line = Serial_monitor(ser, logfile, False)
-            if line:
-                if line[:2] not in ("#", "\t#", "- "):
-                    var, val = line.strip().split(":")
-                    trial_df[var] = num(val)
-            menu()
-
-        if 'Water'  in trial_df.keys():
-
-            with open(df_file, 'w') as datafile:
-
-                for k, v in params.iteritems():
-                    trial_df[k] = v
-
-                trial_df = pd.DataFrame(trial_df, index=[trial_num])
-
-
-                df = df.append(trial_df, ignore_index = True)
-
-
-                df.to_csv(datafile)
-
-            #Count percent L v R
-            hab_df = df[df['mode'] == 'h']
-            print colour("%s\t10 ul" %(timenow()), style = Style.BRIGHT)
-
-
-"""
----------------------------------------------------------------------
-                       MAIN FUNCTION HERE
----------------------------------------------------------------------
-"""
-
-color.init()
-
-datapath = create_datapath(datapath) #appends todays date to the datapath
-logfile = create_logfile(datapath) #creates a filepath for the logfile
-
-#save a record of the call signature in the logfile
-with open(logfile, 'a') as f:
-    f.write('- call: >\n  - ' + '\n  - '.join(sys.argv) + '\n')
-
-#make a unique filename
-_ = 0
-df_file = '%s/%s_%s_%03d.csv' %(datapath, ID, today(), _)
-df = pd.DataFrame({'time':[], 'rewardCond':[], 'mode':[], 'response': [], 'outcome':[]})
-if os.path.isfile(df_file):
-    df = df.append(pd.read_csv(df_file, index_col = 0))
-
-df = df.dropna(subset = ['time'])
-df = df.drop_duplicates('time')
-comment = ""
-
-
-try:
-    #open a file to save data in
-    ser = init_serialport(port, logfile)
-
-    # send initial paramaters to the arduino
-    params = {
-        'mode'              : mode,
-        'lickThres'         : lickThres,
-        'lickCount'      : lcount,
-        'stimONSET'       : stimONSET,
-    }
-
-    trial_df = update_bbox(ser, params, logfile, {} )
-
-
-    if mode == 'h':
-        habituation_run(df)
-    elif mode == 'o':
-        params = {
-            'mode'              : mode,
-            'lickThres'         : lickThres,
-            'break_wrongChoice' : int(punish) if lcount > 0 else 0,   #Converts to binary
-            'punish_tone'       : int(0),
-            'lickCount'      : lcount,
-            'noLickDUR'       : noLick,
-            'timeout'           : timeout,                            #Converts back to millis
-            'stimONSET'       : stimONSET,
-            'respDEL'       : respDEL,
-            'respDUR'       : respDUR,
-            'trialDUR'        : trialDur * 1000,                    # converts to millis
-            'lickTrigReward'    : int(lickTrigReward),
-            'reward_nogo'       : int(reward_nogo),
-            'audio'             : int(audio),
-        }
-
-        trial_df = update_bbox(ser, params, logfile, {} )
-        df = df.append(pd.DataFrame(trial_df, index = [df.shape[0]+1]), ignore_index=True)
-
-        # loop for r repeats
-        for r in xrange(repeats):
-
-            #   | stimulus duration | light_stim | light_resp |
-            trials = [  [200, 0, 0],
-                        [200, 1, 0],
-                        [200, 1, 1],
-                        [  0, 0, 0],
-                        [  0, 0, 1],
-                        [  0, 1, 0],
-                        [  0, 1, 1],
-                        [200, 0, 1],]
-
-
-            shuffle(trials)
-            print trials
-
-            # loop for number of trials in the list of random conditions
-            trial_num = 0
-            while trial_num < len(trials):
-                stimDUR, light_stim, light_resp = trials[trial_num]
-
-                #THE HANDSHAKE
-                # send all current parameters to the arduino box to run the trial
-                params = {
-                    'trialType'         : 'N' if stimDUR in (0, ) else 'G' ,
-                    'stimDUR'         : stimDUR,
-                    'light_stim'        : light_stim,
-                    'light_resp'        : light_resp,
-                }
-
-                trial_df.update(update_bbox(ser, params, logfile, trial_df))
-
-                # create an empty dictionary to store data in
-                trial_df.update({
-                    'trial_num'      : trial_num,
-                    'Water'          : 0,
-                    'ID'             : ID,
-                    'weight'         : weight,
-                    'block'          : r,
-                    'comment'        : comment,
-                    'trial_noise'    : trial_noise,
-                    'audio_cues'     : audio,
-                })
-
-                #checks the keys pressed during last iteration
-                #adjusts options accordingly
-
-                params.update(menu())
-
-                if params['trialType'] == 'N' and lcount == 0:
-                    params['lickCount'] = 1
-                    params['break_wrongChoice'] = int(1)
-                elif params['trialType'] == 'G' and lcount == 0:
-                    params['lickCount'] = 0
-
-                # apply the over-ride to the reward condition
-                # if the over-ride has been specified
-
-                trial_df['comment'] = comment
-
-
-                trial_df.update(update_bbox(ser, params, logfile, trial_df))
-
-                print colour("C: %s" %params['trialType'],
-                                fc.MAGENTA, style = Style.BRIGHT),
-
-                trial_df['time'] = timenow()
-
-                # Send the literal GO symbol
-                start_time = time.time()
-
-                ser.write("GO")
-                line = Serial_monitor(ser, logfile, show = verbose).strip()
-
-                if trial_noise:
-                    # noise band to mimic imaging freq 512 * 30 Hz == ~ 15000Hz
-                    noise = band_limited_noise(14000, 500000, samples=int(44100*trialDur), samplerate=44100)
-                    noise = noise/ noise.min()
-                    sd.play(noise*.5, 44100)
-
-                while line.strip() != "- Status: Ready":
-                    # keep running until arduino reports it has broken out of loop
-                    line = Serial_monitor(ser, logfile, False)
-                    if line:
-                        if line[:2] not in ("#", "\t#", "- "):
-                            var, val = line.strip().split(":")
-                            #print  fc.GREEN, "\r", var[:5], val, Style.RESET_ALL , "\r",
-                            trial_df[var] = num(val)
-
-                if trial_noise: sd.stop()
-
-                for k in trial_df.keys():
-                    if type(trial_df[k]) == list:
-                        trial_df[k] = trial_df[k][0]
-
-                """
-                THAT WHICH FOLLOWS IS NOT NECESSARY TO RUN A TRIAL??
-                """
-                """
-                #Save the data to a data frame / Save to a file
-                """
-
-                with open(df_file, 'w') as datafile:
-
-                    df = df.append(pd.DataFrame(trial_df, index=[df.shape[0]]), ignore_index = True)
-
-                    cumWater = df['Water'].cumsum()
-
-                    df['outcome'] = '-'
-
-                    outcome = df.outcome.copy()
-
-                    hit = (df.response == 'H').values
-                    miss = (df.response == '-').values
-                    correct_reject = (df.response == 'R')
-                    false_alarm = (df.response == 'f').values
-
-                    outcome[hit] = 'hit'
-                    outcome[correct_reject] = 'CR'
-                    outcome[miss] = 'miss'
-                    outcome[false_alarm] = 'FA'
-                    df['outcome'] = outcome
-
-
-                    df['cumWater'] = cumWater
-                    df['trial_num'] = trial_num
-
-                    #TODO: calculate delta
-
-                    df.to_csv(datafile)
-
-                #Print the important data and coloured code for hits / misses
-                print Style.BRIGHT, '\r',
-
-                table = {
-                            'trial_num'    : 't',
-                            'trialType'    : 'type',
-                            'outcome'      : 'outcome',
-                            'pre_count'    : 'pre_Lick',
-                            'post_count'   : 'post_Lick',
-                            'rew_count'    : 'rew_Lick',
-                            #'delta'        : 'lick change',
-                            'Water'        : 'water',
-                            'stimDUR'    : 'dur',
-                }
-
-                colors = {
-                        'CR'  : Style.DIM + fc.GREEN,
-                        'hit' : fc.GREEN,
-                        'miss' : fc.YELLOW,
-                        'FA' : fc.RED,
-                        '-'  : Style.NORMAL + fc.YELLOW
-                }
-
-
-                if not pd.isnull(df['stimDUR'].iloc[-1]):
-                    c = colors[df.outcome.values[-1]]
-                    for k, label in table.iteritems():
-                        print '%s%s:%s%4s' %(fc.WHITE + Style.BRIGHT, label, c, str(df[k].iloc[-1]).strip()),
-
-                    print '\r', Style.RESET_ALL
-                    #calculate percentage success
-
-                    print "\r", 100 * " ", "\r                ", #clear the line
-
-                comment = ""
-                # don't iterate if the animal licked early!
-
-                if df.response.iloc[-1] != 'e':
-                    trial_num += 1
-
-                # creates a set trial time if a duration has been flagged
-                dur = time.time() - start_time
-
-                if trialDur and df.response.iloc[-1] != 'e': #allows fall though for a non trial
-                    #print np.isnan(df['OFF[0]'].iloc[-1]).all(),
-                    print '\r',
-                    while dur < trialDur:
-                        dur = time.time() - start_time
-
-                wait = 0
-                print Style.BRIGHT, fc.GREEN,
-
-                wait = random.uniform(*ITI)
-                print fc.CYAN,
-                print "\rwait %2.2g s" %wait, Style.RESET_ALL,"\r",
-                time.sleep(wait)
-                print "             \r",
-
-
-except KeyboardInterrupt:
-    if mode != 'o':
-        update_bbox(ser, {'mode': 'o'}, logfile)
-    else:
-        try:
-            print "attempting to create DataFrame"
-            trial_df = pd.DataFrame(trial_df, index=[trial_num])
-
-            try:
-                df = df.append(trial_df, ignore_index = True)
-            except NameError:
-                df = trial_df
-
-            cumWater = df['Water'].cumsum()
-            df['cumWater'] = cumWater
-
-            df.to_csv(df_file)
-        except NameError:
-            print "unable to create trial_df does not exist"
-        except AttributeError:
-            df.to_csv(df_file)
-            print "saved df"
-
-        print "Closing", port
-        sys.exit(0)
+        main(**kwargs);     # and feed to main
+    except KeyboardInterrupt:
+        quit()
