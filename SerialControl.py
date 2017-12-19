@@ -4,6 +4,7 @@
 """
 from __future__ import print_function, division
 
+import string
 import serial
 import time
 import datetime
@@ -67,7 +68,7 @@ def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
         if mode == 'o':
             operant(ser, settings=settings, datapath=datapath, fname=fname, **kwargs)
         elif mode == 'h':
-            habituation(ser, datapath=datapath, fname=fname, settings=settings, **kwargs)
+            habituation(ser, datapath=datapath, fname=fname, settings=settings, ID=ID, **kwargs)
     return
 
 def operant(ser, settings={}, repeats=repeats, ITI=ITI,
@@ -81,9 +82,7 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
      for i in range(repeats):
 
          shuffle(trials)
-
          j = 0
-         print('\ntrials :', trials, '\n')
          while j < len(trials):
              # pack the 3 bits into a single number
              st, ls, lr = trials[j]
@@ -116,10 +115,13 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
                  print(tstamp, file=f)
                  print(s, file=f)
 
+             print(j, trial_data['response'],)
              j += 1
-             print(j, end = ', ')
+             a,b = ITI
+             _ = (b-a) * np.random.random() + a
+             time.sleep(_)
 
-def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
+def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwargs):
     c_water = 0
     ser.write('h')
     while not ser.inWaiting(): pass
@@ -141,7 +143,7 @@ def habituation(ser, datapath=datapath, fname=fname,  settings={}, **kwargs):
         sp = '/'.join((datapath, fname + '_habit.csv'))
         with open(sp, 'a') as f:
             print(tstamp, '~', c_water,'uL')
-            print(tstamp, c_water, sep = ',', file=f)
+            print(ID, tstamp, c_water, sep = ',', file=f)
 
 """ Trial Codes:
            St  Ls  Lr         |
@@ -190,6 +192,7 @@ def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
     echo_tc = ord(ser.read(1))
 
     trialDUR = int(trialDUR)
+    if trialDUR > 5: trialDUR = 5
 
     #params = [ser.readline() for i in range(3)]
     start_time = time.time()
@@ -227,6 +230,7 @@ def startup(ser):
     print(" ONLINE")
     # Buffer for 500 ms to let Arduino finish it's setup
     time.sleep(2)
+    ser.readline()
 
     return read_dict(ser)
 
@@ -238,8 +242,14 @@ def read_dict(ser):
         msg = ser.readline()
         if msg == STOP: break
         else:
-            k,v = msg.strip().split(':')
-            _dict[k] = v
+            msg = msg.replace(STOP, '')
+            try:
+
+                k,v = msg.strip().split(':')
+                _dict[k] = v
+            except ValueError:
+                pass
+                #_dict['unparsed'] = "'" + msg.strip() + "'"
     return _dict
 
 def package_sparse(msgs):

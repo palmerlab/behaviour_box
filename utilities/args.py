@@ -10,7 +10,7 @@ kwargs = {
                     'help' : "identifier for this animal/run",
                     },
 
-    ('-repeats', ) : {
+    ('-r', '--repeats', ) : {
                     'default' : 5,
                     'type' : int,
                     'help' : "the number of times this block should repeat, "

@@ -80,7 +80,7 @@ void run_opto_trial() {
             deliver_reward(1);
         }
         else {
-            response = '-';
+            response = 'm';
         }
     }
     else {
@@ -123,10 +123,11 @@ void run_habituation(){
     // Check the lick sensor
     stimulus = true;
     if (senseLick()) {
-
+        loggedWrite(bulbTrig, HIGH);
         TrialStimulus();
         deliver_reward(1);
-        ActiveDelay(3500u, false);
         Send_stop();
+        ActiveDelay(3500u, false);
+        loggedWrite(bulbTrig, LOW);
     }
 }

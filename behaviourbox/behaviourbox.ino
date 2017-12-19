@@ -19,6 +19,7 @@ void setup (){
     Serial.begin(115200);
     while (!Serial) {;}
     //Confirm connection and telegraph the code version
+    Serial.println();
     Serial.println(version);
 
     // declare the digital out pins as OUTPUTs
@@ -49,8 +50,8 @@ void loop () {
         }
         // run habituation until told to stop
         else if (input == 'h') {
-          t_init = millis();
           while (!Serial.available()){
+            t_init = millis();
             run_habituation();
           }
         }
