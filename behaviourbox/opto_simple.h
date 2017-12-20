@@ -25,10 +25,12 @@ void run_opto_trial() {
     t = t_since(t_init);
 
     // wait
-    nolickcount += ActiveDelay(stimONSET - noLickDUR, false);
+    ActiveDelay(stimONSET - noLickDUR, false);
     t = t_since(t_init);
-    ActiveDelay(stimONSET - t, (noLickDUR > 0));
-    t = t_since(t_init);
+    if (t < stimONSET) {
+      nolickcount += ActiveDelay(stimONSET - t, noLickDUR?1:0);
+    }
+    //t = t_since(t_init);
 
     // Break out on early lick
     if ((nolickcount > 0) and noLickDUR){
@@ -42,7 +44,7 @@ void run_opto_trial() {
     ||                            STIMULUS
     ++-----------------------------------------------------------------------*/
 
-    loggedWrite(lightPin, light_stim?1:0);
+    loggedWrite(lightPin, light_stim);
     TrialStimulus();
     loggedWrite(lightPin, LOW);
     t = t_since(t_init);
@@ -57,7 +59,7 @@ void run_opto_trial() {
     ||                        RESPONSE PERIOD
     ++-----------------------------------------------------------------------*/
 
-    loggedWrite(lightPin, light_resp?1:0);
+    loggedWrite(lightPin, light_resp);
     conditional_tone(7000, 100);
 
     t = t_since(t_init);
@@ -66,18 +68,15 @@ void run_opto_trial() {
 
     if ((t_since(t_init) - t) < respDUR) {
       // keeps counting even if the reward was triggered already
-        deliver_reward(lickTrigReward and (stimulus));
-        response = 1;
+        deliver_reward(lickTrigReward and stimulus);
+        response = 'H';
         ActiveDelay((respDUR - (t_since(t_init) - t)) , 0);
     }
 
     if (stimulus){
-        if (response) {
+        if (_lickcount >= lickCount) {
+            deliver_reward(response?0:1);
             response = 'H';
-        }
-        else if (_lickcount >= lickCount) {
-            response = 'H';
-            deliver_reward(1);
         }
         else {
             response = 'm';
@@ -114,6 +113,9 @@ void run_opto_trial() {
     ||                             END TRIAL
     ++-----------------------------------------------------------------------*/
     //Send 4 null bytes to signal end of trial
+    Send_stop();
+    Send_stop();
+    Send_stop();
     Send_stop();
 
     return;

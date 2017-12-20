@@ -78,7 +78,7 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
      #   | stimulus duration | light_stim | light_resp |
      _gt = product(Stim, Light_stim, Light_resp)
      trials = np.array([trial for trial in _gt], dtype=bool)
-     print('ready go')
+     print('ready go\n')
      for i in range(repeats):
 
          shuffle(trials)
@@ -119,7 +119,9 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
              j += 1
              a,b = ITI
              _ = (b-a) * np.random.random() + a
+             print('sleep for %1.1f s' %_, end='\r')
              time.sleep(_)
+             print('          ', end='\r')
 
 def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwargs):
     c_water = 0
@@ -199,21 +201,21 @@ def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
 
     msg = None
     msgs = []
-    _ = 0;
+
     while True:#msg != STOP:
         #timestamp the first message
         if msg is None: tstamp = timenow()
-        if not ser.inWaiting(): print('-+*+-'[_%4], end='\b'); _+=1; continue
+        if not ser.inWaiting():
+            print('N', end='\b')
+            continue
 
         msg = ser.read(3)
+        #print(np.fromstring(msg[0], dtype='b')[0], np.fromstring(msg[1:], dtype='u2')[0])
         if msg == STOP: break
-        print(r'-\|/'[_%3], end='\b'); _+=1
+        print('T', end='\b');
         #print(msg)
         msgs.append(msg) # recieve
 
-        # check the time
-        dur = (time.time() - start_time) * 1000
-        if dur >= trialDUR: break
 
     timings = package_sparse(msgs)
     results = read_dict(ser)
@@ -244,7 +246,6 @@ def read_dict(ser):
         else:
             msg = msg.replace(STOP, '')
             try:
-
                 k,v = msg.strip().split(':')
                 _dict[k] = v
             except ValueError:

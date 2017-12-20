@@ -7,7 +7,7 @@ void printer(String name, String value) {
 }
 
 void Send_status() {
-
+    Serial.flush();
     printer("stimulus", String(stimulus));
     printer("light_stim", String(light_stim));
     printer("light_resp", String(light_resp));
