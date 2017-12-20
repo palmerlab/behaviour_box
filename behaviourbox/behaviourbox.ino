@@ -55,5 +55,8 @@ void loop () {
             run_habituation();
           }
         }
+        else if (input == 'M') {
+          Recieve_params();
+        }
     }
 }
