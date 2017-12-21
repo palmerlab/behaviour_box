@@ -27,7 +27,7 @@ void run_opto_trial() {
     // wait
     ActiveDelay(stimONSET - noLickDUR, false);
     t = t_since(t_init);
-    if (t < stimONSET) {
+    if (t <= stimONSET) {
       nolickcount += ActiveDelay(stimONSET - t, noLickDUR?1:0);
     }
     //t = t_since(t_init);
@@ -65,8 +65,8 @@ void run_opto_trial() {
     t = t_since(t_init);
 
     _lickcount += ActiveDelay(respDUR, lickTrigReward);
-
-    if ((t_since(t_init) - t) < respDUR) {
+        
+    if ((_lickcount >= lickCount) and ((t_since(t_init) - t) < respDUR)) {
       // keeps counting even if the reward was triggered already
         deliver_reward(lickTrigReward and stimulus);
         response = 'H';
@@ -74,9 +74,11 @@ void run_opto_trial() {
     }
 
     if (stimulus){
-        if (_lickcount >= lickCount) {
-            deliver_reward(response?0:1);
-            response = 'H';
+      if (_lickcount >= lickCount) {
+          if (not reward){
+              deliver_reward(1);
+              response = 'H';
+          }
         }
         else {
             response = 'm';

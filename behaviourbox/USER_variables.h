@@ -9,10 +9,10 @@ int lickThres = 300; //V
 // timing parameters
 // -----------------
 
-unsigned int noLickDUR = 0;  // ms   {{0, 1000 for later sessions}}
-unsigned int respDEL = 50;   // ms  {{50, 150, 250, 500}}
+unsigned int noLickDUR = 500;  // ms   {{0, 1000 for later sessions}}
+unsigned int respDEL = 150;   // ms  {{50, 150, 250, 500}}
 unsigned int respDUR = 1000;  // ms {{2000}}
-unsigned int timeout = 0;         // ms  {{0, 2500}}
+unsigned int timeout = 5000;         // ms  {{0, 2500}}
 byte lickCount = 1;
 
 unsigned int stimDUR = 200;     // ms
