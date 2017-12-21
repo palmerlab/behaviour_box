@@ -62,3 +62,34 @@ void loggedWrite(byte pin, bool state) {
     digitalWrite(pin, state);
     Send_time(chan);
 }
+
+int read_int() {
+
+    byte buff[2] = {0,0}
+    Serial.readBytes(buff, 2)
+
+    int out = buff[0] | buff[1] << 8;
+    return out
+}
+
+void Recieve_params() {
+
+    lickThres = read_int();
+    noLickDUR = read_int();
+    respDEL = read_int();
+    respDUR = read_int();
+    timeout = read_int();
+    lickCount = byte(read_int());
+
+    stimDUR = read_int();
+    stimONSET = read_int();
+    trialDUR = read_int();
+
+    lickWidth = byte(read_int());
+
+    lickTrigReward = bool(read_int());
+    waterVol = byte(read_int());
+    audio = bool(read_int());
+
+    Send_params();
+}

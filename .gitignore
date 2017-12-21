@@ -3,3 +3,4 @@
 *.pyc
 *.css
 data/*
+*.DS_Store
