@@ -61,8 +61,8 @@ def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
 
     with serial.Serial(**ser_params) as ser:
         'initialisiation'
-        settings = startup(ser, **kwargs)
-        # makes a list of all the settings
+        settings = startup(ser)
+        # makes a list of all the settngs
         # Theses are the adjustable paramaters from USER_variables.h
 
         if mode == 'o':
@@ -222,20 +222,7 @@ def run_trial(ser, trial_code, trialDUR = 0, **kwargs):
 
     return echo_tc, tstamp, timings, results
 
-def send_params(ser, lickThres, noLickDUR, respDEL, respDUR, timeout,
-            lickCount, stimDUR, stimONSET, trialDUR, lickWidth,
-            lickTrigReward, waterVol, audio, **kwargs):
-
-    bytemsg = struct.pack('i'*13, lickThres, noLickDUR, respDEL, respDUR,
-                timeout, lickCount, stimDUR, stimONSET, trialDUR, lickWidth,
-                lickTrigReward, waterVol, audio,)
-
-    ser.write(bytemsg)
-    settings = read_dict(ser)
-    return settings
-
-
-def startup(ser, **kwargs):
+def startup(ser):
     #IDLE while Arduino performs it's setup functions
     print("awaiting arduino: ", end='\b')
     _ = 0;
@@ -247,9 +234,7 @@ def startup(ser, **kwargs):
     time.sleep(2)
     ser.readline()
 
-    settings = read_dict(ser)
-    settings.update(send_params(ser, **kwargs))
-    return
+    return read_dict(ser)
 
 def read_dict(ser):
     msg = None
