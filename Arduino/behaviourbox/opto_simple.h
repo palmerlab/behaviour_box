@@ -3,6 +3,8 @@ void init_trial (byte trial_code) {
     stimulus   = (trial_code >> 2) & 1;
     light_stim = (trial_code >> 1) & 1;
     light_resp = (trial_code >> 0) & 1;
+    
+    pick_duration();
 }
 
 void run_opto_trial() {

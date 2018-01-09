@@ -18,6 +18,9 @@ void setup (){
     // wait for serial port to connect. Needed for native USB port only
     Serial.begin(115200);
     while (!Serial) {;}
+    
+    randomSeed(A2);
+    
     //Confirm connection and telegraph the code version
     Serial.println();
     Serial.println(version);
