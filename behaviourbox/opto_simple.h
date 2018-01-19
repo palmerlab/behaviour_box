@@ -3,6 +3,8 @@ void init_trial (byte trial_code) {
     stimulus   = (trial_code >> 2) & 1;
     light_stim = (trial_code >> 1) & 1;
     light_resp = (trial_code >> 0) & 1;
+    
+    pick_duration();
 }
 
 void run_opto_trial() {
@@ -21,7 +23,9 @@ void run_opto_trial() {
     ++-----------------------------------------------------------------------*/
     t_init = millis();
     loggedWrite(bulbTrig, HIGH);
+    loggedWrite(lightPin, light_stim);
 
+    
     t = t_since(t_init);
 
     // wait
@@ -44,9 +48,9 @@ void run_opto_trial() {
     ||                            STIMULUS
     ++-----------------------------------------------------------------------*/
 
-    loggedWrite(lightPin, light_stim);
+    
     TrialStimulus();
-    loggedWrite(lightPin, LOW);
+    //loggedWrite(lightPin, LOW);
     t = t_since(t_init);
 
     /* -----------------------------------------------------------------------
@@ -59,7 +63,7 @@ void run_opto_trial() {
     ||                        RESPONSE PERIOD
     ++-----------------------------------------------------------------------*/
 
-    loggedWrite(lightPin, light_resp);
+    //loggedWrite(lightPin, light_resp);
     conditional_tone(7000, 100);
 
     t = t_since(t_init);

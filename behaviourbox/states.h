@@ -108,11 +108,18 @@ void TrialStimulus() {
     return;
 }
 
-
 void conditional_tone(int frequency, int duration) {
     // wrapper function so I don't need to put a billion if statements
     if (audio) {
         Send_time(speakerPin);
         tone(speakerPin, frequency, duration);
     }
+}
+
+
+void pick_duration() {
+    
+    int index = random(0,6);
+    
+    stimDUR = Durations[index];
 }
