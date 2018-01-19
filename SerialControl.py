@@ -98,7 +98,7 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
 
              trial_data.update(result)
              trial_data['code'] = tc
-             trial_data['time'] = tstamp
+             trial_data['time'] = "'" + tstamp + "'"
              trial_data['block'] = i
              trial_data['trial'] = j
              trial_data['mode'] = 'operant'
@@ -134,7 +134,7 @@ def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwar
     '''run the trial'''
     while True:
         tstamp, timings = run_habituation(ser)
-        c_water += 10
+        c_water += 5
 
         sp = '/'.join((datapath, fname + '.json'))
         with open(sp, 'a') as f:
@@ -276,4 +276,9 @@ if __name__ == '__main__':
     try:
         main(**kwargs);     # and feed to main
     except KeyboardInterrupt:
+        # a hack to shut off the arduino
+        ser_params = {'port':port, 'baudrate':115200, 'timeout':1}
+
+        with serial.Serial(**ser_params) as ser:
+            ser.write('c')
         quit()

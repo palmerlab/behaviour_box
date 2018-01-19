@@ -9,10 +9,10 @@ int lickThres = 300; //V
 // timing parameters
 // -----------------
 
-unsigned int noLickDUR = 500;  // ms   {{0, 1000 for later sessions}}
-unsigned int respDEL = 150;   // ms  {{50, 150, 250, 500}}
-unsigned int respDUR = 1000;  // ms {{2000}}
-unsigned int timeout = 5000;         // ms  {{0, 2500}}
+unsigned int noLickDUR = 750;  // ms   {{0, 1000 for later sessions}}
+unsigned int respDEL = 250;   // ms  {{50, 150, 250, 500}}
+unsigned int respDUR = 1500;  // ms {{2000}}
+unsigned int timeout = 3000;         // ms  {{0, 5000}}
 byte lickCount = 1;
 
 unsigned int stimDUR = 200;     // ms
@@ -43,7 +43,7 @@ byte lickWidth = 15; // {{5 - 100}}
 // If `true` the reward is given on lick, if `false` the reward is given
 // at the end of the reward period
 bool lickTrigReward = true;
-byte waterVol = 85;               // ms the valve is open for
+byte waterVol = 45;               // ms the valve is open for
 bool audio = true;                // flag for audio feed back
 
 /*============================================================================++
