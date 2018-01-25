@@ -9,14 +9,14 @@ int lickThres = 300; //V
 // timing parameters
 // -----------------
 
-unsigned int noLickDUR = 750;  // ms   {{0, 1000 for later sessions}}
-unsigned int respDEL = 250;   // ms  {{50, 150, 250, 500}}
-unsigned int respDUR = 1500;  // ms {{2000}}
-unsigned int timeout = 3000;         // ms  {{0, 5000}}
+unsigned int noLickDUR = 1000;  // ms   {{0, 1000 for later sessions}}
+unsigned int respDEL = 500;   // ms  {{50, 150, 250, 500}}
+unsigned int respDUR = 1000;  // ms {{2000}}
+unsigned int timeout = 5000;         // ms  {{0, 5000}}
 byte lickCount = 1;
 
 unsigned int stimDUR = 200;     // ms
-unsigned int[5] Durations = {25, 50, 75, 100, 150, 200};
+unsigned int Durations[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
 
 unsigned int stimONSET = 2000;  // ms
 unsigned int trialDUR = 5000;  // ms

@@ -13,7 +13,7 @@ unsigned long t_init;             // The internal clock start
 ++=============================================================================*/
 
 bool stimulus = false;
-bool light_stim = false;          // flags for opto-stimulation
+bool light = false;          // flags for opto-stimulation
 bool light_resp = false;
 
 /*==============================================================================

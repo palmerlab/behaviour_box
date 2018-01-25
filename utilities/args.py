@@ -63,7 +63,7 @@ kwargs = {
                     'type' : int,
                     'help' : "",
                     },
-    ('-Light_stim', '-ls') : {
+    ('-Light', '-l') : {
                     'nargs' : '+',
                     'default' : (0,),
                     'type' : int,

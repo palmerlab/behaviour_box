@@ -68,7 +68,7 @@ char runTrial() {
                                   STIMULUS
       -----------------------------------------------------------------------*/
 
-    if (light_stim){
+    if (light){
       loggedWrite(lightPin, HIGH);
     }
     post_count = TrialStimulus();

@@ -23,7 +23,7 @@ from utilities.args import args
 """
 
 Stim       = (1,)     # use to `(1,)` or `(0,)` for always on, or always off
-Light_stim = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
+Light      = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
 Light_resp = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
 
 repeats = 5           # number of times to run through trials
@@ -72,11 +72,11 @@ def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
     return
 
 def operant(ser, settings={}, repeats=repeats, ITI=ITI,
-         Stim=Stim, Light_stim=Light_stim, Light_resp=Light_resp,
+         Stim=Stim, Light=Light, Light_resp=Light_resp,
          port=port, datapath=datapath, fname=fname, **kwargs):
 
-     #   | stimulus duration | light_stim | light_resp |
-     _gt = product(Stim, Light_stim, Light_resp)
+     #   | stimulus duration | Light | light_resp |
+     _gt = product(Stim, Light, Light_resp)
      trials = np.array([trial for trial in _gt], dtype=bool)
      print('ready go\n')
      for i in range(repeats):
@@ -149,7 +149,7 @@ def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwar
 
 """ Trial Codes:
            St  Ls  Lr         |
-    0       0   0   0         | where St = Stim; Ls = Light_stim;
+    0       0   0   0         | where St = Stim; Ls = Light;
     1       0   0   1         | Lr = Light_response.
     2       0   1   0         | These settings are sent in an 8 bit character,
     3       0   1   1         | where the payload is on the last 3 bits.
