@@ -119,7 +119,7 @@ void conditional_tone(int frequency, int duration) {
 
 void pick_duration() {
     
-    int index = random(0,10);
+    int index = random(0,5);
     
     stimDUR = Durations[index];
 }

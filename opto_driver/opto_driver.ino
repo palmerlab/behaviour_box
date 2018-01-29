@@ -32,14 +32,21 @@ void loop () {
     
     trigState = digitalRead(trigPin);
     
-    if (trigState and not lastTrigState) {
+    if (trigState){
+        digitalWrite(ledPin, HIGH);
+        delay(duration);
+        digitalWrite(ledPin, LOW);
+        delay(interval);
+      } 
+      /*
+      and not lastTrigState) {
         if (trigState == HIGH) {
             run_opto();
         }
     }
     // save the current state as the last state,
     //for next time through the loop
-    lastTrigState = trigState;
+    lastTrigState = trigState;*/
 }
 
 void run_opto() {

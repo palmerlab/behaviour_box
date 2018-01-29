@@ -16,7 +16,7 @@ unsigned int timeout = 5000;         // ms  {{0, 5000}}
 byte lickCount = 1;
 
 unsigned int stimDUR = 200;     // ms
-unsigned int Durations[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+unsigned int Durations[] = {10, 30, 50, 70, 90, 110};
 
 unsigned int stimONSET = 2000;  // ms
 unsigned int trialDUR = 5000;  // ms
