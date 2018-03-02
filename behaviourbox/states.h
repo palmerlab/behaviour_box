@@ -20,7 +20,8 @@ int ActiveDelay(unsigned long wait, bool break_on_lick) {
     while (t_local < wait) {
         t_local = t_since(delay_init);
         count += senseLick();
-
+        t_local = t_since(delay_init);
+        
         if (break_on_lick and (count >= lickCount)){
             return count;
         }
@@ -54,7 +55,8 @@ int Timeout(unsigned long wait, int depth) {
 
    //delay(500); // Delay prevents punishing continued licking
     punish(500);
-
+    loggedWrite(lightPin, LOW);
+    
     while (t_local < wait) {
         t_local = t_since(t_timeout);
 
@@ -62,6 +64,7 @@ int Timeout(unsigned long wait, int depth) {
             if (depth == 2) {
                 // don't record more than a couple of timeouts
                 loggedWrite(bulbTrig, LOW);
+                
             }
             if (depth < 10) {
                 depth ++;
@@ -119,7 +122,7 @@ void conditional_tone(int frequency, int duration) {
 
 void pick_duration() {
     
-    int index = random(0,5);
+    int index = random(0,11);
     
     stimDUR = Durations[index];
 }

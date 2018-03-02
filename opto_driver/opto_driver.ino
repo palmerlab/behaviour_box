@@ -31,13 +31,12 @@ void setup() {
 void loop () {
     
     trigState = digitalRead(trigPin);
+
+    digitalWrite(ledPin, trigState);
+    delay(duration);
+    digitalWrite(ledPin, LOW);
+    delay(interval);
     
-    if (trigState){
-        digitalWrite(ledPin, HIGH);
-        delay(duration);
-        digitalWrite(ledPin, LOW);
-        delay(interval);
-      } 
       /*
       and not lastTrigState) {
         if (trigState == HIGH) {

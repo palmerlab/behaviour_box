@@ -54,6 +54,7 @@ void loop () {
         // run habituation until told to stop
         else if (input == 'h') {
           while (!Serial.available()){
+            
             t_init = millis();
             run_habituation();
           }

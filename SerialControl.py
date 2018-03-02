@@ -12,11 +12,16 @@ import json
 import os
 import sys
 
+import colorama
+from colorama import Fore, Back, Style
+
 import numpy as np
 from numpy.random import shuffle
 from itertools import product
 
 from utilities.args import args
+
+colorama.init()
 """===========================================================================++
                          C O N F I G U R A T I O N                            ||
    ===========================================================================++
@@ -94,7 +99,9 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
 
              tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
 
-             if result['response'] == 'e': continue
+             if result['response'] == 'e': 
+                
+                continue
 
              trial_data.update(result)
              trial_data['code'] = tc
@@ -115,13 +122,24 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
                  print(tstamp, file=f)
                  print(s, file=f)
 
-             print(j, trial_data['response'],)
-             j += 1
+             colortab = {
+                'H': Fore.GREEN + Style.BRIGHT,
+                'm': Fore.YELLOW + Style.BRIGHT,
+                'R': Fore.CYAN + Style.BRIGHT,
+                'f': Fore.RED + Style.BRIGHT,
+             }
+             response = trial_data['response']
              a,b = ITI
              _ = (b-a) * np.random.random() + a
-             print('sleep for %1.1f s' %_, end='\r')
+             
+             print('%3d' %((i*len(trials)) + j), colortab[response], 
+                            response, 'stim:', int(st),
+                            'light:', int(ls), 
+                            Style.RESET_ALL, 'wait: %1.1f s' %_)
+             j += 1
+             
              time.sleep(_)
-             print('          ', end='\r')
+             
 
 def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwargs):
     c_water = 0

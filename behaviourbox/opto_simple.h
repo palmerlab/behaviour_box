@@ -49,8 +49,8 @@ void run_opto_trial() {
     ++-----------------------------------------------------------------------*/
 
     loggedWrite(lightPin, light);
+    ActiveDelay(200, false);
     TrialStimulus();
-    //loggedWrite(lightPin, LOW);
     t = t_since(t_init);
 
     /* -----------------------------------------------------------------------
@@ -63,7 +63,6 @@ void run_opto_trial() {
     ||                        RESPONSE PERIOD
     ++-----------------------------------------------------------------------*/
 
-    //loggedWrite(lightPin, light_resp);
     conditional_tone(7000, 100);
 
     t = t_since(t_init);
