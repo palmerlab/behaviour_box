@@ -4,7 +4,7 @@
 ++=============================================================================*/
 
 // 1. set threshold
-int lickThres = 300; //V
+int lickThres = 400; //V
 
 // timing parameters
 // -----------------
@@ -17,11 +17,14 @@ byte lickCount = 2;
 
 unsigned int stimDUR = 200;     // ms
 unsigned int stimONSET = 2000;  // ms
-unsigned int trialDUR = 5000;  // ms
+unsigned int trialDUR = 3000;  // ms
 //unsigned int Durations[] = {10, 30, 50, 70, 90, 110};
 //unsigned int Durations[] = {200, 200, 200, 200, 200, 200};
-//unsigned int Durations[] = {200, 200, 200, 200, 10, 30, 50, 70, 90, 110, 150};
-unsigned int Durations[] = {200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200};
+unsigned int Durations[] = { 10,  30,  50,  30,  10, 30,  
+                              50,  70,  10, 110, 150, 200};
+                                              
+/*unsigned int Durations[] = {200, 200, 200, 200, 200, 200, 
+                            200, 200, 200, 200, 200, 200};
 
 
 /* THE LICK PARAMETERS
@@ -47,7 +50,7 @@ byte lickWidth = 15; // {{5 - 100}}
 // If `true` the reward is given on lick, if `false` the reward is given
 // at the end of the reward period
 bool lickTrigReward = true;
-byte waterVol = 45;               // ms the valve is open for
+byte waterVol = 20;               // ms the valve is open for
 bool audio = true;                // flag for audio feed back
 
 /*============================================================================++
