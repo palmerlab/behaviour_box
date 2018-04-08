@@ -1,8 +1,8 @@
 #include <Arduino.h>
 
+#include "USER_variables.h"
 #include "prototypes.h"
 #include "hidden_variables.h"
-#include "USER_variables.h"
 
 #include "SerialComms.h"
 #include "timing.h"
@@ -18,9 +18,9 @@ void setup (){
     // wait for serial port to connect. Needed for native USB port only
     Serial.begin(115200);
     while (!Serial) {;}
-    
+
     randomSeed(A2);
-    
+
     //Confirm connection and telegraph the code version
     Serial.println();
     Serial.println(version);
@@ -54,7 +54,7 @@ void loop () {
         // run habituation until told to stop
         else if (input == 'h') {
           while (!Serial.available()){
-            
+
             t_init = millis();
             run_habituation();
           }
