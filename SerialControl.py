@@ -29,7 +29,6 @@ colorama.init()
 
 Stim       = (1,)     # use to `(1,)` or `(0,)` for always on, or always off
 Light      = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
-Light_resp = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
 
 repeats = 5           # number of times to run through trials
 
@@ -77,11 +76,11 @@ def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
     return
 
 def operant(ser, settings={}, repeats=repeats, ITI=ITI,
-         Stim=Stim, Light=Light, Light_resp=Light_resp,
-         port=port, datapath=datapath, fname=fname, **kwargs):
+         Stim=Stim, Light=Light, port=port, datapath=datapath,
+         fname=fname, **kwargs):
 
-     #   | stimulus duration | Light | light_resp |
-     _gt = product(Stim, Light, Light_resp)
+     #   | stimulus duration | Light |
+     _gt = product(Stim, Light)
      trials = np.array([trial for trial in _gt], dtype=bool)
      print('ready go\n')
      for i in range(repeats):
@@ -99,8 +98,8 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
 
              tc, tstamp, timings, result = run_trial(ser, trial_code, **settings)
 
-             if result['response'] == 'e': 
-                
+             if result['response'] == 'e':
+
                 continue
 
              trial_data.update(result)
@@ -131,15 +130,15 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
              response = trial_data['response']
              a,b = ITI
              _ = (b-a) * np.random.random() + a
-             
-             print('%3d' %((i*len(trials)) + j), colortab[response], 
+
+             print('%3d' %((i*len(trials)) + j), colortab[response],
                             response, 'stim:', int(st),
-                            'light:', int(ls), 
+                            'light:', int(ls),
                             Style.RESET_ALL, 'wait: %1.1f s' %_)
              j += 1
-             
+
              time.sleep(_)
-             
+
 
 def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwargs):
     c_water = 0

@@ -57,12 +57,7 @@ kwargs = [
                     'type' : int,
                     'help' : "",
                     }},
-    {('-Light_resp', '-lr') : {
-                    'nargs' : '+',
-                    'default' : (0,),
-                    'type' : int,
-                    'help' : "",
-                    }},
+
     {('-Light', '-l') : {
                     'nargs' : '+',
                     'default' : (0,),
