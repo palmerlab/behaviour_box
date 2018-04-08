@@ -4,7 +4,6 @@ void init_trial (byte trial_code) {
     light = (trial_code >> 1) & 1;
     light_resp = (trial_code >> 0) & 1;
 
-    pick_duration();
 }
 
 void run_opto_trial() {
