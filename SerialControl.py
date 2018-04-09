@@ -27,9 +27,8 @@ colorama.init()
    ===========================================================================++
 """
 
-Stim       = (1,)     # use to `(1,)` or `(0,)` for always on, or always off
-Light      = (0,)     # use to `(1,)` or `(0,)` for always on, or always off
-
+Stim       = 'ASC'     # The stimulus can be one of 'A'uditory or 'S'omatosensory
+Go_cond    = 'S'      # Condition to reward animal for licking
 repeats = 5           # number of times to run through trials
 
 datapath = '.'        # location to save files
@@ -48,6 +47,20 @@ chan_dict = {4: 'bulbTrig',  5: 'stimulusPin',  6: 'buzzerPin',
              14: 'lickSens', 10: 'waterPort'}
 
 today = datetime.date.today().strftime('%y%m%d')
+
+
+""" Trial Codes:
+           tt   as   ss     |
+    0       0    0    0     | where ss = somato stim ; tt = trial type;
+    1       0    0    1     | and  as = audio stim;
+    2       0    1    0     | These settings are sent in an 8 bit character,
+    3       0    1    1     | where the payload is on the last 2 bits.
+    4       1    0    0     |              * * *
+    5       1    0    1     |  0 0 0 0   0 0 0 0
+    6       1    1    0
+    7       1    1    1
+"""
+
 
 """===========================================================================++
                          M A I N    F U N C T I O N S                         ||
@@ -76,21 +89,25 @@ def main(ID='', port=port, datapath=datapath, fname=fname, mode=mode, **kwargs):
     return
 
 def operant(ser, settings={}, repeats=repeats, ITI=ITI,
-         Stim=Stim, Light=Light, port=port, datapath=datapath,
+         Stim=Stim, Go_cond=Go_cond, port=port, datapath=datapath,
          fname=fname, **kwargs):
 
-     #   | stimulus duration | Light |
-     _gt = product(Stim, Light)
-     trials = np.array([trial for trial in _gt], dtype=bool)
+     #   | Go trial | auditory | somatosensory |
+
+
+     _gt = [decode_stim(c, Go_cond) for c in Stim]
+     trials = np.array(_gt, dtype=bool)
+
      print('ready go\n')
      for i in range(repeats):
 
          shuffle(trials)
+
          j = 0
          while j < len(trials):
              # pack the 3 bits into a single number
-             st, ls, lr = trials[j]
-             trial_code = (st << 2) | (ls << 1) | lr
+             _tt, _as, _ss = trials[j]
+             trial_code = (_tt << 2) | (_as << 1) | (_ss << 0)
 
              trial_data = settings.copy()
 
@@ -130,15 +147,17 @@ def operant(ser, settings={}, repeats=repeats, ITI=ITI,
              response = trial_data['response']
              a,b = ITI
              _ = (b-a) * np.random.random() + a
-
+             _p = {(0,0): ' catch',
+                   (1,0): ' audio',
+                   (0,1): 'somato',
+                   (1,1): '  both'}
              print('%3d' %((i*len(trials)) + j), colortab[response],
-                            response, 'stim:', int(st),
-                            'light:', int(ls),
+                            response, 'stim:', _p[(int(_as), int(_ss))],
+                            '', '   GO' if _tt else 'No-Go',
                             Style.RESET_ALL, 'wait: %1.1f s' %_)
              j += 1
 
              time.sleep(_)
-
 
 def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwargs):
     c_water = 0
@@ -164,23 +183,22 @@ def habituation(ser, datapath=datapath, fname=fname,  settings={}, ID='', **kwar
             print(tstamp, '~', c_water,'uL')
             print(ID, tstamp, c_water, sep = ',', file=f)
 
-""" Trial Codes:
-           St  Ls  Lr         |
-    0       0   0   0         | where St = Stim; Ls = Light;
-    1       0   0   1         | Lr = Light_response.
-    2       0   1   0         | These settings are sent in an 8 bit character,
-    3       0   1   1         | where the payload is on the last 3 bits.
-    4       1   0   0         |              * * *
-    5       1   0   1         |  0 0 0 0   0 0 0 0
-    6       1   1   0         |
-    7       1   1   1         |
-"""
 
 """===========================================================================++
                               F U N C T I O N S                               ||
                             in order of importance                            ||
    ===========================================================================++
 """
+
+def decode_stim(code='C', Go_cond=Go_cond):
+
+    code = code.upper()
+    Go_cond = Go_cond.upper()
+    Stim_codes =  {'A': (Go_cond==code, True, False),
+                   'S': (Go_cond==code, False, True),
+                   'C': (False, False, False),}
+
+    return Stim_codes[code]
 
 def run_habituation(ser):
 

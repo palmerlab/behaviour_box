@@ -17,11 +17,6 @@ kwargs = [
                             "by default this is 1",
                     }},
 
-    {('-noise', ) : {
-                    'action' : 'store_true',
-                    'help' : 'plays a noise during trials'
-                    }},
-
     {('-ITI', ) : {
                     'nargs' : 2,
                     'default' : [2,5],
@@ -52,18 +47,16 @@ kwargs = [
                     'help' : "mode of trial to run",
                     }},
     {('-Stim', '-s',) : {
-                    'nargs' : '+',
-                    'default' : (1,),
-                    'type' : int,
+                    'default' : 'ASC',
+                    'type' : str,
                     'help' : "",
                     }},
+    {('-Go_cond', '-gc', '-g') : {
+                    'default' : 'S',
+                    'help'    :  "The trial code to reward licks on"
 
-    {('-Light', '-l') : {
-                    'nargs' : '+',
-                    'default' : (0,),
-                    'type' : int,
-                    'help' : "",
-                    }},
+    }},
+
 ]
 
 for argument in kwargs:
