@@ -1,8 +1,8 @@
 void init_trial (byte trial_code) {
     // set the dynamic variables based on the trial code
-    stimulus   = (trial_code >> 2) & 1;
-    light = (trial_code >> 1) & 1;
-    light_resp = (trial_code >> 0) & 1;
+    go_trial   = (trial_code >> 2) & 1;
+    audit_stim = (trial_code >> 1) & 1;
+    somat_stim = (trial_code >> 0) & 1;
 
 }
 
@@ -22,9 +22,6 @@ void run_opto_trial() {
     ++-----------------------------------------------------------------------*/
     t_init = millis();
     loggedWrite(bulbTrig, HIGH);
-
-
-
     t = t_since(t_init);
 
     // wait
@@ -33,7 +30,6 @@ void run_opto_trial() {
     if (t <= stimONSET) {
       nolickcount += ActiveDelay(stimONSET - t, noLickDUR?1:0);
     }
-    //t = t_since(t_init);
 
     // Break out on early lick
     if ((nolickcount > 0) and noLickDUR){
@@ -68,14 +64,18 @@ void run_opto_trial() {
 
     _lickcount += ActiveDelay(respDUR, lickTrigReward);
 
-    if ((_lickcount >= lickCount) and ((t_since(t_init) - t) < respDUR)) {
+    if ((_lickcount >= lickCount)
+        and ((t_since(t_init) - t) < respDUR)
+        and lickTrigReward
+        and go_trial
+      ) {
       // keeps counting even if the reward was triggered already
-        deliver_reward(lickTrigReward and stimulus);
+        deliver_reward(1);
         response = 'H';
         ActiveDelay((respDUR - (t_since(t_init) - t)) , 0);
     }
 
-    if (stimulus){
+    if (go_trial){
       if (_lickcount >= lickCount) {
           if (not reward){
               deliver_reward(1);
@@ -127,7 +127,7 @@ void run_opto_trial() {
 
 void run_habituation(){
     // Check the lick sensor
-    stimulus = true;
+    stimulus = true; //TODO replace withsomthing smarter
     if (senseLick()) {
         loggedWrite(bulbTrig, HIGH);
         TrialStimulus();

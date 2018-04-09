@@ -19,6 +19,9 @@ unsigned int stimDUR = 200;     // ms
 unsigned int stimONSET = 2000;  // ms
 unsigned int trialDUR = 3000;  // ms
 
+//Audio stim paramaters
+unsigned int audit_frequency = 10000;
+
 /* THE LICK PARAMETERS
 ----------------------
 The licking is defined by three paramaters:

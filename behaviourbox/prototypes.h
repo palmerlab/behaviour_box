@@ -12,8 +12,9 @@ int ActiveDelay(unsigned long wait, bool break_on_lick = false);
 void deliver_reward(bool water);
 void punish(int del);
 int Timeout(unsigned long wait, int depth = 0);
-int count_responses(int duration);
 void TrialStimulus();
+void do_somat_stim();
+void do_audit_stim();
 void conditional_tone(int frequency, int duration);
 
 /*----------------------------------------------------------------------------++

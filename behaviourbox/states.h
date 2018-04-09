@@ -37,8 +37,8 @@ void deliver_reward(bool water) {
         delay(waterVol);
         loggedWrite(waterPort, LOW);
         conditional_tone(5000, 100);
+        reward = 1;
     }
-    reward = 1;
 }
 
 void punish(int del) {
@@ -76,45 +76,40 @@ int Timeout(unsigned long wait, int depth) {
     return depth;
 }
 
-int count_responses(int duration, bool lickTrig) {
-
-    /*
-    Counts the number of hits on the lick sensor over `duration`
-    of milliseconds.
-    */
-
-    int t0 = t_since(t_init);
-    int t = t0;
-    bool lick = 0;
-    int count = 0;
-    bool water = 0;
-
-    while (t < (t0 + duration)) {
-        t = t_since(t_init);
-        lick = senseLick();
-        count += lick;
-
-        if ((count >= lickCount) and (lickTrig) and (!water)){
-            deliver_reward(1);
-            water = 1;
-        }
-    }
-
-    return count;
-}
 
 void TrialStimulus() {
     // turn the stimulus on only if it should go ON
-    loggedWrite(stimulusPin, stimulus?1:0);
+    if (audit_stim) {do_audit_stim();}
+    else if (somat_stim) {do_somat_stim();}
+    else {ActiveDelay(stimDUR);}
+    return;
+}
+
+void do_somat_stim() {
+    // turn the stimulus on only if it should go ON
+    loggedWrite(stimulusPin, HIGH);
     ActiveDelay(stimDUR);
     loggedWrite(stimulusPin, LOW);
     return;
 }
 
+void do_audit_stim() {
+    // turn the stimulus on only if it should go ON
+
+    Send_time(speakerPin);
+    tone(speakerPin, audit_frequency, stimDUR);
+    ActiveDelay(stimDUR);
+    Send_time(-speakerPin);
+    return;
+}
+
+
 void conditional_tone(int frequency, int duration) {
     // wrapper function so I don't need to put a billion if statements
     if (audio) {
+
         Send_time(speakerPin);
         tone(speakerPin, frequency, duration);
+        Send_time(-speakerPin);
     }
 }

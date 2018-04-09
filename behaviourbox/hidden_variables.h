@@ -12,8 +12,12 @@ unsigned long t_init;             // The internal clock start
 ||                               set over serial
 ++=============================================================================*/
 
-bool stimulus = false;
-bool light = false;          // flags for opto-stimulation
+bool somat_stim = false;
+bool audit_stim = false;
+bool go_trial   = false;
+
+bool stimulus   = false;
+bool light      = false;          // flags for opto-stimulation
 bool light_resp = false;
 
 /*==============================================================================

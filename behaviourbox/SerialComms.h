@@ -8,9 +8,9 @@ void printer(String name, String value) {
 
 void Send_status() {
     Serial.flush();
-    printer("stimulus", String(stimulus));
-    printer("light", String(light));
-    printer("light_resp", String(light_resp));
+    printer("go_trial", String(go_trial));
+    printer("somat_stim", String(somat_stim));
+    printer("audit_stim", String(audit_stim));
 
     printer("response", String(response));
     printer("reward", String(reward));
@@ -31,6 +31,7 @@ void Send_params() {
     printer("respDEL", String(respDEL));
     printer("respDUR", String(respDUR));
     printer("trialDUR", String(trialDUR));
+    printer("audit_frequency", String(audit_frequency));
 
     printer("waterVol", String(waterVol));
     printer("lickWidth", String(lickWidth));
