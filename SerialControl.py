@@ -28,8 +28,8 @@ colorama.init()
 """
 
 Stim       = 'ASC'     # The stimulus can be one of 'A'uditory or 'S'omatosensory
-Go_cond    = 'S'      # Condition to reward animal for licking
-repeats = 5           # number of times to run through trials
+Go_cond    = 'S'       # Condition to reward animal for licking
+repeats = 5            # number of times to run through trials
 
 datapath = '.'        # location to save files
 fname = ''            # name to append to the files
